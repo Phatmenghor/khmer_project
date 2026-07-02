@@ -1156,10 +1156,7 @@ html, body {
   -webkit-tap-highlight-color: transparent !important;
 }
 
-body {
-  -webkit-user-select: none !important;
-  user-select: none !important;
-}
+
 
 /* Force 16px minimum font size for inputs to completely prevent iOS auto-zoom on focus */
 input,

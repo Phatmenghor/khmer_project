@@ -258,8 +258,17 @@ export async function parseUserImportFile(file: File): Promise<{
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
         const wb = XLSX.read(data, { type: "array" });
-        const sheetName = wb.SheetNames[0];
-        const ws = wb.Sheets[sheetName];
+        // Select correct sheet: prioritize "Users Template" or search for a sheet not named instructions/examples
+        let sheetName: string | undefined = wb.SheetNames.find((name) => name === "Users Template");
+        if (!sheetName) {
+          sheetName = wb.SheetNames.find(
+            (name) =>
+              !name.toLowerCase().includes("instruction") &&
+              !name.toLowerCase().includes("example")
+          );
+        }
+        const finalSheetName = sheetName || wb.SheetNames[0];
+        const ws = wb.Sheets[finalSheetName];
         const jsonData: string[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
 
         if (jsonData.length < 2) {

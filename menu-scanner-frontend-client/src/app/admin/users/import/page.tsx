@@ -22,6 +22,8 @@ import {
   XCircle,
   Download,
   Trash2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { showToast } from "@/components/shared/common/show-toast";
 import {
@@ -78,6 +80,46 @@ export default function UserImportPage() {
 
   // Initialize react-hook-form to support TextField control dependency
   const { control, reset, setValue } = useForm();
+
+  // ── Horizontal Table Scroll Controls ─────────────────────────────────────
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showLeftScroll, setShowLeftScroll] = useState(false);
+  const [showRightScroll, setShowRightScroll] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    setShowLeftScroll(el.scrollLeft > 2);
+    setShowRightScroll(
+      el.scrollLeft < el.scrollWidth - el.clientWidth - 2
+    );
+  }, []);
+
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    checkScroll();
+    el.addEventListener("scroll", checkScroll);
+    window.addEventListener("resize", checkScroll);
+    
+    const timeout = setTimeout(checkScroll, 100);
+
+    return () => {
+      el.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+      clearTimeout(timeout);
+    };
+  }, [rows, checkScroll]);
+
+  const handleScroll = (direction: "left" | "right") => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const scrollAmount = 300;
+    el.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
 
   // ── Fetch Roles on Load ───────────────────────────────────────────────────
 
@@ -426,7 +468,7 @@ export default function UserImportPage() {
       </div>
 
       {/* Main Card */}
-      <Card className="flex flex-col flex-1 overflow-hidden border-border bg-card">
+      <Card className="flex flex-col border-border bg-card">
         
         {/* Drop zone — shown when no file selected and not loading */}
         {!totalRows && !isParsingFile && (
@@ -470,15 +512,15 @@ export default function UserImportPage() {
 
         {/* High-fidelity Skeleton Loading Table when parsing Excel file */}
         {isParsingFile && (
-          <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex flex-col border-border">
             <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/40 text-xs">
               <div className="flex items-center gap-3">
                 <Loader2 className="w-4 h-4 text-primary animate-spin" />
                 <span className="text-foreground font-semibold">Reading spreadsheet data, please wait...</span>
               </div>
             </div>
-            <div className="flex-1 overflow-hidden p-3">
-              <div className="rounded border border-border overflow-auto max-h-[500px]">
+            <div className="p-3">
+              <div className="rounded border border-border overflow-x-auto overflow-y-clip">
                 <table
                   className="text-xs w-full"
                   style={{
@@ -492,11 +534,11 @@ export default function UserImportPage() {
                       <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border w-12 bg-muted/90">#</th>
                       <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border w-16 bg-muted/90">Actions</th>
                       <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border w-28 bg-muted/90">Status</th>
-                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[140px] w-[160px] bg-muted/90">Username *</th>
-                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[140px] w-[160px] bg-muted/90">Password *</th>
-                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[150px] w-[170px] bg-muted/90">Role *</th>
+                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[140px] w-[160px] bg-muted/90">Username <span className="text-red-500">*</span></th>
+                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[140px] w-[160px] bg-muted/90">Password <span className="text-red-500">*</span></th>
+                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[150px] w-[170px] bg-muted/90">Role <span className="text-red-500">*</span></th>
                       <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[150px] w-[170px] bg-muted/90">Full Name</th>
-                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[180px] w-[200px] bg-muted/90">Email *</th>
+                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[180px] w-[200px] bg-muted/90">Email <span className="text-red-500">*</span></th>
                       <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[140px] w-[160px] bg-muted/90">Phone</th>
                       <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[130px] w-[140px] bg-muted/90">Gender</th>
                       <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[130px] w-[140px] bg-muted/90">DOB</th>
@@ -524,28 +566,55 @@ export default function UserImportPage() {
 
         {/* Dynamic preview list */}
         {totalRows > 0 && !isParsingFile && (
-          <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex flex-col border-border">
             {/* Header info bar */}
-            <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-muted/40 text-xs">
-              <div className="flex items-center gap-3">
+            <div className="sticky top-12 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-2 pt-1.5 flex justify-between items-center h-10 px-2 border-b border-border/80 shadow-sm transition-all duration-200 flex-shrink-0">
+              <div className="flex items-center gap-3 text-xs">
                 <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
-                <span className="text-foreground font-semibold">{fileName}</span>
+                <span className="text-foreground font-semibold truncate max-w-[150px] sm:max-w-xs">{fileName}</span>
                 <span className="text-muted-foreground">|</span>
                 <span className="text-muted-foreground font-medium">
                   {totalRows} rows loaded
                 </span>
               </div>
-              {!isImporting && (
-                <CustomButton
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleReset}
-                  className="h-7 text-red-500 hover:text-red-600 hover:bg-red-500/10 text-xs gap-1"
-                >
-                  <X className="w-3.5 h-3.5" />
-                  Clear File
-                </CustomButton>
-              )}
+              <div className="flex items-center gap-1.5">
+                {(showLeftScroll || showRightScroll) && (
+                  <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-md border border-border/50 flex-shrink-0">
+                    <CustomButton
+                      variant="unstyled"
+                      size="unstyled"
+                      type="button"
+                      onClick={() => handleScroll("left")}
+                      className="h-6 w-6 flex items-center justify-center rounded border border-primary/30 text-primary hover:bg-primary/10 hover:border-primary transition-all duration-150"
+                      icon={<ChevronLeft className="h-3 w-3" />}
+                      title="Scroll Left"
+                    />
+                    <span className="text-[10px] font-semibold text-muted-foreground px-1 select-none">
+                      Scroll Table
+                    </span>
+                    <CustomButton
+                      variant="unstyled"
+                      size="unstyled"
+                      type="button"
+                      onClick={() => handleScroll("right")}
+                      className="h-6 w-6 flex items-center justify-center rounded border border-primary/30 text-primary hover:bg-primary/10 hover:border-primary transition-all duration-150"
+                      icon={<ChevronRight className="h-3 w-3" />}
+                      title="Scroll Right"
+                    />
+                  </div>
+                )}
+                {!isImporting && (
+                  <CustomButton
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleReset}
+                    className="h-7 text-red-500 hover:text-red-600 hover:bg-red-500/10 text-xs gap-1"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    Clear File
+                  </CustomButton>
+                )}
+              </div>
             </div>
 
             {/* Parse Warnings block */}
@@ -584,8 +653,11 @@ export default function UserImportPage() {
             )}
 
             {/* DataTable-styled preview grid table */}
-            <div className="flex-1 overflow-hidden p-3">
-              <div className="rounded border border-border overflow-auto max-h-[500px]">
+            <div className="p-3">
+              <div
+                ref={scrollContainerRef}
+                className="rounded border border-border overflow-x-auto overflow-y-clip"
+              >
                 <table
                   className="text-xs w-full"
                   style={{
@@ -599,11 +671,11 @@ export default function UserImportPage() {
                       <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border w-12 bg-muted/90">#</th>
                       <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border w-16 bg-muted/90">Actions</th>
                       <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border w-28 bg-muted/90">Status</th>
-                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[140px] w-[160px] bg-muted/90">Username *</th>
-                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[140px] w-[160px] bg-muted/90">Password *</th>
-                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[150px] w-[170px] bg-muted/90">Role *</th>
+                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[140px] w-[160px] bg-muted/90">Username <span className="text-red-500">*</span></th>
+                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[140px] w-[160px] bg-muted/90">Password <span className="text-red-500">*</span></th>
+                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[150px] w-[170px] bg-muted/90">Role <span className="text-red-500">*</span></th>
                       <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[150px] w-[170px] bg-muted/90">Full Name</th>
-                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[180px] w-[200px] bg-muted/90">Email *</th>
+                      <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[180px] w-[200px] bg-muted/90">Email <span className="text-red-500">*</span></th>
                       <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[140px] w-[160px] bg-muted/90">Phone</th>
                       <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[130px] w-[140px] bg-muted/90">Gender</th>
                       <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border min-w-[130px] w-[140px] bg-muted/90">DOB</th>

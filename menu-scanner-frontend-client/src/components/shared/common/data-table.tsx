@@ -1,11 +1,10 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PageSizeSelectField } from "@/components/shared/form-field/page-size-select-field";
 import { cn } from "@/lib/utils";
 import { CustomButton } from "@/components/shared/button/custom-button";
-
 
 const PAGINATION_ITEMS_THRESHOLD = 7;
 const PAGINATION_START_OFFSET = 2;
@@ -33,7 +32,6 @@ interface DataTableWithPaginationProps<T = any> {
   onRowClick?: (item: T) => void;
   getRowKey?: (item: T, index: number) => string | number;
 
-
   currentPage: number;
   totalPages: number;
   totalElements?: number;
@@ -41,7 +39,6 @@ interface DataTableWithPaginationProps<T = any> {
   paginationSize?: "sm" | "md" | "lg";
   showPagination?: boolean;
   hideEllipsis?: boolean;
-
 
   pageSize?: number;
   onPageSizeChange?: (size: number) => void;
@@ -70,6 +67,46 @@ export function DataTableWithPagination<T = any>({
   showPageSizeSelector = true,
 }: DataTableWithPaginationProps<T>) {
   const tableData: T[] = Array.isArray(data) ? data : [];
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showLeftScroll, setShowLeftScroll] = useState(false);
+  const [showRightScroll, setShowRightScroll] = useState(false);
+
+  const checkScroll = () => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    setShowLeftScroll(scrollLeft > 5);
+    setShowRightScroll(scrollLeft + clientWidth < scrollWidth - 5);
+  };
+
+  const handleScroll = (direction: "left" | "right") => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const scrollAmount = container.clientWidth * 0.6;
+    container.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    checkScroll();
+    container.addEventListener("scroll", checkScroll);
+    window.addEventListener("resize", checkScroll);
+
+    const observer = new ResizeObserver(checkScroll);
+    observer.observe(container);
+
+    return () => {
+      container.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+      observer.disconnect();
+    };
+  }, [data, loading]);
 
   const sizeClasses = {
     sm: {
@@ -101,7 +138,6 @@ export function DataTableWithPagination<T = any>({
     } else {
       items.push(1);
 
-
       let start = Math.max(PAGINATION_START_OFFSET, currentPage - 2);
       let end = Math.min(totalPages - 1, currentPage + 2);
 
@@ -132,6 +168,9 @@ export function DataTableWithPagination<T = any>({
 
     return items;
   };
+
+  const totalItems = totalElements || tableData.length;
+  const hasControls = totalItems > 0 || showLeftScroll || showRightScroll;
 
   if (loading) {
     return (
@@ -191,8 +230,49 @@ export function DataTableWithPagination<T = any>({
 
   return (
     <div className="space-y-3">
-      {}
-      <div className={`rounded border overflow-x-auto ${className}`}>
+      {/* Top Table Controls: Entries info on left, Scroll buttons on right */}
+      {hasControls && (
+        <div className="sticky top-12 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-2 pt-1.5 flex justify-between items-center h-10 px-2 border-b border-border/80 shadow-sm transition-all duration-200">
+          <div className="text-xs text-muted-foreground font-medium">
+            {totalItems > 0 && (
+              <span>
+                Showing {Math.min(totalItems, (currentPage - 1) * pageSize + 1)} to{" "}
+                {Math.min(totalItems, currentPage * pageSize)} of {totalItems} entries
+              </span>
+            )}
+          </div>
+          {(showLeftScroll || showRightScroll) && (
+            <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-md border border-border/50 flex-shrink-0">
+              <CustomButton
+                variant="unstyled"
+                size="unstyled"
+                type="button"
+                onClick={() => handleScroll("left")}
+                className="h-6 w-6 flex items-center justify-center rounded border border-primary/30 text-primary hover:bg-primary/10 hover:border-primary transition-all duration-150"
+                icon={<ChevronLeft className="h-3 w-3" />}
+                title="Scroll Left"
+              />
+              <span className="text-[10px] font-semibold text-muted-foreground px-1 select-none">
+                Scroll Table
+              </span>
+              <CustomButton
+                variant="unstyled"
+                size="unstyled"
+                type="button"
+                onClick={() => handleScroll("right")}
+                className="h-6 w-6 flex items-center justify-center rounded border border-primary/30 text-primary hover:bg-primary/10 hover:border-primary transition-all duration-150"
+                icon={<ChevronRight className="h-3 w-3" />}
+                title="Scroll Right"
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      <div
+        ref={scrollContainerRef}
+        className={`rounded border overflow-x-auto ${className}`}
+      >
         <table
           className="text-xs"
           style={{
@@ -298,7 +378,9 @@ export function DataTableWithPagination<T = any>({
           {totalPages > 1 && (
             <div className="flex items-center gap-1">
               {}
-              <CustomButton variant="unstyled" size="unstyled"
+              <CustomButton
+                variant="unstyled"
+                size="unstyled"
                 onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
                 className={`
@@ -330,7 +412,9 @@ export function DataTableWithPagination<T = any>({
                   }
 
                   return (
-                    <CustomButton variant="unstyled" size="unstyled"
+                    <CustomButton
+                      variant="unstyled"
+                      size="unstyled"
                       key={item}
                       onClick={() => onPageChange(item)}
                       className={`
@@ -350,7 +434,9 @@ export function DataTableWithPagination<T = any>({
               </div>
 
               {}
-              <CustomButton variant="unstyled" size="unstyled"
+              <CustomButton
+                variant="unstyled"
+                size="unstyled"
                 onClick={() =>
                   currentPage < totalPages && onPageChange(currentPage + 1)
                 }

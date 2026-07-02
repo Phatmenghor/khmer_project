@@ -1,10 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
-import { Eye, Download, X, MoreHorizontal, ExternalLink, Image as ImageIcon } from "lucide-react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Eye,
+  Download,
+  X,
+  MoreHorizontal,
+  ExternalLink,
+  Loader2,
+  Image as ImageIcon,
+} from "lucide-react";
+import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { SmartImage } from "@/components/shared/image/smart-image";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +38,7 @@ export function TableImage({
   className = "h-9 w-9",
 }: TableImageProps) {
   const [viewOpen, setViewOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [thumbErrored, setThumbErrored] = useState(false);
   const [previewErrored, setPreviewErrored] = useState(false);
   const effectivePreview = previewSrc || src;
@@ -35,9 +46,12 @@ export function TableImage({
   const handleDownload = async (e?: React.MouseEvent) => {
     e?.stopPropagation();
     const target = effectivePreview;
-    if (!target) return;
+    if (!target || isDownloading) return;
+    setIsDownloading(true);
     try {
-      const res = await fetch(target);
+      const downloadUrl = `/api/download?url=${encodeURIComponent(target)}`;
+      const res = await fetch(downloadUrl);
+      if (!res.ok) throw new Error("Proxy download failed");
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -49,6 +63,8 @@ export function TableImage({
       URL.revokeObjectURL(url);
     } catch {
       window.open(target, "_blank");
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -67,22 +83,40 @@ export function TableImage({
               onError={() => setThumbErrored(true)}
             />
             {/* View — top left */}
-            <CustomButton variant="unstyled" size="unstyled"
+            <CustomButton
+              variant="unstyled"
+              size="unstyled"
               type="button"
-              onClick={(e) => { e.stopPropagation(); setViewOpen(true); }}
-              className="absolute top-0.5 left-0.5 p-0.5 bg-black/55 hover:bg-black/80 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+              onClick={(e) => {
+                e.stopPropagation();
+                setViewOpen(true);
+              }}
+              className="absolute top-0.5 left-0.5 p-px bg-black/55 hover:bg-black/80 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-150"
               title="View"
             >
-              <Eye className="h-2.5 w-2.5 text-white" />
+              <Eye className="h-2 w-2 text-white" />
             </CustomButton>
             {/* Download — top right */}
-            <CustomButton variant="unstyled" size="unstyled"
+            <CustomButton
+              variant="unstyled"
+              size="unstyled"
               type="button"
-              onClick={(e) => { e.stopPropagation(); handleDownload(e); }}
-              className="absolute top-0.5 right-0.5 p-0.5 bg-black/55 hover:bg-black/80 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownload(e);
+              }}
+              className={cn(
+                "absolute top-0.5 right-0.5 p-px bg-black/55 hover:bg-black/80 rounded transition-opacity duration-150",
+                isDownloading ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+              )}
               title="Download"
+              disabled={isDownloading}
             >
-              <Download className="h-2.5 w-2.5 text-white" />
+              {isDownloading ? (
+                <Loader2 className="h-2 w-2 text-white animate-spin" />
+              ) : (
+                <Download className="h-2 w-2 text-white" />
+              )}
             </CustomButton>
           </>
         ) : (
@@ -95,48 +129,59 @@ export function TableImage({
       </div>
 
       {/* View modal */}
-      <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-        <DialogTitle className="sr-only">{alt}</DialogTitle>
-        <DialogContent
-          className="w-full sm:max-w-lg p-0 gap-0 flex flex-col overflow-hidden"
-          closeButtonClassName="hidden"
+      {viewOpen && (
+        <CustomModal
+          isOpen={viewOpen}
+          onClose={() => setViewOpen(false)}
+          size="lg"
+          className="max-h-[92vh] gap-0 flex flex-col"
+          disableScrollWrapper={true}
         >
-          {/* Header */}
-          <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-foreground truncate">{alt}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Image preview</p>
-            </div>
-            <div className="flex items-center gap-1 flex-shrink-0">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <CustomButton variant="ghost" size="sm" className="h-7 w-7 p-0" icon={<MoreHorizontal className="h-4 w-4" />} />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleDownload()}>
-                    <Download className="h-3.5 w-3.5 mr-2" />
-                    Download
-                  </DropdownMenuItem>
-                  {effectivePreview && (
-                    <DropdownMenuItem onClick={() => window.open(effectivePreview, "_blank")}>
-                      <ExternalLink className="h-3.5 w-3.5 mr-2" />
-                      Open in new tab
+          <DialogHeader className="p-4 border-b border-primary/30 m-0 mx-0 mt-0 bg-muted/30 flex-shrink-0">
+            <div className="flex items-center justify-between gap-3 pr-8 text-left w-full">
+              <div className="flex-1 min-w-0 text-left">
+                <DialogTitle className="text-sm md:text-base font-semibold leading-tight text-foreground truncate">
+                  {alt}
+                </DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground leading-snug mt-0.5 truncate">
+                  Image preview
+                </DialogDescription>
+              </div>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <CustomButton
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 p-0"
+                      icon={<MoreHorizontal className="h-4 w-4" />}
+                    />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleDownload()} disabled={isDownloading}>
+                      {isDownloading ? (
+                        <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
+                      ) : (
+                        <Download className="h-3.5 w-3.5 mr-2" />
+                      )}
+                      {isDownloading ? "Downloading..." : "Download"}
                     </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <CustomButton
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0"
-                onClick={() => setViewOpen(false)}
-                icon={<X className="h-4 w-4" />}
-              />
+                    {effectivePreview && (
+                      <DropdownMenuItem
+                        onClick={() => window.open(effectivePreview, "_blank")}
+                      >
+                        <ExternalLink className="h-3.5 w-3.5 mr-2" />
+                        Open in new tab
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
-          </div>
+          </DialogHeader>
 
           {/* Body */}
-          <div className="flex items-center justify-center bg-muted/20 min-h-[240px] p-4">
+          <div className="flex-1 overflow-y-auto p-4 flex items-center justify-center bg-muted/5 min-h-[280px]">
             {effectivePreview && !previewErrored ? (
               <div className="relative w-full max-w-full h-[60vh]">
                 <SmartImage
@@ -155,8 +200,8 @@ export function TableImage({
               </div>
             )}
           </div>
-        </DialogContent>
-      </Dialog>
+        </CustomModal>
+      )}
     </>
   );
 }

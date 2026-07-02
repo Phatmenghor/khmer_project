@@ -96,7 +96,7 @@ export default function DashboardLayout({
       />
       <div
         className={cn(
-          "dashboard-content flex flex-col flex-1 transition-all duration-300",
+          "dashboard-content flex flex-col flex-1 min-w-0 transition-all duration-300",
           isPosPage ? "overflow-hidden" : "overflow-y-auto",
           isMobile ? "w-full" : isSidebarOpen ? "ml-52" : "ml-14",
         )}
