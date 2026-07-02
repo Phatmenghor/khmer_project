@@ -1,5 +1,7 @@
 package com.emenu.features.auth.models;
 
+import org.hibernate.annotations.BatchSize;
+
 import com.emenu.enums.common.Status;
 import com.emenu.enums.user.AccountStatus;
 import com.emenu.enums.user.UserType;
@@ -81,8 +83,8 @@ public class User extends BaseUUIDEntity {
     @JoinColumn(name = "business_id", insertable = false, updatable = false)
     private Business business;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @org.hibernate.annotations.BatchSize(size = 30)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @BatchSize(size = 30)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -93,13 +95,16 @@ public class User extends BaseUUIDEntity {
     @Column(name = "remark", columnDefinition = "TEXT")
     private String remark;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @BatchSize(size = 30)
     private UserProfile profile;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @BatchSize(size = 30)
     private UserEmployment employment;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @BatchSize(size = 30)
     private UserTelegram telegram;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)

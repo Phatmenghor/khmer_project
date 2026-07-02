@@ -95,6 +95,6 @@ public class UserSpecification {
                 .and(byAccountStatuses(accountStatuses))
                 .and(byRoles(roles))
                 .and(searchByIdentifierOrProfile(search))
-                .and(SpecificationUtils.fetch("profile"));
+                .and(SpecificationUtils.fetch("profile", "business"));
     }
 }
