@@ -568,7 +568,7 @@ export default function UserImportPage() {
         {totalRows > 0 && !isParsingFile && (
           <div className="flex flex-col border-border">
             {/* Header info bar */}
-            <div className="sticky top-12 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-2 pt-1.5 flex justify-between items-center h-10 px-2 border-b border-border/80 shadow-sm transition-all duration-200 flex-shrink-0">
+            <div className="sticky top-[46px] z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-2 pt-1.5 flex justify-between items-center h-10 px-2 border-b border-border/80 shadow-sm transition-all duration-200 flex-shrink-0">
               <div className="flex items-center gap-3 text-xs">
                 <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
                 <span className="text-foreground font-semibold truncate max-w-[150px] sm:max-w-xs">{fileName}</span>

@@ -34,22 +34,5 @@ public class UserResponse extends BaseAuditResponse {
     private LocalDate dateOfBirth;
     private String phoneNumber;
     private ImageUrls profileImage;
-
-    private String employeeId;
-    private String position;
-    private String department;
-    private EmploymentType employmentType;
-    private LocalDate joinDate;
-    private LocalDate leaveDate;
-    private String shift;
-
-    private Long telegramId;
-    private String telegramUsername;
-    private String telegramFirstName;
-    private String telegramLastName;
-    private String telegramPhotoUrl;
-    private LocalDateTime telegramSyncedAt;
-    private boolean telegramSynced;
-
     private LocalDateTime lastLoginAt;
 }

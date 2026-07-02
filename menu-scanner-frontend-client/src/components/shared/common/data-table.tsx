@@ -232,7 +232,7 @@ export function DataTableWithPagination<T = any>({
     <div className="space-y-3">
       {/* Top Table Controls: Entries info on left, Scroll buttons on right */}
       {hasControls && (
-        <div className="sticky top-12 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-2 pt-1.5 flex justify-between items-center h-10 px-2 border-b border-border/80 shadow-sm transition-all duration-200">
+        <div className="sticky top-[44px] z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-2 pt-1.5 flex justify-between items-center h-10 px-2 border-b border-border/80 shadow-sm transition-all duration-200">
           <div className="text-xs text-muted-foreground font-medium">
             {totalItems > 0 && (
               <span>

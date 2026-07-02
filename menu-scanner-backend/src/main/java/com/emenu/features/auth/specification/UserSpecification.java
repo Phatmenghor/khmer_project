@@ -6,6 +6,8 @@ import com.emenu.features.auth.models.User;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 
+import com.emenu.shared.utils.SpecificationUtils;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -92,6 +94,7 @@ public class UserSpecification {
                 .and(byUserTypes(userTypes))
                 .and(byAccountStatuses(accountStatuses))
                 .and(byRoles(roles))
-                .and(searchByIdentifierOrProfile(search));
+                .and(searchByIdentifierOrProfile(search))
+                .and(SpecificationUtils.fetch("profile"));
     }
 }
