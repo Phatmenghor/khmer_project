@@ -27,6 +27,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -50,6 +51,7 @@ public class BannerServiceImpl implements BannerService {
     private final BannerMapper bannerMapper;
     private final SecurityUtils securityUtils;
     private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
     @CacheEvict(value = CacheNames.BANNERS, allEntries = true)
@@ -69,22 +71,46 @@ public class BannerServiceImpl implements BannerService {
 
     @Override
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public BatchImportResponse<BannerResponse> createBannerBatch(List<BannerCreateRequest> requests) {
-        log.info("Batch banner creation initiated: size={}", requests.size());
+    public BatchImportResponse<BannerResponse> createBannerBatch(List<BannerCreateRequest> requests, String importId) {
+        log.info("Batch banner creation initiated: size={}, importId={}", requests.size(), importId);
         List<BatchImportResponse.RowResult<BannerResponse>> results = new ArrayList<>();
         int successCount = 0;
         int errorCount = 0;
 
         for (int i = 0; i < requests.size(); i++) {
             BannerCreateRequest req = requests.get(i);
+            boolean success = false;
+            String errorMsg = null;
+            BannerResponse resp = null;
             try {
-                BannerResponse resp = self.createBanner(req);
+                resp = self.createBanner(req);
                 results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
                 successCount++;
+                success = true;
             } catch (Exception ex) {
                 log.error("Batch banner creation failed at index {}: {}", i, ex.getMessage());
-                results.add(new BatchImportResponse.RowResult<>(i, false, ex.getMessage(), null));
+                errorMsg = ex.getMessage();
+                results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
                 errorCount++;
+            }
+
+            if (importId != null) {
+                int progress = (int) (((double) (i + 1) / requests.size()) * 100);
+                java.util.Map<String, Object> lastResult = java.util.Map.of(
+                    "index", i,
+                    "success", success,
+                    "error", errorMsg != null ? errorMsg : ""
+                );
+                webSocketNotificationService.notifyImportProgress(
+                    importId,
+                    progress,
+                    i + 1,
+                    requests.size(),
+                    successCount,
+                    errorCount,
+                    (i + 1) == requests.size(),
+                    lastResult
+                );
             }
         }
 

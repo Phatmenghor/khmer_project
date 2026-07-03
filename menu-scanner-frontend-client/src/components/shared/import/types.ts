@@ -25,7 +25,7 @@ export interface ImportTableColumn<T> {
   width?: string;
   minWidth?: string;
   required?: boolean;
-  type?: "text" | "select" | "custom";
+  type?: "text" | "select" | "custom" | "image";
   options?: Array<{ value: string; label: string }>;
   placeholder?: string;
   fieldKey: keyof T;

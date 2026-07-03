@@ -18,7 +18,7 @@ public interface UserService {
 
     UserResponse createUser(UserCreateRequest request);
 
-    BatchImportResponse<UserResponse> createUserBatch(List<UserCreateRequest> requests);
+    BatchImportResponse<UserResponse> createUserBatch(List<UserCreateRequest> requests, String importId);
 
     PaginationResponse<UserResponse> getAllUsers(UserFilterRequest request);
 

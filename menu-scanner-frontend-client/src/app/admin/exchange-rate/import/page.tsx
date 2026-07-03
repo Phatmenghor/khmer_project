@@ -15,6 +15,8 @@ import { ROUTES } from "@/constants/app-routes/routes";
 
 interface ImportExchangeRateRow extends BaseImportRow {
   usdToKhrRate: string;
+  status: string;
+  remark: string;
   __usdToKhrRateError?: boolean;
 }
 
@@ -35,9 +37,19 @@ export default function ExchangeRateImportPage() {
       };
 
       const usdToKhrRate = get(["usd to khr rate", "rate", "usd"]);
+      const rawStatus = get(["status"]);
+      const remark = get(["remark", "notes"]);
+
+      let status = "ACTIVE";
+      const cleanStatus = rawStatus.trim().toUpperCase();
+      if (cleanStatus === "INACTIVE" || cleanStatus === "OFF") {
+        status = "INACTIVE";
+      }
 
       return {
         usdToKhrRate,
+        status,
+        remark,
         __status: "pending" as RowStatus,
       };
     });
@@ -66,13 +78,15 @@ export default function ExchangeRateImportPage() {
     };
   };
 
-  const onImportBatch = async (rowsToProcess: ImportExchangeRateRow[]) => {
+  const onImportBatch = async (rowsToProcess: ImportExchangeRateRow[], importId?: string) => {
     const payloads = rowsToProcess.map((row) => ({
       usdToKhrRate: parseFloat(row.usdToKhrRate),
+      status: row.status || "ACTIVE",
+      notes: row.remark || "",
       businessId: businessId,
     }));
 
-    return await dispatch(importExchangeRatesBatchService(payloads)).unwrap();
+    return await dispatch(importExchangeRatesBatchService({ requests: payloads, importId })).unwrap();
   };
 
   const columns: ImportTableColumn<ImportExchangeRateRow>[] = [
@@ -83,6 +97,26 @@ export default function ExchangeRateImportPage() {
       required: true,
       fieldKey: "usdToKhrRate",
       placeholder: "e.g. 4100",
+    },
+    {
+      key: "status",
+      label: "Status",
+      type: "select",
+      fieldKey: "status",
+      placeholder: "Select Status...",
+      options: [
+        { value: "ACTIVE", label: "Active" },
+        { value: "INACTIVE", label: "Inactive" },
+      ],
+    },
+    {
+      key: "remark",
+      label: "Remark",
+      type: "text",
+      fieldKey: "remark",
+      placeholder: "e.g. Main active rate",
+      width: "300px",
+      minWidth: "200px",
     },
   ];
 

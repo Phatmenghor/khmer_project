@@ -16,7 +16,7 @@ import com.emenu.shared.dto.BatchImportResponse;
 public interface PaymentOptionService {
 
     PaymentOptionResponse createPaymentOption(UUID businessId, PaymentOptionRequest request);
-    BatchImportResponse<PaymentOptionResponse> createPaymentOptionBatch(UUID businessId, List<PaymentOptionRequest> requests);
+    BatchImportResponse<PaymentOptionResponse> createPaymentOptionBatch(UUID businessId, List<PaymentOptionRequest> requests, String importId);
 
     PaginationResponse<PaymentOptionResponse> getAllPaymentOptionsWithFilters(
             UUID businessId,

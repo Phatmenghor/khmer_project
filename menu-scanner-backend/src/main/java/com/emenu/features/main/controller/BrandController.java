@@ -43,9 +43,10 @@ public class BrandController {
 
     @PostMapping("/batch")
     public ResponseEntity<ApiResponse<BatchImportResponse<BrandResponse>>> createBrandBatch(
-            @Valid @RequestBody List<BrandCreateRequest> requests) {
-        log.info("Endpoint: createBrandBatch - brand batch creation: size={}", requests.size());
-        BatchImportResponse<BrandResponse> response = brandService.createBrandBatch(requests);
+            @Valid @RequestBody List<BrandCreateRequest> requests,
+            @RequestParam(required = false) String importId) {
+        log.info("Endpoint: createBrandBatch - brand batch creation: size={}, importId={}", requests.size(), importId);
+        BatchImportResponse<BrandResponse> response = brandService.createBrandBatch(requests, importId);
         return ResponseEntity.ok(ApiResponse.success("Batch brand import completed", response));
     }
 

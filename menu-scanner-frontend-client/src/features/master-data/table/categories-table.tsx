@@ -67,7 +67,7 @@ export const categoriesTableColumns = ({
 
     {
       key: "name",
-      label: "Brand Name",
+      label: "Category Name",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
@@ -149,12 +149,12 @@ export const categoriesTableColumns = ({
           />
           <ActionButton
             icon={<Edit className="w-3 h-3" />}
-            tooltip="Edit Brand"
+            tooltip="Edit Category"
             onClick={() => handleEditCategories(categories)}
           />
           <ActionButton
             icon={<Trash className="w-3 h-3" />}
-            tooltip="Delete Brand"
+            tooltip="Delete Category"
             onClick={() => handleDeleteCategories(categories)}
             variant="destructive"
           />

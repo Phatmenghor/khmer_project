@@ -16,7 +16,7 @@ import { ROUTES } from "@/constants/app-routes/routes";
 interface ImportDeliveryOptionRow extends BaseImportRow {
   name: string;
   price: string;
-  estimatedTime: string;
+  status: string;
   __nameError?: boolean;
   __priceError?: boolean;
 }
@@ -39,12 +39,18 @@ export default function DeliveryOptionImportPage() {
 
       const name = get(["delivery option name", "name"]);
       const price = get(["price"]);
-      const estimatedTime = get(["estimated time", "estimated", "time"]);
+      const rawStatus = get(["status"]);
+
+      let status = "ACTIVE";
+      const cleanStatus = rawStatus.trim().toUpperCase();
+      if (cleanStatus === "INACTIVE" || cleanStatus === "OFF") {
+        status = "INACTIVE";
+      }
 
       return {
         name,
         price,
-        estimatedTime,
+        status,
         __status: "pending" as RowStatus,
       };
     });
@@ -81,16 +87,15 @@ export default function DeliveryOptionImportPage() {
     };
   };
 
-  const onImportBatch = async (rowsToProcess: ImportDeliveryOptionRow[]) => {
+  const onImportBatch = async (rowsToProcess: ImportDeliveryOptionRow[], importId?: string) => {
     const payloads = rowsToProcess.map((row) => ({
       name: row.name,
       price: parseFloat(row.price),
-      estimatedTime: row.estimatedTime || undefined,
       businessId: businessId,
-      status: "ACTIVE",
+      status: row.status || "ACTIVE",
     }));
 
-    return await dispatch(importDeliveryOptionsBatchService(payloads)).unwrap();
+    return await dispatch(importDeliveryOptionsBatchService({ requests: payloads, importId })).unwrap();
   };
 
   const columns: ImportTableColumn<ImportDeliveryOptionRow>[] = [
@@ -111,11 +116,15 @@ export default function DeliveryOptionImportPage() {
       placeholder: "Price (e.g. 1.50)",
     },
     {
-      key: "estimatedTime",
-      label: "Estimated Time",
-      type: "text",
-      fieldKey: "estimatedTime",
-      placeholder: "Estimated Time (e.g. 30 mins)",
+      key: "status",
+      label: "Status",
+      type: "select",
+      fieldKey: "status",
+      placeholder: "Select Status...",
+      options: [
+        { value: "ACTIVE", label: "Active" },
+        { value: "INACTIVE", label: "Inactive" },
+      ],
     },
   ];
 

@@ -25,6 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -48,6 +49,7 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
     private final DeliveryOptionMapper deliveryOptionMapper;
     private final SecurityUtils securityUtils;
     private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
     public DeliveryOptionResponse createDeliveryOption(DeliveryOptionCreateRequest request) {
@@ -75,22 +77,46 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
 
     @Override
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public BatchImportResponse<DeliveryOptionResponse> createDeliveryOptionBatch(List<DeliveryOptionCreateRequest> requests) {
-        log.info("Batch delivery option creation initiated: size={}", requests.size());
+    public BatchImportResponse<DeliveryOptionResponse> createDeliveryOptionBatch(List<DeliveryOptionCreateRequest> requests, String importId) {
+        log.info("Batch delivery option creation initiated: size={}, importId={}", requests.size(), importId);
         List<BatchImportResponse.RowResult<DeliveryOptionResponse>> results = new ArrayList<>();
         int successCount = 0;
         int errorCount = 0;
 
         for (int i = 0; i < requests.size(); i++) {
             DeliveryOptionCreateRequest req = requests.get(i);
+            boolean success = false;
+            String errorMsg = null;
+            DeliveryOptionResponse resp = null;
             try {
-                DeliveryOptionResponse resp = self.createDeliveryOption(req);
+                resp = self.createDeliveryOption(req);
                 results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
                 successCount++;
+                success = true;
             } catch (Exception ex) {
                 log.error("Batch delivery option creation failed at index {}: {}", i, ex.getMessage());
-                results.add(new BatchImportResponse.RowResult<>(i, false, ex.getMessage(), null));
+                errorMsg = ex.getMessage();
+                results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
                 errorCount++;
+            }
+
+            if (importId != null) {
+                int progress = (int) (((double) (i + 1) / requests.size()) * 100);
+                java.util.Map<String, Object> lastResult = java.util.Map.of(
+                    "index", i,
+                    "success", success,
+                    "error", errorMsg != null ? errorMsg : ""
+                );
+                webSocketNotificationService.notifyImportProgress(
+                    importId,
+                    progress,
+                    i + 1,
+                    requests.size(),
+                    successCount,
+                    errorCount,
+                    (i + 1) == requests.size(),
+                    lastResult
+                );
             }
         }
 

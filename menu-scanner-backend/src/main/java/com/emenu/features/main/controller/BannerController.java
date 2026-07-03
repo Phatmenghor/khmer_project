@@ -39,9 +39,10 @@ public class BannerController {
 
     @PostMapping("/batch")
     public ResponseEntity<ApiResponse<BatchImportResponse<BannerResponse>>> createBannerBatch(
-            @Valid @RequestBody List<BannerCreateRequest> requests) {
-        log.info("Endpoint: createBannerBatch - banner batch creation: size={}", requests.size());
-        BatchImportResponse<BannerResponse> response = bannerService.createBannerBatch(requests);
+            @Valid @RequestBody List<BannerCreateRequest> requests,
+            @RequestParam(required = false) String importId) {
+        log.info("Endpoint: createBannerBatch - banner batch creation: size={}, importId={}", requests.size(), importId);
+        BatchImportResponse<BannerResponse> response = bannerService.createBannerBatch(requests, importId);
         return ResponseEntity.ok(ApiResponse.success("Batch banner import completed", response));
     }
 

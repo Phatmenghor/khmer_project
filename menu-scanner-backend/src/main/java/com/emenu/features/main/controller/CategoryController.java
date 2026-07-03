@@ -42,9 +42,10 @@ public class CategoryController {
 
     @PostMapping("/batch")
     public ResponseEntity<ApiResponse<BatchImportResponse<CategoryResponse>>> createCategoryBatch(
-            @Valid @RequestBody List<CategoryCreateRequest> requests) {
-        log.info("Endpoint: createCategoryBatch - category batch creation: size={}", requests.size());
-        BatchImportResponse<CategoryResponse> response = categoryService.createCategoryBatch(requests);
+            @Valid @RequestBody List<CategoryCreateRequest> requests,
+            @RequestParam(required = false) String importId) {
+        log.info("Endpoint: createCategoryBatch - category batch creation: size={}, importId={}", requests.size(), importId);
+        BatchImportResponse<CategoryResponse> response = categoryService.createCategoryBatch(requests, importId);
         return ResponseEntity.ok(ApiResponse.success("Batch category import completed", response));
     }
 

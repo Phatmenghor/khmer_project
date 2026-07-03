@@ -10,6 +10,8 @@ import * as XLSX from "xlsx-js-style";
 
 export const EXCHANGE_RATE_TEMPLATE_COLUMNS = [
   { key: "usdToKhrRate", label: "USD to KHR Rate *", required: true },
+  { key: "status",       label: "Status",            required: false },
+  { key: "remark",       label: "Remark",            required: false },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -58,19 +60,21 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
   data[3] = ["Column Header", "Required?", "Allowed Format / Value", "Description"];
 
   data[4] = ["USD to KHR Rate *", "YES", "Positive Decimal Number (e.g. 4100)", "Exchange value from 1 USD to Cambodian Riel (KHR)."];
+  data[5] = ["Status",            "NO",  "ACTIVE or INACTIVE (default: ACTIVE)", "Initial status of the exchange rate. Only one active rate allowed."];
+  data[6] = ["Remark",            "NO",  "Short text description", "Optional notes or remark for this rate."];
 
-  data[5] = ["", "", ""];
+  data[7] = ["", "", "", ""];
 
-  data[6] = ["VALID SPREADSHEET ROW EXAMPLES", "", ""];
-  data[7] = ["USD to KHR Rate *"];
-  data[8] = ["4100"];
+  data[8] = ["VALID SPREADSHEET ROW EXAMPLES", "", "", ""];
+  data[9] = ["USD to KHR Rate *", "Status", "Remark"];
+  data[10] = ["4100", "ACTIVE", "Main active rate"];
 
   const ws = XLSX.utils.aoa_to_sheet(data);
 
   ws["!merges"] = [
     { s: { r: 0, c: 0 }, e: { r: 0, c: 3 } },
     { s: { r: 2, c: 0 }, e: { r: 2, c: 3 } },
-    { s: { r: 6, c: 0 }, e: { r: 6, c: 1 } },
+    { s: { r: 8, c: 0 }, e: { r: 8, c: 2 } },
   ];
 
   ws["!cols"] = [
@@ -115,7 +119,7 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
     }
   }
 
-  for (let r = 4; r < 5; r++) {
+  for (let r = 4; r < 7; r++) {
     for (let c = 0; c < 4; c++) {
       const ref = XLSX.utils.encode_cell({ r, c });
       if (!ws[ref]) continue;
@@ -139,16 +143,16 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
     }
   }
 
-  if (ws["A7"]) {
-    ws["A7"].s = {
+  if (ws["A9"]) {
+    ws["A9"].s = {
       fill: { patternType: "solid", fgColor: { rgb: "15803D" } },
       font: { name: "Segoe UI", bold: true, sz: 11, color: { rgb: "FFFFFF" } },
       alignment: { vertical: "center", indent: 1 },
     };
   }
 
-  for (let c = 0; c < 1; c++) {
-    const ref = XLSX.utils.encode_cell({ r: 7, c });
+  for (let c = 0; c < 3; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 9, c });
     if (ws[ref]) {
       ws[ref].s = {
         fill: { patternType: "solid", fgColor: { rgb: "E2E8F0" } },
@@ -164,8 +168,8 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
     alignment: { vertical: "center" },
     border: thinBorder,
   };
-  for (let c = 0; c < 1; c++) {
-    const ref = XLSX.utils.encode_cell({ r: 8, c });
+  for (let c = 0; c < 3; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 10, c });
     if (ws[ref]) {
       ws[ref].s = {
         ...exampleCellStyle,

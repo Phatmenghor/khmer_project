@@ -86,10 +86,13 @@ export const toggleBannerStatusService = createApiThunk<any, any>(
   }
 );
 
-export const importBannersBatchService = createApiThunk<any, any[]>(
+export const importBannersBatchService = createApiThunk<any, { requests: any[]; importId?: string }>(
   "banners/importBatch",
-  async (requests) => {
-    const response = await axiosClientWithAuth.post("/api/v1/banners/batch", requests);
+  async ({ requests, importId }) => {
+    const response = await axiosClientWithAuth.post(
+      `/api/v1/banners/batch${importId ? `?importId=${importId}` : ""}`,
+      requests
+    );
     return response.data.data;
   }
 );

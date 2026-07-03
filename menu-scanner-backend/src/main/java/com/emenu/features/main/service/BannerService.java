@@ -16,7 +16,7 @@ public interface BannerService {
     
     // CRUD Operations
     BannerResponse createBanner(BannerCreateRequest request);
-    BatchImportResponse<BannerResponse> createBannerBatch(List<BannerCreateRequest> requests);
+    BatchImportResponse<BannerResponse> createBannerBatch(List<BannerCreateRequest> requests, String importId);
     PaginationResponse<BannerResponse> getAllBanners(BannerFilterRequest filter);
     List<BannerResponse> getAllItemBanners(BannerAllFilterRequest filter);
     BannerResponse getBannerById(UUID id);

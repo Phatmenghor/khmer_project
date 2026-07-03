@@ -171,7 +171,7 @@ export default function UserImportPage() {
     };
   };
 
-  const onImportBatch = async (rowsToProcess: ImportRow[]) => {
+  const onImportBatch = async (rowsToProcess: ImportRow[], importId?: string) => {
     const payloads = rowsToProcess.map((row) => {
       const mapPayload: ParsedUserRow = {
         username: row.username,
@@ -186,7 +186,7 @@ export default function UserImportPage() {
       return mapRowToCreateRequest(mapPayload, "BUSINESS_USER", businessId);
     });
 
-    return await dispatch(importUsersBatchService(payloads)).unwrap();
+    return await dispatch(importUsersBatchService({ requests: payloads, importId })).unwrap();
   };
 
   const columns: ImportTableColumn<ImportRow>[] = [

@@ -28,6 +28,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -51,6 +52,7 @@ public class BrandServiceImpl implements BrandService {
     private final BrandMapper brandMapper;
     private final SecurityUtils securityUtils;
     private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
     @CacheEvict(value = CacheNames.BRANDS, allEntries = true)
@@ -76,22 +78,46 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public BatchImportResponse<BrandResponse> createBrandBatch(List<BrandCreateRequest> requests) {
-        log.info("Batch brand creation initiated: size={}", requests.size());
+    public BatchImportResponse<BrandResponse> createBrandBatch(List<BrandCreateRequest> requests, String importId) {
+        log.info("Batch brand creation initiated: size={}, importId={}", requests.size(), importId);
         List<BatchImportResponse.RowResult<BrandResponse>> results = new ArrayList<>();
         int successCount = 0;
         int errorCount = 0;
 
         for (int i = 0; i < requests.size(); i++) {
             BrandCreateRequest req = requests.get(i);
+            boolean success = false;
+            String errorMsg = null;
+            BrandResponse resp = null;
             try {
-                BrandResponse resp = self.createBrand(req);
+                resp = self.createBrand(req);
                 results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
                 successCount++;
+                success = true;
             } catch (Exception ex) {
                 log.error("Batch brand creation failed at index {}: {}", i, ex.getMessage());
-                results.add(new BatchImportResponse.RowResult<>(i, false, ex.getMessage(), null));
+                errorMsg = ex.getMessage();
+                results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
                 errorCount++;
+            }
+
+            if (importId != null) {
+                int progress = (int) (((double) (i + 1) / requests.size()) * 100);
+                java.util.Map<String, Object> lastResult = java.util.Map.of(
+                    "index", i,
+                    "success", success,
+                    "error", errorMsg != null ? errorMsg : ""
+                );
+                webSocketNotificationService.notifyImportProgress(
+                    importId,
+                    progress,
+                    i + 1,
+                    requests.size(),
+                    successCount,
+                    errorCount,
+                    (i + 1) == requests.size(),
+                    lastResult
+                );
             }
         }
 

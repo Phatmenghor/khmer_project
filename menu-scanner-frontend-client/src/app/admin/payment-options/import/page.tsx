@@ -11,16 +11,17 @@ import { GenericExcelImport } from "@/components/shared/import/GenericExcelImpor
 import { ImportTableColumn, RowStatus, BaseImportRow } from "@/components/shared/import/types";
 import { ROUTES } from "@/constants/app-routes/routes";
 
+import { uploadMultiSize } from "@/services/spaces-service";
+import { AppDefault } from "@/constants/app-resource/default/default";
+
 interface ImportPaymentOptionRow extends BaseImportRow {
   name: string;
-  provider: string;
-  accountNumber: string;
-  accountName: string;
+  paymentOptionType: string;
+  status: string;
   description: string;
+  __imageFile?: File | null;
   __nameError?: boolean;
-  __providerError?: boolean;
-  __accountNumberError?: boolean;
-  __accountNameError?: boolean;
+  __typeError?: boolean;
 }
 
 export default function PaymentOptionImportPage() {
@@ -38,17 +39,28 @@ export default function PaymentOptionImportPage() {
       };
 
       const name = get(["payment option name", "name"]);
-      const provider = get(["provider"]);
-      const accountNumber = get(["account number", "number"]);
-      const accountName = get(["account name", "name"]);
+      const rawType = get(["type", "paymentOptionType"]);
+      const rawStatus = get(["status"]);
       const description = get(["description"]);
+
+      let paymentOptionType = "BANK";
+      const cleanType = rawType.trim().toUpperCase();
+      if (cleanType === "CASH") {
+        paymentOptionType = "CASH";
+      }
+
+      let status = "ACTIVE";
+      const cleanStatus = rawStatus.trim().toUpperCase();
+      if (cleanStatus === "INACTIVE" || cleanStatus === "OFF") {
+        status = "INACTIVE";
+      }
 
       return {
         name,
-        provider,
-        accountNumber,
-        accountName,
+        paymentOptionType,
+        status,
         description,
+        __imageFile: null,
         __status: "pending" as RowStatus,
       };
     });
@@ -58,20 +70,16 @@ export default function PaymentOptionImportPage() {
 
   const onValidateRow = (row: ImportPaymentOptionRow) => {
     const hasName = !!row.name;
-    const hasProvider = !!row.provider;
-    const hasNumber = !!row.accountNumber;
-    const hasAccName = !!row.accountName;
+    const hasType = !!row.paymentOptionType;
 
-    const isValid = hasName && hasProvider && hasNumber && hasAccName;
+    const isValid = hasName && hasType;
 
     return {
       isValid,
-      error: isValid ? undefined : "Required fields (Name, Provider, Account Number, Account Name) missing.",
+      error: isValid ? undefined : "Required fields (Name, Type) missing.",
       fieldErrors: {
         __nameError: !hasName,
-        __providerError: !hasProvider,
-        __accountNumberError: !hasNumber,
-        __accountNameError: !hasAccName,
+        __typeError: !hasType,
       },
     };
   };
@@ -82,30 +90,37 @@ export default function PaymentOptionImportPage() {
       msg.toLowerCase().includes("already exists") ||
       msg.toLowerCase().includes("duplicate");
 
-    const isProvider = msg.toLowerCase().includes("provider");
-    const isNumber = msg.toLowerCase().includes("number") || msg.toLowerCase().includes("account");
-    const isAccName = msg.toLowerCase().includes("account name") || msg.toLowerCase().includes("holder");
+    const isType = msg.toLowerCase().includes("type");
 
     return {
       __nameError: isDuplicate,
-      __providerError: isProvider,
-      __accountNumberError: isNumber,
-      __accountNameError: isAccName,
+      __typeError: isType,
     };
   };
 
-  const onImportBatch = async (rowsToProcess: ImportPaymentOptionRow[]) => {
-    const payloads = rowsToProcess.map((row) => ({
-      name: row.name,
-      paymentOptionType: "BANK_TRANSFER", // Default value
-      provider: row.provider,
-      accountNumber: row.accountNumber,
-      accountName: row.accountName,
-      description: row.description || undefined,
-      status: "ACTIVE",
-    }));
+  const onImportBatch = async (rowsToProcess: ImportPaymentOptionRow[], importId?: string) => {
+    const payloads = [];
+    for (const row of rowsToProcess) {
+      let imagePayload = { sm: "", md: "", o: "" };
+      if (row.__imageFile) {
+        try {
+          const result = await uploadMultiSize(row.__imageFile, AppDefault.BUSINESS_ID);
+          imagePayload = { sm: result.sm.url, md: result.md.url, o: result.o.url };
+        } catch (uploadErr) {
+          console.error("Failed to upload payment option image", row.name, uploadErr);
+        }
+      }
 
-    return await dispatch(importPaymentOptionsBatchService(payloads)).unwrap();
+      payloads.push({
+        name: row.name,
+        paymentOptionType: row.paymentOptionType || "BANK",
+        status: row.status || "ACTIVE",
+        description: row.description || undefined,
+        image: imagePayload,
+      });
+    }
+
+    return await dispatch(importPaymentOptionsBatchService({ requests: payloads, importId })).unwrap();
   };
 
   const columns: ImportTableColumn<ImportPaymentOptionRow>[] = [
@@ -118,28 +133,35 @@ export default function PaymentOptionImportPage() {
       placeholder: "Payment Option Name",
     },
     {
-      key: "provider",
-      label: "Provider",
-      type: "text",
+      key: "type",
+      label: "Type",
+      type: "select",
       required: true,
-      fieldKey: "provider",
-      placeholder: "Provider (e.g. ABA)",
+      fieldKey: "paymentOptionType",
+      placeholder: "Select Type...",
+      options: [
+        { value: "BANK", label: "Bank Transfer" },
+        { value: "CASH", label: "Cash" },
+      ],
     },
     {
-      key: "accountNumber",
-      label: "Account Number",
-      type: "text",
-      required: true,
-      fieldKey: "accountNumber",
-      placeholder: "Account Number",
+      key: "image",
+      label: "Image",
+      type: "image",
+      fieldKey: "__imageFile" as any,
+      width: "120px",
+      minWidth: "100px",
     },
     {
-      key: "accountName",
-      label: "Account Name",
-      type: "text",
-      required: true,
-      fieldKey: "accountName",
-      placeholder: "Account Name",
+      key: "status",
+      label: "Status",
+      type: "select",
+      fieldKey: "status",
+      placeholder: "Select Status...",
+      options: [
+        { value: "ACTIVE", label: "Active" },
+        { value: "INACTIVE", label: "Inactive" },
+      ],
     },
     {
       key: "description",

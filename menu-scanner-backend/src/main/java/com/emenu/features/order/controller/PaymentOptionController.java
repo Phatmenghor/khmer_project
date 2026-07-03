@@ -43,12 +43,14 @@ public class PaymentOptionController {
 
     @PostMapping("/batch")
     public ResponseEntity<ApiResponse<BatchImportResponse<PaymentOptionResponse>>> createPaymentOptionBatch(
-            @Valid @RequestBody List<PaymentOptionRequest> requests) {
-        log.info("Endpoint: createPaymentOptionBatch - payment option batch creation: size={}", requests.size());
+            @Valid @RequestBody List<PaymentOptionRequest> requests,
+            @RequestParam(required = false) String importId) {
+        log.info("Endpoint: createPaymentOptionBatch - payment option batch creation: size={}, importId={}", requests.size(), importId);
         User currentUser = securityUtils.getCurrentUser();
         BatchImportResponse<PaymentOptionResponse> response = paymentOptionService.createPaymentOptionBatch(
                 currentUser.getBusinessId(),
-                requests
+                requests,
+                importId
         );
         return ResponseEntity.ok(ApiResponse.success("Batch payment option import completed", response));
     }

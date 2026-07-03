@@ -10,11 +10,13 @@ import {
 import { GenericExcelImport } from "@/components/shared/import/GenericExcelImport";
 import { ImportTableColumn, RowStatus, BaseImportRow } from "@/components/shared/import/types";
 import { ROUTES } from "@/constants/app-routes/routes";
+import { uploadMultiSize } from "@/services/spaces-service";
+import { AppDefault } from "@/constants/app-resource/default/default";
 
 interface ImportBrandRow extends BaseImportRow {
   name: string;
-  code: string;
   description: string;
+  __imageFile?: File | null;
   __nameError?: boolean;
 }
 
@@ -33,13 +35,12 @@ export default function BrandImportPage() {
       };
 
       const name = get(["brand name", "name"]);
-      const code = get(["brand code", "code"]);
       const description = get(["description"]);
 
       return {
         name,
-        code,
         description,
+        __imageFile: null,
         __status: "pending" as RowStatus,
       };
     });
@@ -70,14 +71,27 @@ export default function BrandImportPage() {
     };
   };
 
-  const onImportBatch = async (rowsToProcess: ImportBrandRow[]) => {
-    const payloads = rowsToProcess.map((row) => ({
-      name: row.name,
-      code: row.code || undefined,
-      description: row.description || undefined,
-    }));
+  const onImportBatch = async (rowsToProcess: ImportBrandRow[], importId?: string) => {
+    const payloads = [];
+    for (const row of rowsToProcess) {
+      let imagePayload = { sm: "", md: "", o: "" };
+      if (row.__imageFile) {
+        try {
+          const result = await uploadMultiSize(row.__imageFile, AppDefault.BUSINESS_ID);
+          imagePayload = { sm: result.sm.url, md: result.md.url, o: result.o.url };
+        } catch (uploadErr) {
+          console.error("Failed to upload brand image", row.name, uploadErr);
+        }
+      }
 
-    return await dispatch(importBrandsBatchService(payloads)).unwrap();
+      payloads.push({
+        name: row.name,
+        image: imagePayload,
+        description: row.description || undefined,
+      });
+    }
+
+    return await dispatch(importBrandsBatchService({ requests: payloads, importId })).unwrap();
   };
 
   const columns: ImportTableColumn<ImportBrandRow>[] = [
@@ -90,11 +104,12 @@ export default function BrandImportPage() {
       placeholder: "Brand Name",
     },
     {
-      key: "code",
-      label: "Brand Code",
-      type: "text",
-      fieldKey: "code",
-      placeholder: "Brand Code",
+      key: "image",
+      label: "Brand Image",
+      type: "image",
+      fieldKey: "__imageFile" as any,
+      width: "120px",
+      minWidth: "100px",
     },
     {
       key: "description",

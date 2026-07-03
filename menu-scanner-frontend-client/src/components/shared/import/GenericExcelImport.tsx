@@ -24,9 +24,80 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
+  Plus,
+  Image as ImageIcon,
 } from "lucide-react";
 import { showToast } from "@/components/shared/common/show-toast";
 import { BaseImportRow, ImportTableColumn, BatchImportResponse } from "./types";
+
+function ImportImageCell({
+  row,
+  onChange,
+  disabled,
+}: {
+  row: any;
+  onChange: (file: File | null) => void;
+  disabled: boolean;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const file = row.__imageFile;
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [file]);
+
+  return (
+    <div className="flex items-center gap-2 py-0.5">
+      {previewUrl ? (
+        <div className="relative w-10 h-10 rounded border border-border overflow-hidden bg-muted flex-shrink-0 flex items-center justify-center">
+          <img src={previewUrl} className="w-full h-full object-cover" alt="Preview" />
+          {!disabled && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onChange(null);
+              }}
+              className="absolute top-0 right-0 p-0.5 bg-red-500 text-white rounded-bl hover:bg-red-600 transition-colors"
+            >
+              <X className="w-2.5 h-2.5" />
+            </button>
+          )}
+        </div>
+      ) : (
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => fileInputRef.current?.click()}
+          className="w-10 h-10 rounded border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center text-muted-foreground hover:text-primary transition-all bg-muted/20"
+          title="Select Image"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          <span className="text-[7px] font-medium leading-none mt-0.5">Image</span>
+        </button>
+      )}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={(e) => {
+          const selected = e.target.files?.[0];
+          if (selected) onChange(selected);
+        }}
+        className="hidden"
+      />
+    </div>
+  );
+}
 
 interface GenericExcelImportProps<T extends BaseImportRow> {
   title: string;
@@ -782,6 +853,14 @@ export function GenericExcelImport<T extends BaseImportRow>({
                                     isImporting || row.__status === "success",
                                     (val) => handleCellChange(rowIdx, col.fieldKey, val)
                                   )
+                                )}
+
+                                {col.type === "image" && (
+                                  <ImportImageCell
+                                    row={row}
+                                    onChange={(file) => handleCellChange(rowIdx, "__imageFile" as any, file)}
+                                    disabled={isImporting || row.__status === "success"}
+                                  />
                                 )}
                               </td>
                             );

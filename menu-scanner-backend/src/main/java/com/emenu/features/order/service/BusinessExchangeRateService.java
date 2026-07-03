@@ -14,7 +14,7 @@ import java.util.List;
 public interface BusinessExchangeRateService {
     
     BusinessExchangeRateResponse createBusinessExchangeRate(BusinessExchangeRateCreateRequest request);
-    BatchImportResponse<BusinessExchangeRateResponse> createBusinessExchangeRateBatch(List<BusinessExchangeRateCreateRequest> requests);
+    BatchImportResponse<BusinessExchangeRateResponse> createBusinessExchangeRateBatch(List<BusinessExchangeRateCreateRequest> requests, String importId);
     
     PaginationResponse<BusinessExchangeRateResponse> getAllBusinessExchangeRates(BusinessExchangeRateFilterRequest filter);
     

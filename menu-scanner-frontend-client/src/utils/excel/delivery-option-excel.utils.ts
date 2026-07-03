@@ -11,7 +11,8 @@ import * as XLSX from "xlsx-js-style";
 export const DELIVERY_OPTION_TEMPLATE_COLUMNS = [
   { key: "name",          label: "Delivery Option Name *", required: true },
   { key: "price",         label: "Price *",                required: true },
-  { key: "estimatedTime", label: "Estimated Time",         required: false },
+  { key: "status",        label: "Status",                 required: false },
+  { key: "description",   label: "Description",            required: false },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -62,27 +63,28 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
   data[3] = ["Column Header", "Required?", "Allowed Format / Value", "Description"];
 
   data[4] = ["Delivery Option Name *", "YES", "Letters, numbers, and spaces (e.g. Express)", "Name of the shipping/delivery service."];
-  data[5] = ["Price *", "YES", "Decimal number (e.g. 1.50 or 2)", "Fee charged for this delivery option (in USD)."];
-  data[6] = ["Estimated Time", "NO", "Text details (e.g. 15-30 mins)", "Expected duration or time window for delivery."];
+  data[5] = ["Price *",                 "YES", "Decimal number (e.g. 1.50 or 2)", "Fee charged for this delivery option (in USD)."];
+  data[6] = ["Status",                  "NO",  "ACTIVE or INACTIVE (default: ACTIVE)", "Initial status of the option."];
+  data[7] = ["Description",             "NO",  "Brief text", "Optional explanation of the option."];
 
-  data[7] = ["", "", "", ""];
+  data[8] = ["", "", "", ""];
 
-  data[8] = ["VALID SPREADSHEET ROW EXAMPLES", "", "", ""];
-  data[9] = ["Delivery Option Name *", "Price *", "Estimated Time"];
-  data[10] = ["Standard Delivery", "1.00", "30-45 mins"];
+  data[9] = ["VALID SPREADSHEET ROW EXAMPLES", "", "", ""];
+  data[10] = ["Delivery Option Name *", "Price *", "Status", "Description"];
+  data[11] = ["Standard Delivery", "1.00", "ACTIVE", "Deliver within standard timeframe"];
 
   const ws = XLSX.utils.aoa_to_sheet(data);
 
   ws["!merges"] = [
     { s: { r: 0, c: 0 }, e: { r: 0, c: 3 } },
     { s: { r: 2, c: 0 }, e: { r: 2, c: 3 } },
-    { s: { r: 8, c: 0 }, e: { r: 8, c: 2 } },
+    { s: { r: 9, c: 0 }, e: { r: 9, c: 3 } },
   ];
 
   ws["!cols"] = [
     { wch: 22 },
     { wch: 12 },
-    { wch: 32 },
+    { wch: 16 },
     { wch: 64 },
   ];
 
@@ -121,7 +123,7 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
     }
   }
 
-  for (let r = 4; r < 7; r++) {
+  for (let r = 4; r < 8; r++) {
     for (let c = 0; c < 4; c++) {
       const ref = XLSX.utils.encode_cell({ r, c });
       if (!ws[ref]) continue;
@@ -145,16 +147,16 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
     }
   }
 
-  if (ws["A9"]) {
-    ws["A9"].s = {
+  if (ws["A10"]) {
+    ws["A10"].s = {
       fill: { patternType: "solid", fgColor: { rgb: "15803D" } },
       font: { name: "Segoe UI", bold: true, sz: 11, color: { rgb: "FFFFFF" } },
       alignment: { vertical: "center", indent: 1 },
     };
   }
 
-  for (let c = 0; c < 3; c++) {
-    const ref = XLSX.utils.encode_cell({ r: 9, c });
+  for (let c = 0; c < 4; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 10, c });
     if (ws[ref]) {
       ws[ref].s = {
         fill: { patternType: "solid", fgColor: { rgb: "E2E8F0" } },
@@ -170,8 +172,8 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
     alignment: { vertical: "center" },
     border: thinBorder,
   };
-  for (let c = 0; c < 3; c++) {
-    const ref = XLSX.utils.encode_cell({ r: 10, c });
+  for (let c = 0; c < 4; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 11, c });
     if (ws[ref]) {
       ws[ref].s = {
         ...exampleCellStyle,

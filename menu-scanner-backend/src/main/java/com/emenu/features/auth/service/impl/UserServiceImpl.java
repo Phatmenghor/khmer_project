@@ -101,22 +101,46 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public BatchImportResponse<UserResponse> createUserBatch(List<UserCreateRequest> requests) {
-        log.info("Batch user creation initiated: size={}", requests.size());
+    public BatchImportResponse<UserResponse> createUserBatch(List<UserCreateRequest> requests, String importId) {
+        log.info("Batch user creation initiated: size={}, importId={}", requests.size(), importId);
         List<BatchImportResponse.RowResult<UserResponse>> results = new ArrayList<>();
         int successCount = 0;
         int errorCount = 0;
 
         for (int i = 0; i < requests.size(); i++) {
             UserCreateRequest req = requests.get(i);
+            boolean success = false;
+            String errorMsg = null;
+            UserResponse resp = null;
             try {
-                UserResponse resp = self.createUser(req);
+                resp = self.createUser(req);
                 results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
                 successCount++;
+                success = true;
             } catch (Exception ex) {
                 log.error("Batch user creation failed at index {}: {}", i, ex.getMessage());
-                results.add(new BatchImportResponse.RowResult<>(i, false, ex.getMessage(), null));
+                errorMsg = ex.getMessage();
+                results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
                 errorCount++;
+            }
+
+            if (importId != null) {
+                int progress = (int) (((double) (i + 1) / requests.size()) * 100);
+                java.util.Map<String, Object> lastResult = java.util.Map.of(
+                    "index", i,
+                    "success", success,
+                    "error", errorMsg != null ? errorMsg : ""
+                );
+                webSocketNotificationService.notifyImportProgress(
+                    importId,
+                    progress,
+                    i + 1,
+                    requests.size(),
+                    successCount,
+                    errorCount,
+                    (i + 1) == requests.size(),
+                    lastResult
+                );
             }
         }
 

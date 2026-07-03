@@ -10,7 +10,6 @@ import * as XLSX from "xlsx-js-style";
 
 export const CATEGORY_TEMPLATE_COLUMNS = [
   { key: "name",        label: "Category Name *", required: true },
-  { key: "code",        label: "Category Code",   required: false },
   { key: "description", label: "Description",     required: false },
 ];
 
@@ -62,27 +61,25 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
   data[3] = ["Column Header", "Required?", "Allowed Format / Value", "Description"];
 
   data[4] = ["Category Name *", "YES", "Letters, numbers, and spaces", "The name of the category (e.g. Drinks, Appetizers)."];
-  data[5] = ["Category Code", "NO", "Alphanumeric shortcode (e.g. DRK, APP)", "Short code used for quick reference."];
-  data[6] = ["Description", "NO", "Short text description", "Optional brief explanation of what items fall in this category."];
+  data[5] = ["Description", "NO", "Short text description", "Optional brief explanation of what items fall in this category."];
 
-  data[7] = ["", "", "", ""];
+  data[6] = ["", "", "", ""];
 
-  data[8] = ["VALID SPREADSHEET ROW EXAMPLES", "", "", ""];
-  data[9] = ["Category Name *", "Category Code", "Description"];
-  data[10] = ["Soft Drinks", "SFTDRK", "Carbonated beverages and canned juices"];
+  data[7] = ["VALID SPREADSHEET ROW EXAMPLES", "", "", ""];
+  data[8] = ["Category Name *", "Description"];
+  data[9] = ["Soft Drinks", "Carbonated beverages and canned juices"];
 
   const ws = XLSX.utils.aoa_to_sheet(data);
 
   ws["!merges"] = [
     { s: { r: 0, c: 0 }, e: { r: 0, c: 3 } },
     { s: { r: 2, c: 0 }, e: { r: 2, c: 3 } },
-    { s: { r: 8, c: 0 }, e: { r: 8, c: 2 } },
+    { s: { r: 7, c: 0 }, e: { r: 7, c: 1 } },
   ];
 
   ws["!cols"] = [
     { wch: 22 },
     { wch: 12 },
-    { wch: 32 },
     { wch: 64 },
   ];
 
@@ -121,7 +118,7 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
     }
   }
 
-  for (let r = 4; r < 7; r++) {
+  for (let r = 4; r < 6; r++) {
     for (let c = 0; c < 4; c++) {
       const ref = XLSX.utils.encode_cell({ r, c });
       if (!ws[ref]) continue;
@@ -145,16 +142,16 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
     }
   }
 
-  if (ws["A9"]) {
-    ws["A9"].s = {
+  if (ws["A8"]) {
+    ws["A8"].s = {
       fill: { patternType: "solid", fgColor: { rgb: "15803D" } },
       font: { name: "Segoe UI", bold: true, sz: 11, color: { rgb: "FFFFFF" } },
       alignment: { vertical: "center", indent: 1 },
     };
   }
 
-  for (let c = 0; c < 3; c++) {
-    const ref = XLSX.utils.encode_cell({ r: 9, c });
+  for (let c = 0; c < 2; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 8, c });
     if (ws[ref]) {
       ws[ref].s = {
         fill: { patternType: "solid", fgColor: { rgb: "E2E8F0" } },
@@ -170,8 +167,8 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
     alignment: { vertical: "center" },
     border: thinBorder,
   };
-  for (let c = 0; c < 3; c++) {
-    const ref = XLSX.utils.encode_cell({ r: 10, c });
+  for (let c = 0; c < 2; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 9, c });
     if (ws[ref]) {
       ws[ref].s = {
         ...exampleCellStyle,

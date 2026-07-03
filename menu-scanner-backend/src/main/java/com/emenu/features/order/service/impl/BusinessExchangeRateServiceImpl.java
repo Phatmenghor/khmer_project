@@ -23,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,7 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
     private final BusinessExchangeRateMapper exchangeRateMapper;
     private final SecurityUtils securityUtils;
     private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
     public BusinessExchangeRateResponse createBusinessExchangeRate(BusinessExchangeRateCreateRequest request) {
@@ -60,15 +62,18 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
         Business business = businessRepository.findByIdAndIsDeletedFalse(businessId)
                 .orElseThrow(() -> new NotFoundException("Business not found"));
 
-        // Deactivate all existing active rates for this business (new rate will be the only ACTIVE one)
-        int deactivatedCount = exchangeRateRepository.deactivateAllRatesForBusiness(businessId);
-        if (deactivatedCount > 0) {
-            log.info("Deactivated {} existing active rate(s) for business {} when creating new rate",
-                    deactivatedCount, businessId);
+        // Deactivate all existing active rates for this business only if the new rate is ACTIVE
+        boolean makeActive = request.getStatus() == null || "ACTIVE".equalsIgnoreCase(request.getStatus());
+        if (makeActive) {
+            int deactivatedCount = exchangeRateRepository.deactivateAllRatesForBusiness(businessId);
+            if (deactivatedCount > 0) {
+                log.info("Deactivated {} existing active rate(s) for business {} when creating new active rate",
+                        deactivatedCount, businessId);
+            }
         }
 
         BusinessExchangeRate exchangeRate = exchangeRateMapper.toEntity(request);
-        exchangeRate.setStatus(BusinessExchangeRate.ExchangeRateStatus.ACTIVE); // New rate is always active
+        exchangeRate.setStatus(makeActive ? BusinessExchangeRate.ExchangeRateStatus.ACTIVE : BusinessExchangeRate.ExchangeRateStatus.INACTIVE);
 
         BusinessExchangeRate savedExchangeRate = exchangeRateRepository.save(exchangeRate);
 
@@ -80,22 +85,46 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
 
     @Override
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public BatchImportResponse<BusinessExchangeRateResponse> createBusinessExchangeRateBatch(List<BusinessExchangeRateCreateRequest> requests) {
-        log.info("Batch business exchange rate creation initiated: size={}", requests.size());
+    public BatchImportResponse<BusinessExchangeRateResponse> createBusinessExchangeRateBatch(List<BusinessExchangeRateCreateRequest> requests, String importId) {
+        log.info("Batch business exchange rate creation initiated: size={}, importId={}", requests.size(), importId);
         List<BatchImportResponse.RowResult<BusinessExchangeRateResponse>> results = new ArrayList<>();
         int successCount = 0;
         int errorCount = 0;
 
         for (int i = 0; i < requests.size(); i++) {
             BusinessExchangeRateCreateRequest req = requests.get(i);
+            boolean success = false;
+            String errorMsg = null;
+            BusinessExchangeRateResponse resp = null;
             try {
-                BusinessExchangeRateResponse resp = self.createBusinessExchangeRate(req);
+                resp = self.createBusinessExchangeRate(req);
                 results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
                 successCount++;
+                success = true;
             } catch (Exception ex) {
                 log.error("Batch business exchange rate creation failed at index {}: {}", i, ex.getMessage());
-                results.add(new BatchImportResponse.RowResult<>(i, false, ex.getMessage(), null));
+                errorMsg = ex.getMessage();
+                results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
                 errorCount++;
+            }
+
+            if (importId != null) {
+                int progress = (int) (((double) (i + 1) / requests.size()) * 100);
+                java.util.Map<String, Object> lastResult = java.util.Map.of(
+                    "index", i,
+                    "success", success,
+                    "error", errorMsg != null ? errorMsg : ""
+                );
+                webSocketNotificationService.notifyImportProgress(
+                    importId,
+                    progress,
+                    i + 1,
+                    requests.size(),
+                    successCount,
+                    errorCount,
+                    (i + 1) == requests.size(),
+                    lastResult
+                );
             }
         }
 

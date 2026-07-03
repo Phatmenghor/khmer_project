@@ -94,7 +94,7 @@ export default function CustomerImportPage() {
     };
   };
 
-  const onImportBatch = async (rowsToProcess: ImportCustomerRow[]) => {
+  const onImportBatch = async (rowsToProcess: ImportCustomerRow[], importId?: string) => {
     const payloads = rowsToProcess.map((row) => {
       // Force customer role and user type, and leave dateOfBirth as undefined
       const mapPayload = {
@@ -109,7 +109,7 @@ export default function CustomerImportPage() {
       return mapRowToCreateRequest(mapPayload, "CUSTOMER", businessId);
     });
 
-    return await dispatch(importUsersBatchService(payloads)).unwrap();
+    return await dispatch(importUsersBatchService({ requests: payloads, importId })).unwrap();
   };
 
   const columns: ImportTableColumn<ImportCustomerRow>[] = [

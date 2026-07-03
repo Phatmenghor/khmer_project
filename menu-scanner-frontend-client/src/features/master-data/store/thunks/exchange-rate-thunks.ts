@@ -96,10 +96,13 @@ export const toggleExchangeRateStatusService = createApiThunk<
   return response.data.data;
 });
 
-export const importExchangeRatesBatchService = createApiThunk<any, any[]>(
+export const importExchangeRatesBatchService = createApiThunk<any, { requests: any[]; importId?: string }>(
   "business-exchange-rates/importBatch",
-  async (requests) => {
-    const response = await axiosClientWithAuth.post("/api/v1/business-exchange-rates/batch", requests);
+  async ({ requests, importId }) => {
+    const response = await axiosClientWithAuth.post(
+      `/api/v1/business-exchange-rates/batch${importId ? `?importId=${importId}` : ""}`,
+      requests
+    );
     return response.data.data;
   }
 );

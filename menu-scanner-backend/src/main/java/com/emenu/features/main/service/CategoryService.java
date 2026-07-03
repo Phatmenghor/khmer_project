@@ -17,7 +17,7 @@ public interface CategoryService {
     
     // CRUD Operations
     CategoryResponse createCategory(CategoryCreateRequest request);
-    BatchImportResponse<CategoryResponse> createCategoryBatch(List<CategoryCreateRequest> requests);
+    BatchImportResponse<CategoryResponse> createCategoryBatch(List<CategoryCreateRequest> requests, String importId);
     PaginationResponse<CategoryResponse> getAllCategories(CategoryFilterRequest filter);
     PaginationResponse<CategoryWithProductCountResponse> getCategoriesWithProductCount(CategoryFilterRequest filter);
     List<CategoryResponse> getAllItemCategories(CategoryAllFilterRequest filter);

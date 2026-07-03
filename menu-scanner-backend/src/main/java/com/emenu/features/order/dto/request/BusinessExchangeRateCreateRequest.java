@@ -33,4 +33,5 @@ public class BusinessExchangeRateCreateRequest {
     private Double usdToVndRate;
     
     private String notes;
+    private String status;
 }

@@ -80,10 +80,13 @@ export const toggleBrandStatusService = createApiThunk<
   return response.data.data;
 });
 
-export const importBrandsBatchService = createApiThunk<any, any[]>(
+export const importBrandsBatchService = createApiThunk<any, { requests: any[]; importId?: string }>(
   "brands/importBatch",
-  async (requests) => {
-    const response = await axiosClientWithAuth.post("/api/v1/brands/batch", requests);
+  async ({ requests, importId }) => {
+    const response = await axiosClientWithAuth.post(
+      `/api/v1/brands/batch${importId ? `?importId=${importId}` : ""}`,
+      requests
+    );
     return response.data.data;
   }
 );

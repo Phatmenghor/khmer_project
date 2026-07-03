@@ -15,7 +15,7 @@ import com.emenu.shared.dto.BatchImportResponse;
 
 public interface BrandService {
     BrandResponse createBrand(BrandCreateRequest request);
-    BatchImportResponse<BrandResponse> createBrandBatch(List<BrandCreateRequest> requests);
+    BatchImportResponse<BrandResponse> createBrandBatch(List<BrandCreateRequest> requests, String importId);
     PaginationResponse<BrandResponse> getAllBrands(BrandFilterRequest filter);
     PaginationResponse<BrandWithProductCountResponse> getBrandsWithProductCount(BrandFilterRequest filter);
     List<BrandResponse> getAllListBrands(BrandAllFilterRequest filter);

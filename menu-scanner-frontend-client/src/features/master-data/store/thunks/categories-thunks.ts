@@ -105,10 +105,13 @@ export const deleteCategoriesService = createApiThunk<any, string>(
   }
 );
 
-export const importCategoriesBatchService = createApiThunk<any, any[]>(
+export const importCategoriesBatchService = createApiThunk<any, { requests: any[]; importId?: string }>(
   "categories/importBatch",
-  async (requests) => {
-    const response = await axiosClientWithAuth.post("/api/v1/categories/batch", requests);
+  async ({ requests, importId }) => {
+    const response = await axiosClientWithAuth.post(
+      `/api/v1/categories/batch${importId ? `?importId=${importId}` : ""}`,
+      requests
+    );
     return response.data.data;
   }
 );

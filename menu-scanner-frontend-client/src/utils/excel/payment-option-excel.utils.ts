@@ -9,11 +9,10 @@ import * as XLSX from "xlsx-js-style";
 // ── Column definitions ────────────────────────────────────────────────────────
 
 export const PAYMENT_OPTION_TEMPLATE_COLUMNS = [
-  { key: "name",          label: "Payment Option Name *", required: true },
-  { key: "provider",      label: "Provider *",            required: true },
-  { key: "accountNumber", label: "Account Number *",      required: true },
-  { key: "accountName",   label: "Account Name *",        required: true },
-  { key: "description",   label: "Description",           required: false },
+  { key: "name",              label: "Payment Option Name *",  required: true },
+  { key: "paymentOptionType",  label: "Type *",                 required: true },
+  { key: "status",            label: "Status",                 required: false },
+  { key: "description",       label: "Description",            required: false },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -64,30 +63,28 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
   data[3] = ["Column Header", "Required?", "Allowed Format / Value", "Description"];
 
   data[4] = ["Payment Option Name *", "YES", "Letters, numbers (e.g. ABA Bank)", "Name of the payment method."];
-  data[5] = ["Provider *", "YES", "Letters (e.g. ABA, ACLEDA, wing)", "Financial service provider name."];
-  data[6] = ["Account Number *", "YES", "Digits and letters (e.g. 000111222)", "Bank or wallet account number."];
-  data[7] = ["Account Name *", "YES", "Uppercase letters (e.g. PHAT MENGHOR)", "Holder name of the account."];
-  data[8] = ["Description", "NO", "Short description note", "Optional extra info or merchant instruction details."];
+  data[5] = ["Type *",                 "YES", "CASH or BANK", "The type classification of the payment option."];
+  data[6] = ["Status",                 "NO",  "ACTIVE or INACTIVE (default: ACTIVE)", "Initial status of the option."];
+  data[7] = ["Description",            "NO",  "Short description note", "Optional extra info or merchant instruction details."];
 
-  data[9] = ["", "", "", "", ""];
+  data[8] = ["", "", "", ""];
 
-  data[10] = ["VALID SPREADSHEET ROW EXAMPLES", "", "", "", ""];
-  data[11] = ["Payment Option Name *", "Provider *", "Account Number *", "Account Name *", "Description"];
-  data[12] = ["ABA Transfer", "ABA", "001223445", "SOK SOPHAL", "ABA QR payment option"];
+  data[9] = ["VALID SPREADSHEET ROW EXAMPLES", "", "", ""];
+  data[10] = ["Payment Option Name *", "Type *", "Status", "Description"];
+  data[11] = ["ABA Transfer", "BANK", "ACTIVE", "ABA QR payment option"];
 
   const ws = XLSX.utils.aoa_to_sheet(data);
 
   ws["!merges"] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } },
-    { s: { r: 2, c: 0 }, e: { r: 2, c: 4 } },
-    { s: { r: 10, c: 0 }, e: { r: 10, c: 4 } },
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 3 } },
+    { s: { r: 2, c: 0 }, e: { r: 2, c: 3 } },
+    { s: { r: 9, c: 0 }, e: { r: 9, c: 3 } },
   ];
 
   ws["!cols"] = [
     { wch: 22 },
     { wch: 12 },
-    { wch: 32 },
-    { wch: 32 },
+    { wch: 16 },
     { wch: 64 },
   ];
 
@@ -126,7 +123,7 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
     }
   }
 
-  for (let r = 4; r < 9; r++) {
+  for (let r = 4; r < 8; r++) {
     for (let c = 0; c < 4; c++) {
       const ref = XLSX.utils.encode_cell({ r, c });
       if (!ws[ref]) continue;
@@ -150,16 +147,16 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
     }
   }
 
-  if (ws["A11"]) {
-    ws["A11"].s = {
+  if (ws["A10"]) {
+    ws["A10"].s = {
       fill: { patternType: "solid", fgColor: { rgb: "15803D" } },
       font: { name: "Segoe UI", bold: true, sz: 11, color: { rgb: "FFFFFF" } },
       alignment: { vertical: "center", indent: 1 },
     };
   }
 
-  for (let c = 0; c < 5; c++) {
-    const ref = XLSX.utils.encode_cell({ r: 11, c });
+  for (let c = 0; c < 4; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 10, c });
     if (ws[ref]) {
       ws[ref].s = {
         fill: { patternType: "solid", fgColor: { rgb: "E2E8F0" } },
@@ -175,8 +172,8 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
     alignment: { vertical: "center" },
     border: thinBorder,
   };
-  for (let c = 0; c < 5; c++) {
-    const ref = XLSX.utils.encode_cell({ r: 12, c });
+  for (let c = 0; c < 4; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 11, c });
     if (ws[ref]) {
       ws[ref].s = {
         ...exampleCellStyle,

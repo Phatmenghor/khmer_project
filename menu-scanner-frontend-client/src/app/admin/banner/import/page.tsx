@@ -10,10 +10,13 @@ import {
 import { GenericExcelImport } from "@/components/shared/import/GenericExcelImport";
 import { ImportTableColumn, RowStatus, BaseImportRow } from "@/components/shared/import/types";
 import { ROUTES } from "@/constants/app-routes/routes";
+import { uploadMultiSize } from "@/services/spaces-service";
+import { AppDefault } from "@/constants/app-resource/default/default";
 
 interface ImportBannerRow extends BaseImportRow {
   description: string;
   status: string;
+  __imageFile?: File | null;
   __descriptionError?: boolean;
 }
 
@@ -43,6 +46,7 @@ export default function BannerImportPage() {
       return {
         description,
         status,
+        __imageFile: null,
         __status: "pending" as RowStatus,
       };
     });
@@ -73,14 +77,27 @@ export default function BannerImportPage() {
     };
   };
 
-  const onImportBatch = async (rowsToProcess: ImportBannerRow[]) => {
-    const payloads = rowsToProcess.map((row) => ({
-      description: row.description,
-      status: row.status,
-      image: { sm: "", md: "", o: "" }, // Default empty image structure to pass backend validation
-    }));
+  const onImportBatch = async (rowsToProcess: ImportBannerRow[], importId?: string) => {
+    const payloads = [];
+    for (const row of rowsToProcess) {
+      let imagePayload = { sm: "", md: "", o: "" };
+      if (row.__imageFile) {
+        try {
+          const result = await uploadMultiSize(row.__imageFile, AppDefault.BUSINESS_ID);
+          imagePayload = { sm: result.sm.url, md: result.md.url, o: result.o.url };
+        } catch (uploadErr) {
+          console.error("Failed to upload banner image", row.description, uploadErr);
+        }
+      }
 
-    return await dispatch(importBannersBatchService(payloads)).unwrap();
+      payloads.push({
+        description: row.description,
+        status: row.status,
+        image: imagePayload,
+      });
+    }
+
+    return await dispatch(importBannersBatchService({ requests: payloads, importId })).unwrap();
   };
 
   const columns: ImportTableColumn<ImportBannerRow>[] = [
@@ -91,6 +108,14 @@ export default function BannerImportPage() {
       required: true,
       fieldKey: "description",
       placeholder: "Banner Description",
+    },
+    {
+      key: "image",
+      label: "Banner Image",
+      type: "image",
+      fieldKey: "__imageFile" as any,
+      width: "120px",
+      minWidth: "100px",
     },
     {
       key: "status",

@@ -42,10 +42,13 @@ export const createUserService = createApiThunk<any, CreateUserRequest>(
   }
 );
 
-export const importUsersBatchService = createApiThunk<any, any[]>(
+export const importUsersBatchService = createApiThunk<any, { requests: any[]; importId?: string }>(
   "users/importBatch",
-  async (requests) => {
-    const response = await axiosClientWithAuth.post("/api/v1/users/batch", requests);
+  async ({ requests, importId }) => {
+    const response = await axiosClientWithAuth.post(
+      `/api/v1/users/batch${importId ? `?importId=${importId}` : ""}`,
+      requests
+    );
     return response.data.data;
   }
 );

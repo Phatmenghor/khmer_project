@@ -39,9 +39,10 @@ public class DeliveryOptionController {
 
     @PostMapping("/batch")
     public ResponseEntity<ApiResponse<BatchImportResponse<DeliveryOptionResponse>>> createDeliveryOptionBatch(
-            @Valid @RequestBody List<DeliveryOptionCreateRequest> requests) {
-        log.info("Endpoint: createDeliveryOptionBatch - delivery option batch creation: size={}", requests.size());
-        BatchImportResponse<DeliveryOptionResponse> response = deliveryOptionService.createDeliveryOptionBatch(requests);
+            @Valid @RequestBody List<DeliveryOptionCreateRequest> requests,
+            @RequestParam(required = false) String importId) {
+        log.info("Endpoint: createDeliveryOptionBatch - delivery option batch creation: size={}, importId={}", requests.size(), importId);
+        BatchImportResponse<DeliveryOptionResponse> response = deliveryOptionService.createDeliveryOptionBatch(requests, importId);
         return ResponseEntity.ok(ApiResponse.success("Batch delivery option import completed", response));
     }
 

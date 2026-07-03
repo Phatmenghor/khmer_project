@@ -39,9 +39,10 @@ public class BusinessExchangeRateController {
 
     @PostMapping("/batch")
     public ResponseEntity<ApiResponse<BatchImportResponse<BusinessExchangeRateResponse>>> createBusinessExchangeRateBatch(
-            @Valid @RequestBody List<BusinessExchangeRateCreateRequest> requests) {
-        log.info("Endpoint: createBusinessExchangeRateBatch - business exchange rate batch creation: size={}", requests.size());
-        BatchImportResponse<BusinessExchangeRateResponse> response = exchangeRateService.createBusinessExchangeRateBatch(requests);
+            @Valid @RequestBody List<BusinessExchangeRateCreateRequest> requests,
+            @RequestParam(required = false) String importId) {
+        log.info("Endpoint: createBusinessExchangeRateBatch - business exchange rate batch creation: size={}, importId={}", requests.size(), importId);
+        BatchImportResponse<BusinessExchangeRateResponse> response = exchangeRateService.createBusinessExchangeRateBatch(requests, importId);
         return ResponseEntity.ok(ApiResponse.success("Batch business exchange rate import completed", response));
     }
 

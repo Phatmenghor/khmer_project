@@ -6,10 +6,9 @@ import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
-import { DownloadTemplateButton, ImportSpreadsheetButton } from "@/components/shared/button/custom-button";
 import { downloadBrandTemplate } from "@/utils/excel/brand-excel.utils";
-import { CustomSelect } from "@/components/shared/common/custom-select";
+import { DownloadTemplateButton, ImportSpreadsheetButton } from "@/components/shared/button/custom-button";
+import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -226,31 +225,37 @@ function BrandPageInner() {
     });
   };
 
+  const filterConfig = useMemo((): FilterPanelConfig => ({
+    title: "Brand Information",
+    searchValue: filters.search,
+    searchPlaceholder: "Search brand...",
+    onSearchChange: handleSearchChange,
+    buttonText: "New",
+    buttonTooltip: "Create a new brand",
+    onButtonClick: handleCreateBrand,
+    extraActions: (
+      <div className="flex items-center gap-1">
+        <DownloadTemplateButton onDownload={downloadBrandTemplate} />
+        <ImportSpreadsheetButton onClick={() => router.push(ROUTES.ADMIN.BRAND_IMPORT)} title="Import brands from Excel" />
+      </div>
+    ),
+    filters: [
+      {
+        id: "status",
+        type: "select",
+        label: "Brand Status",
+        placeholder: "All Status",
+        value: filters.status,
+        onChange: (value) => handleStatusChange(value as Status),
+        options: STATUS_FILTER,
+      },
+    ],
+  }), [filters.search, filters.status]);
+
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
-        <CardHeaderSection
-          title="Brand Information"
-          searchValue={filters.search}
-          searchPlaceholder="Search brand..."
-          buttonTooltip="Create a new brand"
-          buttonIcon={<Plus className="w-2 h-2" />}
-          buttonText="New"
-          onSearchChange={handleSearchChange}
-          openModal={handleCreateBrand}
-        >
-          <div className="flex flex-wrap items-center gap-1">
-            <CustomSelect
-              options={STATUS_FILTER}
-              value={filters.status}
-              placeholder="All Status"
-              onValueChange={(value) => handleStatusChange(value as Status)}
-              label="Brand Status"
-            />
-            <DownloadTemplateButton onDownload={downloadBrandTemplate} />
-            <ImportSpreadsheetButton onClick={() => router.push(ROUTES.ADMIN.BRAND_IMPORT)} title="Import brands from Excel" />
-          </div>
-        </CardHeaderSection>
+        <CollapsibleFilterPanel config={filterConfig} />
 
         {}
         <DataTableWithPagination

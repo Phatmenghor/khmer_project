@@ -96,10 +96,13 @@ export const toggleDeliveryOptionsStatusService = createApiThunk<any, any>(
   }
 );
 
-export const importDeliveryOptionsBatchService = createApiThunk<any, any[]>(
+export const importDeliveryOptionsBatchService = createApiThunk<any, { requests: any[]; importId?: string }>(
   "delivery-options/importBatch",
-  async (requests) => {
-    const response = await axiosClientWithAuth.post("/api/v1/delivery-options/batch", requests);
+  async ({ requests, importId }) => {
+    const response = await axiosClientWithAuth.post(
+      `/api/v1/delivery-options/batch${importId ? `?importId=${importId}` : ""}`,
+      requests
+    );
     return response.data.data;
   }
 );

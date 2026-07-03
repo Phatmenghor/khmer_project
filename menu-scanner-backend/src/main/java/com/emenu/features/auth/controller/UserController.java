@@ -133,9 +133,10 @@ public class UserController {
 
     @PostMapping("/batch")
     public ResponseEntity<ApiResponse<BatchImportResponse<UserResponse>>> createUserBatch(
-            @Valid @RequestBody List<UserCreateRequest> requests) {
-        log.info("Endpoint: createUserBatch - user batch creation request received: size={}", requests.size());
-        BatchImportResponse<UserResponse> response = userService.createUserBatch(requests);
+            @Valid @RequestBody List<UserCreateRequest> requests,
+            @RequestParam(required = false) String importId) {
+        log.info("Endpoint: createUserBatch - user batch creation request received: size={}, importId={}", requests.size(), importId);
+        BatchImportResponse<UserResponse> response = userService.createUserBatch(requests, importId);
         return ResponseEntity.ok(ApiResponse.success("Batch user import completed", response));
     }
 
