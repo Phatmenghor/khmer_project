@@ -365,7 +365,7 @@ export function DataTableWithPagination<T = any>({
       {showPagination && (
         <div className="flex items-center justify-between gap-3 p-3 flex-wrap">
           {}
-          {showPageSizeSelector && totalPages > 1 ? (
+          {showPageSizeSelector && totalElements > 10 ? (
             <PageSizeSelectField
               pageSize={pageSize}
               pageSizeOptions={pageSizeOptions}
@@ -376,7 +376,7 @@ export function DataTableWithPagination<T = any>({
           )}
 
           {}
-          {totalElements > 10 && (
+          {totalPages > 1 && (
             <div className="flex items-center gap-1">
               {}
               <CustomButton
