@@ -8,9 +8,13 @@ import com.emenu.shared.dto.PaginationResponse;
 
 import java.util.UUID;
 
+import com.emenu.shared.dto.BatchImportResponse;
+import java.util.List;
+
 public interface BusinessExchangeRateService {
     
     BusinessExchangeRateResponse createBusinessExchangeRate(BusinessExchangeRateCreateRequest request);
+    BatchImportResponse<BusinessExchangeRateResponse> createBusinessExchangeRateBatch(List<BusinessExchangeRateCreateRequest> requests);
     
     PaginationResponse<BusinessExchangeRateResponse> getAllBusinessExchangeRates(BusinessExchangeRateFilterRequest filter);
     

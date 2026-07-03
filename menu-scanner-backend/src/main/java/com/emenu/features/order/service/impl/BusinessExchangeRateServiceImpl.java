@@ -24,6 +24,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import com.emenu.shared.dto.BatchImportResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -33,6 +39,10 @@ import java.util.UUID;
 @Slf4j
 @Transactional
 public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateService {
+
+    @Autowired
+    @Lazy
+    private BusinessExchangeRateService self;
 
     private final BusinessExchangeRateRepository exchangeRateRepository;
     private final BusinessRepository businessRepository;
@@ -66,6 +76,30 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
                 business.getName(), savedExchangeRate.getUsdToKhrRate());
 
         return exchangeRateMapper.toResponse(savedExchangeRate);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public BatchImportResponse<BusinessExchangeRateResponse> createBusinessExchangeRateBatch(List<BusinessExchangeRateCreateRequest> requests) {
+        log.info("Batch business exchange rate creation initiated: size={}", requests.size());
+        List<BatchImportResponse.RowResult<BusinessExchangeRateResponse>> results = new ArrayList<>();
+        int successCount = 0;
+        int errorCount = 0;
+
+        for (int i = 0; i < requests.size(); i++) {
+            BusinessExchangeRateCreateRequest req = requests.get(i);
+            try {
+                BusinessExchangeRateResponse resp = self.createBusinessExchangeRate(req);
+                results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
+                successCount++;
+            } catch (Exception ex) {
+                log.error("Batch business exchange rate creation failed at index {}: {}", i, ex.getMessage());
+                results.add(new BatchImportResponse.RowResult<>(i, false, ex.getMessage(), null));
+                errorCount++;
+            }
+        }
+
+        return new BatchImportResponse<>(successCount, errorCount, results);
     }
 
     @Override

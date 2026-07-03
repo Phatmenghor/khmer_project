@@ -16,7 +16,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.emenu.shared.dto.BatchImportResponse;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.UUID;
 
 @RestController
@@ -35,6 +37,15 @@ public class RoleController {
         RoleResponse createdRoleResponse = roleService.createRole(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Role created successfully", createdRoleResponse));
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<ApiResponse<BatchImportResponse<RoleResponse>>> createRoleBatch(
+            @Valid @RequestBody List<RoleCreateRequest> requests,
+            @RequestParam(required = false) String importId) {
+        log.info("Endpoint: createRoleBatch - role batch creation request received: size={}, importId={}", requests.size(), importId);
+        BatchImportResponse<RoleResponse> response = roleService.createRoleBatch(requests, importId);
+        return ResponseEntity.ok(ApiResponse.success("Batch role import completed", response));
     }
 
     @PostMapping("/all")

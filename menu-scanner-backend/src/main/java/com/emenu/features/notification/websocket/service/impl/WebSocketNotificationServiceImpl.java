@@ -86,4 +86,29 @@ public class WebSocketNotificationServiceImpl implements WebSocketNotificationSe
     public void notifyPlatformEvent(String type, Map<String, Object> payload) {
         // Platform events disabled — frontend no longer uses WebSocket real-time except Dashboard
     }
+
+    @Override
+    @Async("taskExecutor")
+    public void notifyImportProgress(String importId, int progress, int processed, int total, int successCount, int errorCount, boolean done, Map<String, Object> lastResult) {
+        if (importId == null) return;
+        try {
+            WebSocketEvent event = WebSocketEvent.builder()
+                    .type("IMPORT_PROGRESS")
+                    .payload(Map.of(
+                            "importId", importId,
+                            "progress", progress,
+                            "processed", processed,
+                            "total", total,
+                            "successCount", successCount,
+                            "errorCount", errorCount,
+                            "done", done,
+                            "lastResult", lastResult != null ? lastResult : Map.of()
+                    ))
+                    .build();
+            messagingTemplate.convertAndSend("/topic/import-progress/" + importId, event);
+            log.info("[WS] IMPORT_PROGRESS sent for importId {}: progress={}%", importId, progress);
+        } catch (Exception e) {
+            log.error("[WS] Failed to send IMPORT_PROGRESS notification for importId {}: {}", importId, e.getMessage());
+        }
+    }
 }

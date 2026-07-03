@@ -2,9 +2,12 @@
 
 import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, Suspense } from "react";
+import { useRouter } from "next/navigation";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
+import { DownloadTemplateButton, ImportSpreadsheetButton } from "@/components/shared/button/custom-button";
+import { downloadRoleTemplate } from "@/utils/excel/role-excel.utils";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -39,6 +42,7 @@ import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function RolesPageInner() {
   useAdminCleanup(resetState);
+  const router = useRouter();
 
   const {
     rolesState,
@@ -147,6 +151,10 @@ function RolesPageInner() {
     dispatch(setPageNo(1));
   };
 
+  const handleOpenImport = () => {
+    router.push(ROUTES.ADMIN.ROLES_IMPORT);
+  };
+
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Roles Management",
     searchValue: filters.search,
@@ -155,8 +163,14 @@ function RolesPageInner() {
     buttonText: "Create Role",
     buttonDisabled: false,
     onButtonClick: handleCreate,
+    extraActions: (
+      <div className="flex items-center gap-1">
+        <DownloadTemplateButton onDownload={downloadRoleTemplate} />
+        <ImportSpreadsheetButton onClick={handleOpenImport} title="Import roles from Excel" />
+      </div>
+    ),
     filters: [],
-  }), [filters.search]);
+  }), [filters.search, router]);
 
   const handleDelete = async () => {
     if (!deleteId) return;

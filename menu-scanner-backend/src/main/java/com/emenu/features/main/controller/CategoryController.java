@@ -10,6 +10,8 @@ import com.emenu.features.main.service.ProductConditionalService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
+import com.emenu.shared.dto.BatchImportResponse;
+import java.util.List;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +38,14 @@ public class CategoryController {
         CategoryResponse category = categoryService.createCategory(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Category created successfully", category));
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<ApiResponse<BatchImportResponse<CategoryResponse>>> createCategoryBatch(
+            @Valid @RequestBody List<CategoryCreateRequest> requests) {
+        log.info("Endpoint: createCategoryBatch - category batch creation: size={}", requests.size());
+        BatchImportResponse<CategoryResponse> response = categoryService.createCategoryBatch(requests);
+        return ResponseEntity.ok(ApiResponse.success("Batch category import completed", response));
     }
 
     @PostMapping("/all")

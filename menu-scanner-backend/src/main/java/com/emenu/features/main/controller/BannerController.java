@@ -9,6 +9,8 @@ import com.emenu.features.main.service.BannerService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
+import com.emenu.shared.dto.BatchImportResponse;
+import java.util.List;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +35,14 @@ public class BannerController {
         BannerResponse banner = bannerService.createBanner(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Banner created successfully", banner));
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<ApiResponse<BatchImportResponse<BannerResponse>>> createBannerBatch(
+            @Valid @RequestBody List<BannerCreateRequest> requests) {
+        log.info("Endpoint: createBannerBatch - banner batch creation: size={}", requests.size());
+        BatchImportResponse<BannerResponse> response = bannerService.createBannerBatch(requests);
+        return ResponseEntity.ok(ApiResponse.success("Batch banner import completed", response));
     }
 
     @PostMapping("/all")

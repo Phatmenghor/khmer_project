@@ -42,6 +42,14 @@ export const createUserService = createApiThunk<any, CreateUserRequest>(
   }
 );
 
+export const importUsersBatchService = createApiThunk<any, any[]>(
+  "users/importBatch",
+  async (requests) => {
+    const response = await axiosClientWithAuth.post("/api/v1/users/batch", requests);
+    return response.data.data;
+  }
+);
+
 
 export const updateUserService = createApiThunk<any, UpdateUserParams>(
   "users/update",
@@ -94,3 +102,49 @@ export const adminChangePasswordService = createApiThunk<
   );
   return response.data.data;
 });
+
+export const fetchAllCustomersService = createApiThunk<any, AllUserRequest>(
+  "customers/fetchAll",
+  async (params) => {
+    const response = await axiosClientWithAuth.post(
+      "/api/v1/users/my-business/all",
+      params
+    );
+    return response.data.data;
+  }
+);
+
+export const fetchCustomerByIdService = createApiThunk<any, string>(
+  "customers/fetchById",
+  async (userId) => {
+    const response = await axiosClientWithAuth.get(`/api/v1/users/${userId}`);
+    return response.data.data;
+  }
+);
+
+export const deleteCustomerService = createApiThunk<any, string>(
+  "customers/delete",
+  async (userId) => {
+    const response = await axiosClientWithAuth.delete(
+      `/api/v1/users/${userId}`
+    );
+    return response.data.data;
+  }
+);
+
+export const toggleCustomerStatusService = createApiThunk<any, UserResponseModel>(
+  "customers/toggleStatus",
+  async (user) => {
+    if (!user?.id) {
+      throw new Error("Customer ID is required");
+    }
+
+    const newStatus =
+      user?.accountStatus === "ACTIVE" ? "LOCKED" : "ACTIVE";
+
+    const response = await axiosClientWithAuth.put(`/api/v1/users/${user.id}`, {
+      accountStatus: newStatus,
+    });
+    return response.data.data;
+  }
+);

@@ -198,7 +198,7 @@ function UserBusinessPageInner() {
   const handleCreateUser = () => openCreate();
 
   const handleOpenImport = () => {
-    router.push("/admin/users/import");
+    router.push(ROUTES.ADMIN.USERS_IMPORT);
   };
 
   const handleEditUser = (user: UserResponseModel) => {

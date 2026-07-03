@@ -28,6 +28,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import com.emenu.shared.dto.BatchImportResponse;
+import java.util.ArrayList;
 
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +42,10 @@ import java.util.UUID;
 @Slf4j
 @Transactional
 public class BrandServiceImpl implements BrandService {
+
+    @Autowired
+    @Lazy
+    private BrandService self;
 
     private final BrandRepository brandRepository;
     private final BrandMapper brandMapper;
@@ -63,6 +72,30 @@ public class BrandServiceImpl implements BrandService {
 
         log.info("Brand created successfully: id={}, name={}", savedBrand.getId(), savedBrand.getName());
         return brandMapper.toResponse(savedBrand);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public BatchImportResponse<BrandResponse> createBrandBatch(List<BrandCreateRequest> requests) {
+        log.info("Batch brand creation initiated: size={}", requests.size());
+        List<BatchImportResponse.RowResult<BrandResponse>> results = new ArrayList<>();
+        int successCount = 0;
+        int errorCount = 0;
+
+        for (int i = 0; i < requests.size(); i++) {
+            BrandCreateRequest req = requests.get(i);
+            try {
+                BrandResponse resp = self.createBrand(req);
+                results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
+                successCount++;
+            } catch (Exception ex) {
+                log.error("Batch brand creation failed at index {}: {}", i, ex.getMessage());
+                results.add(new BatchImportResponse.RowResult<>(i, false, ex.getMessage(), null));
+                errorCount++;
+            }
+        }
+
+        return new BatchImportResponse<>(successCount, errorCount, results);
     }
 
     @Override

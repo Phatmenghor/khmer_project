@@ -2,6 +2,10 @@
 
 import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, Suspense } from "react";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/constants/app-routes/routes";
+import { DownloadTemplateButton, ImportSpreadsheetButton } from "@/components/shared/button/custom-button";
+import { downloadCustomerTemplate } from "@/utils/excel/customer-excel.utils";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import ResetPasswordModal from "@/components/shared/modal/reset-password-modal";
@@ -9,20 +13,20 @@ import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confir
 import { customerTableColumns } from "@/features/auth/table/customer-table";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { useUsersState } from "@/features/auth/store/state/users-state";
+import { useCustomersState } from "@/features/auth/store/state/customers-state";
 import { usePagination } from "@/hooks/use-pagination";
 import {
-  deleteUserService,
-  fetchAllUsersService,
-  fetchUserByIdService,
-  toggleUserStatusService,
+  deleteCustomerService,
+  fetchAllCustomersService,
+  fetchCustomerByIdService,
+  toggleCustomerStatusService,
 } from "@/features/auth/store/thunks/users-thunks";
 import {
   setAccountStatusFilter,
   setPageNo,
   setSearchFilter,
   resetState,
-} from "@/features/auth/store/slice/users-slice";
+} from "@/features/auth/store/slice/customers-slice";
 import { UserResponseModel } from "@/features/auth/store/models/response/users-response";
 import { ACCOUNT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
@@ -40,14 +44,15 @@ import { selectGlobalPageSize } from "@/store/selectors/global-settings-selector
 import { useAppDispatch, useAppSelector } from "@/store";
 import { selectUser } from "@/features/auth/store/selectors/auth-selectors";
 import {
-  selectUsersContent,
-  selectSelectedUser,
-} from "@/features/auth/store/selectors/users-selectors";
+  selectCustomersContent,
+  selectSelectedCustomer,
+} from "@/features/auth/store/selectors/customers-selectors";
 import { useActionRouting } from "@/hooks/use-action-routing";
 import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function CustomerPageInner() {
   useAdminCleanup(resetState);
+  const router = useRouter();
 
   const currentUser = useAppSelector(selectUser);
   const currentUserId = currentUser?.userId;
@@ -55,13 +60,13 @@ function CustomerPageInner() {
   const {
     filters,
     pagination,
-    usersData,
-    usersContent,
-    userState,
+    customersData,
+    customersContent,
+    customerState,
     isLoading,
     operations,
     dispatch,
-  } = useUsersState();
+  } = useCustomersState();
 
   const {
     viewId,
@@ -97,8 +102,8 @@ function CustomerPageInner() {
   });
 
   // ── Deep-link resolver ────────────────────────────────────────────────────
-  const allUsersContent = useAppSelector(selectUsersContent);
-  const selectedUser = useAppSelector(selectSelectedUser);
+  const allUsersContent = useAppSelector(selectCustomersContent);
+  const selectedUser = useAppSelector(selectSelectedCustomer);
 
   const resolveUser = (id: string | null): UserResponseModel | null => {
     if (!id) return null;
@@ -110,13 +115,13 @@ function CustomerPageInner() {
 
   useEffect(() => {
     if (deleteId && !deleteCustomer) {
-      dispatch(fetchUserByIdService(deleteId));
+      dispatch(fetchCustomerByIdService(deleteId));
     }
   }, [deleteId, deleteCustomer, dispatch]);
 
   useEffect(() => {
     if (resetPasswordId && !resetPasswordCustomer) {
-      dispatch(fetchUserByIdService(resetPasswordId));
+      dispatch(fetchCustomerByIdService(resetPasswordId));
     }
   }, [resetPasswordId, resetPasswordCustomer, dispatch]);
 
@@ -138,7 +143,7 @@ function CustomerPageInner() {
           : [filters.accountStatus],
     };
 
-    dispatch(fetchAllUsersService(filterPayload));
+    dispatch(fetchAllCustomersService(filterPayload));
   }, [
     dispatch,
     debouncedSearch,
@@ -180,7 +185,7 @@ function CustomerPageInner() {
     if (isSelf || isBusinessOwner) return;
 
     try {
-      await dispatch(toggleUserStatusService(customer)).unwrap();
+      await dispatch(toggleCustomerStatusService(customer)).unwrap();
       showToast.success(Messages.users.statusUpdated);
     } catch (error: unknown) {
       showToast.error((error as { message?: string })?.message || Messages.users.statusUpdateFailed);
@@ -201,11 +206,11 @@ function CustomerPageInner() {
   const columns = useMemo(
     () =>
       customerTableColumns({
-        data: usersData,
+        data: customersData,
         handlers: tableHandlers,
         currentUserId,
       }),
-    [userState, tableHandlers, currentUserId],
+    [customerState, tableHandlers, currentUserId],
   );
 
   const handlePageChangeWrapper = (page: number) => {
@@ -218,6 +223,10 @@ function CustomerPageInner() {
     dispatch(setPageNo(1));
   };
 
+  const handleOpenImport = () => {
+    router.push(ROUTES.ADMIN.CUSTOMERS_IMPORT);
+  };
+
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Customers",
     searchValue: filters.search,
@@ -226,6 +235,12 @@ function CustomerPageInner() {
     buttonText: "New Customer",
     buttonDisabled: false,
     onButtonClick: handleCreateCustomer,
+    extraActions: (
+      <div className="flex items-center gap-1">
+        <DownloadTemplateButton onDownload={downloadCustomerTemplate} />
+        <ImportSpreadsheetButton onClick={handleOpenImport} title="Import customers from Excel" />
+      </div>
+    ),
     filters: [
       {
         id: "accountStatus",
@@ -242,12 +257,12 @@ function CustomerPageInner() {
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      await dispatch(deleteUserService(deleteId)).unwrap();
+      await dispatch(deleteCustomerService(deleteId)).unwrap();
       showToast.success(
         `Customer "${deleteCustomer?.fullName || deleteCustomer?.userIdentifier}" deleted successfully`,
       );
       closeModal();
-      if (usersContent.length === 1 && pagination.currentPage > 1) {
+      if (customersContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
@@ -263,7 +278,7 @@ function CustomerPageInner() {
         <CollapsibleFilterPanel config={filterConfig} essentialFilterIds={["accountStatus"]} />
 
         <DataTableWithPagination
-          data={usersContent}
+          data={customersContent}
           columns={columns}
           loading={isLoading}
           emptyMessage="No customers found"

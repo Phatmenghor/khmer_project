@@ -44,6 +44,15 @@ export const createRoleService = createApiThunk<any, CreateRoleRequest>(
   },
 );
 
+export const importRolesBatchService = createApiThunk<any, { requests: any[]; importId?: string }>(
+  "roles/importBatch",
+  async ({ requests, importId }) => {
+    const url = importId ? `/api/v1/roles/batch?importId=${importId}` : "/api/v1/roles/batch";
+    const response = await axiosClientWithAuth.post(url, requests);
+    return response.data.data;
+  },
+);
+
 export const updateRoleService = createApiThunk<any, UpdateRoleParams>(
   "roles/update",
   async ({ roleId, roleData }) => {

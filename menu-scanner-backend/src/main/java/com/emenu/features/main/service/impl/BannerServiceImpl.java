@@ -27,6 +27,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import com.emenu.shared.dto.BatchImportResponse;
+import java.util.ArrayList;
 
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +41,10 @@ import java.util.UUID;
 @Slf4j
 @Transactional
 public class BannerServiceImpl implements BannerService {
+
+    @Autowired
+    @Lazy
+    private BannerService self;
 
     private final BannerRepository bannerRepository;
     private final BannerMapper bannerMapper;
@@ -56,6 +65,30 @@ public class BannerServiceImpl implements BannerService {
         Banner savedBanner = bannerRepository.save(banner);
         log.info("Banner created successfully: id={}, businessId={}", savedBanner.getId(), currentUser.getBusinessId());
         return bannerMapper.toResponse(savedBanner);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public BatchImportResponse<BannerResponse> createBannerBatch(List<BannerCreateRequest> requests) {
+        log.info("Batch banner creation initiated: size={}", requests.size());
+        List<BatchImportResponse.RowResult<BannerResponse>> results = new ArrayList<>();
+        int successCount = 0;
+        int errorCount = 0;
+
+        for (int i = 0; i < requests.size(); i++) {
+            BannerCreateRequest req = requests.get(i);
+            try {
+                BannerResponse resp = self.createBanner(req);
+                results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
+                successCount++;
+            } catch (Exception ex) {
+                log.error("Batch banner creation failed at index {}: {}", i, ex.getMessage());
+                results.add(new BatchImportResponse.RowResult<>(i, false, ex.getMessage(), null));
+                errorCount++;
+            }
+        }
+
+        return new BatchImportResponse<>(successCount, errorCount, results);
     }
 
     @Override

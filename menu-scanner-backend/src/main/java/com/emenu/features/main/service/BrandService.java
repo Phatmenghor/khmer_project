@@ -11,8 +11,11 @@ import com.emenu.shared.dto.PaginationResponse;
 import java.util.List;
 import java.util.UUID;
 
+import com.emenu.shared.dto.BatchImportResponse;
+
 public interface BrandService {
     BrandResponse createBrand(BrandCreateRequest request);
+    BatchImportResponse<BrandResponse> createBrandBatch(List<BrandCreateRequest> requests);
     PaginationResponse<BrandResponse> getAllBrands(BrandFilterRequest filter);
     PaginationResponse<BrandWithProductCountResponse> getBrandsWithProductCount(BrandFilterRequest filter);
     List<BrandResponse> getAllListBrands(BrandAllFilterRequest filter);

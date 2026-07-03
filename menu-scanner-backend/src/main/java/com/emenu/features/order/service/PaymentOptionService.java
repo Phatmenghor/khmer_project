@@ -11,9 +11,12 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.UUID;
 
+import com.emenu.shared.dto.BatchImportResponse;
+
 public interface PaymentOptionService {
 
     PaymentOptionResponse createPaymentOption(UUID businessId, PaymentOptionRequest request);
+    BatchImportResponse<PaymentOptionResponse> createPaymentOptionBatch(UUID businessId, List<PaymentOptionRequest> requests);
 
     PaginationResponse<PaymentOptionResponse> getAllPaymentOptionsWithFilters(
             UUID businessId,

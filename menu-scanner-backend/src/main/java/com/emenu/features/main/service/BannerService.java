@@ -10,10 +10,13 @@ import com.emenu.shared.dto.PaginationResponse;
 import java.util.List;
 import java.util.UUID;
 
+import com.emenu.shared.dto.BatchImportResponse;
+
 public interface BannerService {
     
     // CRUD Operations
     BannerResponse createBanner(BannerCreateRequest request);
+    BatchImportResponse<BannerResponse> createBannerBatch(List<BannerCreateRequest> requests);
     PaginationResponse<BannerResponse> getAllBanners(BannerFilterRequest filter);
     List<BannerResponse> getAllItemBanners(BannerAllFilterRequest filter);
     BannerResponse getBannerById(UUID id);

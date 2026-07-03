@@ -11,6 +11,8 @@ import com.emenu.features.main.service.ProductConditionalService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
+import com.emenu.shared.dto.BatchImportResponse;
+import java.util.List;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,14 @@ public class BrandController {
         BrandResponse brand = brandService.createBrand(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Brand created successfully", brand));
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<ApiResponse<BatchImportResponse<BrandResponse>>> createBrandBatch(
+            @Valid @RequestBody List<BrandCreateRequest> requests) {
+        log.info("Endpoint: createBrandBatch - brand batch creation: size={}", requests.size());
+        BatchImportResponse<BrandResponse> response = brandService.createBrandBatch(requests);
+        return ResponseEntity.ok(ApiResponse.success("Batch brand import completed", response));
     }
 
     @PostMapping("/all")

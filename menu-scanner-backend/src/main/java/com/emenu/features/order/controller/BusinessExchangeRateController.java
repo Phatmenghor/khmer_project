@@ -11,6 +11,8 @@ import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.emenu.shared.dto.BatchImportResponse;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +35,14 @@ public class BusinessExchangeRateController {
         BusinessExchangeRateResponse exchangeRate = exchangeRateService.createBusinessExchangeRate(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Business exchange rate created successfully", exchangeRate));
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<ApiResponse<BatchImportResponse<BusinessExchangeRateResponse>>> createBusinessExchangeRateBatch(
+            @Valid @RequestBody List<BusinessExchangeRateCreateRequest> requests) {
+        log.info("Endpoint: createBusinessExchangeRateBatch - business exchange rate batch creation: size={}", requests.size());
+        BatchImportResponse<BusinessExchangeRateResponse> response = exchangeRateService.createBusinessExchangeRateBatch(requests);
+        return ResponseEntity.ok(ApiResponse.success("Batch business exchange rate import completed", response));
     }
 
     @PostMapping("/all")

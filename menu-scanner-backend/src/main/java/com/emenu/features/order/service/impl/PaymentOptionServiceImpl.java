@@ -17,6 +17,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import com.emenu.shared.dto.BatchImportResponse;
+import java.util.ArrayList;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +31,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentOptionServiceImpl implements PaymentOptionService {
+
+    @Autowired
+    @Lazy
+    private PaymentOptionService self;
 
     private final PaymentOptionRepository paymentOptionRepository;
 
@@ -51,6 +60,30 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
         PaymentOption saved = paymentOptionRepository.save(paymentOption);
         log.info("Payment option created: {}", saved.getId());
         return mapToResponse(saved);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public BatchImportResponse<PaymentOptionResponse> createPaymentOptionBatch(UUID businessId, List<PaymentOptionRequest> requests) {
+        log.info("Batch payment option creation initiated: size={}", requests.size());
+        List<BatchImportResponse.RowResult<PaymentOptionResponse>> results = new ArrayList<>();
+        int successCount = 0;
+        int errorCount = 0;
+
+        for (int i = 0; i < requests.size(); i++) {
+            PaymentOptionRequest req = requests.get(i);
+            try {
+                PaymentOptionResponse resp = self.createPaymentOption(businessId, req);
+                results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
+                successCount++;
+            } catch (Exception ex) {
+                log.error("Batch payment option creation failed at index {}: {}", i, ex.getMessage());
+                results.add(new BatchImportResponse.RowResult<>(i, false, ex.getMessage(), null));
+                errorCount++;
+            }
+        }
+
+        return new BatchImportResponse<>(successCount, errorCount, results);
     }
 
     @Override

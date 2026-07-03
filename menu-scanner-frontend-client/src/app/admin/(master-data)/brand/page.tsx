@@ -4,8 +4,11 @@ import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState, Suspense} from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
+import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
+import { DownloadTemplateButton, ImportSpreadsheetButton } from "@/components/shared/button/custom-button";
+import { downloadBrandTemplate } from "@/utils/excel/brand-excel.utils";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
@@ -37,6 +40,7 @@ import { useAppSelector } from "@/store";
 
 function BrandPageInner() {
   useAdminCleanup(resetState);
+  const router = useRouter();
 
   const {
     brandState,
@@ -243,6 +247,8 @@ function BrandPageInner() {
               onValueChange={(value) => handleStatusChange(value as Status)}
               label="Brand Status"
             />
+            <DownloadTemplateButton onDownload={downloadBrandTemplate} />
+            <ImportSpreadsheetButton onClick={() => router.push(ROUTES.ADMIN.BRAND_IMPORT)} title="Import brands from Excel" />
           </div>
         </CardHeaderSection>
 

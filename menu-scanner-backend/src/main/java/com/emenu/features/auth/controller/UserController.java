@@ -22,6 +22,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import com.emenu.shared.dto.BatchImportResponse;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.UUID;
 
 @RestController
@@ -126,6 +129,14 @@ public class UserController {
         UserResponse createdUserResponse = userService.createUser(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("User created", createdUserResponse));
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<ApiResponse<BatchImportResponse<UserResponse>>> createUserBatch(
+            @Valid @RequestBody List<UserCreateRequest> requests) {
+        log.info("Endpoint: createUserBatch - user batch creation request received: size={}", requests.size());
+        BatchImportResponse<UserResponse> response = userService.createUserBatch(requests);
+        return ResponseEntity.ok(ApiResponse.success("Batch user import completed", response));
     }
 
     @PutMapping("/{userId}")

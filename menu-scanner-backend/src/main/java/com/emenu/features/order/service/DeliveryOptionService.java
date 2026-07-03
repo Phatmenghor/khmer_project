@@ -10,10 +10,13 @@ import com.emenu.shared.dto.PaginationResponse;
 import java.util.List;
 import java.util.UUID;
 
+import com.emenu.shared.dto.BatchImportResponse;
+
 public interface DeliveryOptionService {
     
     // CRUD Operations
     DeliveryOptionResponse createDeliveryOption(DeliveryOptionCreateRequest request);
+    BatchImportResponse<DeliveryOptionResponse> createDeliveryOptionBatch(List<DeliveryOptionCreateRequest> requests);
     PaginationResponse<DeliveryOptionResponse> getAllDeliveryOptions(DeliveryOptionFilterRequest filter);
     List<DeliveryOptionResponse> getAllItemDeliveryOptions(DeliveryOptionAllFilterRequest filter);
     DeliveryOptionResponse getDeliveryOptionById(UUID id);

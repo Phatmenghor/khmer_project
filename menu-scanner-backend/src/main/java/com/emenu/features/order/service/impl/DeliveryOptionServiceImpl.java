@@ -25,6 +25,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import com.emenu.shared.dto.BatchImportResponse;
+import java.util.ArrayList;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +39,10 @@ import java.util.UUID;
 @Slf4j
 @Transactional
 public class DeliveryOptionServiceImpl implements DeliveryOptionService {
+
+    @Autowired
+    @Lazy
+    private DeliveryOptionService self;
 
     private final DeliveryOptionRepository deliveryOptionRepository;
     private final DeliveryOptionMapper deliveryOptionMapper;
@@ -62,6 +71,30 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
                 savedDeliveryOption.getName(), currentUser.getBusinessId());
 
         return deliveryOptionMapper.toResponse(savedDeliveryOption);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public BatchImportResponse<DeliveryOptionResponse> createDeliveryOptionBatch(List<DeliveryOptionCreateRequest> requests) {
+        log.info("Batch delivery option creation initiated: size={}", requests.size());
+        List<BatchImportResponse.RowResult<DeliveryOptionResponse>> results = new ArrayList<>();
+        int successCount = 0;
+        int errorCount = 0;
+
+        for (int i = 0; i < requests.size(); i++) {
+            DeliveryOptionCreateRequest req = requests.get(i);
+            try {
+                DeliveryOptionResponse resp = self.createDeliveryOption(req);
+                results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
+                successCount++;
+            } catch (Exception ex) {
+                log.error("Batch delivery option creation failed at index {}: {}", i, ex.getMessage());
+                results.add(new BatchImportResponse.RowResult<>(i, false, ex.getMessage(), null));
+                errorCount++;
+            }
+        }
+
+        return new BatchImportResponse<>(successCount, errorCount, results);
     }
 
     @Override

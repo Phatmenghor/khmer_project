@@ -33,6 +33,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import com.emenu.shared.dto.BatchImportResponse;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -45,6 +49,10 @@ import java.util.UUID;
 @Slf4j
 @Transactional
 public class RoleServiceImpl implements RoleService {
+
+    @Autowired
+    @Lazy
+    private RoleService self;
 
     private final RoleRepository roleRepository;
     private final BusinessRepository businessRepository;
@@ -89,6 +97,54 @@ public class RoleServiceImpl implements RoleService {
         webSocketNotificationService.notifyPlatformEvent("ROLE_CHANGED", Map.of("action", "created", "roleId", savedRole.getId().toString()));
 
         return roleMapper.toResponse(savedRole);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public BatchImportResponse<RoleResponse> createRoleBatch(List<RoleCreateRequest> requests, String importId) {
+        log.info("Batch role creation initiated: size={}, importId={}", requests.size(), importId);
+        List<BatchImportResponse.RowResult<RoleResponse>> results = new ArrayList<>();
+        int successCount = 0;
+        int errorCount = 0;
+
+        for (int i = 0; i < requests.size(); i++) {
+            RoleCreateRequest req = requests.get(i);
+            boolean success = false;
+            String errorMsg = null;
+            RoleResponse resp = null;
+            try {
+                resp = self.createRole(req);
+                results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
+                successCount++;
+                success = true;
+            } catch (Exception ex) {
+                log.error("Batch role creation failed at index {}: {}", i, ex.getMessage());
+                errorMsg = ex.getMessage();
+                results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
+                errorCount++;
+            }
+
+            if (importId != null) {
+                int progress = (int) (((double) (i + 1) / requests.size()) * 100);
+                java.util.Map<String, Object> lastResult = java.util.Map.of(
+                    "index", i,
+                    "success", success,
+                    "error", errorMsg != null ? errorMsg : ""
+                );
+                webSocketNotificationService.notifyImportProgress(
+                    importId,
+                    progress,
+                    i + 1,
+                    requests.size(),
+                    successCount,
+                    errorCount,
+                    (i + 1) == requests.size(),
+                    lastResult
+                );
+            }
+        }
+
+        return new BatchImportResponse<>(successCount, errorCount, results);
     }
 
     @Override

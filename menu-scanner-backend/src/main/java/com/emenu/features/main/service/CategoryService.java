@@ -11,10 +11,13 @@ import com.emenu.shared.dto.PaginationResponse;
 import java.util.List;
 import java.util.UUID;
 
+import com.emenu.shared.dto.BatchImportResponse;
+
 public interface CategoryService {
     
     // CRUD Operations
     CategoryResponse createCategory(CategoryCreateRequest request);
+    BatchImportResponse<CategoryResponse> createCategoryBatch(List<CategoryCreateRequest> requests);
     PaginationResponse<CategoryResponse> getAllCategories(CategoryFilterRequest filter);
     PaginationResponse<CategoryWithProductCountResponse> getCategoriesWithProductCount(CategoryFilterRequest filter);
     List<CategoryResponse> getAllItemCategories(CategoryAllFilterRequest filter);

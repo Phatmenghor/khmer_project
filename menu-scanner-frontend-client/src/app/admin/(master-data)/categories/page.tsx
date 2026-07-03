@@ -3,7 +3,10 @@
 import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, Suspense } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
+import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
+import { DownloadTemplateButton, ImportSpreadsheetButton } from "@/components/shared/button/custom-button";
+import { downloadCategoryTemplate } from "@/utils/excel/category-excel.utils";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
@@ -43,6 +46,7 @@ import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function CategoriesPageInner() {
   useAdminCleanup(resetState);
+  const router = useRouter();
 
   const {
     categoriesState,
@@ -163,6 +167,10 @@ function CategoriesPageInner() {
     dispatch(setPageNo(1));
   };
 
+  const handleOpenImport = () => {
+    router.push(ROUTES.ADMIN.CATEGORIES_IMPORT);
+  };
+
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Categories Information",
     searchValue: filters.search,
@@ -171,6 +179,12 @@ function CategoriesPageInner() {
     buttonText: "New",
     buttonTooltip: "Create a new category",
     onButtonClick: handleCreateCategories,
+    extraActions: (
+      <div className="flex items-center gap-1">
+        <DownloadTemplateButton onDownload={downloadCategoryTemplate} />
+        <ImportSpreadsheetButton onClick={handleOpenImport} title="Import categories from Excel" />
+      </div>
+    ),
     filters: [
       {
         id: "status",

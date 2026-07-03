@@ -290,11 +290,13 @@ export const ConditionalActionButton = ({
 export interface DownloadTemplateButtonProps {
   onDownload: () => void | Promise<void>;
   className?: string;
+  children?: React.ReactNode;
 }
 
 export function DownloadTemplateButton({
   onDownload,
   className,
+  children,
 }: DownloadTemplateButtonProps) {
   const [isDownloading, setIsDownloading] = React.useState(false);
 
@@ -326,7 +328,7 @@ export function DownloadTemplateButton({
       )}
       title="Download Excel template"
     >
-      {isDownloading ? "Loading..." : "Template"}
+      {isDownloading ? "Downloading..." : (children || "Template")}
     </CustomButton>
   );
 }

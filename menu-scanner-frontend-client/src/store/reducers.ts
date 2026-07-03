@@ -4,6 +4,7 @@
 import authReducer from "@/features/auth/store/slice/auth-slice";
 import roleSlice from "@/features/auth/store/slice/role-slice";
 import usersReducer from "@/features/auth/store/slice/users-slice";
+import customersReducer from "@/features/auth/store/slice/customers-slice";
 import sessionReducer from "@/features/sessions/store/slice/session-slice";
 
 import bannerReducer from "@/features/master-data/store/slice/banner-slice";
@@ -52,6 +53,7 @@ export const reducers = {
 
   auth: authReducer,
   users: usersReducer,
+  customers: customersReducer,
   roles: roleSlice,
   sessions: sessionReducer,
 

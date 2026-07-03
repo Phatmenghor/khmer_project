@@ -10,11 +10,15 @@ import com.emenu.features.auth.dto.response.UserResponse;
 import com.emenu.features.auth.dto.update.UserUpdateRequest;
 import com.emenu.shared.dto.PaginationResponse;
 
+import com.emenu.shared.dto.BatchImportResponse;
+import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
 
     UserResponse createUser(UserCreateRequest request);
+
+    BatchImportResponse<UserResponse> createUserBatch(List<UserCreateRequest> requests);
 
     PaginationResponse<UserResponse> getAllUsers(UserFilterRequest request);
 

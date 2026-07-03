@@ -11,6 +11,8 @@ import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.emenu.shared.dto.BatchImportResponse;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +39,18 @@ public class PaymentOptionController {
         );
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Payment option created successfully", response));
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<ApiResponse<BatchImportResponse<PaymentOptionResponse>>> createPaymentOptionBatch(
+            @Valid @RequestBody List<PaymentOptionRequest> requests) {
+        log.info("Endpoint: createPaymentOptionBatch - payment option batch creation: size={}", requests.size());
+        User currentUser = securityUtils.getCurrentUser();
+        BatchImportResponse<PaymentOptionResponse> response = paymentOptionService.createPaymentOptionBatch(
+                currentUser.getBusinessId(),
+                requests
+        );
+        return ResponseEntity.ok(ApiResponse.success("Batch payment option import completed", response));
     }
 
     @PostMapping("/all")

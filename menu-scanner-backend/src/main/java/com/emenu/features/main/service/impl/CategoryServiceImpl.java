@@ -25,6 +25,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import com.emenu.shared.dto.BatchImportResponse;
+import java.util.ArrayList;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +39,10 @@ import java.util.UUID;
 @Slf4j
 @Transactional
 public class CategoryServiceImpl implements CategoryService {
+
+    @Autowired
+    @Lazy
+    private CategoryService self;
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
@@ -60,6 +69,30 @@ public class CategoryServiceImpl implements CategoryService {
 
         log.info("Category created successfully: id={}, name={}", savedCategory.getId(), savedCategory.getName());
         return categoryMapper.toResponse(savedCategory);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public BatchImportResponse<CategoryResponse> createCategoryBatch(List<CategoryCreateRequest> requests) {
+        log.info("Batch category creation initiated: size={}", requests.size());
+        List<BatchImportResponse.RowResult<CategoryResponse>> results = new ArrayList<>();
+        int successCount = 0;
+        int errorCount = 0;
+
+        for (int i = 0; i < requests.size(); i++) {
+            CategoryCreateRequest req = requests.get(i);
+            try {
+                CategoryResponse resp = self.createCategory(req);
+                results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
+                successCount++;
+            } catch (Exception ex) {
+                log.error("Batch category creation failed at index {}: {}", i, ex.getMessage());
+                results.add(new BatchImportResponse.RowResult<>(i, false, ex.getMessage(), null));
+                errorCount++;
+            }
+        }
+
+        return new BatchImportResponse<>(successCount, errorCount, results);
     }
 
     @Override

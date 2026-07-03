@@ -36,6 +36,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import com.emenu.shared.dto.BatchImportResponse;
+import java.util.ArrayList;
 
 import java.util.List;
 import java.util.Map;
@@ -51,6 +56,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Transactional
 public class UserServiceImpl implements UserService {
+
+    @Autowired
+    @Lazy
+    private UserService self;
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -88,6 +97,30 @@ public class UserServiceImpl implements UserService {
         webSocketNotificationService.notifyPlatformEvent("USER_CHANGED", Map.of("action", "created", "userId", savedUserEntity.getId().toString()));
 
         return userMapper.toResponse(savedUserEntity);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public BatchImportResponse<UserResponse> createUserBatch(List<UserCreateRequest> requests) {
+        log.info("Batch user creation initiated: size={}", requests.size());
+        List<BatchImportResponse.RowResult<UserResponse>> results = new ArrayList<>();
+        int successCount = 0;
+        int errorCount = 0;
+
+        for (int i = 0; i < requests.size(); i++) {
+            UserCreateRequest req = requests.get(i);
+            try {
+                UserResponse resp = self.createUser(req);
+                results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
+                successCount++;
+            } catch (Exception ex) {
+                log.error("Batch user creation failed at index {}: {}", i, ex.getMessage());
+                results.add(new BatchImportResponse.RowResult<>(i, false, ex.getMessage(), null));
+                errorCount++;
+            }
+        }
+
+        return new BatchImportResponse<>(successCount, errorCount, results);
     }
 
     private int countTotalRelatedRecords(User userEntity) {

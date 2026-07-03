@@ -3,7 +3,10 @@
 import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, Suspense } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
+import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
+import { DownloadTemplateButton, ImportSpreadsheetButton } from "@/components/shared/button/custom-button";
+import { downloadPaymentOptionTemplate } from "@/utils/excel/payment-option-excel.utils";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
@@ -42,6 +45,7 @@ import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function PaymentOptionsPageInner() {
   useAdminCleanup(resetState);
+  const router = useRouter();
 
   const {
     paymentOptionsState,
@@ -176,6 +180,10 @@ function PaymentOptionsPageInner() {
     dispatch(setPageNo(1));
   };
 
+  const handleOpenImport = () => {
+    router.push(ROUTES.ADMIN.PAYMENT_OPTIONS_IMPORT);
+  };
+
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Payment Options Information",
     searchValue: filters.search,
@@ -184,6 +192,12 @@ function PaymentOptionsPageInner() {
     buttonText: "New",
     buttonTooltip: "Create a new payment option",
     onButtonClick: handleCreatePaymentOption,
+    extraActions: (
+      <div className="flex items-center gap-1">
+        <DownloadTemplateButton onDownload={downloadPaymentOptionTemplate} />
+        <ImportSpreadsheetButton onClick={handleOpenImport} title="Import payment options from Excel" />
+      </div>
+    ),
     filters: [
       {
         id: "status",

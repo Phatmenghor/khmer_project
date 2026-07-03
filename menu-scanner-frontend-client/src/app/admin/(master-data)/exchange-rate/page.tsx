@@ -3,7 +3,10 @@
 import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, Suspense } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
+import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
+import { DownloadTemplateButton, ImportSpreadsheetButton } from "@/components/shared/button/custom-button";
+import { downloadExchangeRateTemplate } from "@/utils/excel/exchange-rate-excel.utils";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
@@ -40,6 +43,7 @@ import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function ExchangeRatePageInner() {
   useAdminCleanup(resetState);
+  const router = useRouter();
 
   const {
     exchangeRateState,
@@ -174,6 +178,10 @@ function ExchangeRatePageInner() {
     dispatch(setPageNo(1));
   };
 
+  const handleOpenImport = () => {
+    router.push(ROUTES.ADMIN.EXCHANGE_RATE_IMPORT);
+  };
+
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Exchange Rate",
     searchValue: filters.search,
@@ -182,6 +190,12 @@ function ExchangeRatePageInner() {
     buttonText: "New",
     buttonTooltip: "Create a new exchange rate",
     onButtonClick: handleCreateRate,
+    extraActions: (
+      <div className="flex items-center gap-1">
+        <DownloadTemplateButton onDownload={downloadExchangeRateTemplate} />
+        <ImportSpreadsheetButton onClick={handleOpenImport} title="Import exchange rates from Excel" />
+      </div>
+    ),
     filters: [
       {
         id: "status",

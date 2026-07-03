@@ -3,7 +3,10 @@
 import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, Suspense } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
+import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
+import { DownloadTemplateButton, ImportSpreadsheetButton } from "@/components/shared/button/custom-button";
+import { downloadBannerTemplate } from "@/utils/excel/banner-excel.utils";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
@@ -39,6 +42,7 @@ import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function BannerPageInner() {
   useAdminCleanup(resetState);
+  const router = useRouter();
 
   const {
     bannerState,
@@ -160,6 +164,10 @@ function BannerPageInner() {
     dispatch(setPageNo(1));
   };
 
+  const handleOpenImport = () => {
+    router.push(ROUTES.ADMIN.BANNER_IMPORT);
+  };
+
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Banner Information",
     searchValue: filters.search,
@@ -168,6 +176,12 @@ function BannerPageInner() {
     buttonText: "New",
     buttonTooltip: "Create a new banner",
     onButtonClick: handleCreateBanner,
+    extraActions: (
+      <div className="flex items-center gap-1">
+        <DownloadTemplateButton onDownload={downloadBannerTemplate} />
+        <ImportSpreadsheetButton onClick={handleOpenImport} title="Import banners from Excel" />
+      </div>
+    ),
     filters: [
       {
         id: "status",

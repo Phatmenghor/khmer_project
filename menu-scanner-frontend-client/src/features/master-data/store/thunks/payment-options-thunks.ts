@@ -91,3 +91,11 @@ export const deletePaymentOptionService = createApiThunk<any, string>(
     return response.data.data;
   }
 );
+
+export const importPaymentOptionsBatchService = createApiThunk<any, any[]>(
+  "paymentOptions/importBatch",
+  async (requests) => {
+    const response = await axiosClientWithAuth.post("/api/v1/payment-options/batch", requests);
+    return response.data.data;
+  }
+);
