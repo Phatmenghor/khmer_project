@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { dateTimeFormat } from "@/utils/date/date-time-format";
+import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { fetchUserByIdService } from "@/features/auth/store/thunks/users-thunks";
 import { clearSelectedUser } from "@/features/auth/store/slice/users-slice";
@@ -113,7 +113,7 @@ export function UserBusinessDetailModal({
             label="Gender"
             value={userData.gender ? formatEnumValue(userData.gender) : "-"}
           />
-          <InfoRow label="Date of Birth" value={userData.dateOfBirth || "-"} />
+          <InfoRow label="Date of Birth" value={userData.dateOfBirth ? formatDate(userData.dateOfBirth) : "-"} />
           <InfoRow label="Email" value={userData.email || "-"} fullWidth />
 
           {/* Employment Information */}

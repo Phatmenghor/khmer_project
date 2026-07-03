@@ -8,12 +8,13 @@ import com.emenu.features.auth.dto.update.RoleUpdateRequest;
 import com.emenu.shared.dto.PaginationResponse;
 
 import com.emenu.shared.dto.BatchImportResponse;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
 public interface RoleService {
 
-    RoleResponse createRole(RoleCreateRequest request);
+    RoleResponse createRole(@Valid RoleCreateRequest request);
 
     BatchImportResponse<RoleResponse> createRoleBatch(List<RoleCreateRequest> requests, String importId);
 

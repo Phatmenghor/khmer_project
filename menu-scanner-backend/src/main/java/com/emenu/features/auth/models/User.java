@@ -17,7 +17,7 @@ import java.util.UUID;
 @Table(name = "users",
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_platform_user_identifier", columnNames = {"user_identifier", "user_type"}),
-                @UniqueConstraint(name = "uk_business_user_identifier", columnNames = {"user_identifier", "business_id"})
+                @UniqueConstraint(name = "uk_business_user_identifier", columnNames = {"user_identifier", "user_type", "business_id"})
         },
         indexes = {
                 // ── Single-column — high-cardinality lookups ──────────────────────

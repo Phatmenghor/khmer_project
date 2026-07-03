@@ -1,8 +1,8 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState, Suspense} from "react";
-import { Plus } from "lucide-react";
+import { useEffect, useMemo, useState, Suspense, useRef } from "react";
+
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -39,6 +39,7 @@ import { useAppSelector } from "@/store";
 
 function BrandPageInner() {
   useAdminCleanup(resetState);
+  const isInitialMount = useRef(true);
   const router = useRouter();
 
   const {
@@ -77,6 +78,13 @@ function BrandPageInner() {
   });
 
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      if (brandContent && brandContent.length > 0) {
+        return;
+      }
+    }
+
     const promise = dispatch(
       fetchAllBrandWithProductCountService({
         search: debouncedSearch,
@@ -88,6 +96,7 @@ function BrandPageInner() {
     return () => {
       promise.abort();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dispatch,
     debouncedSearch,

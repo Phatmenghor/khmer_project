@@ -210,7 +210,7 @@ public class AuthServiceImpl implements AuthService {
                 );
             }
 
-            return userRepository.findByUserIdentifierAndBusinessIdAndIsDeletedFalse(userIdentifier, businessIdValue)
+            return userRepository.findByUserIdentifierAndUserTypeAndBusinessIdAndIsDeletedFalse(userIdentifier, userTypeEnum, businessIdValue)
                     .orElseThrow(() -> {
                         log.warn("User login failed - user not found in business: identifier={}, business_id={}, type={}", userIdentifier, businessIdValue, userTypeEnum);
                         String userTypeLabel = userTypeEnum.name().toLowerCase().replace("_", " ");
@@ -453,7 +453,7 @@ public class AuthServiceImpl implements AuthService {
                 throw new ValidationException("Invalid refresh token: invalid business ID format");
             }
 
-            return userRepository.findByUserIdentifierAndBusinessIdAndIsDeletedFalse(userIdentifier, businessIdValue)
+            return userRepository.findByUserIdentifierAndUserTypeAndBusinessIdAndIsDeletedFalse(userIdentifier, userTypeEnum, businessIdValue)
                     .orElseThrow(() -> {
                         log.warn("Refresh token validation failed - user not found: identifier={}, business_id={}", userIdentifier, businessIdValue);
                         return new ValidationException("User not found for refresh token context");

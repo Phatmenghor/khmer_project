@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, Suspense } from "react";
+import { useEffect, useMemo, Suspense, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -42,6 +42,7 @@ import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function RolesPageInner() {
   useAdminCleanup(resetState);
+  const isInitialMount = useRef(true);
   const router = useRouter();
 
   const {
@@ -54,6 +55,8 @@ function RolesPageInner() {
     pagination,
     dispatch,
   } = useRolesState();
+
+  const allRolesContent = useAppSelector(selectRoleContent);
 
   const {
     viewId,
@@ -70,8 +73,7 @@ function RolesPageInner() {
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
 
-  // ── Sync filters ↔ URL ────────────────────────────────────────────────────
-  useAdminFilterUrlSync({
+  const isHydrated = useAdminFilterUrlSync({
     filters: {
       search: filters.search,
       pageNo: filters.pageNo,
@@ -90,6 +92,15 @@ function RolesPageInner() {
   });
 
   useEffect(() => {
+    if (!isHydrated) return;
+
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      if (allRolesContent && allRolesContent.length > 0) {
+        return;
+      }
+    }
+
     dispatch(
       fetchAllRoleService({
         search: debouncedSearch,
@@ -98,10 +109,10 @@ function RolesPageInner() {
         businessId: AppDefault.BUSINESS_ID,
       }),
     );
-  }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize, isHydrated]);
 
   // ── Deep-link resolver ────────────────────────────────────────────────────
-  const allRolesContent = useAppSelector(selectRoleContent);
   const selectedRole = useAppSelector(selectSelectedRole);
 
   const resolveRole = (id: string | null): RoleResponseModel | null => {

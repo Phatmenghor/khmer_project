@@ -40,6 +40,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import com.emenu.shared.dto.BatchImportResponse;
+import com.emenu.shared.cancellation.RequestCancellationRegistry;
+import org.springframework.validation.annotation.Validated;
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -55,6 +58,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+@Validated
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -74,9 +78,10 @@ public class UserServiceImpl implements UserService {
     private final UserValidationService userValidationService;
     private final PaginationMapper paginationMapper;
     private final WebSocketNotificationService webSocketNotificationService;
+    private final RequestCancellationRegistry cancellationRegistry;
 
     @Override
-    public UserResponse createUser(UserCreateRequest requestData) {
+    public UserResponse createUser(@Valid UserCreateRequest requestData) {
         log.info("User creation initiated: identifier={}, type={}, business_id={}",
                 requestData.getUserIdentifier(), requestData.getUserType(), requestData.getBusinessId());
 
@@ -107,41 +112,56 @@ public class UserServiceImpl implements UserService {
         int successCount = 0;
         int errorCount = 0;
 
-        for (int i = 0; i < requests.size(); i++) {
-            UserCreateRequest req = requests.get(i);
-            boolean success = false;
-            String errorMsg = null;
-            UserResponse resp = null;
-            try {
-                resp = self.createUser(req);
-                results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
-                successCount++;
-                success = true;
-            } catch (Exception ex) {
-                log.error("Batch user creation failed at index {}: {}", i, ex.getMessage());
-                errorMsg = ex.getMessage();
-                results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
-                errorCount++;
-            }
+        cancellationRegistry.registerImport(importId);
 
-            if (importId != null) {
-                int progress = (int) (((double) (i + 1) / requests.size()) * 100);
-                java.util.Map<String, Object> lastResult = java.util.Map.of(
-                    "index", i,
-                    "success", success,
-                    "error", errorMsg != null ? errorMsg : ""
-                );
-                webSocketNotificationService.notifyImportProgress(
-                    importId,
-                    progress,
-                    i + 1,
-                    requests.size(),
-                    successCount,
-                    errorCount,
-                    (i + 1) == requests.size(),
-                    lastResult
-                );
+        try {
+            for (int i = 0; i < requests.size(); i++) {
+                cancellationRegistry.checkCancelled(importId);
+
+                UserCreateRequest req = requests.get(i);
+                boolean success = false;
+                String errorMsg = null;
+                UserResponse resp = null;
+                try {
+                    resp = self.createUser(req);
+                    results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
+                    successCount++;
+                    success = true;
+                } catch (jakarta.validation.ConstraintViolationException ex) {
+                    errorMsg = ex.getConstraintViolations().stream()
+                            .map(jakarta.validation.ConstraintViolation::getMessage)
+                            .collect(java.util.stream.Collectors.joining(", "));
+                    log.error("Batch user creation failed at index {} due to validation: {}", i, errorMsg);
+                    results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
+                    errorCount++;
+                } catch (Exception ex) {
+                    log.error("Batch user creation failed at index {}: {}", i, ex.getMessage());
+                    errorMsg = ex.getMessage();
+                    results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
+                    errorCount++;
+                }
+
+                if (importId != null) {
+                    int progress = (int) (((double) (i + 1) / requests.size()) * 100);
+                    java.util.Map<String, Object> lastResult = java.util.Map.of(
+                        "index", i,
+                        "success", success,
+                        "error", errorMsg != null ? errorMsg : ""
+                    );
+                    webSocketNotificationService.notifyImportProgress(
+                        importId,
+                        progress,
+                        i + 1,
+                        requests.size(),
+                        successCount,
+                        errorCount,
+                        (i + 1) == requests.size(),
+                        lastResult
+                    );
+                }
             }
+        } finally {
+            cancellationRegistry.cleanUp(importId);
         }
 
         return new BatchImportResponse<>(successCount, errorCount, results);

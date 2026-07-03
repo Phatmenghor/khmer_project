@@ -41,7 +41,7 @@ public class RoleController {
 
     @PostMapping("/batch")
     public ResponseEntity<ApiResponse<BatchImportResponse<RoleResponse>>> createRoleBatch(
-            @Valid @RequestBody List<RoleCreateRequest> requests,
+            @RequestBody List<RoleCreateRequest> requests,
             @RequestParam(required = false) String importId) {
         log.info("Endpoint: createRoleBatch - role batch creation request received: size={}, importId={}", requests.size(), importId);
         BatchImportResponse<RoleResponse> response = roleService.createRoleBatch(requests, importId);

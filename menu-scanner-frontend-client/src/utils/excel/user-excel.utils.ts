@@ -78,7 +78,7 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
   data[8] = ["Full Name", "NO", "First Name + Last Name (e.g. Dara Reach)", "Optional full name. Automatically split into First/Last name on import."];
   data[9] = ["Phone Number", "NO", "Digits only (e.g. 012345678)", "User's contact phone number."];
   data[10] = ["Gender", "NO", "Male / Female / Other", "User's gender classification."];
-  data[11] = ["Date of Birth", "NO", "YYYY-MM-DD format (e.g. 1995-06-20)", "User's birthdate format."];
+  data[11] = ["Date of Birth", "NO", "DD-MM-YYYY format (e.g. 20-06-1995)", "User's birthdate format."];
 
   data[12] = ["", "", "", ""];
 
@@ -87,7 +87,7 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
   data[14] = ["Username *", "Password *", "Role *", "Email *", "Full Name", "Phone Number", "Gender", "Date of Birth"];
 
   // Row 15: Example data (ONLY 1 EXAMPLE ROW as requested)
-  data[15] = ["sok.san", "San12345", "Staff", "sok.san@gmail.com", "Sok San", "098765432", "Male", "1990-12-15"];
+  data[15] = ["sok.san", "San12345", "Staff", "sok.san@gmail.com", "Sok San", "098765432", "Male", "15-12-1990"];
 
   const ws = XLSX.utils.aoa_to_sheet(data);
 
@@ -232,11 +232,31 @@ export function downloadUserTemplate() {
   // Apply premium colors & styles to headers
   styleHeaderRow(ws, headers);
 
+  // Pre-initialize formatting for Date of Birth column (Column H / index 7) to display full dd-mm-yyyy
+  for (let r = 1; r <= 500; r++) {
+    const cellRef = XLSX.utils.encode_cell({ r, c: 7 });
+    ws[cellRef] = {
+      t: "s",
+      v: "",
+      z: "dd-mm-yyyy"
+    };
+  }
+  ws["!ref"] = `A1:H501`;
+
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Users Template");
 
   // Build the rich styled instructions and examples sheet
   buildInstructionSheet(wb);
+
+  // Explicitly set all sheets to Left-To-Right (LTR) direction
+  ws["!views"] = [{ RTL: false }];
+  if (wb.Sheets["Instructions & Examples"]) {
+    wb.Sheets["Instructions & Examples"]["!views"] = [{ RTL: false }];
+  }
+  if (!wb.Workbook) wb.Workbook = {};
+  if (!wb.Workbook.Views) wb.Workbook.Views = [];
+  wb.Workbook.Views[0] = { RTL: false };
 
   XLSX.writeFile(wb, `user_import_template_${new Date().toISOString().slice(0, 10)}.xlsx`);
 }

@@ -34,10 +34,12 @@ function ImportImageCell({
   row,
   onChange,
   disabled,
+  isWide,
 }: {
   row: any;
   onChange: (file: File | null) => void;
   disabled: boolean;
+  isWide?: boolean;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const file = row.__imageFile;
@@ -58,7 +60,7 @@ function ImportImageCell({
   return (
     <div className="flex items-center gap-2 py-0.5">
       {previewUrl ? (
-        <div className="relative w-10 h-10 rounded border border-border overflow-hidden bg-muted flex-shrink-0 flex items-center justify-center">
+        <div className={`relative ${isWide ? "w-24 h-10" : "w-10 h-10"} rounded border border-border overflow-hidden bg-muted flex-shrink-0 flex items-center justify-center`}>
           <img src={previewUrl} className="w-full h-full object-cover" alt="Preview" />
           {!disabled && (
             <button
@@ -78,7 +80,7 @@ function ImportImageCell({
           type="button"
           disabled={disabled}
           onClick={() => fileInputRef.current?.click()}
-          className="w-10 h-10 rounded border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center text-muted-foreground hover:text-primary transition-all bg-muted/20"
+          className={`${isWide ? "w-24 h-10" : "w-10 h-10"} rounded border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center text-muted-foreground hover:text-primary transition-all bg-muted/20`}
           title="Select Image"
         >
           <Plus className="w-3.5 h-3.5" />
@@ -115,6 +117,7 @@ interface GenericExcelImportProps<T extends BaseImportRow> {
   determineFieldErrors?: (row: T, errorMsg: string) => Record<string, boolean>;
   columns: ImportTableColumn<T>[];
   rowIdentifierKey?: keyof T;
+  onSuccess?: () => void;
 }
 
 export function GenericExcelImport<T extends BaseImportRow>({
@@ -129,6 +132,7 @@ export function GenericExcelImport<T extends BaseImportRow>({
   determineFieldErrors,
   columns,
   rowIdentifierKey,
+  onSuccess,
 }: GenericExcelImportProps<T>) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -150,6 +154,8 @@ export function GenericExcelImport<T extends BaseImportRow>({
 
   // ── Horizontal Table Scroll Controls ─────────────────────────────────────
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
 
@@ -270,6 +276,12 @@ export function GenericExcelImport<T extends BaseImportRow>({
     if (!rowsToProcess.length || hasValidationErrors) return;
 
     setIsImporting(true);
+    setImportDone(false);
+
+    // Scroll to top so the user can monitor import
+    setTimeout(() => {
+      topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
 
     const updated = [...rows];
     let clientValidationErrorCount = 0;
@@ -431,15 +443,34 @@ export function GenericExcelImport<T extends BaseImportRow>({
 
       if (successCount > 0 && errorCount === 0) {
         showToast.success(`All ${successCount} ${entityName} imported successfully!`);
+        onSuccess?.();
+        setTimeout(() => {
+          router.push(backRoute);
+        }, 1500);
       } else if (successCount > 0) {
         showToast.success(`${successCount} imported successfully. ${errorCount} failed rows remain.`);
+        onSuccess?.();
       } else {
         showToast.error(`All ${errorCount} rows failed. Please check the errors listed.`);
       }
     } catch (err: any) {
       setIsImporting(false);
+      setImportDone(true);
       const msg = typeof err === "string" ? err : err?.message || err?.error || "Batch import failed.";
       showToast.error(msg);
+
+      // Mark any remaining pending rows as error
+      setRows((prevRows) =>
+        prevRows.map((r) =>
+          r.__status === "pending"
+            ? { ...r, __status: "error", __error: msg }
+            : r
+        )
+      );
+
+      setTimeout(() => {
+        topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     } finally {
       stompClient.deactivate();
     }
@@ -486,8 +517,18 @@ export function GenericExcelImport<T extends BaseImportRow>({
     rows.length === 0 ||
     rows.every((r) => r.__status === "success");
 
+  // Auto-scroll to results/errors when import finishes
+  useEffect(() => {
+    if (importDone) {
+      setTimeout(() => {
+        topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, [importDone]);
+
   return (
     <PageContainer className="py-3 flex flex-col gap-3 min-h-[calc(100vh-80px)] overflow-hidden">
+      <div ref={topRef} />
       {/* Page Header */}
       <div className="flex items-center justify-between py-3 bg-background border-b border-border shrink-0">
         <div className="flex items-center gap-1.5">
@@ -686,7 +727,7 @@ export function GenericExcelImport<T extends BaseImportRow>({
 
             {/* Centralized failure monitoring panel */}
             {activeRowErrors.length > 0 && (
-              <div className="mx-4 mt-3 p-3.5 rounded-xl bg-red-500/10 border border-red-500/25 flex flex-col gap-2">
+              <div ref={!isImporting ? progressRef : undefined} className="mx-4 mt-3 p-3.5 rounded-xl bg-red-500/10 border border-red-500/25 flex flex-col gap-2">
                 <h4 className="text-xs font-bold text-red-500 flex items-center gap-2">
                   <XCircle className="w-4 h-4" />
                   Import Failure Summary ({activeRowErrors.length})
@@ -703,7 +744,7 @@ export function GenericExcelImport<T extends BaseImportRow>({
 
             {/* Progress Bar Panel */}
             {isImporting && (
-              <div className="mx-4 mt-3 p-4 rounded-xl border border-primary/20 bg-primary/5 flex flex-col gap-2 shadow-sm">
+              <div ref={progressRef} className="mx-4 mt-3 p-4 rounded-xl border border-primary/20 bg-primary/5 flex flex-col gap-2 shadow-sm">
                 <div className="flex justify-between items-center text-xs">
                   <span className="font-semibold text-foreground flex items-center gap-1.5">
                     <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
@@ -860,6 +901,7 @@ export function GenericExcelImport<T extends BaseImportRow>({
                                     row={row}
                                     onChange={(file) => handleCellChange(rowIdx, "__imageFile" as any, file)}
                                     disabled={isImporting || row.__status === "success"}
+                                    isWide={col.isWide}
                                   />
                                 )}
                               </td>

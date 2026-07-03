@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
  * Generic hook to sync admin page filters (search, arbitrary key-value pairs, pageNo, pageSize)
@@ -33,10 +33,12 @@ export function useAdminFilterUrlSync({
   filters,
   onInit,
   debounceMs = 300,
-}: AdminFilterSyncConfig) {
+}: AdminFilterSyncConfig): boolean {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+
+  const [isHydrated, setIsHydrated] = useState(false);
 
   const isInitializedRef = useRef(false);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -58,6 +60,7 @@ export function useAdminFilterUrlSync({
     if (Object.keys(initialValues).length > 0) {
       onInitRef.current(initialValues);
     }
+    setIsHydrated(true);
     // Run only once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -105,4 +108,6 @@ export function useAdminFilterUrlSync({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtersKey]);
+
+  return isHydrated;
 }

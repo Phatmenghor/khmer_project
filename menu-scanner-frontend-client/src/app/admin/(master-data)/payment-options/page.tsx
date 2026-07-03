@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, Suspense } from "react";
+import { useEffect, useMemo, Suspense, useRef } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -45,6 +45,7 @@ import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function PaymentOptionsPageInner() {
   useAdminCleanup(resetState);
+  const isInitialMount = useRef(true);
   const router = useRouter();
 
   const {
@@ -73,8 +74,7 @@ function PaymentOptionsPageInner() {
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
 
-  // ── Sync filters ↔ URL ────────────────────────────────────────────────────
-  useAdminFilterUrlSync({
+  const isHydrated = useAdminFilterUrlSync({
     filters: {
       search: filters.search,
       status: filters.status !== Status.ALL ? filters.status : "",
@@ -95,6 +95,15 @@ function PaymentOptionsPageInner() {
   });
 
   useEffect(() => {
+    if (!isHydrated) return;
+
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      if (paymentOptionsContent && paymentOptionsContent.length > 0) {
+        return;
+      }
+    }
+
     dispatch(
       fetchMyBusinessPaymentOptionsService({
         search: debouncedSearch,
@@ -103,7 +112,8 @@ function PaymentOptionsPageInner() {
         ...(filters.status !== Status.ALL && { statuses: [filters.status] }),
       }),
     );
-  }, [dispatch, debouncedSearch, filters.status, filters.pageNo, globalPageSize]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, debouncedSearch, filters.status, filters.pageNo, globalPageSize, isHydrated]);
 
   // ── Deep-link resolver ────────────────────────────────────────────────────
   const allPaymentOptionsContent = useAppSelector(selectPaymentOptionsContent);

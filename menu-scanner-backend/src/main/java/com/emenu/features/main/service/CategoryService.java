@@ -12,11 +12,12 @@ import java.util.List;
 import java.util.UUID;
 
 import com.emenu.shared.dto.BatchImportResponse;
+import jakarta.validation.Valid;
 
 public interface CategoryService {
     
     // CRUD Operations
-    CategoryResponse createCategory(CategoryCreateRequest request);
+    CategoryResponse createCategory(@Valid CategoryCreateRequest request);
     BatchImportResponse<CategoryResponse> createCategoryBatch(List<CategoryCreateRequest> requests, String importId);
     PaginationResponse<CategoryResponse> getAllCategories(CategoryFilterRequest filter);
     PaginationResponse<CategoryWithProductCountResponse> getCategoriesWithProductCount(CategoryFilterRequest filter);

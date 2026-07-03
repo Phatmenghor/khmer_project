@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import { selectUser } from "@/features/auth/store/selectors/auth-selectors";
 import { selectRolesList } from "@/features/auth/store/selectors/role-selectors";
 import { fetchAllRolesListService } from "@/features/auth/store/thunks/role-thunks";
-import { importUsersBatchService } from "@/features/auth/store/thunks/users-thunks";
+import { importUsersBatchService, fetchAllUsersService } from "@/features/auth/store/thunks/users-thunks";
 import {
   downloadUserTemplate,
   parseUserImportFile,
@@ -18,6 +18,8 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { UserGropeType } from "@/constants/status/status";
 import { GENDER_OPTIONS } from "@/constants/form-options";
 import { ROUTES } from "@/constants/app-routes/routes";
+import { resetState } from "@/features/auth/store/slice/users-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 
 interface ImportRow extends BaseImportRow {
   username: string;
@@ -35,6 +37,7 @@ interface ImportRow extends BaseImportRow {
 
 export default function UserImportPage() {
   const dispatch = useAppDispatch();
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const currentUser = useAppSelector(selectUser);
   const rolesList = useAppSelector(selectRolesList);
@@ -66,21 +69,42 @@ export default function UserImportPage() {
   const resolveRoleId = useCallback(
     (roleText: string) => {
       if (!roleText || !rolesList.length) return "";
-      const cleanText = roleText.trim().toLowerCase();
 
-      const exact = rolesList.find((r) => r.name.toLowerCase() === cleanText);
-      if (exact) return exact.name;
+      const cleanInput = roleText.trim().toLowerCase();
+      // Normalize spaces, underscores, and hyphens to spaces
+      const normalize = (str: string) =>
+        str.toLowerCase().replace(/[_-]/g, " ").replace(/\s+/g, " ").trim();
 
-      const contains = rolesList.find(
+      const normalizedInput = normalize(cleanInput);
+
+      // 1. Try exact normalized match (e.g. "business admin" === "business admin")
+      let match = rolesList.find((r) => normalize(r.name) === normalizedInput);
+      if (match) return match.name;
+
+      // 2. Try clean alphanumeric match (e.g. "businessadmin" === "businessadmin")
+      const alphaNum = (str: string) => str.replace(/[^a-z0-9]/g, "");
+      const cleanInputAlpha = alphaNum(normalizedInput);
+      match = rolesList.find((r) => alphaNum(normalize(r.name)) === cleanInputAlpha);
+      if (match) return match.name;
+
+      // 3. Try substring match (e.g. "business admin" contains "admin")
+      match = rolesList.find(
         (r) =>
-          r.name.toLowerCase().includes(cleanText) ||
-          cleanText.includes(r.name.toLowerCase())
+          normalize(r.name).includes(normalizedInput) ||
+          normalizedInput.includes(normalize(r.name))
       );
-      if (contains) return contains.name;
+      if (match) return match.name;
 
-      if (cleanText === "super admin" || cleanText === "superadmin") {
-        const match = rolesList.find((r) => r.name.toUpperCase().includes("SUPER_ADMIN"));
-        if (match) return match.name;
+      // 4. Split into words and match significant keyword (ignoring "business")
+      const inputWords = normalizedInput.split(" ").filter((w) => w !== "business" && w.length > 2);
+      if (inputWords.length > 0) {
+        for (const word of inputWords) {
+          match = rolesList.find((r) => {
+            const dbWords = normalize(r.name).split(" ").filter((w) => w !== "business");
+            return dbWords.some((dbW) => dbW.includes(word) || word.includes(dbW));
+          });
+          if (match) return match.name;
+        }
       }
 
       return "";
@@ -90,7 +114,74 @@ export default function UserImportPage() {
 
   const isDobInvalid = (dob: string) => {
     if (!dob) return false;
-    return !dob.match(/^\d{4}-\d{2}-\d{2}$/);
+    return !dob.match(/^\d{2}-\d{2}-\d{4}$/);
+  };
+
+  const normalizeDateOfBirth = (rawDob: string): string => {
+    if (!rawDob) return "";
+    const clean = rawDob.trim();
+    if (clean === "") return "";
+
+    // 1. Matches DD-MM-YYYY
+    if (/^\d{2}-\d{2}-\d{4}$/.test(clean)) {
+      return clean;
+    }
+
+    // 2. Matches DD-MM-YY, DD/MM/YY, DD-MM-YYYY, or DD/MM/YYYY
+    const dmyMatch = clean.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{2}|\d{4})$/);
+    if (dmyMatch) {
+      const day = dmyMatch[1].padStart(2, "0");
+      const month = dmyMatch[2].padStart(2, "0");
+      let year = dmyMatch[3];
+      if (year.length === 2) {
+        const yr = parseInt(year, 10);
+        year = yr >= 40 ? `19${year}` : `20${year}`;
+      }
+      return `${day}-${month}-${year}`;
+    }
+
+    // 3. Matches YYYY-MM-DD, YYYY/MM/DD, YY-MM-DD, or YY/MM/DD
+    const ymdMatch = clean.match(/^(\d{2}|\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+    if (ymdMatch) {
+      let year = ymdMatch[1];
+      if (year.length === 2) {
+        const yr = parseInt(year, 10);
+        year = yr >= 40 ? `19${year}` : `20${year}`;
+      }
+      const month = ymdMatch[2].padStart(2, "0");
+      const day = ymdMatch[3].padStart(2, "0");
+      return `${day}-${month}-${year}`;
+    }
+
+    // 4. Check if it's an Excel serial date number (5-digit number for modern dates)
+    if (/^\d+$/.test(clean)) {
+      const serial = parseInt(clean, 10);
+      if (serial >= 10000 && serial <= 99999) {
+        const baseDate = new Date(1899, 11, 30);
+        const dateObj = new Date(baseDate.getTime() + serial * 24 * 60 * 60 * 1000);
+        if (!isNaN(dateObj.getTime())) {
+          const year = dateObj.getFullYear();
+          const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+          const day = String(dateObj.getDate()).padStart(2, "0");
+          return `${day}-${month}-${year}`;
+        }
+      }
+    }
+
+    // 5. Try JS Date parsing (e.g. for M/D/YY or other formats)
+    // Only parse if it's not a pure number to avoid parsing 5-digit zipcodes or serials as years
+    if (!/^\d+$/.test(clean)) {
+      const parsedTime = Date.parse(clean);
+      if (!isNaN(parsedTime)) {
+        const dateObj = new Date(parsedTime);
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+        const day = String(dateObj.getDate()).padStart(2, "0");
+        return `${day}-${month}-${year}`;
+      }
+    }
+
+    return clean;
   };
 
   const parseFileCallback = async (file: File) => {
@@ -110,14 +201,22 @@ export default function UserImportPage() {
       const email = get(["email"]);
       const phoneNumber = get(["phone", "number"]);
       const genderVal = get(["gender"]);
-      const dateOfBirth = get(["birth", "dob"]);
+      const rawDateOfBirth = get(["birth", "dob"]);
+      const dateOfBirth = normalizeDateOfBirth(rawDateOfBirth);
       const roleVal = get(["role"]);
 
       let gender = "";
       const cleanGender = genderVal.trim().toLowerCase();
-      if (cleanGender === "male" || cleanGender === "m") gender = "MALE";
-      else if (cleanGender === "female" || cleanGender === "f") gender = "FEMALE";
-      else if (cleanGender === "other" || cleanGender === "o") gender = "OTHER";
+      const maleSynonyms = ["male", "m", "boy", "man", "ប្រុស"];
+      const femaleSynonyms = ["female", "f", "girl", "woman", "ស្រី"];
+      const otherSynonyms = ["other", "o"];
+      if (maleSynonyms.some(s => cleanGender.includes(s))) {
+        gender = "MALE";
+      } else if (femaleSynonyms.some(s => cleanGender.includes(s))) {
+        gender = "FEMALE";
+      } else if (otherSynonyms.includes(cleanGender)) {
+        gender = "OTHER";
+      }
 
       const resolvedName = resolveRoleId(roleVal);
 
@@ -171,6 +270,19 @@ export default function UserImportPage() {
     };
   };
 
+  const convertDmyToYmd = (dmyStr: string): string => {
+    if (!dmyStr) return "";
+    const clean = dmyStr.trim();
+    const match = clean.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    if (match) {
+      const day = match[1];
+      const month = match[2];
+      const year = match[3];
+      return `${year}-${month}-${day}`;
+    }
+    return dmyStr;
+  };
+
   const onImportBatch = async (rowsToProcess: ImportRow[], importId?: string) => {
     const payloads = rowsToProcess.map((row) => {
       const mapPayload: ParsedUserRow = {
@@ -180,7 +292,7 @@ export default function UserImportPage() {
         email: row.email,
         phoneNumber: row.phoneNumber,
         gender: row.gender,
-        dateOfBirth: row.dateOfBirth,
+        dateOfBirth: convertDmyToYmd(row.dateOfBirth),
         roleId: row.__roleName || "",
       };
       return mapRowToCreateRequest(mapPayload, "BUSINESS_USER", businessId);
@@ -268,6 +380,19 @@ export default function UserImportPage() {
       onImportBatch={onImportBatch}
       columns={columns}
       rowIdentifierKey="username"
+      onSuccess={() => {
+        dispatch(resetState());
+        dispatch(
+          fetchAllUsersService({
+            search: "",
+            pageNo: 1,
+            pageSize: globalPageSize,
+            roles: [],
+            userTypes: [UserGropeType.BUSINESS_USER],
+            accountStatuses: [],
+          })
+        );
+      }}
     />
   );
 }

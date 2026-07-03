@@ -9,8 +9,7 @@ import * as XLSX from "xlsx-js-style";
 // ── Column definitions ────────────────────────────────────────────────────────
 
 export const BANNER_TEMPLATE_COLUMNS = [
-  { key: "description", label: "Description *", required: true },
-  { key: "status",      label: "Status",        required: false },
+  { key: "description", label: "Description", required: false },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -61,22 +60,21 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
   data[3] = ["Column Header", "Required?", "Allowed Format / Value", "Description"];
 
   data[4] = ["Description *", "YES", "Plain text (max 255 chars)", "Text description of the banner."];
-  data[5] = ["Status", "NO", "ACTIVE / INACTIVE (default: ACTIVE)", "Specifies if the banner is active."];
 
-  data[6] = ["", "", ""];
+  data[5] = ["", "", ""];
 
-  data[7] = ["VALID SPREADSHEET ROW EXAMPLES", "", ""];
-  data[8] = ["Description *", "Status"];
+  data[6] = ["VALID SPREADSHEET ROW EXAMPLES", "", ""];
+  data[7] = ["Description *"];
 
-  data[9] = ["Summer Discount Promo Banner", "ACTIVE"];
-  data[10] = ["New Arrival Highlights", "INACTIVE"];
+  data[8] = ["Summer Discount Promo Banner"];
+  data[9] = ["New Arrival Highlights"];
 
   const ws = XLSX.utils.aoa_to_sheet(data);
 
   ws["!merges"] = [
     { s: { r: 0, c: 0 }, e: { r: 0, c: 2 } },
     { s: { r: 2, c: 0 }, e: { r: 2, c: 2 } },
-    { s: { r: 7, c: 0 }, e: { r: 7, c: 1 } },
+    { s: { r: 6, c: 0 }, e: { r: 6, c: 1 } },
   ];
 
   ws["!cols"] = [
@@ -120,7 +118,7 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
     }
   }
 
-  for (let r = 4; r < 6; r++) {
+  for (let r = 4; r < 5; r++) {
     for (let c = 0; c < 4; c++) {
       const ref = XLSX.utils.encode_cell({ r, c });
       if (!ws[ref]) continue;
@@ -144,16 +142,16 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
     }
   }
 
-  if (ws["A8"]) {
-    ws["A8"].s = {
+  if (ws["A7"]) {
+    ws["A7"].s = {
       fill: { patternType: "solid", fgColor: { rgb: "15803D" } },
       font: { name: "Segoe UI", bold: true, sz: 11, color: { rgb: "FFFFFF" } },
       alignment: { vertical: "center", indent: 1 },
     };
   }
 
-  for (let c = 0; c < 2; c++) {
-    const ref = XLSX.utils.encode_cell({ r: 8, c });
+  for (let c = 0; c < 1; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 7, c });
     if (ws[ref]) {
       ws[ref].s = {
         fill: { patternType: "solid", fgColor: { rgb: "E2E8F0" } },
@@ -169,8 +167,8 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
     alignment: { vertical: "center" },
     border: thinBorder,
   };
-  for (let r = 9; r < 11; r++) {
-    for (let c = 0; c < 2; c++) {
+  for (let r = 8; r < 10; r++) {
+    for (let c = 0; c < 1; c++) {
       const ref = XLSX.utils.encode_cell({ r, c });
       if (ws[ref]) {
         ws[ref].s = {
@@ -203,6 +201,15 @@ export function downloadBannerTemplate() {
   XLSX.utils.book_append_sheet(wb, ws, "Banners Template");
 
   buildInstructionSheet(wb);
+
+  // Explicitly set all sheets to Left-To-Right (LTR) direction
+  ws["!views"] = [{ RTL: false }];
+  if (wb.Sheets["Instructions & Examples"]) {
+    wb.Sheets["Instructions & Examples"]["!views"] = [{ RTL: false }];
+  }
+  if (!wb.Workbook) wb.Workbook = {};
+  if (!wb.Workbook.Views) wb.Workbook.Views = [];
+  wb.Workbook.Views[0] = { RTL: false };
 
   XLSX.writeFile(wb, `banner_import_template_${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
@@ -251,11 +258,6 @@ export async function parseBannerImportFile(file: File): Promise<{
             headers.forEach((header, colIdx) => {
               rowObj[header] = String(row[colIdx] ?? "").trim();
             });
-
-            const descHeader = headers.find((h) => h.toLowerCase().includes("desc"));
-            if (descHeader && !rowObj[descHeader]) {
-              errors.push(`Row ${rowIdx + 2}: Description is required.`);
-            }
 
             return rowObj;
           });

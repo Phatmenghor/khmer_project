@@ -11,11 +11,12 @@ import java.util.List;
 import java.util.UUID;
 
 import com.emenu.shared.dto.BatchImportResponse;
+import jakarta.validation.Valid;
 
 public interface DeliveryOptionService {
     
     // CRUD Operations
-    DeliveryOptionResponse createDeliveryOption(DeliveryOptionCreateRequest request);
+    DeliveryOptionResponse createDeliveryOption(@Valid DeliveryOptionCreateRequest request);
     BatchImportResponse<DeliveryOptionResponse> createDeliveryOptionBatch(List<DeliveryOptionCreateRequest> requests, String importId);
     PaginationResponse<DeliveryOptionResponse> getAllDeliveryOptions(DeliveryOptionFilterRequest filter);
     List<DeliveryOptionResponse> getAllItemDeliveryOptions(DeliveryOptionAllFilterRequest filter);

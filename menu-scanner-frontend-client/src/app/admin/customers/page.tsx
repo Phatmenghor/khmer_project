@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, Suspense } from "react";
+import { useEffect, useMemo, Suspense, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { DownloadTemplateButton, ImportSpreadsheetButton } from "@/components/shared/button/custom-button";
@@ -52,6 +52,7 @@ import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function CustomerPageInner() {
   useAdminCleanup(resetState);
+  const isInitialMount = useRef(true);
   const router = useRouter();
 
   const currentUser = useAppSelector(selectUser);
@@ -85,8 +86,7 @@ function CustomerPageInner() {
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
 
-  // ── Sync filters ↔ URL ────────────────────────────────────────────────────
-  useAdminFilterUrlSync({
+  const isHydrated = useAdminFilterUrlSync({
     filters: {
       search: filters.search,
       accountStatus: filters.accountStatus !== AccountStatus.ALL ? filters.accountStatus : "",
@@ -131,6 +131,15 @@ function CustomerPageInner() {
   });
 
   useEffect(() => {
+    if (!isHydrated) return;
+
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      if (customersContent && customersContent.length > 0) {
+        return;
+      }
+    }
+
     const filterPayload = {
       search: debouncedSearch,
       pageNo: filters.pageNo,
@@ -144,12 +153,14 @@ function CustomerPageInner() {
     };
 
     dispatch(fetchAllCustomersService(filterPayload));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dispatch,
     debouncedSearch,
     filters.accountStatus,
     filters.pageNo,
     globalPageSize,
+    isHydrated,
   ]);
 
   // ── Table action handlers ─────────────────────────────────────────────────

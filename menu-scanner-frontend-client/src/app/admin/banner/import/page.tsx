@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { useAppDispatch } from "@/store";
-import { importBannersBatchService } from "@/features/master-data/store/thunks/banner-thunks";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { importBannersBatchService, fetchAllBannerService } from "@/features/master-data/store/thunks/banner-thunks";
 import {
   downloadBannerTemplate,
   parseBannerImportFile,
@@ -12,6 +12,8 @@ import { ImportTableColumn, RowStatus, BaseImportRow } from "@/components/shared
 import { ROUTES } from "@/constants/app-routes/routes";
 import { uploadMultiSize } from "@/services/spaces-service";
 import { AppDefault } from "@/constants/app-resource/default/default";
+import { resetState } from "@/features/master-data/store/slice/banner-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 
 interface ImportBannerRow extends BaseImportRow {
   description: string;
@@ -22,6 +24,7 @@ interface ImportBannerRow extends BaseImportRow {
 
 export default function BannerImportPage() {
   const dispatch = useAppDispatch();
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const parseFileCallback = async (file: File) => {
     const { rows: r, errors } = await parseBannerImportFile(file);
@@ -38,9 +41,19 @@ export default function BannerImportPage() {
       const rawStatus = get(["status"]);
 
       let status = "ACTIVE";
-      const cleanStatus = rawStatus.trim().toUpperCase();
-      if (cleanStatus === "INACTIVE" || cleanStatus === "OFF") {
-        status = "INACTIVE";
+      if (rawStatus) {
+        const cleanStatus = rawStatus.trim().toLowerCase();
+        if (
+          cleanStatus === "inactive" ||
+          cleanStatus === "off" ||
+          cleanStatus === "disable" ||
+          cleanStatus === "disabled" ||
+          cleanStatus === "false" ||
+          cleanStatus === "0" ||
+          cleanStatus === "no"
+        ) {
+          status = "INACTIVE";
+        }
       }
 
       return {
@@ -55,13 +68,13 @@ export default function BannerImportPage() {
   };
 
   const onValidateRow = (row: ImportBannerRow) => {
-    const isValid = !!row.description;
+    const isValid = !!row.__imageFile;
 
     return {
       isValid,
-      error: isValid ? undefined : "Description is required.",
+      error: isValid ? undefined : "Banner Image is required.",
       fieldErrors: {
-        __descriptionError: !row.description,
+        __imageFileError: !row.__imageFile,
       },
     };
   };
@@ -102,31 +115,21 @@ export default function BannerImportPage() {
 
   const columns: ImportTableColumn<ImportBannerRow>[] = [
     {
+      key: "image",
+      label: "Banner Image",
+      type: "image",
+      fieldKey: "__imageFile" as any,
+      width: "160px",
+      minWidth: "140px",
+      isWide: true,
+    },
+    {
       key: "description",
       label: "Description",
       type: "text",
       required: true,
       fieldKey: "description",
       placeholder: "Banner Description",
-    },
-    {
-      key: "image",
-      label: "Banner Image",
-      type: "image",
-      fieldKey: "__imageFile" as any,
-      width: "120px",
-      minWidth: "100px",
-    },
-    {
-      key: "status",
-      label: "Status",
-      type: "select",
-      fieldKey: "status",
-      placeholder: "Select Status...",
-      options: [
-        { value: "ACTIVE", label: "Active" },
-        { value: "INACTIVE", label: "Inactive" },
-      ],
     },
   ];
 
@@ -143,6 +146,16 @@ export default function BannerImportPage() {
       onImportBatch={onImportBatch}
       columns={columns}
       rowIdentifierKey="description"
+      onSuccess={() => {
+        dispatch(resetState());
+        dispatch(
+          fetchAllBannerService({
+            search: "",
+            pageNo: 1,
+            pageSize: globalPageSize,
+          })
+        );
+      }}
     />
   );
 }

@@ -29,7 +29,7 @@ public class UserValidationService {
                     log.warn("Username validation failed - missing business ID for user type {}", userType);
                     throw new IllegalArgumentException("Business ID is required for " + userType + " type");
                 }
-                boolean existsInBusiness = userRepository.existsByUserIdentifierAndBusinessIdAndIsDeletedFalse(userIdentifier, businessId);
+                boolean existsInBusiness = userRepository.existsByUserIdentifierAndUserTypeAndBusinessIdAndIsDeletedFalse(userIdentifier, userType, businessId);
                 return !existsInBusiness;
 
             default:

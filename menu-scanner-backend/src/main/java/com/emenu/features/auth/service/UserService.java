@@ -11,12 +11,13 @@ import com.emenu.features.auth.dto.update.UserUpdateRequest;
 import com.emenu.shared.dto.PaginationResponse;
 
 import com.emenu.shared.dto.BatchImportResponse;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
 
-    UserResponse createUser(UserCreateRequest request);
+    UserResponse createUser(@Valid UserCreateRequest request);
 
     BatchImportResponse<UserResponse> createUserBatch(List<UserCreateRequest> requests, String importId);
 

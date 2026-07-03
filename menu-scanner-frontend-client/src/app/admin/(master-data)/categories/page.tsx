@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, Suspense } from "react";
+import { useEffect, useMemo, Suspense, useRef } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -46,6 +46,7 @@ import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function CategoriesPageInner() {
   useAdminCleanup(resetState);
+  const isInitialMount = useRef(true);
   const router = useRouter();
 
   const {
@@ -74,8 +75,7 @@ function CategoriesPageInner() {
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
 
-  // ── Sync filters ↔ URL ────────────────────────────────────────────────────
-  useAdminFilterUrlSync({
+  const isHydrated = useAdminFilterUrlSync({
     filters: {
       search: filters.search,
       status: filters.status !== Status.ALL ? filters.status : "",
@@ -96,6 +96,15 @@ function CategoriesPageInner() {
   });
 
   useEffect(() => {
+    if (!isHydrated) return;
+
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      if (categoriesWithProductCount && categoriesWithProductCount.length > 0) {
+        return;
+      }
+    }
+
     dispatch(
       fetchAllCategoriesWithProductCountService({
         search: debouncedSearch,
@@ -104,7 +113,8 @@ function CategoriesPageInner() {
         status: filters.status === Status.ALL ? undefined : filters.status,
       }),
     );
-  }, [dispatch, debouncedSearch, filters.status, filters.pageNo, globalPageSize]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, debouncedSearch, filters.status, filters.pageNo, globalPageSize, isHydrated]);
 
   // ── Deep-link resolver ────────────────────────────────────────────────────
   const selectedCategories = useAppSelector(selectSelectedCategories);

@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { useAppDispatch } from "@/store";
-import { importBrandsBatchService } from "@/features/master-data/store/thunks/brand-thunks";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { importBrandsBatchService, fetchAllBrandService } from "@/features/master-data/store/thunks/brand-thunks";
 import {
   downloadBrandTemplate,
   parseBrandImportFile,
@@ -12,6 +12,8 @@ import { ImportTableColumn, RowStatus, BaseImportRow } from "@/components/shared
 import { ROUTES } from "@/constants/app-routes/routes";
 import { uploadMultiSize } from "@/services/spaces-service";
 import { AppDefault } from "@/constants/app-resource/default/default";
+import { resetState } from "@/features/master-data/store/slice/brand-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 
 interface ImportBrandRow extends BaseImportRow {
   name: string;
@@ -22,6 +24,7 @@ interface ImportBrandRow extends BaseImportRow {
 
 export default function BrandImportPage() {
   const dispatch = useAppDispatch();
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const parseFileCallback = async (file: File) => {
     const { rows: r, errors } = await parseBrandImportFile(file);
@@ -135,6 +138,16 @@ export default function BrandImportPage() {
       onImportBatch={onImportBatch}
       columns={columns}
       rowIdentifierKey="name"
+      onSuccess={() => {
+        dispatch(resetState());
+        dispatch(
+          fetchAllBrandService({
+            search: "",
+            pageNo: 1,
+            pageSize: globalPageSize,
+          })
+        );
+      }}
     />
   );
 }

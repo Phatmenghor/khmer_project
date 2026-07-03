@@ -28,6 +28,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import java.util.concurrent.CancellationException;
+import org.apache.catalina.connector.ClientAbortException;
 
 import org.slf4j.MDC;
 
@@ -386,6 +388,26 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.failure("Data integrity issue. Please contact support.",
                         Map.of("errorCode", "INTERNAL_SERVER_ERROR")));
+    }
+
+    // =========================================================================
+    // CANCELLATION & CLIENT DISCONNECT exceptions
+    // =========================================================================
+
+    @ExceptionHandler(CancellationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleCancellation(
+            CancellationException ex, HttpServletRequest request) {
+        log.warn("Request cancelled on {} — {}", request.getRequestURI(), ex.getMessage());
+        tagResponse(ex.getMessage());
+        return ResponseEntity.status(499)
+                .body(ApiResponse.failure("Request cancelled: " + ex.getMessage(),
+                        Map.of("errorCode", "REQUEST_CANCELLED")));
+    }
+
+    @ExceptionHandler(ClientAbortException.class)
+    public void handleClientAbort(ClientAbortException ex, HttpServletRequest request) {
+        log.warn("Client connection aborted on {} — {}", request.getRequestURI(), ex.getMessage());
+        tagResponse("Client connection aborted");
     }
 
     // =========================================================================

@@ -3,7 +3,7 @@
 import React from "react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { selectUser } from "@/features/auth/store/selectors/auth-selectors";
-import { importRolesBatchService } from "@/features/auth/store/thunks/role-thunks";
+import { importRolesBatchService, fetchAllRolesListService } from "@/features/auth/store/thunks/role-thunks";
 import {
   downloadRoleTemplate,
   parseRoleImportFile,
@@ -11,6 +11,8 @@ import {
 import { GenericExcelImport } from "@/components/shared/import/GenericExcelImport";
 import { ImportTableColumn, RowStatus, BaseImportRow } from "@/components/shared/import/types";
 import { AppDefault } from "@/constants/app-resource/default/default";
+import { resetState } from "@/features/auth/store/slice/role-slice";
+import { UserGropeType } from "@/constants/status/status";
 
 interface ImportRoleRow extends BaseImportRow {
   name: string;
@@ -115,6 +117,15 @@ export default function RoleImportPage() {
       onImportBatch={onImportBatch}
       columns={columns}
       rowIdentifierKey="name"
+      onSuccess={() => {
+        dispatch(resetState());
+        dispatch(
+          fetchAllRolesListService({
+            includeAll: false,
+            userTypes: [UserGropeType.BUSINESS_USER],
+          })
+        );
+      }}
     />
   );
 }

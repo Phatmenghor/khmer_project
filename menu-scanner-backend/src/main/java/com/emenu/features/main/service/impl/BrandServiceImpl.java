@@ -2,8 +2,6 @@ package com.emenu.features.main.service.impl;
 
 import com.emenu.exception.custom.NotFoundException;
 import com.emenu.shared.constants.CacheNames;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.main.dto.filter.BrandFilterRequest;
@@ -33,6 +31,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import com.emenu.shared.dto.BatchImportResponse;
+import com.emenu.shared.cancellation.RequestCancellationRegistry;
+import com.emenu.shared.mapper.PaginationMapper;
+import org.springframework.validation.annotation.Validated;
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -42,6 +44,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+@Validated
 public class BrandServiceImpl implements BrandService {
 
     @Autowired
@@ -51,12 +54,12 @@ public class BrandServiceImpl implements BrandService {
     private final BrandRepository brandRepository;
     private final BrandMapper brandMapper;
     private final SecurityUtils securityUtils;
-    private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
+    private final PaginationMapper paginationMapper;
     private final WebSocketNotificationService webSocketNotificationService;
+    private final RequestCancellationRegistry cancellationRegistry;
 
     @Override
-    @CacheEvict(value = CacheNames.BRANDS, allEntries = true)
-    public BrandResponse createBrand(BrandCreateRequest request) {
+    public BrandResponse createBrand(@Valid BrandCreateRequest request) {
         User currentUser = securityUtils.getCurrentUser();
         if (currentUser.getBusinessId() == null) {
             throw new ValidationException("User is not associated with any business");
@@ -84,41 +87,56 @@ public class BrandServiceImpl implements BrandService {
         int successCount = 0;
         int errorCount = 0;
 
-        for (int i = 0; i < requests.size(); i++) {
-            BrandCreateRequest req = requests.get(i);
-            boolean success = false;
-            String errorMsg = null;
-            BrandResponse resp = null;
-            try {
-                resp = self.createBrand(req);
-                results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
-                successCount++;
-                success = true;
-            } catch (Exception ex) {
-                log.error("Batch brand creation failed at index {}: {}", i, ex.getMessage());
-                errorMsg = ex.getMessage();
-                results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
-                errorCount++;
-            }
+        cancellationRegistry.registerImport(importId);
 
-            if (importId != null) {
-                int progress = (int) (((double) (i + 1) / requests.size()) * 100);
-                java.util.Map<String, Object> lastResult = java.util.Map.of(
-                    "index", i,
-                    "success", success,
-                    "error", errorMsg != null ? errorMsg : ""
-                );
-                webSocketNotificationService.notifyImportProgress(
-                    importId,
-                    progress,
-                    i + 1,
-                    requests.size(),
-                    successCount,
-                    errorCount,
-                    (i + 1) == requests.size(),
-                    lastResult
-                );
+        try {
+            for (int i = 0; i < requests.size(); i++) {
+                cancellationRegistry.checkCancelled(importId);
+
+                BrandCreateRequest req = requests.get(i);
+                boolean success = false;
+                String errorMsg = null;
+                BrandResponse resp = null;
+                try {
+                    resp = self.createBrand(req);
+                    results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
+                    successCount++;
+                    success = true;
+                } catch (jakarta.validation.ConstraintViolationException ex) {
+                    errorMsg = ex.getConstraintViolations().stream()
+                            .map(jakarta.validation.ConstraintViolation::getMessage)
+                            .collect(java.util.stream.Collectors.joining(", "));
+                    log.error("Batch brand creation failed at index {} due to validation: {}", i, errorMsg);
+                    results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
+                    errorCount++;
+                } catch (Exception ex) {
+                    log.error("Batch brand creation failed at index {}: {}", i, ex.getMessage());
+                    errorMsg = ex.getMessage();
+                    results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
+                    errorCount++;
+                }
+
+                if (importId != null) {
+                    int progress = (int) (((double) (i + 1) / requests.size()) * 100);
+                    java.util.Map<String, Object> lastResult = java.util.Map.of(
+                        "index", i,
+                        "success", success,
+                        "error", errorMsg != null ? errorMsg : ""
+                    );
+                    webSocketNotificationService.notifyImportProgress(
+                        importId,
+                        progress,
+                        i + 1,
+                        requests.size(),
+                        successCount,
+                        errorCount,
+                        (i + 1) == requests.size(),
+                        lastResult
+                    );
+                }
             }
+        } finally {
+            cancellationRegistry.cleanUp(importId);
         }
 
         return new BatchImportResponse<>(successCount, errorCount, results);
@@ -210,7 +228,6 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = CacheNames.BRANDS, key = "'list:' + #filter.businessId + ':' + #filter.status")
     public List<BrandResponse> getAllListBrands(BrandAllFilterRequest filter) {
         Specification<Brand> spec = BrandSpecification.filterBrands(
                 filter.getBusinessId(),
@@ -231,7 +248,6 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    @CacheEvict(value = CacheNames.BRANDS, allEntries = true)
     public BrandResponse updateBrand(UUID id, BrandUpdateRequest request) {
         Brand brand = findBrandById(id);
 
@@ -250,7 +266,6 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    @CacheEvict(value = CacheNames.BRANDS, allEntries = true)
     public BrandResponse deleteBrand(UUID id) {
         Brand brand = findBrandById(id);
 

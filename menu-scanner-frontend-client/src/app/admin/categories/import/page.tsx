@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { useAppDispatch } from "@/store";
-import { importCategoriesBatchService } from "@/features/master-data/store/thunks/categories-thunks";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { importCategoriesBatchService, fetchAllCategoriesService } from "@/features/master-data/store/thunks/categories-thunks";
 import {
   downloadCategoryTemplate,
   parseCategoryImportFile,
@@ -12,6 +12,8 @@ import { ImportTableColumn, RowStatus, BaseImportRow } from "@/components/shared
 import { ROUTES } from "@/constants/app-routes/routes";
 import { uploadMultiSize } from "@/services/spaces-service";
 import { AppDefault } from "@/constants/app-resource/default/default";
+import { resetState } from "@/features/master-data/store/slice/categories-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 
 interface ImportCategoryRow extends BaseImportRow {
   name: string;
@@ -22,6 +24,7 @@ interface ImportCategoryRow extends BaseImportRow {
 
 export default function CategoryImportPage() {
   const dispatch = useAppDispatch();
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const parseFileCallback = async (file: File) => {
     const { rows: r, errors } = await parseCategoryImportFile(file);
@@ -135,6 +138,16 @@ export default function CategoryImportPage() {
       onImportBatch={onImportBatch}
       columns={columns}
       rowIdentifierKey="name"
+      onSuccess={() => {
+        dispatch(resetState());
+        dispatch(
+          fetchAllCategoriesService({
+            search: "",
+            pageNo: 1,
+            pageSize: globalPageSize,
+          })
+        );
+      }}
     />
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { useAppDispatch } from "@/store";
-import { importPaymentOptionsBatchService } from "@/features/master-data/store/thunks/payment-options-thunks";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { importPaymentOptionsBatchService, fetchAllPaymentOptionsService } from "@/features/master-data/store/thunks/payment-options-thunks";
 import {
   downloadPaymentOptionTemplate,
   parsePaymentOptionImportFile,
@@ -13,6 +13,8 @@ import { ROUTES } from "@/constants/app-routes/routes";
 
 import { uploadMultiSize } from "@/services/spaces-service";
 import { AppDefault } from "@/constants/app-resource/default/default";
+import { resetState } from "@/features/master-data/store/slice/payment-options-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 
 interface ImportPaymentOptionRow extends BaseImportRow {
   name: string;
@@ -26,6 +28,7 @@ interface ImportPaymentOptionRow extends BaseImportRow {
 
 export default function PaymentOptionImportPage() {
   const dispatch = useAppDispatch();
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const parseFileCallback = async (file: File) => {
     const { rows: r, errors } = await parsePaymentOptionImportFile(file);
@@ -50,8 +53,16 @@ export default function PaymentOptionImportPage() {
       }
 
       let status = "ACTIVE";
-      const cleanStatus = rawStatus.trim().toUpperCase();
-      if (cleanStatus === "INACTIVE" || cleanStatus === "OFF") {
+      const cleanStatus = rawStatus.trim().toLowerCase();
+      if (
+        cleanStatus === "inactive" ||
+        cleanStatus === "off" ||
+        cleanStatus === "disable" ||
+        cleanStatus === "disabled" ||
+        cleanStatus === "false" ||
+        cleanStatus === "0" ||
+        cleanStatus === "no"
+      ) {
         status = "INACTIVE";
       }
 
@@ -187,6 +198,16 @@ export default function PaymentOptionImportPage() {
       onImportBatch={onImportBatch}
       columns={columns}
       rowIdentifierKey="name"
+      onSuccess={() => {
+        dispatch(resetState());
+        dispatch(
+          fetchAllPaymentOptionsService({
+            search: "",
+            pageNo: 1,
+            pageSize: globalPageSize,
+          })
+        );
+      }}
     />
   );
 }

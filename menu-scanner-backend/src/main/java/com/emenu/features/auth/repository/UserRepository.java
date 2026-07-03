@@ -24,11 +24,15 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
 
     Optional<User> findByUserIdentifierAndBusinessIdAndIsDeletedFalse(String userIdentifier, UUID businessId);
 
+    Optional<User> findByUserIdentifierAndUserTypeAndBusinessIdAndIsDeletedFalse(String userIdentifier, UserType userType, UUID businessId);
+
     boolean existsByUserIdentifierAndIsDeletedFalse(String userIdentifier);
 
     boolean existsByUserIdentifierAndUserTypeAndIsDeletedFalse(String userIdentifier, UserType userType);
 
     boolean existsByUserIdentifierAndBusinessIdAndIsDeletedFalse(String userIdentifier, UUID businessId);
+
+    boolean existsByUserIdentifierAndUserTypeAndBusinessIdAndIsDeletedFalse(String userIdentifier, UserType userType, UUID businessId);
 
     Optional<User> findByIdAndIsDeletedFalse(UUID id);
 

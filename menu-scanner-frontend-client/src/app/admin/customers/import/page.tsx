@@ -3,7 +3,7 @@
 import React from "react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { selectUser } from "@/features/auth/store/selectors/auth-selectors";
-import { importUsersBatchService } from "@/features/auth/store/thunks/users-thunks";
+import { importUsersBatchService, fetchAllCustomersService } from "@/features/auth/store/thunks/users-thunks";
 import {
   downloadCustomerTemplate,
   parseCustomerImportFile,
@@ -13,6 +13,10 @@ import { GenericExcelImport } from "@/components/shared/import/GenericExcelImpor
 import { ImportTableColumn, RowStatus, BaseImportRow } from "@/components/shared/import/types";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { ROUTES } from "@/constants/app-routes/routes";
+import { resetState } from "@/features/auth/store/slice/customers-slice";
+import { parseGender } from "@/utils/genderParser";
+import { UserGropeType } from "@/constants/status/status";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 
 interface ImportCustomerRow extends BaseImportRow {
   username: string;
@@ -26,6 +30,7 @@ interface ImportCustomerRow extends BaseImportRow {
 
 export default function CustomerImportPage() {
   const dispatch = useAppDispatch();
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
   const currentUser = useAppSelector(selectUser);
   const businessId = currentUser?.businessId || AppDefault.BUSINESS_ID;
 
@@ -47,11 +52,8 @@ export default function CustomerImportPage() {
       const phoneNumber = get(["phone", "number"]);
       const genderVal = get(["gender"]);
 
-      let gender = "";
-      const cleanGender = genderVal.trim().toLowerCase();
-      if (cleanGender === "male" || cleanGender === "m") gender = "MALE";
-      else if (cleanGender === "female" || cleanGender === "f") gender = "FEMALE";
-      else if (cleanGender === "other" || cleanGender === "o") gender = "OTHER";
+      const gender = parseGender(genderVal);
+
 
       return {
         username,
@@ -178,6 +180,19 @@ export default function CustomerImportPage() {
       onImportBatch={onImportBatch}
       columns={columns}
       rowIdentifierKey="username"
+      onSuccess={() => {
+        dispatch(resetState());
+        dispatch(
+          fetchAllCustomersService({
+            search: "",
+            pageNo: 1,
+            pageSize: globalPageSize,
+            roles: [],
+            userTypes: [UserGropeType.CUSTOMER],
+            accountStatuses: [],
+          })
+        );
+      }}
     />
   );
 }

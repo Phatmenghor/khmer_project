@@ -11,11 +11,12 @@ import java.util.List;
 import java.util.UUID;
 
 import com.emenu.shared.dto.BatchImportResponse;
+import jakarta.validation.Valid;
 
 public interface BannerService {
     
     // CRUD Operations
-    BannerResponse createBanner(BannerCreateRequest request);
+    BannerResponse createBanner(@Valid BannerCreateRequest request);
     BatchImportResponse<BannerResponse> createBannerBatch(List<BannerCreateRequest> requests, String importId);
     PaginationResponse<BannerResponse> getAllBanners(BannerFilterRequest filter);
     List<BannerResponse> getAllItemBanners(BannerAllFilterRequest filter);

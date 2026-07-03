@@ -29,6 +29,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import com.emenu.shared.dto.BatchImportResponse;
+import com.emenu.shared.cancellation.RequestCancellationRegistry;
+import com.emenu.shared.mapper.PaginationMapper;
+import org.springframework.validation.annotation.Validated;
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +43,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+@Validated
 public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateService {
 
     @Autowired
@@ -49,11 +54,12 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
     private final BusinessRepository businessRepository;
     private final BusinessExchangeRateMapper exchangeRateMapper;
     private final SecurityUtils securityUtils;
-    private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
+    private final PaginationMapper paginationMapper;
     private final WebSocketNotificationService webSocketNotificationService;
+    private final RequestCancellationRegistry cancellationRegistry;
 
     @Override
-    public BusinessExchangeRateResponse createBusinessExchangeRate(BusinessExchangeRateCreateRequest request) {
+    public BusinessExchangeRateResponse createBusinessExchangeRate(@Valid BusinessExchangeRateCreateRequest request) {
         log.info("Creating business exchange rate for business: {} - Rate: {}", request.getBusinessId(), request.getUsdToKhrRate());
 
         UUID businessId = determineBusinessId(request.getBusinessId());
@@ -91,41 +97,56 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
         int successCount = 0;
         int errorCount = 0;
 
-        for (int i = 0; i < requests.size(); i++) {
-            BusinessExchangeRateCreateRequest req = requests.get(i);
-            boolean success = false;
-            String errorMsg = null;
-            BusinessExchangeRateResponse resp = null;
-            try {
-                resp = self.createBusinessExchangeRate(req);
-                results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
-                successCount++;
-                success = true;
-            } catch (Exception ex) {
-                log.error("Batch business exchange rate creation failed at index {}: {}", i, ex.getMessage());
-                errorMsg = ex.getMessage();
-                results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
-                errorCount++;
-            }
+        cancellationRegistry.registerImport(importId);
 
-            if (importId != null) {
-                int progress = (int) (((double) (i + 1) / requests.size()) * 100);
-                java.util.Map<String, Object> lastResult = java.util.Map.of(
-                    "index", i,
-                    "success", success,
-                    "error", errorMsg != null ? errorMsg : ""
-                );
-                webSocketNotificationService.notifyImportProgress(
-                    importId,
-                    progress,
-                    i + 1,
-                    requests.size(),
-                    successCount,
-                    errorCount,
-                    (i + 1) == requests.size(),
-                    lastResult
-                );
+        try {
+            for (int i = 0; i < requests.size(); i++) {
+                cancellationRegistry.checkCancelled(importId);
+
+                BusinessExchangeRateCreateRequest req = requests.get(i);
+                boolean success = false;
+                String errorMsg = null;
+                BusinessExchangeRateResponse resp = null;
+                try {
+                    resp = self.createBusinessExchangeRate(req);
+                    results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
+                    successCount++;
+                    success = true;
+                } catch (jakarta.validation.ConstraintViolationException ex) {
+                    errorMsg = ex.getConstraintViolations().stream()
+                            .map(jakarta.validation.ConstraintViolation::getMessage)
+                            .collect(java.util.stream.Collectors.joining(", "));
+                    log.error("Batch business exchange rate creation failed at index {} due to validation: {}", i, errorMsg);
+                    results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
+                    errorCount++;
+                } catch (Exception ex) {
+                    log.error("Batch business exchange rate creation failed at index {}: {}", i, ex.getMessage());
+                    errorMsg = ex.getMessage();
+                    results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
+                    errorCount++;
+                }
+
+                if (importId != null) {
+                    int progress = (int) (((double) (i + 1) / requests.size()) * 100);
+                    java.util.Map<String, Object> lastResult = java.util.Map.of(
+                        "index", i,
+                        "success", success,
+                        "error", errorMsg != null ? errorMsg : ""
+                    );
+                    webSocketNotificationService.notifyImportProgress(
+                        importId,
+                        progress,
+                        i + 1,
+                        requests.size(),
+                        successCount,
+                        errorCount,
+                        (i + 1) == requests.size(),
+                        lastResult
+                    );
+                }
             }
+        } finally {
+            cancellationRegistry.cleanUp(importId);
         }
 
         return new BatchImportResponse<>(successCount, errorCount, results);

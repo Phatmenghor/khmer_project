@@ -200,6 +200,15 @@ export function downloadBrandTemplate() {
 
   buildInstructionSheet(wb);
 
+  // Explicitly set all sheets to Left-To-Right (LTR) direction
+  ws["!views"] = [{ RTL: false }];
+  if (wb.Sheets["Instructions & Examples"]) {
+    wb.Sheets["Instructions & Examples"]["!views"] = [{ RTL: false }];
+  }
+  if (!wb.Workbook) wb.Workbook = {};
+  if (!wb.Workbook.Views) wb.Workbook.Views = [];
+  wb.Workbook.Views[0] = { RTL: false };
+
   XLSX.writeFile(wb, `brand_import_template_${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
 

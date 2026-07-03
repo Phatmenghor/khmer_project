@@ -12,10 +12,11 @@ import java.util.List;
 import java.util.UUID;
 
 import com.emenu.shared.dto.BatchImportResponse;
+import jakarta.validation.Valid;
 
 public interface PaymentOptionService {
 
-    PaymentOptionResponse createPaymentOption(UUID businessId, PaymentOptionRequest request);
+    PaymentOptionResponse createPaymentOption(UUID businessId, @Valid PaymentOptionRequest request);
     BatchImportResponse<PaymentOptionResponse> createPaymentOptionBatch(UUID businessId, List<PaymentOptionRequest> requests, String importId);
 
     PaginationResponse<PaymentOptionResponse> getAllPaymentOptionsWithFilters(

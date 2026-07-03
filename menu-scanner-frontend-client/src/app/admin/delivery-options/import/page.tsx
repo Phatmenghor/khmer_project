@@ -3,7 +3,7 @@
 import React from "react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { selectUser } from "@/features/auth/store/selectors/auth-selectors";
-import { importDeliveryOptionsBatchService } from "@/features/master-data/store/thunks/delivery-options-thunks";
+import { importDeliveryOptionsBatchService, fetchAllDeliveryOptionsService } from "@/features/master-data/store/thunks/delivery-options-thunks";
 import {
   downloadDeliveryOptionTemplate,
   parseDeliveryOptionImportFile,
@@ -12,6 +12,8 @@ import { GenericExcelImport } from "@/components/shared/import/GenericExcelImpor
 import { ImportTableColumn, RowStatus, BaseImportRow } from "@/components/shared/import/types";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { ROUTES } from "@/constants/app-routes/routes";
+import { resetState } from "@/features/master-data/store/slice/delivery-options-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 
 interface ImportDeliveryOptionRow extends BaseImportRow {
   name: string;
@@ -23,6 +25,7 @@ interface ImportDeliveryOptionRow extends BaseImportRow {
 
 export default function DeliveryOptionImportPage() {
   const dispatch = useAppDispatch();
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
   const currentUser = useAppSelector(selectUser);
   const businessId = currentUser?.businessId || AppDefault.BUSINESS_ID;
 
@@ -42,8 +45,16 @@ export default function DeliveryOptionImportPage() {
       const rawStatus = get(["status"]);
 
       let status = "ACTIVE";
-      const cleanStatus = rawStatus.trim().toUpperCase();
-      if (cleanStatus === "INACTIVE" || cleanStatus === "OFF") {
+      const cleanStatus = rawStatus.trim().toLowerCase();
+      if (
+        cleanStatus === "inactive" ||
+        cleanStatus === "off" ||
+        cleanStatus === "disable" ||
+        cleanStatus === "disabled" ||
+        cleanStatus === "false" ||
+        cleanStatus === "0" ||
+        cleanStatus === "no"
+      ) {
         status = "INACTIVE";
       }
 
@@ -141,6 +152,16 @@ export default function DeliveryOptionImportPage() {
       onImportBatch={onImportBatch}
       columns={columns}
       rowIdentifierKey="name"
+      onSuccess={() => {
+        dispatch(resetState());
+        dispatch(
+          fetchAllDeliveryOptionsService({
+            search: "",
+            pageNo: 1,
+            pageSize: globalPageSize,
+          })
+        );
+      }}
     />
   );
 }

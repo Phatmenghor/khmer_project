@@ -37,10 +37,10 @@ export function usePagination({
   }, [syncPageToRedux]);
 
   useEffect(() => {
-    if (syncPageToReduxRef.current) {
+    if (syncPageToReduxRef.current && searchParams.has("pageNo")) {
       syncPageToReduxRef.current(currentPage);
     }
-  }, [currentPage]);
+  }, [currentPage, searchParams]);
 
   const updateUrlWithPage = useCallback(
     (newPage: number, replace: boolean = false) => {

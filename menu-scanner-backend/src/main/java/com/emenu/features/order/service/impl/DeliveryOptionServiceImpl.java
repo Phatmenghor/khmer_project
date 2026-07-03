@@ -30,6 +30,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import com.emenu.shared.dto.BatchImportResponse;
+import com.emenu.shared.cancellation.RequestCancellationRegistry;
+import com.emenu.shared.mapper.PaginationMapper;
+import org.springframework.validation.annotation.Validated;
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -39,6 +43,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+@Validated
 public class DeliveryOptionServiceImpl implements DeliveryOptionService {
 
     @Autowired
@@ -48,11 +53,12 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
     private final DeliveryOptionRepository deliveryOptionRepository;
     private final DeliveryOptionMapper deliveryOptionMapper;
     private final SecurityUtils securityUtils;
-    private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
+    private final PaginationMapper paginationMapper;
     private final WebSocketNotificationService webSocketNotificationService;
+    private final RequestCancellationRegistry cancellationRegistry;
 
     @Override
-    public DeliveryOptionResponse createDeliveryOption(DeliveryOptionCreateRequest request) {
+    public DeliveryOptionResponse createDeliveryOption(@Valid DeliveryOptionCreateRequest request) {
         log.info("Creating delivery option: {}", request.getName());
 
         User currentUser = securityUtils.getCurrentUser();
@@ -83,41 +89,56 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
         int successCount = 0;
         int errorCount = 0;
 
-        for (int i = 0; i < requests.size(); i++) {
-            DeliveryOptionCreateRequest req = requests.get(i);
-            boolean success = false;
-            String errorMsg = null;
-            DeliveryOptionResponse resp = null;
-            try {
-                resp = self.createDeliveryOption(req);
-                results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
-                successCount++;
-                success = true;
-            } catch (Exception ex) {
-                log.error("Batch delivery option creation failed at index {}: {}", i, ex.getMessage());
-                errorMsg = ex.getMessage();
-                results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
-                errorCount++;
-            }
+        cancellationRegistry.registerImport(importId);
 
-            if (importId != null) {
-                int progress = (int) (((double) (i + 1) / requests.size()) * 100);
-                java.util.Map<String, Object> lastResult = java.util.Map.of(
-                    "index", i,
-                    "success", success,
-                    "error", errorMsg != null ? errorMsg : ""
-                );
-                webSocketNotificationService.notifyImportProgress(
-                    importId,
-                    progress,
-                    i + 1,
-                    requests.size(),
-                    successCount,
-                    errorCount,
-                    (i + 1) == requests.size(),
-                    lastResult
-                );
+        try {
+            for (int i = 0; i < requests.size(); i++) {
+                cancellationRegistry.checkCancelled(importId);
+
+                DeliveryOptionCreateRequest req = requests.get(i);
+                boolean success = false;
+                String errorMsg = null;
+                DeliveryOptionResponse resp = null;
+                try {
+                    resp = self.createDeliveryOption(req);
+                    results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
+                    successCount++;
+                    success = true;
+                } catch (jakarta.validation.ConstraintViolationException ex) {
+                    errorMsg = ex.getConstraintViolations().stream()
+                            .map(jakarta.validation.ConstraintViolation::getMessage)
+                            .collect(java.util.stream.Collectors.joining(", "));
+                    log.error("Batch delivery option creation failed at index {} due to validation: {}", i, errorMsg);
+                    results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
+                    errorCount++;
+                } catch (Exception ex) {
+                    log.error("Batch delivery option creation failed at index {}: {}", i, ex.getMessage());
+                    errorMsg = ex.getMessage();
+                    results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
+                    errorCount++;
+                }
+
+                if (importId != null) {
+                    int progress = (int) (((double) (i + 1) / requests.size()) * 100);
+                    java.util.Map<String, Object> lastResult = java.util.Map.of(
+                        "index", i,
+                        "success", success,
+                        "error", errorMsg != null ? errorMsg : ""
+                    );
+                    webSocketNotificationService.notifyImportProgress(
+                        importId,
+                        progress,
+                        i + 1,
+                        requests.size(),
+                        successCount,
+                        errorCount,
+                        (i + 1) == requests.size(),
+                        lastResult
+                    );
+                }
             }
+        } finally {
+            cancellationRegistry.cleanUp(importId);
         }
 
         return new BatchImportResponse<>(successCount, errorCount, results);

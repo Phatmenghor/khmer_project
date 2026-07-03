@@ -2,8 +2,6 @@ package com.emenu.features.auth.service.impl;
 
 import com.emenu.enums.user.UserType;
 import com.emenu.shared.constants.CacheNames;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import com.emenu.exception.custom.ResourceNotFoundException;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.dto.filter.RoleFilterRequest;
@@ -37,6 +35,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import com.emenu.shared.dto.BatchImportResponse;
+import com.emenu.shared.cancellation.RequestCancellationRegistry;
+import org.springframework.validation.annotation.Validated;
+import jakarta.validation.Valid;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+@Validated
 public class RoleServiceImpl implements RoleService {
 
     @Autowired
@@ -60,10 +62,10 @@ public class RoleServiceImpl implements RoleService {
     private final ResponseBuilderMapper responseBuilderMapper;
     private final PaginationMapper paginationMapper;
     private final WebSocketNotificationService webSocketNotificationService;
+    private final RequestCancellationRegistry cancellationRegistry;
 
     @Override
-    @CacheEvict(value = CacheNames.ROLES, allEntries = true)
-    public RoleResponse createRole(RoleCreateRequest request) {
+    public RoleResponse createRole(@Valid RoleCreateRequest request) {
         log.info("Role creation initiated: name={}, type={}, business_id={}",
                 request.getName(), request.getUserType(), request.getBusinessId());
 
@@ -93,9 +95,7 @@ public class RoleServiceImpl implements RoleService {
         role.setUserType(normalizedUserType);
 
         Role savedRole = roleRepository.save(role);
-        log.info("Role created successfully: id={}, name={}, type={}", savedRole.getId(), savedRole.getName(), savedRole.getUserType());
-        webSocketNotificationService.notifyPlatformEvent("ROLE_CHANGED", Map.of("action", "created", "roleId", savedRole.getId().toString()));
-
+        log.info("Role created successfully: id={}, name={}", savedRole.getId(), savedRole.getName());
         return roleMapper.toResponse(savedRole);
     }
 
@@ -107,41 +107,56 @@ public class RoleServiceImpl implements RoleService {
         int successCount = 0;
         int errorCount = 0;
 
-        for (int i = 0; i < requests.size(); i++) {
-            RoleCreateRequest req = requests.get(i);
-            boolean success = false;
-            String errorMsg = null;
-            RoleResponse resp = null;
-            try {
-                resp = self.createRole(req);
-                results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
-                successCount++;
-                success = true;
-            } catch (Exception ex) {
-                log.error("Batch role creation failed at index {}: {}", i, ex.getMessage());
-                errorMsg = ex.getMessage();
-                results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
-                errorCount++;
-            }
+        cancellationRegistry.registerImport(importId);
 
-            if (importId != null) {
-                int progress = (int) (((double) (i + 1) / requests.size()) * 100);
-                java.util.Map<String, Object> lastResult = java.util.Map.of(
-                    "index", i,
-                    "success", success,
-                    "error", errorMsg != null ? errorMsg : ""
-                );
-                webSocketNotificationService.notifyImportProgress(
-                    importId,
-                    progress,
-                    i + 1,
-                    requests.size(),
-                    successCount,
-                    errorCount,
-                    (i + 1) == requests.size(),
-                    lastResult
-                );
+        try {
+            for (int i = 0; i < requests.size(); i++) {
+                cancellationRegistry.checkCancelled(importId);
+
+                RoleCreateRequest req = requests.get(i);
+                boolean success = false;
+                String errorMsg = null;
+                RoleResponse resp = null;
+                try {
+                    resp = self.createRole(req);
+                    results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
+                    successCount++;
+                    success = true;
+                } catch (jakarta.validation.ConstraintViolationException ex) {
+                    errorMsg = ex.getConstraintViolations().stream()
+                            .map(jakarta.validation.ConstraintViolation::getMessage)
+                            .collect(java.util.stream.Collectors.joining(", "));
+                    log.error("Batch role creation failed at index {} due to validation: {}", i, errorMsg);
+                    results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
+                    errorCount++;
+                } catch (Exception ex) {
+                    log.error("Batch role creation failed at index {}: {}", i, ex.getMessage());
+                    errorMsg = ex.getMessage();
+                    results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
+                    errorCount++;
+                }
+
+                if (importId != null) {
+                    int progress = (int) (((double) (i + 1) / requests.size()) * 100);
+                    java.util.Map<String, Object> lastResult = java.util.Map.of(
+                        "index", i,
+                        "success", success,
+                        "error", errorMsg != null ? errorMsg : ""
+                    );
+                    webSocketNotificationService.notifyImportProgress(
+                        importId,
+                        progress,
+                        i + 1,
+                        requests.size(),
+                        successCount,
+                        errorCount,
+                        (i + 1) == requests.size(),
+                        lastResult
+                    );
+                }
             }
+        } finally {
+            cancellationRegistry.cleanUp(importId);
         }
 
         return new BatchImportResponse<>(successCount, errorCount, results);
@@ -196,7 +211,6 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = CacheNames.ROLES, key = "'list:' + #request.businessId + ':' + #request.userTypes")
     public List<RoleResponse> getAllRolesList(RoleFilterRequest request) {
         List<UserType> userTypes = FilterUtils.nullIfEmpty(request.getUserTypes());
         Boolean includeAll = request.getIncludeAll() != null && request.getIncludeAll();
@@ -242,7 +256,6 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    @CacheEvict(value = CacheNames.ROLES, allEntries = true)
     public RoleResponse updateRole(UUID roleId, RoleUpdateRequest request) {
         log.info("Role update initiated: id={}, name={}", roleId, request.getName());
 
@@ -288,7 +301,6 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    @CacheEvict(value = CacheNames.ROLES, allEntries = true)
     public RoleResponse deleteRole(UUID roleId) {
         log.info("Role deletion initiated: id={}", roleId);
 

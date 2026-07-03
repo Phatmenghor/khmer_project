@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, Suspense } from "react";
+import { useEffect, useMemo, Suspense, useRef } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -42,6 +42,7 @@ import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function DeliveryOptionsPageInner() {
   useAdminCleanup(resetState);
+  const isInitialMount = useRef(true);
   const router = useRouter();
 
   const {
@@ -70,8 +71,7 @@ function DeliveryOptionsPageInner() {
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
 
-  // ── Sync filters ↔ URL ────────────────────────────────────────────────────
-  useAdminFilterUrlSync({
+  const isHydrated = useAdminFilterUrlSync({
     filters: {
       search: filters.search,
       status: filters.status !== Status.ALL ? filters.status : "",
@@ -92,6 +92,15 @@ function DeliveryOptionsPageInner() {
   });
 
   useEffect(() => {
+    if (!isHydrated) return;
+
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      if (deliveryOptionsContent && deliveryOptionsContent.length > 0) {
+        return;
+      }
+    }
+
     dispatch(
       fetchMyBusinessDeliveryOptionsService({
         search: debouncedSearch,
@@ -100,7 +109,8 @@ function DeliveryOptionsPageInner() {
         statuses: filters.status === Status.ALL ? [] : [filters.status],
       }),
     );
-  }, [dispatch, debouncedSearch, filters.status, filters.pageNo, globalPageSize]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, debouncedSearch, filters.status, filters.pageNo, globalPageSize, isHydrated]);
 
   // ── Deep-link resolver ────────────────────────────────────────────────────
   const allDeliveryOptionsContent = useAppSelector(selecDeliveryOptionsContent);

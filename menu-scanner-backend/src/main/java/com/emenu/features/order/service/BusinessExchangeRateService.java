@@ -9,11 +9,12 @@ import com.emenu.shared.dto.PaginationResponse;
 import java.util.UUID;
 
 import com.emenu.shared.dto.BatchImportResponse;
+import jakarta.validation.Valid;
 import java.util.List;
 
 public interface BusinessExchangeRateService {
     
-    BusinessExchangeRateResponse createBusinessExchangeRate(BusinessExchangeRateCreateRequest request);
+    BusinessExchangeRateResponse createBusinessExchangeRate(@Valid BusinessExchangeRateCreateRequest request);
     BatchImportResponse<BusinessExchangeRateResponse> createBusinessExchangeRateBatch(List<BusinessExchangeRateCreateRequest> requests, String importId);
     
     PaginationResponse<BusinessExchangeRateResponse> getAllBusinessExchangeRates(BusinessExchangeRateFilterRequest filter);

@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.emenu.shared.dto.BatchImportResponse;
@@ -133,7 +132,7 @@ public class UserController {
 
     @PostMapping("/batch")
     public ResponseEntity<ApiResponse<BatchImportResponse<UserResponse>>> createUserBatch(
-            @Valid @RequestBody List<UserCreateRequest> requests,
+            @RequestBody List<UserCreateRequest> requests,
             @RequestParam(required = false) String importId) {
         log.info("Endpoint: createUserBatch - user batch creation request received: size={}, importId={}", requests.size(), importId);
         BatchImportResponse<UserResponse> response = userService.createUserBatch(requests, importId);
@@ -156,7 +155,6 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("User deleted", deletedUserResponse));
     }
 
-    @PreAuthorize("hasAnyRole('PLATFORM_OWNER', 'PLATFORM_ADMIN', 'SUPER_ADMIN', 'ADMIN')")
     @PostMapping("/admin/reset-password")
     public ResponseEntity<ApiResponse<UserResponse>> adminResetPassword(
             @Valid @RequestBody AdminPasswordResetRequest resetRequestData) {
@@ -174,10 +172,10 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<ApiResponse<Boolean>> logout(@RequestHeader("Authorization") String authHeader) {
         log.info("Endpoint: logout - user logout request received");
         authService.logout(authHeader);
-        return ResponseEntity.ok(ApiResponse.success("Logout successful", null));
+        return ResponseEntity.ok(ApiResponse.success("Logout successful", true));
     }
 
 }

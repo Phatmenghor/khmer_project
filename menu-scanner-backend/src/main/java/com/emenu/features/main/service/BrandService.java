@@ -12,9 +12,10 @@ import java.util.List;
 import java.util.UUID;
 
 import com.emenu.shared.dto.BatchImportResponse;
+import jakarta.validation.Valid;
 
 public interface BrandService {
-    BrandResponse createBrand(BrandCreateRequest request);
+    BrandResponse createBrand(@Valid BrandCreateRequest request);
     BatchImportResponse<BrandResponse> createBrandBatch(List<BrandCreateRequest> requests, String importId);
     PaginationResponse<BrandResponse> getAllBrands(BrandFilterRequest filter);
     PaginationResponse<BrandWithProductCountResponse> getBrandsWithProductCount(BrandFilterRequest filter);

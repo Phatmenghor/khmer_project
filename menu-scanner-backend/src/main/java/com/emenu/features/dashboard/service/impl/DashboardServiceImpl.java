@@ -10,7 +10,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +39,6 @@ public class DashboardServiceImpl implements DashboardService {
     // ─── Summary ─────────────────────────────────────────────────────────────
 
     @Override
-    @Cacheable(value = CacheNames.DASHBOARD_SUMMARY, key = "#businessId")
     public DashboardSummaryResponse getSummary(UUID businessId, String period) {
         LocalDateTime[] today     = DashboardPeriodUtil.getTodayRange();
         LocalDateTime[] yesterday = DashboardPeriodUtil.getYesterdayRange();
@@ -75,7 +73,6 @@ public class DashboardServiceImpl implements DashboardService {
     // ─── Sales Analytics ─────────────────────────────────────────────────────
 
     @Override
-    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':sales:' + #period")
     public DashboardSalesResponse getSales(UUID businessId, String period) {
         LocalDateTime[] range = DashboardPeriodUtil.getRange(period);
 
@@ -123,7 +120,6 @@ public class DashboardServiceImpl implements DashboardService {
     // ─── Payment Methods ──────────────────────────────────────────────────────
 
     @Override
-    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':payments:' + #period")
     public DashboardPaymentsResponse getPayments(UUID businessId, String period) {
         LocalDateTime[] range = DashboardPeriodUtil.getRange(period);
 
@@ -289,7 +285,6 @@ public class DashboardServiceImpl implements DashboardService {
     // ─── Top Products ─────────────────────────────────────────────────────────
 
     @Override
-    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':topProducts:' + #period")
     public DashboardTopProductsResponse getTopProducts(UUID businessId, String period) {
         LocalDateTime[] range = DashboardPeriodUtil.getRange(period);
 
@@ -336,7 +331,6 @@ public class DashboardServiceImpl implements DashboardService {
     // ─── Hourly Sales ─────────────────────────────────────────────────────────
 
     @Override
-    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':hourlySales:' + #period")
     public DashboardHourlySalesResponse getHourlySales(UUID businessId, String period) {
         LocalDateTime[] range = DashboardPeriodUtil.getRange(period);
 
@@ -389,7 +383,6 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':customerGrowth'")
     public DashboardCustomerGrowthResponse getCustomerGrowth(UUID businessId) {
         @SuppressWarnings("unchecked")
         List<Object[]> rows = em.createNativeQuery(

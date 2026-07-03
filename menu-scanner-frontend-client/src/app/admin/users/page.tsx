@@ -59,6 +59,7 @@ import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function UserBusinessPageInner() {
   useAdminCleanup(resetState);
+  const isInitialMount = useRef(true);
 
   const currentUser = useAppSelector(selectUser);
   const currentUserId = currentUser?.userId;
@@ -98,8 +99,7 @@ function UserBusinessPageInner() {
 
   const rolesContent = useAppSelector(selectRolesList);
 
-  // ── Sync filters ↔ URL ────────────────────────────────────────────────────
-  useAdminFilterUrlSync({
+  const isHydrated = useAdminFilterUrlSync({
     filters: {
       search: filters.search,
       accountStatus:
@@ -172,6 +172,15 @@ function UserBusinessPageInner() {
   }, [dispatch, rolesContent]);
 
   useEffect(() => {
+    if (!isHydrated) return;
+
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      if (usersContent && usersContent.length > 0) {
+        return;
+      }
+    }
+
     const filterPayload = {
       search: debouncedSearch,
       pageNo: filters.pageNo,
@@ -185,6 +194,7 @@ function UserBusinessPageInner() {
     };
 
     dispatch(fetchAllUsersService(filterPayload));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dispatch,
     debouncedSearch,
@@ -192,6 +202,7 @@ function UserBusinessPageInner() {
     filters.role,
     filters.pageNo,
     globalPageSize,
+    isHydrated,
   ]);
 
   // ── Table action handlers ─────────────────────────────────────────────────

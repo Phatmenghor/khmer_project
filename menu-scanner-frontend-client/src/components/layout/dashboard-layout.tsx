@@ -1,10 +1,10 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Maximize2 } from "lucide-react";
+import { Maximize2, ChevronUp } from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import { TopBar } from "./topbar";
@@ -19,6 +19,8 @@ export default function DashboardLayout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const pathname = usePathname();
 
@@ -53,6 +55,37 @@ export default function DashboardLayout({
   useEffect(() => {
     setIsSidebarOpen(!isMobile);
   }, [pathname, isMobile]);
+
+  // Scroll to top on page navigation
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTop = 0;
+    }
+  }, [pathname]);
+
+  // Handle scroll listener for Scroll-to-Top button
+  useEffect(() => {
+    const container = contentRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      setShowScrollTop(container.scrollTop > 250);
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, [mounted]);
+
+  const scrollToTop = () => {
+    if (contentRef.current) {
+      contentRef.current.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+  };
 
 
   useEffect(() => {
@@ -95,6 +128,7 @@ export default function DashboardLayout({
         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
       />
       <div
+        ref={contentRef}
         className={cn(
           "dashboard-content flex flex-col flex-1 min-w-0 transition-all duration-300",
           isPosPage ? "overflow-hidden" : "overflow-y-auto",
@@ -113,6 +147,20 @@ export default function DashboardLayout({
         </main>
         {!isPosPage && <AdminFooter />}
       </div>
+      <button
+        onClick={scrollToTop}
+        className={cn(
+          "fixed bottom-6 right-6 z-50 group flex h-11 w-11 items-center justify-center rounded-full",
+          "bg-background/80 dark:bg-zinc-900/80 backdrop-blur-md border border-border/60",
+          "text-foreground shadow-lg hover:shadow-xl hover:bg-accent hover:text-accent-foreground hover:scale-110 active:scale-95 transition-all duration-300",
+          showScrollTop
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-4 pointer-events-none"
+        )}
+        aria-label="Scroll to top"
+      >
+        <ChevronUp className="h-5 w-5 transition-transform duration-300 group-hover:-translate-y-1" />
+      </button>
     </div>
   );
 }

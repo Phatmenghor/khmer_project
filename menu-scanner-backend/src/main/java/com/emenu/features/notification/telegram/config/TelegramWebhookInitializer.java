@@ -1,6 +1,5 @@
 package com.emenu.features.notification.telegram.config;
 
-import com.emenu.features.notification.telegram.service.TelegramNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,8 +70,7 @@ public class TelegramWebhookInitializer implements ApplicationRunner {
                 log.warn("[Telegram] Webhook setup returned unexpected response: {}", response);
             }
         } catch (Exception e) {
-            log.error("[Telegram] Failed to setup webhook: {}", e.getMessage(), e);
-            log.error("[Telegram] Please manually set webhook or check your configuration");
+            log.warn("[Telegram] Failed to setup webhook: {} — Please manually configure the webhook if needed or check your connection/credentials.", e.getMessage());
         }
     }
 }
