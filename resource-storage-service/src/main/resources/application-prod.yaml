@@ -20,10 +20,14 @@ spring:
 server:
   port: "${SERVER_PORT:7072}"
 
+spaces:
+  store-on-database: true
+  local-base-url: "http://localhost:${server.port}"
+  admin-username: "phatmenghor"
+  admin-password: "Hour1819"
+
 logging:
   level:
     root: INFO
     org.springframework: WARN
     org.hibernate: WARN
-  pattern:
-    console: "%d{HH:mm:ss.SSS} %-5level %-35.35logger{35} [%X{traceId:--}] %msg%n"

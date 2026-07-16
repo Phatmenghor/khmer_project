@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/admin/keys")
@@ -41,6 +40,7 @@ public class ApiKeyController {
     public ResponseEntity<ApiKeyResponse> create(@Valid @RequestBody ApiKeyCreateRequest req) {
         String rawKey = ApiKeyUtil.generateKey(req.getProjectCode());
         ApiKey saved = apiKeyRepository.save(ApiKey.builder()
+                .id(req.getProjectCode())
                 .apiKey(rawKey)
                 .projectCode(req.getProjectCode())
                 .pathStore(req.getPathStore())
@@ -53,11 +53,11 @@ public class ApiKeyController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Revoke an API key")
-    public ResponseEntity<Void> revoke(@PathVariable UUID id) {
+    public ResponseEntity<Void> revoke(@PathVariable String id) {
         apiKeyRepository.findById(id).ifPresent(k -> {
             k.setActive(false);
             apiKeyRepository.save(k);
-            log.info("Revoked API key: id=[{}], projectCode=[{}]", id, k.getProjectCode());
+            log.info("Revoked API key: id=[{}]", id);
         });
         return ResponseEntity.noContent().build();
     }

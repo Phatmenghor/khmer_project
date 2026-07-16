@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: "jdbc:postgresql://${DB_HOST:167.172.88.194}:${DB_PORT:5432}/${DB_NAME:resource-storage-service}"
-    username: "${DB_USERNAME:resource-storage-users}"
-    password: "${DB_PASSWORD:Hour1819}"
+    url: "jdbc:postgresql://${DB_HOST:192.168.103.106}:${DB_PORT:5432}/${DB_NAME:resource-storage-service}"
+    username: "${DB_USERNAME:postgres}"
+    password: "${DB_PASSWORD:123cp!@#}"
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5
@@ -27,11 +27,13 @@ spaces:
   access-key: "DO00QQ6TAV62YPV3DC4U"
   secret-key: "+ye4MKS7msULnLoNvmEy60KpBGaG8IWGepnTNrdTfTw"
   cdn-base-url: "https://emenu-cambodia.sgp1.cdn.digitaloceanspaces.com"
+  store-on-database: true
+  local-base-url: "http://localhost:${server.port}"
+  admin-username: "phatmenghor"
+  admin-password: "Hour1819"
 
 logging:
   level:
     root: INFO
     org.springframework: WARN
     org.hibernate: WARN
-  pattern:
-    console: "%d{HH:mm:ss.SSS} %-5level %-35.35logger{35} [%X{traceId:--}] %msg%n"

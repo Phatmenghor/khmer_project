@@ -25,4 +25,7 @@ public interface StorageService {
 
     /** Admin-only: delete ALL objects under an explicit path prefix. */
     StorageDeleteResponse deleteAll(String path);
+
+    /** Retrieve file bytes from the database or S3. */
+    byte[] getFile(String key);
 }

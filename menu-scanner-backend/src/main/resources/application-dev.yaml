@@ -5,9 +5,9 @@
 # ============================================================
 spring:
   datasource:
-    url: "jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:e_menu_platform}"
+    url: "jdbc:postgresql://${DB_HOST:192.168.103.106}:${DB_PORT:5432}/${DB_NAME:platform}"
     username: "${DB_USERNAME:postgres}"
-    password: "${DB_PASSWORD:postgres}"
+    password: "${DB_PASSWORD:123cp!@#}"
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -78,8 +78,8 @@ app:
 # Each key is registered in the Spaces service api_keys table with its own
 # projectCode + path. No businessId or X-Project-Code header is needed.
 spaces:
-  service-url: "${SPACES_SERVICE_URL:http://167.172.88.194:7072}"
-  api-key: "${SPACES_API_KEY:sk_emenutest_Cfk8IIisHl6bPfW7Cqd5DsQTo2i2Fx2j}"
+  service-url: "${SPACES_SERVICE_URL:http://localhost:7072}"
+  api-key: "${SPACES_API_KEY:sk_khmeremenu_hojPxxrIUEOGqPqQ2i7C8xqxCZaRO4gg}"
 
 logging:
   level:

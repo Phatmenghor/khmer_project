@@ -14,4 +14,8 @@ public class StorageProperties {
     private String accessKey;
     private String secretKey;
     private String cdnBaseUrl;
+    private boolean storeOnDatabase = false;
+    private String localBaseUrl;
+    private String adminUsername;
+    private String adminPassword;
 }

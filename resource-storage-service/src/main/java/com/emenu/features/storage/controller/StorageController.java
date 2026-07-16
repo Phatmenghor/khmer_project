@@ -58,4 +58,18 @@ public class StorageController {
         log.info("Multi-upload completed: path=[{}], key=[{}]", path, response.getKey());
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/files/{*key}")
+    @Operation(summary = "Retrieve file bytes from the database or S3")
+    public ResponseEntity<byte[]> getFile(@PathVariable String key) {
+        String cleanKey = key;
+        if (cleanKey.startsWith("/")) {
+            cleanKey = cleanKey.substring(1);
+        }
+        log.info("Retrieve file requested: key=[{}]", cleanKey);
+        byte[] data = storageService.getFile(cleanKey);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(data);
+    }
 }

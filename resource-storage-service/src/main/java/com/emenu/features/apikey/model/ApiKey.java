@@ -28,16 +28,15 @@ import java.util.UUID;
 public class ApiKey {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @Column(name = "id", nullable = false, length = 100)
+    private String id;
+
+    @Column(name = "project_code", nullable = false, length = 100)
+    private String projectCode;
 
     /** The raw key value sent in X-API-Key header */
     @Column(name = "api_key", nullable = false, length = 255)
     private String apiKey;
-
-    /** e.g. "emenu", "ab", "xyz-app" */
-    @Column(name = "project_code", nullable = false, length = 100)
-    private String projectCode;
 
     /**
      * Sub-folder / business path.

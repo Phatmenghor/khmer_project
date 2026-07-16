@@ -1,5 +1,6 @@
 package com.emenu.config.security;
 
+import com.emenu.config.storage.StorageProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +31,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final ApiKeyAuthFilter apiKeyAuthFilter;
+    private final StorageProperties storageProperties;
 
     /**
      * ApiKeyAuthFilter is a {@code @Component}, so Spring Boot would otherwise
@@ -67,7 +69,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/storage/files/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -78,8 +80,8 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService adminUserDetailsService(PasswordEncoder passwordEncoder) {
         UserDetails admin = User.builder()
-                .username("phatmenghor")
-                .password(passwordEncoder.encode("Hour1819"))
+                .username(storageProperties.getAdminUsername())
+                .password(passwordEncoder.encode(storageProperties.getAdminPassword()))
                 .roles("ADMIN")
                 .build();
         return new InMemoryUserDetailsManager(admin);

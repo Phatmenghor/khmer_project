@@ -4,12 +4,11 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 @Builder
 public class ApiKeyResponse {
-    private UUID id;
+    private String id;
     private String apiKey;
     private String projectCode;
     private String pathStore;

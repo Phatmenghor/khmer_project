@@ -34,8 +34,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getRequestURI();
-        // Skip auth for Actuator and Swagger
-        if (path.startsWith("/actuator") || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
+        // Skip auth for Actuator, Swagger, and public file serving
+        if (path.startsWith("/actuator") || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs") || path.startsWith("/api/v1/storage/files")) {
             filterChain.doFilter(request, response);
             return;
         }

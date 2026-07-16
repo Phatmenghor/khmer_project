@@ -6,7 +6,9 @@ import com.emenu.config.storage.StorageProperties;
 import com.emenu.features.storage.dto.response.StorageDeleteResponse;
 import com.emenu.features.storage.dto.response.StorageMultiUploadResponse;
 import com.emenu.features.storage.dto.response.StorageUploadResponse;
+import com.emenu.features.storage.model.StorageBase64;
 import com.emenu.features.storage.model.StorageResource;
+import com.emenu.features.storage.repository.StorageBase64Repository;
 import com.emenu.features.storage.repository.StorageResourceRepository;
 import com.emenu.features.storage.service.StorageAuditService;
 import com.emenu.features.storage.service.StorageService;
@@ -45,6 +47,7 @@ public class StorageServiceImpl implements StorageService {
     private final S3Client storageS3Client;
     private final StorageProperties storageProperties;
     private final StorageResourceRepository storageResourceRepository;
+    private final StorageBase64Repository storageBase64Repository;
     private final StorageAuditService storageAuditService;
 
     @Qualifier("taskExecutor")
@@ -140,10 +143,12 @@ public class StorageServiceImpl implements StorageService {
     // ── Delete ───────────────────────────────────────────────────────────────
 
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public StorageDeleteResponse deleteAll(String path) {
         String prefix = StorageKeyUtil.prefix(path);
         List<String> deletedKeys = deleteByPrefix(prefix);
         storageResourceRepository.deleteByPath(path);
+        storageBase64Repository.deleteByObjectKeyPrefix(prefix);
 
         log.info("[{}] Delete-all succeeded: deletedCount=[{}]", path, deletedKeys.size());
         return StorageDeleteResponse.builder()
@@ -179,18 +184,40 @@ public class StorageServiceImpl implements StorageService {
 
         byte[] bytes = out.toByteArray();
 
-        storageS3Client.putObject(
-                PutObjectRequest.builder()
-                        .bucket(storageProperties.getBucket())
-                        .key(key)
-                        .contentType("image/jpeg")
-                        .contentLength((long) bytes.length)
-                        .acl(ObjectCannedACL.PUBLIC_READ)
-                        .build(),
-                RequestBody.fromBytes(bytes)
-        );
+        boolean storeOnDb = storageProperties.isStoreOnDatabase();
+        boolean storeOnS3 = !storeOnDb;
 
-        String url = storageProperties.getCdnBaseUrl() + "/" + key;
+        if (storeOnS3) {
+            storageS3Client.putObject(
+                    PutObjectRequest.builder()
+                            .bucket(storageProperties.getBucket())
+                            .key(key)
+                            .contentType("image/jpeg")
+                            .contentLength((long) bytes.length)
+                            .acl(ObjectCannedACL.PUBLIC_READ)
+                            .build(),
+                    RequestBody.fromBytes(bytes)
+            );
+        }
+
+        if (storeOnDb) {
+            try {
+                storageBase64Repository.save(StorageBase64.builder()
+                        .objectKey(key)
+                        .content(java.util.Base64.getEncoder().encodeToString(bytes))
+                        .build());
+            } catch (Exception e) {
+                log.error("Failed to store Base64 content in database for key=[{}]: {}", key, e.getMessage());
+                throw new RuntimeException("Failed to save Base64 content: " + e.getMessage(), e);
+            }
+        }
+
+        String url;
+        if (storeOnDb) {
+            url = storageProperties.getLocalBaseUrl() + "/api/v1/storage/files/" + key;
+        } else {
+            url = storageProperties.getCdnBaseUrl() + "/" + key;
+        }
 
         storageAuditService.saveAsync(StorageResource.builder()
                 .projectCode(projectCode)
@@ -202,6 +229,29 @@ public class StorageServiceImpl implements StorageService {
                 .build());
 
         return StorageUploadResponse.builder().key(key).url(url).build();
+    }
+
+    @Override
+    public byte[] getFile(String key) {
+        java.util.Optional<StorageBase64> base64Opt = storageBase64Repository.findByObjectKey(key);
+        if (base64Opt.isPresent() && base64Opt.get().getContent() != null) {
+            try {
+                return java.util.Base64.getDecoder().decode(base64Opt.get().getContent());
+            } catch (Exception e) {
+                log.error("Failed to decode Base64 content for key=[{}]: {}", key, e.getMessage());
+            }
+        }
+
+        try {
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                    .bucket(storageProperties.getBucket())
+                    .key(key)
+                    .build();
+            return storageS3Client.getObjectAsBytes(getObjectRequest).asByteArray();
+        } catch (Exception e) {
+            log.error("Failed to fetch file from S3 for key=[{}]: {}", key, e.getMessage());
+            throw new RuntimeException("File not found or S3 error: " + e.getMessage(), e);
+        }
     }
 
     /**
