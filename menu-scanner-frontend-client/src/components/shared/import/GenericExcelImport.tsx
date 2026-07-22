@@ -118,6 +118,7 @@ interface GenericExcelImportProps<T extends BaseImportRow> {
   columns: ImportTableColumn<T>[];
   rowIdentifierKey?: keyof T;
   onSuccess?: () => void;
+  disableRedirectOnSuccess?: boolean;
 }
 
 export function GenericExcelImport<T extends BaseImportRow>({
@@ -133,6 +134,7 @@ export function GenericExcelImport<T extends BaseImportRow>({
   columns,
   rowIdentifierKey,
   onSuccess,
+  disableRedirectOnSuccess = true,
 }: GenericExcelImportProps<T>) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -444,9 +446,11 @@ export function GenericExcelImport<T extends BaseImportRow>({
       if (successCount > 0 && errorCount === 0) {
         showToast.success(`All ${successCount} ${entityName} imported successfully!`);
         onSuccess?.();
-        setTimeout(() => {
-          router.push(backRoute);
-        }, 1500);
+        if (!disableRedirectOnSuccess) {
+          setTimeout(() => {
+            router.push(backRoute);
+          }, 1500);
+        }
       } else if (successCount > 0) {
         showToast.success(`${successCount} imported successfully. ${errorCount} failed rows remain.`);
         onSuccess?.();

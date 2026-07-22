@@ -117,6 +117,7 @@ export default function RoleImportPage() {
       onImportBatch={onImportBatch}
       columns={columns}
       rowIdentifierKey="name"
+      disableRedirectOnSuccess={true}
       onSuccess={() => {
         dispatch(resetState());
         dispatch(

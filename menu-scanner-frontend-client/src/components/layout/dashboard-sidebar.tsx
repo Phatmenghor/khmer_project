@@ -6,7 +6,6 @@ import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { useEffect, useRef, useState } from "react";
-import { readBusinessCache } from "@/lib/business-cache";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ROUTES, SIDEBAR_MENU } from "@/constants/app-routes/routes";
 import { SmartImage } from "@/components/shared/image/smart-image";
@@ -39,21 +38,8 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
   const reduxLogoUrl = useAppSelector(selectBusinessLogo);
 
 
-  const [cachedBusinessName, setCachedBusinessName] = useState<string | undefined>();
-  const [cachedLogoUrl, setCachedLogoUrl] = useState<string | undefined>();
-
-
-  useEffect(() => {
-    const cache = readBusinessCache();
-    if (cache) {
-      setCachedBusinessName(cache.businessName);
-      setCachedLogoUrl(cache.logoBusinessUrl);
-    }
-  }, []);
-
-
-  const businessName = reduxBusinessName || cachedBusinessName;
-  const logoUrl = reduxLogoUrl || cachedLogoUrl;
+  const businessName = reduxBusinessName;
+  const logoUrl = reduxLogoUrl;
 
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({

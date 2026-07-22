@@ -7,7 +7,6 @@ import { MapPin, Phone, Clock, Mail } from "lucide-react";
 import { PageContainer } from "../shared/common/page-container";
 import { useAppSelector } from "@/store";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
-import { readBusinessCache } from "@/lib/business-cache";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 import { SocialMedia } from "@/features/business/store/services/business-settings-service";
 
@@ -15,21 +14,8 @@ export function Footer() {
   const businessSettings = useAppSelector(selectBusinessSettings);
 
 
-  const [cachedBusinessName, setCachedBusinessName] = useState<string | undefined>();
-  const [cachedLogoUrl, setCachedLogoUrl] = useState<string | undefined>();
-
-
-  useEffect(() => {
-    const cache = readBusinessCache();
-    if (cache) {
-      setCachedBusinessName(cache.businessName);
-      setCachedLogoUrl(cache.logoBusinessUrl);
-    }
-  }, []);
-
-
-  const businessName = businessSettings?.businessName || cachedBusinessName || "";
-  const businessLogoUrl = businessSettings?.logoBusiness?.sm || cachedLogoUrl || "";
+  const businessName = businessSettings?.businessName || "";
+  const businessLogoUrl = businessSettings?.logoBusiness?.sm || "";
   const contactAddress = businessSettings?.contactAddress || "";
   const contactPhone = businessSettings?.contactPhone || "";
   const contactEmail = businessSettings?.contactEmail || "";

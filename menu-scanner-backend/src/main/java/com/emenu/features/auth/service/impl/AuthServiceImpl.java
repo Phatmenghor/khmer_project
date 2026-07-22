@@ -116,6 +116,12 @@ public class AuthServiceImpl implements AuthService {
             if (businessEntity != null) {
                 loginResponse.setBusinessStatus(businessEntity.getStatus().toString());
                 loginResponse.setIsSubscriptionActive(businessEntity.hasActiveSubscription());
+                if (businessEntity.getSubscriptions() != null) {
+                    businessEntity.getSubscriptions().stream()
+                            .filter(Subscription::isActive)
+                            .findFirst()
+                            .ifPresent(sub -> loginResponse.setSubscriptionRemainingDays(sub.getDaysRemaining()));
+                }
             }
         }
 

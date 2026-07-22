@@ -380,6 +380,7 @@ export default function UserImportPage() {
       onImportBatch={onImportBatch}
       columns={columns}
       rowIdentifierKey="username"
+      disableRedirectOnSuccess={true}
       onSuccess={() => {
         dispatch(resetState());
         dispatch(

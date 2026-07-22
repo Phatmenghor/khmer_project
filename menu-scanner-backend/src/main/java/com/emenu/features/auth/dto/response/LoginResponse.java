@@ -26,6 +26,7 @@ public class LoginResponse {
     private String businessStatus;
     private Boolean isSubscriptionActive;
     private String subscriptionWarningMessage;
+    private Long subscriptionRemainingDays;
 
     private Long telegramId;
     private String telegramUsername;

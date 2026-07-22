@@ -2,7 +2,6 @@
 
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { useState, useEffect, useRef } from "react";
-import { readBusinessCache } from "@/lib/business-cache";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import { useRouter, usePathname } from "next/navigation";
@@ -55,29 +54,8 @@ export function Navbar() {
   const reduxBusinessLogoUrl = useAppSelector(selectBusinessLogo);
   const isBusinessLoading = useAppSelector(selectBusinessSettingsLoading);
 
-  const [cachedBusinessName, setCachedBusinessName] = useState<string | undefined>();
-  const [cachedLogoUrl, setCachedLogoUrl] = useState<string | undefined>();
-
-  // Read the brand cache on mount, on route change, and on bfcache
-  // restoration. Redux remains the source of truth once it loads.
-  useEffect(() => {
-    const applyCache = () => {
-      const cache = readBusinessCache();
-      if (cache) {
-        setCachedBusinessName(cache.businessName);
-        setCachedLogoUrl(cache.logoBusinessUrl);
-      }
-    };
-    applyCache();
-    const handlePageShow = (e: PageTransitionEvent) => {
-      if (e.persisted) applyCache();
-    };
-    window.addEventListener("pageshow", handlePageShow);
-    return () => window.removeEventListener("pageshow", handlePageShow);
-  }, [pathname]);
-
-  const businessName = isBusinessLoading ? "" : (reduxBusinessName || cachedBusinessName || "");
-  const businessLogoUrl = isBusinessLoading ? "" : (reduxBusinessLogoUrl || cachedLogoUrl || "");
+  const businessName = isBusinessLoading ? "" : (reduxBusinessName || "");
+  const businessLogoUrl = isBusinessLoading ? "" : (reduxBusinessLogoUrl || "");
 
   const [favoriteAnimating, setFavoriteAnimating] = useState(false);
   const prevFavoriteCount = useRef(favoriteItemCount);

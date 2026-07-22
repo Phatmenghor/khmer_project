@@ -7,19 +7,6 @@ import {
 } from "@/features/business/store/selectors/business-settings-selector";
 import { fetchBusinessSettingsThunk } from "@/features/business/store/thunks/business-settings-thunks";
 import { getCachedThemeColors, cacheThemeColors, hasThemeChanged } from "@/utils/common/theme-cache";
-import { writeBusinessCache } from "@/lib/business-cache";
-
-function syncWindowCache(settings: {
-  businessName?: string;
-  logoBusinessUrl?: string;
-  taxPercentage?: number | null;
-}) {
-  writeBusinessCache({
-    businessName: settings.businessName,
-    logoBusinessUrl: settings.logoBusinessUrl,
-    taxPercentage: settings.taxPercentage ?? undefined,
-  });
-}
 
 export function useBusinessTheme() {
   const dispatch = useAppDispatch();
@@ -44,11 +31,6 @@ export function useBusinessTheme() {
     if (hasThemeChanged(cachedColors, currentData)) {
       cacheThemeColors(businessSettings.businessId, currentData);
     }
-
-    syncWindowCache({
-      ...businessSettings,
-      logoBusinessUrl: businessSettings.logoBusiness?.sm,
-    });
   }, [businessSettings]);
 
   // Effect: Fetch business settings exactly once.
