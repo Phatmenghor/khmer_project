@@ -165,15 +165,16 @@ const categoriesSlice = createSlice({
         state.selectedCategories = action.payload;
         state.operations.isUpdating = false;
 
-        if (state.data) {
+        const updatedId = action.payload?.id || (action.meta?.arg as { id?: string })?.id;
+        if (state.data && updatedId) {
           state.data.content = state.data.content.map((item) =>
-            item.id === action.payload.id ? action.payload : item
+            item.id === updatedId ? { ...item, ...action.payload } : item
           );
         }
-        if (state.dataWithProductCount) {
+        if (state.dataWithProductCount && updatedId) {
           state.dataWithProductCount.content = state.dataWithProductCount.content.map((item) =>
-            item.id === action.payload.id
-              ? { ...action.payload, totalProducts: item.totalProducts, activeProducts: item.activeProducts }
+            item.id === updatedId
+              ? { ...item, ...action.payload, totalProducts: item.totalProducts, activeProducts: item.activeProducts }
               : item
           );
         }

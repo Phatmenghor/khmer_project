@@ -152,10 +152,10 @@ const usersSlice = createSlice({
         state.operations.isUpdating = false;
         state.selectedUser = action.payload;
 
-
-        if (state.data) {
+        const updatedId = action.payload?.id || (action.meta?.arg as { id?: string })?.id;
+        if (state.data && updatedId) {
           state.data.content = state.data.content.map((user) =>
-            user.id === action.payload.id ? action.payload : user
+            user.id === updatedId ? { ...user, ...action.payload } : user
           );
         }
       })

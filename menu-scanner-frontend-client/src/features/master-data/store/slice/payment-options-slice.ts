@@ -167,10 +167,10 @@ const paymentOptionsSlice = createSlice({
         state.selectedPaymentOption = action.payload;
         state.operations.isUpdating = false;
 
-
-        if (state.data) {
+        const updatedId = action.payload?.id || action.meta?.arg?.id;
+        if (state.data && updatedId) {
           state.data.content = state.data.content.map((option) =>
-            option.id === action.payload.id ? action.payload : option
+            option.id === updatedId ? { ...option, ...action.payload } : option
           );
         }
       })

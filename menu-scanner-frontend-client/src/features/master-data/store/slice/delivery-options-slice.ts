@@ -153,10 +153,10 @@ const deliveryOptionsSlice = createSlice({
         state.selectedDeliveryOptions = action.payload;
         state.operations.isUpdating = false;
 
-
-        if (state.data) {
-          state.data.content = state.data.content.map((user) =>
-            user.id === action.payload.id ? action.payload : user
+        const updatedId = action.payload?.id || action.meta?.arg?.id;
+        if (state.data && updatedId) {
+          state.data.content = state.data.content.map((item) =>
+            item.id === updatedId ? { ...item, ...action.payload } : item
           );
         }
       })
