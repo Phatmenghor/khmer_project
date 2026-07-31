@@ -1,10 +1,9 @@
-version: '3.8'
-
 services:
   resource-storage-service:
     build:
       context: .
       dockerfile: Dockerfile
+    image: resource-storage-service
     container_name: resource-storage-service
     restart: always
     ports:
@@ -13,7 +12,7 @@ services:
       SPRING_PROFILES_ACTIVE: local
       DB_HOST: host.docker.internal
       DB_PORT: 5432
-      DB_NAME: resource-service
+      DB_NAME: resource_storage_service
       DB_USERNAME: postgres
       DB_PASSWORD: "Hour1819"
       STORE_ON_DATABASE: "true"

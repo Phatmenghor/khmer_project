@@ -1,0 +1,8 @@
+# Build and start all containers
+docker compose up -d --build
+
+# Stop and remove all containers
+docker compose down
+
+# Rebuild and start again
+docker compose up -d --build

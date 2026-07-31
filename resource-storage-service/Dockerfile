@@ -12,7 +12,7 @@ LABEL description="Resource Storage Backend API"
 
 WORKDIR /app
 
-RUN apk add --no-cache ffmpeg
+RUN apk update && apk add --no-cache ffmpeg
 
 COPY --from=builder /build/target/resource_storage_service.jar /app/resource_storage_service.jar
 
