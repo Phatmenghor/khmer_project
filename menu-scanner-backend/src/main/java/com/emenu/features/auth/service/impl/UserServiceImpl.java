@@ -23,11 +23,14 @@ import com.emenu.features.auth.service.UserService;
 import com.emenu.features.auth.service.UserValidationService;
 import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.security.SecurityUtils;
+import com.emenu.shared.constants.AuthConstants;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import com.emenu.shared.utils.FilterUtils;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -194,9 +197,27 @@ public class UserServiceImpl implements UserService {
                     });
         }
 
+        if (req.getRoles() != null && !req.getRoles().isEmpty()) {
+            req.setRoles(req.getRoles().stream()
+                    .filter(Objects::nonNull)
+                    .map(String::trim)
+                    .map(String::toUpperCase)
+                    .distinct()
+                    .collect(Collectors.toList()));
+        } else {
+            if (req.getUserType() == UserType.CUSTOMER) {
+                req.setRoles(List.of(AuthConstants.ROLE_CUSTOMER));
+            } else if (req.getUserType() == UserType.BUSINESS_USER) {
+                req.setRoles(List.of(AuthConstants.ROLE_BUSINESS_USER));
+            } else if (req.getUserType() == UserType.PLATFORM_USER) {
+                req.setRoles(List.of(AuthConstants.ROLE_PLATFORM_OWNER));
+            }
+        }
+
         List<Role> roles = roleRepository.findByNameInAndIsDeletedFalse(req.getRoles());
         if (roles.size() != req.getRoles().size()) {
-            log.warn("User creation failed - invalid roles");
+            log.warn("User creation failed - invalid roles: requested={}, found={}",
+                    req.getRoles(), roles.stream().map(Role::getName).toList());
             throw new ValidationException("One or more roles not found");
         }
         validateRoleUserTypeCompatibility(roles, req.getUserType());

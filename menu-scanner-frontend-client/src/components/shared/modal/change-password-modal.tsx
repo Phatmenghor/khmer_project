@@ -102,6 +102,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
           description="Update your password to keep your account secure"
           showAvatar={false}
           isCreate={true}
+          className="m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4"
         />
 
         <form
@@ -166,6 +167,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
             isCreate={true}
             createMessage="Changing password..."
             updateMessage=""
+            className="m-0 mx-0 mb-0 md:mx-0 md:mb-0 p-4 md:p-4"
           >
             <CancelButton onClick={handleClose} disabled={isProfileLoading} />
 

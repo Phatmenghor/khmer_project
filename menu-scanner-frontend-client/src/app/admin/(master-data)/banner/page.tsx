@@ -122,12 +122,13 @@ function BannerPageInner() {
   };
 
   const deleteBanner = resolveBanner(deleteId);
+  const hasDeleteBanner = !!deleteBanner;
 
   useEffect(() => {
-    if (deleteId && !deleteBanner) {
+    if (deleteId && !hasDeleteBanner) {
       dispatch(fetchBannerByIdService(deleteId));
     }
-  }, [deleteId, deleteBanner, dispatch]);
+  }, [deleteId, hasDeleteBanner, dispatch]);
 
   // ── Table action handlers ─────────────────────────────────────────────────
   const handleCreateBanner = () => openCreate();

@@ -122,12 +122,13 @@ function DeliveryOptionsPageInner() {
   };
 
   const deleteDeliveryOptions = resolveDeliveryOptions(deleteId);
+  const hasDeleteDeliveryOptions = !!deleteDeliveryOptions;
 
   useEffect(() => {
-    if (deleteId && !deleteDeliveryOptions) {
+    if (deleteId && !hasDeleteDeliveryOptions) {
       dispatch(fetchDeliveryOptionsByIdService(deleteId));
     }
-  }, [deleteId, deleteDeliveryOptions, dispatch]);
+  }, [deleteId, hasDeleteDeliveryOptions, dispatch]);
 
   // ── Table action handlers ─────────────────────────────────────────────────
   const handleCreateDeliveryOptions = () => openCreate();

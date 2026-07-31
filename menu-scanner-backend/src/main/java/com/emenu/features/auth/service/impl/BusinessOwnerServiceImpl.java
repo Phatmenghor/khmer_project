@@ -835,7 +835,17 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         cashPaymentOption.setStatus(Status.ACTIVE);
         paymentOptionRepository.save(cashPaymentOption);
 
-        log.info("Default business records created successfully: business_id={}, exchange_rate=4000, delivery_option=Pickup, payment_options=[BANK, CASH]",
+        // Create default CUSTOMER role for this business if it doesn't exist
+        if (!roleRepository.existsByNameAndBusinessIdAndIsDeletedFalse("CUSTOMER", businessId)) {
+            Role customerRole = new Role();
+            customerRole.setName("CUSTOMER");
+            customerRole.setDescription("Default Customer Role");
+            customerRole.setBusinessId(businessId);
+            customerRole.setUserType(UserType.CUSTOMER);
+            roleRepository.save(customerRole);
+        }
+
+        log.info("Default business records created successfully: business_id={}, exchange_rate=4000, delivery_option=Pickup, payment_options=[BANK, CASH], role=CUSTOMER",
                 businessId);
     }
 

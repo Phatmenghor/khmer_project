@@ -187,7 +187,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
         />
 
         {!isCreate && isFetchingDetail ? (
-          <div className="p-4 flex items-center justify-center min-h-[200px] flex-1">
+          <div className="p-4 flex items-center justify-center min-h-[220px] flex-1">
             <Loading />
           </div>
         ) : (

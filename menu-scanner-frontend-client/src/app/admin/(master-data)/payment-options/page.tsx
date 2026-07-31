@@ -125,12 +125,13 @@ function PaymentOptionsPageInner() {
   };
 
   const deletePaymentOption = resolvePaymentOption(deleteId);
+  const hasDeletePaymentOption = !!deletePaymentOption;
 
   useEffect(() => {
-    if (deleteId && !deletePaymentOption) {
+    if (deleteId && !hasDeletePaymentOption) {
       dispatch(fetchPaymentOptionByIdService(deleteId));
     }
-  }, [deleteId, deletePaymentOption, dispatch]);
+  }, [deleteId, hasDeletePaymentOption, dispatch]);
 
   // ── Table action handlers ─────────────────────────────────────────────────
   const handleCreatePaymentOption = () => openCreate();

@@ -1,7 +1,6 @@
 package com.emenu.features.location.service.impl;
 
 import com.emenu.exception.custom.ValidationException;
-import com.emenu.shared.constants.CacheNames;
 import com.emenu.features.location.dto.filter.ProvinceFilterRequest;
 import com.emenu.features.location.dto.request.ProvinceRequest;
 import com.emenu.features.location.dto.response.ProvinceResponse;

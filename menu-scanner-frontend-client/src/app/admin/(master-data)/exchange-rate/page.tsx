@@ -126,12 +126,13 @@ function ExchangeRatePageInner() {
   };
 
   const deleteRate = resolveExchangeRate(deleteId);
+  const hasDeleteRate = !!deleteRate;
 
   useEffect(() => {
-    if (deleteId && !deleteRate) {
+    if (deleteId && !hasDeleteRate) {
       dispatch(fetchExchangeRateByIdService(deleteId));
     }
-  }, [deleteId, deleteRate, dispatch]);
+  }, [deleteId, hasDeleteRate, dispatch]);
 
   // ── Table action handlers ─────────────────────────────────────────────────
   const handleCreateRate = () => openCreate();

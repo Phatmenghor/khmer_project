@@ -135,17 +135,20 @@ function UserBusinessPageInner() {
   const deleteUser = resolveUser(deleteId);
   const resetPasswordUser = resolveUser(resetPasswordId);
 
-  useEffect(() => {
-    if (deleteId && !deleteUser) {
-      dispatch(fetchUserByIdService(deleteId));
-    }
-  }, [deleteId, deleteUser, dispatch]);
+  const hasDeleteUser = !!deleteUser;
+  const hasResetPasswordUser = !!resetPasswordUser;
 
   useEffect(() => {
-    if (resetPasswordId && !resetPasswordUser) {
+    if (deleteId && !hasDeleteUser) {
+      dispatch(fetchUserByIdService(deleteId));
+    }
+  }, [deleteId, hasDeleteUser, dispatch]);
+
+  useEffect(() => {
+    if (resetPasswordId && !hasResetPasswordUser) {
       dispatch(fetchUserByIdService(resetPasswordId));
     }
-  }, [resetPasswordId, resetPasswordUser, dispatch]);
+  }, [resetPasswordId, hasResetPasswordUser, dispatch]);
 
   const roleFilterOptions = [
     { value: UserRole.ALL, label: "All Roles" },

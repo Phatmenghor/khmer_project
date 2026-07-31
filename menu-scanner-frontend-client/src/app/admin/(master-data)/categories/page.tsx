@@ -125,12 +125,13 @@ function CategoriesPageInner() {
   };
 
   const deleteCategories = resolveCategories(deleteId);
+  const hasDeleteCategories = !!deleteCategories;
 
   useEffect(() => {
-    if (deleteId && !deleteCategories) {
+    if (deleteId && !hasDeleteCategories) {
       dispatch(fetchCategoriesByIdService(deleteId));
     }
-  }, [deleteId, deleteCategories, dispatch]);
+  }, [deleteId, hasDeleteCategories, dispatch]);
 
   // ── Table action handlers ─────────────────────────────────────────────────
   const handleCreateCategories = () => openCreate();

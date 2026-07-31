@@ -69,9 +69,11 @@ export function DetailModal({
       <div className="flex-1 overflow-y-auto px-4">
         <div className="py-3 px-0.5">
           {isLoading ? (
-            <Loading />
+            <div className="flex items-center justify-center min-h-[50vh] w-full flex-1">
+              <Loading />
+            </div>
           ) : isEmpty ? (
-            <div className="flex items-center justify-center min-h-[200px]">
+            <div className="flex items-center justify-center min-h-[50vh] w-full flex-1">
               <p className="text-xs text-muted-foreground">{emptyMessage}</p>
             </div>
           ) : (

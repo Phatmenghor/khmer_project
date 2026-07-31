@@ -15,6 +15,21 @@ INSERT INTO roles (id, name, description, business_id, user_type, version, is_de
 SELECT gen_random_uuid(), 'PLATFORM_OWNER', 'Platform Owner — full access to all platform features and businesses', NULL, 'PLATFORM_USER', 0, false, NOW(), NOW(), 'system', 'system'
 WHERE NOT EXISTS (SELECT 1 FROM roles WHERE name = 'PLATFORM_OWNER' AND business_id IS NULL AND is_deleted = false);
 
+-- Create CUSTOMER role
+INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT gen_random_uuid(), 'CUSTOMER', 'Default Customer Role', NULL, 'CUSTOMER', 0, false, NOW(), NOW(), 'system', 'system'
+WHERE NOT EXISTS (SELECT 1 FROM roles WHERE name = 'CUSTOMER' AND business_id IS NULL AND is_deleted = false);
+
+-- Create BUSINESS_USER role
+INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT gen_random_uuid(), 'BUSINESS_USER', 'Default Business User Role', NULL, 'BUSINESS_USER', 0, false, NOW(), NOW(), 'system', 'system'
+WHERE NOT EXISTS (SELECT 1 FROM roles WHERE name = 'BUSINESS_USER' AND business_id IS NULL AND is_deleted = false);
+
+-- Create ADMIN role
+INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT gen_random_uuid(), 'ADMIN', 'Default Admin Role', NULL, 'BUSINESS_USER', 0, false, NOW(), NOW(), 'system', 'system'
+WHERE NOT EXISTS (SELECT 1 FROM roles WHERE name = 'ADMIN' AND business_id IS NULL AND is_deleted = false);
+
 -- Create PLATFORM OWNER user (Password: 88889999)
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT gen_random_uuid(), 'phatmenghor19@gmail.com', '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW', 'PLATFORM_USER', 'ACTIVE', 'ACTIVE', NULL, 0, false, NOW(), NOW(), 'system', 'system'

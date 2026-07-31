@@ -113,17 +113,20 @@ function CustomerPageInner() {
   const deleteCustomer = resolveUser(deleteId);
   const resetPasswordCustomer = resolveUser(resetPasswordId);
 
-  useEffect(() => {
-    if (deleteId && !deleteCustomer) {
-      dispatch(fetchCustomerByIdService(deleteId));
-    }
-  }, [deleteId, deleteCustomer, dispatch]);
+  const hasDeleteCustomer = !!deleteCustomer;
+  const hasResetPasswordCustomer = !!resetPasswordCustomer;
 
   useEffect(() => {
-    if (resetPasswordId && !resetPasswordCustomer) {
+    if (deleteId && !hasDeleteCustomer) {
+      dispatch(fetchCustomerByIdService(deleteId));
+    }
+  }, [deleteId, hasDeleteCustomer, dispatch]);
+
+  useEffect(() => {
+    if (resetPasswordId && !hasResetPasswordCustomer) {
       dispatch(fetchCustomerByIdService(resetPasswordId));
     }
-  }, [resetPasswordId, resetPasswordCustomer, dispatch]);
+  }, [resetPasswordId, hasResetPasswordCustomer, dispatch]);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: "/admin/customers",

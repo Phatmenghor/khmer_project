@@ -1,7 +1,6 @@
 package com.emenu.features.auth.service.impl;
 
 import com.emenu.enums.user.UserType;
-import com.emenu.shared.constants.CacheNames;
 import com.emenu.exception.custom.ResourceNotFoundException;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.dto.filter.RoleFilterRequest;

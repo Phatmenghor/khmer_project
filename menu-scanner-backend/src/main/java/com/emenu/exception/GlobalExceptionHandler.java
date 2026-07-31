@@ -1,6 +1,5 @@
 package com.emenu.exception;
 
-import com.emenu.common.exception.BusinessException;
 import com.emenu.exception.custom.*;
 import com.emenu.shared.dto.ApiResponse;
 import jakarta.persistence.OptimisticLockException;

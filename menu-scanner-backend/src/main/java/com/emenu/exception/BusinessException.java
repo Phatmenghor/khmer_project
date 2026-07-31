@@ -1,4 +1,4 @@
-package com.emenu.common.exception;
+package com.emenu.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -6,13 +6,6 @@ import org.springframework.http.HttpStatus;
 /**
  * Single unified exception for all business-layer errors.
  * Use factory methods instead of constructing directly.
- *
- * Migration guide: replace all custom exceptions with these factories:
- *   NotFoundException / UserNotFoundException  → BusinessException.notFound(msg)
- *   ValidationException                        → BusinessException.badRequest(msg)
- *   ConflictException / duplicate errors       → BusinessException.conflict(msg)
- *   AccountLockedException                     → BusinessException.forbidden(msg, "ACCOUNT_LOCKED")
- *   CustomException                            → BusinessException.of(msg, status, code)
  */
 @Getter
 public class BusinessException extends RuntimeException {

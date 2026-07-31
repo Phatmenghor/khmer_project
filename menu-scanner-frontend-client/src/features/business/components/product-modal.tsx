@@ -483,7 +483,7 @@ export default function ProductModal({
         />
 
         {!isCreate && isFetchingDetail ? (
-          <div className="p-4 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="p-4 flex items-center justify-center min-h-[50vh] flex-1">
             <Loading />
           </div>
         ) : (

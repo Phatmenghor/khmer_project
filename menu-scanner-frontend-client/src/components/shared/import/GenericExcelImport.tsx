@@ -531,7 +531,7 @@ export function GenericExcelImport<T extends BaseImportRow>({
   }, [importDone]);
 
   return (
-    <PageContainer className="py-3 flex flex-col gap-3 min-h-[calc(100vh-80px)] overflow-hidden">
+    <PageContainer className="max-w-none w-full px-3 sm:px-6 py-3 flex flex-col gap-3 min-h-[calc(100vh-80px)] overflow-hidden">
       <div ref={topRef} />
       {/* Page Header */}
       <div className="flex items-center justify-between py-3 bg-background border-b border-border shrink-0">

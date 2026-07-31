@@ -1,15 +1,13 @@
 "use client";
 
-import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomButton, CancelButton } from "@/components/shared/button/custom-button";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import { CustomModal } from "./custom-modal";
 import { Messages } from "@/constants/messages";
 import { useEffect, useState } from "react";
 
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   AlertTriangle,
   Copy,
@@ -26,6 +24,7 @@ import { selectIsResettingPassword, selectSelectedUser, selectUsersContent, sele
 import { showToast } from "../common/show-toast";
 import { FormHeader } from "../form-field/form-header";
 import { FormBody } from "../form-field/form-body";
+import { FormFooter } from "../form-field/form-footer";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { Loading } from "../common/loading";
 
@@ -59,11 +58,13 @@ export default function ResetPasswordModal({
   const resolvedUserRole = userRole && userRole.length > 0 ? userRole : (resolvedUser?.roles || []);
   const resolvedProfileImageUrl = profileImageUrl || resolvedUser?.profileImage?.sm || "";
 
+  const hasUser = !!resolvedUser;
+
   useEffect(() => {
-    if (isOpen && userId && !userName && !resolvedUser) {
+    if (isOpen && userId && !userName && !hasUser) {
       dispatch(fetchUserByIdService(userId));
     }
-  }, [isOpen, userId, userName, resolvedUser, dispatch]);
+  }, [isOpen, userId, userName, hasUser, dispatch]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [customPassword, setCustomPassword] = useState(AppDefault.RESET_PASSWORD);
@@ -113,131 +114,132 @@ export default function ResetPasswordModal({
   };
 
   return (
-    <CustomModal isOpen={isOpen} onClose={handleClose} size="sm">
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="sm" disableScrollWrapper={true}>
       <FormHeader
         title="Reset Password"
         description="Reset the user's password to the default value"
         avatarName={resolvedUserName}
         avatarImageUrl={resolvedProfileImageUrl}
         showAvatar={true}
-        className="m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4"
+        isCreate={false}
+        className="w-full m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4 border-b border-border/60 shrink-0"
       />
       {isFetchingDetail && !resolvedUserName ? (
-        <div className="p-4 flex items-center justify-center min-h-[200px] flex-1">
+        <div className="p-4 flex items-center justify-center py-8 flex-1">
           <Loading />
         </div>
       ) : (
         <>
-      <FormBody className="px-4">
-        <div className="space-y-4">
-          <div className="border border-border/40 bg-muted/20 p-2.5 rounded-lg flex items-center gap-2.5 text-left">
-            <div className="relative h-8 w-8 rounded bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
-              {resolvedProfileImageUrl ? (
-                <SmartImage src={resolvedProfileImageUrl} alt={resolvedUserName || "User"} fill showSkeleton={false} />
-              ) : (
-                <span className="text-xs font-semibold text-primary">
-                  {resolvedUserName?.charAt(0)?.toUpperCase() || "U"}
-                </span>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-foreground truncate">
-                {resolvedUserName || "Unknown User"}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {resolvedUserRole && resolvedUserRole.length > 0
-                  ? resolvedUserRole.map(role => formatEnumValue(role)).join(", ")
-                  : "User Account"}
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-2 text-left">
-            <div className="flex items-center gap-1">
-              <Key className="h-3 w-3 text-muted-foreground" />
-              <Label className="text-xs font-semibold">New Password</Label>
-            </div>
-
-            <div className="relative">
-              <Input
-                type={showPassword ? "text" : "password"}
-                value={customPassword}
-                onChange={(e) => setCustomPassword(e.target.value)}
-                placeholder="Enter new password"
-                className="pr-14 font-mono text-xs h-8 py-2 border-border/60 focus-visible:ring-1 focus-visible:ring-primary/20"
-                disabled={isResettingPassword}
-              />
-              <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-0.5">
-                <CustomButton
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="h-6 w-6 p-0 hover:bg-muted"
-                  title={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+          <FormBody className="px-4 py-4 flex-1">
+            <div className="space-y-4">
+              <div className="border border-border/40 bg-muted/20 p-2.5 rounded-lg flex items-center gap-2.5 text-left">
+                <div className="relative h-8 w-8 rounded bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  {resolvedProfileImageUrl ? (
+                    <SmartImage src={resolvedProfileImageUrl} alt={resolvedUserName || "User"} fill showSkeleton={false} />
                   ) : (
-                    <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="text-xs font-semibold text-primary">
+                      {resolvedUserName?.charAt(0)?.toUpperCase() || "U"}
+                    </span>
                   )}
-                </CustomButton>
-                <CustomButton
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={copyPassword}
-                  className="h-6 w-6 p-0 hover:bg-muted"
-                  title="Copy password"
-                >
-                  <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-                </CustomButton>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-foreground truncate">
+                    {resolvedUserName || "Unknown User"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {resolvedUserRole && resolvedUserRole.length > 0
+                      ? resolvedUserRole.map(role => formatEnumValue(role)).join(", ")
+                      : "User Account"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2 text-left">
+                <div className="flex items-center gap-1">
+                  <Key className="h-3 w-3 text-muted-foreground" />
+                  <Label className="text-xs font-semibold">New Password</Label>
+                </div>
+
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    value={customPassword}
+                    onChange={(e) => setCustomPassword(e.target.value)}
+                    placeholder="Enter new password"
+                    className="pr-14 font-mono text-xs h-8 py-2 border-border/60 focus-visible:ring-1 focus-visible:ring-primary/20"
+                    disabled={isResettingPassword}
+                  />
+                  <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-0.5">
+                    <CustomButton
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="h-6 w-6 p-0 hover:bg-muted"
+                      title={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                      )}
+                    </CustomButton>
+                    <CustomButton
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={copyPassword}
+                      className="h-6 w-6 p-0 hover:bg-muted"
+                      title="Copy password"
+                    >
+                      <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                    </CustomButton>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  User must change this password on first login
+                </p>
+              </div>
+
+              <div className="border border-orange-200/60 bg-orange-50/40 p-2.5 rounded-lg flex gap-2 text-left">
+                <AlertTriangle className="h-3.5 w-3.5 text-orange-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-orange-900 leading-none">
+                    Important Notice
+                  </p>
+                  <p className="text-xs text-orange-800 mt-1 leading-normal">
+                    This action will log out the user from all devices. They must use the new password to sign in.
+                  </p>
+                </div>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">
-              User must change this password on first login
-            </p>
-          </div>
+          </FormBody>
 
-          <div className="border border-orange-200/60 bg-orange-50/40 p-2.5 rounded-lg flex gap-2 text-left">
-            <AlertTriangle className="h-3.5 w-3.5 text-orange-600 flex-shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-orange-900 leading-none">
-                Important Notice
-              </p>
-              <p className="text-xs text-orange-800 mt-1 leading-normal">
-                This action will log out the user from all devices. They must use the new password to sign in.
-              </p>
-            </div>
-          </div>
-        </div>
-      </FormBody>
-
-      <div className="p-4 border-t bg-muted/30 flex-shrink-0 flex justify-end gap-2">
-        <CustomButton
-          type="button"
-          variant="outline"
-          onClick={handleClose}
-          disabled={isResettingPassword}
-        >
-          Cancel
-        </CustomButton>
-        <CustomButton
-          type="button"
-          onClick={onReset}
-          disabled={isResettingPassword}
-          variant="destructive"
-        >
-          {isResettingPassword ? (
-            <>
-              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-              Resetting...
-            </>
-          ) : (
-            "Reset Password"
-          )}
-        </CustomButton>
-      </div>
+          <FormFooter
+            isSubmitting={isResettingPassword}
+            isDirty={false}
+            isCreate={false}
+            noChangesMessage="Resetting user password"
+            className="w-full m-0 mx-0 mb-0 md:mx-0 md:mb-0 p-4 md:p-4 border-t border-border/60 bg-muted/30 shrink-0"
+          >
+            <CancelButton onClick={handleClose} disabled={isResettingPassword} />
+            <CustomButton
+              type="button"
+              onClick={onReset}
+              disabled={isResettingPassword}
+              variant="destructive"
+              className="h-8"
+            >
+              {isResettingPassword ? (
+                <>
+                  <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
+                  Resetting...
+                </>
+              ) : (
+                "Reset Password"
+              )}
+            </CustomButton>
+          </FormFooter>
         </>
       )}
     </CustomModal>
