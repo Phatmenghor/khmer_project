@@ -66,7 +66,7 @@ public class StorageServiceImpl implements StorageService {
             String originalFilename = file.getOriginalFilename();
             String resolvedPath = StorageKeyUtil.resolvePath(ctx.getPath(), customPath);
 
-            StorageUploadResponse response = uploadResized(decodable, ctx.getProjectCode(), resolvedPath, name, 0, originalFilename);
+            StorageUploadResponse response = uploadResized(decodable, ctx.getProjectCode(), resolvedPath, name, 0, originalFilename, ctx.getApiKey());
 
             log.info("[{}][{}] Upload succeeded: key=[{}]", ctx.getProjectCode(), resolvedPath, response.getKey());
             return response;
@@ -85,14 +85,15 @@ public class StorageServiceImpl implements StorageService {
             String base = StorageNameUtil.generateBase();
             String originalFilename = file.getOriginalFilename();
             String resolvedPath = StorageKeyUtil.resolvePath(ctx.getPath(), customPath);
+            String apiKey = ctx.getApiKey();
 
             var mdcContext = MDC.getCopyOfContextMap();
             CompletableFuture<StorageUploadResponse> smF = CompletableFuture.supplyAsync(
-                    withMdc(mdcContext, () -> uploadResizedUnchecked(decodable, ctx.getProjectCode(), resolvedPath, base + "-sm.jpg", 300, originalFilename)), taskExecutor);
+                    withMdc(mdcContext, () -> uploadResizedUnchecked(decodable, ctx.getProjectCode(), resolvedPath, base + "-sm.jpg", 300, originalFilename, apiKey)), taskExecutor);
             CompletableFuture<StorageUploadResponse> mdF = CompletableFuture.supplyAsync(
-                    withMdc(mdcContext, () -> uploadResizedUnchecked(decodable, ctx.getProjectCode(), resolvedPath, base + "-md.jpg", 600, originalFilename)), taskExecutor);
+                    withMdc(mdcContext, () -> uploadResizedUnchecked(decodable, ctx.getProjectCode(), resolvedPath, base + "-md.jpg", 600, originalFilename, apiKey)), taskExecutor);
             CompletableFuture<StorageUploadResponse> oF = CompletableFuture.supplyAsync(
-                    withMdc(mdcContext, () -> uploadResizedUnchecked(decodable, ctx.getProjectCode(), resolvedPath, base + ".jpg", 0, originalFilename)), taskExecutor);
+                    withMdc(mdcContext, () -> uploadResizedUnchecked(decodable, ctx.getProjectCode(), resolvedPath, base + ".jpg", 0, originalFilename, apiKey)), taskExecutor);
 
             CompletableFuture.allOf(smF, mdF, oF).join();
             StorageUploadResponse sm = smF.join();
@@ -102,6 +103,8 @@ public class StorageServiceImpl implements StorageService {
             log.info("[{}][{}] Multi-upload succeeded: base=[{}]", ctx.getProjectCode(), resolvedPath, base);
             return StorageMultiUploadResponse.builder()
                     .key(o.getKey())
+                    .baseUrl(o.getBaseUrl())
+                    .relativePath(o.getRelativePath())
                     .url(o.getUrl())
                     .sm(sm)
                     .md(md)
@@ -116,9 +119,9 @@ public class StorageServiceImpl implements StorageService {
     }
 
     private StorageUploadResponse uploadResizedUnchecked(byte[] decodable, String projectCode, String resolvedPath,
-                                                           String name, int maxWidth, String originalFilename) {
+                                                           String name, int maxWidth, String originalFilename, String apiKey) {
         try {
-            return uploadResized(decodable, projectCode, resolvedPath, name, maxWidth, originalFilename);
+            return uploadResized(decodable, projectCode, resolvedPath, name, maxWidth, originalFilename, apiKey);
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -163,7 +166,7 @@ public class StorageServiceImpl implements StorageService {
 
     private StorageUploadResponse uploadResized(byte[] decodable, String projectCode, String resolvedPath,
                                                  String name, int maxWidth,
-                                                 String originalFilename) throws IOException {
+                                                 String originalFilename, String apiKey) throws IOException {
         String key = StorageKeyUtil.key(resolvedPath, name);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -200,33 +203,49 @@ public class StorageServiceImpl implements StorageService {
 
         if (storeOnDb) {
             try {
-                storageBase64Repository.save(StorageBase64.builder()
+                StorageBase64 base64Entity = StorageBase64.builder()
                         .objectKey(key)
                         .content(Base64.getEncoder().encodeToString(bytes))
-                        .build());
+                        .build();
+                if (apiKey != null) {
+                    base64Entity.setCreatedBy(apiKey);
+                    base64Entity.setUpdatedBy(apiKey);
+                }
+                storageBase64Repository.save(base64Entity);
             } catch (Exception e) {
                 log.error("Failed to store Base64 content in database for key=[{}]: {}", key, e.getMessage());
                 throw new RuntimeException("Failed to save Base64 content: " + e.getMessage(), e);
             }
         }
 
-        String url;
-        if (storeOnDb) {
-            url = storageProperties.getLocalBaseUrl() + "/api/v1/storage/files/" + key;
-        } else {
-            url = storageProperties.getCdnBaseUrl() + "/" + key;
-        }
+        String baseUrl = storeOnDb ? storageProperties.getLocalBaseUrl() : storageProperties.getCdnBaseUrl();
+        String relativePath = storeOnDb ? "/api/v1/storage/files/" + key : key;
+        String url = storeOnDb ? (baseUrl + relativePath) : (baseUrl + "/" + key);
 
-        storageAuditService.saveAsync(StorageResource.builder()
+        StorageResource resource = StorageResource.builder()
                 .projectCode(projectCode)
                 .path(resolvedPath)
                 .objectKey(key)
+                .baseUrl(baseUrl)
+                .relativePath(relativePath)
                 .url(url)
                 .originalFilename(originalFilename)
                 .fileSize((long) bytes.length)
-                .build());
+                .build();
 
-        return StorageUploadResponse.builder().key(key).url(url).build();
+        if (apiKey != null) {
+            resource.setCreatedBy(apiKey);
+            resource.setUpdatedBy(apiKey);
+        }
+
+        storageAuditService.saveAsync(resource);
+
+        return StorageUploadResponse.builder()
+                .key(key)
+                .baseUrl(baseUrl)
+                .relativePath(relativePath)
+                .url(url)
+                .build();
     }
 
     @Override

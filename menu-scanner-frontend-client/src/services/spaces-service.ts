@@ -6,10 +6,16 @@ import {
 
 export interface SpacesUploadResult {
   key: string;
+  baseUrl?: string;
+  relativePath?: string;
   url: string;
 }
 
 export interface SpacesMultiSizeResult {
+  key?: string;
+  baseUrl?: string;
+  relativePath?: string;
+  url?: string;
   sm: SpacesUploadResult;
   md: SpacesUploadResult;
   o: SpacesUploadResult;

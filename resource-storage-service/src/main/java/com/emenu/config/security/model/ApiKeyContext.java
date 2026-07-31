@@ -19,6 +19,11 @@ public class ApiKeyContext {
      */
     private final String path;
 
+    /**
+     * The API key string sent by client (e.g. "sk_emenu_ZPQ...").
+     */
+    private final String apiKey;
+
     public static final String REQUEST_ATTR = "API_KEY_CONTEXT";
 
     public static ApiKeyContext from(HttpServletRequest request) {

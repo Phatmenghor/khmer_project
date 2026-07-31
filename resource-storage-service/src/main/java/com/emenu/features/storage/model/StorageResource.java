@@ -22,6 +22,12 @@ public class StorageResource extends BaseUUIDEntity {
     @Column(name = "object_key", nullable = false, length = 500)
     private String objectKey;
 
+    @Column(name = "base_url", length = 500)
+    private String baseUrl;
+
+    @Column(name = "relative_path", length = 500)
+    private String relativePath;
+
     @Column(name = "url", nullable = false, length = 1000)
     private String url;
 

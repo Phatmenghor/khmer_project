@@ -10,8 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SpacesMultiUploadResponse {
-    // Single size compatibility (points to original size o)
     private String key;
+    private String baseUrl;
+    private String relativePath;
     private String url;
 
     private SpacesUploadResponse sm;

@@ -55,11 +55,11 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         ApiKey key = found.get();
 
         // Inject resolved context into request so controllers can read it
-        ApiKeyContext ctx = new ApiKeyContext(key.getProjectCode(), key.getPathStore());
+        ApiKeyContext ctx = new ApiKeyContext(key.getProjectCode(), key.getPathStore(), key.getApiKey());
         request.setAttribute(ApiKeyContext.REQUEST_ATTR, ctx);
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                key.getProjectCode(), null, List.of(new SimpleGrantedAuthority("ROLE_API_CLIENT"))
+                key.getApiKey(), null, List.of(new SimpleGrantedAuthority("ROLE_API_CLIENT"))
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
 

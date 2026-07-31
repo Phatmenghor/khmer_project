@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class StorageMultiUploadResponse {
     private String key;
+    private String baseUrl;
+    private String relativePath;
     private String url;
 
     private StorageUploadResponse sm;
