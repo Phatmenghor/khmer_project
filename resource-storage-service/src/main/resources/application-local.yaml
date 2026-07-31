@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: "jdbc:postgresql://${DB_HOST:192.168.103.106}:${DB_PORT:5432}/${DB_NAME:resource-storage-service}"
+    url: "jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:resource-service}"
     username: "${DB_USERNAME:postgres}"
-    password: "${DB_PASSWORD:123cp!@#}"
+    password: "${DB_PASSWORD:Hour1819}"
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5
@@ -14,23 +14,23 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update   # auto-creates api_keys table + path_store column on first run
+      ddl-auto: update
     show-sql: false
 
 server:
   port: "${SERVER_PORT:7072}"
 
 spaces:
-  endpoint: "https://sgp1.digitaloceanspaces.com"
-  region: "sgp1"
-  bucket: "emenu-cambodia"
-  access-key: "DO00QQ6TAV62YPV3DC4U"
-  secret-key: "+ye4MKS7msULnLoNvmEy60KpBGaG8IWGepnTNrdTfTw"
-  cdn-base-url: "https://emenu-cambodia.sgp1.cdn.digitaloceanspaces.com"
-  store-on-database: true
-  local-base-url: "http://localhost:${server.port}"
-  admin-username: "phatmenghor"
-  admin-password: "Hour1819"
+  endpoint: "${SPACES_ENDPOINT:https://sgp1.digitaloceanspaces.com}"
+  region: "${SPACES_REGION:sgp1}"
+  bucket: "${SPACES_BUCKET:emenu-cambodia}"
+  access-key: "${SPACES_ACCESS_KEY:DO00QQ6TAV62YPV3DC4U}"
+  secret-key: "${SPACES_SECRET_KEY:+ye4MKS7msULnLoNvmEy60KpBGaG8IWGepnTNrdTfTw}"
+  cdn-base-url: "${SPACES_CDN_BASE_URL:https://emenu-cambodia.sgp1.cdn.digitaloceanspaces.com}"
+  store-on-database: "${STORE_ON_DATABASE:true}"
+  local-base-url: "${LOCAL_BASE_URL:http://localhost:${server.port}}"
+  admin-username: "${ADMIN_USERNAME:phatmenghor}"
+  admin-password: "${ADMIN_PASSWORD:Hour1819}"
 
 logging:
   level:

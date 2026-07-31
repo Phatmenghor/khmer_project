@@ -1,15 +1,20 @@
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
+WORKDIR /build
+
+COPY pom.xml .
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+
 FROM eclipse-temurin:21-jre-alpine
 LABEL maintainer="resource-storage"
 LABEL description="Resource Storage Backend API"
 
 WORKDIR /app
 
-# Install ffmpeg for AVIF / HEIC / camera-RAW decoding.
-# TwelveMonkeys handles JPEG, PNG, WebP, TIFF, BMP, PSD, etc. in pure Java.
-# ffmpeg is only invoked when ImageIO (+ TwelveMonkeys) cannot decode the file.
 RUN apk add --no-cache ffmpeg
 
-COPY resource_storage_service.jar .
+COPY --from=builder /build/target/resource_storage_service.jar /app/resource_storage_service.jar
 
 EXPOSE 7072
 

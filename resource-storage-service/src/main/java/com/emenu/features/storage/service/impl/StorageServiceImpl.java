@@ -20,11 +20,13 @@ import net.coobird.thumbnailator.Thumbnails;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,11 +35,14 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
@@ -53,8 +58,6 @@ public class StorageServiceImpl implements StorageService {
     @Qualifier("taskExecutor")
     private final Executor taskExecutor;
 
-    // ── Upload ───────────────────────────────────────────────────────────────
-
     @Override
     public StorageUploadResponse upload(MultipartFile file, String customPath, ApiKeyContext ctx) {
         try {
@@ -68,7 +71,6 @@ public class StorageServiceImpl implements StorageService {
             log.info("[{}][{}] Upload succeeded: key=[{}]", ctx.getProjectCode(), resolvedPath, response.getKey());
             return response;
         } catch (UnsupportedImageFormatException e) {
-            // Re-throw as-is; GlobalExceptionHandler maps this to 422
             throw e;
         } catch (Exception e) {
             log.error("[{}][{}] Upload failed: {}", ctx.getProjectCode(), customPath, e.getMessage(), e);
@@ -84,9 +86,6 @@ public class StorageServiceImpl implements StorageService {
             String originalFilename = file.getOriginalFilename();
             String resolvedPath = StorageKeyUtil.resolvePath(ctx.getPath(), customPath);
 
-            // Run the 3 size variants concurrently — each does CPU-bound resize + a blocking S3
-            // put, so doing them sequentially on the request thread triples the response latency.
-            // MDC (traceId etc.) is copied across since taskExecutor threads don't inherit it.
             var mdcContext = MDC.getCopyOfContextMap();
             CompletableFuture<StorageUploadResponse> smF = CompletableFuture.supplyAsync(
                     withMdc(mdcContext, () -> uploadResizedUnchecked(decodable, ctx.getProjectCode(), resolvedPath, base + "-sm.jpg", 300, originalFilename)), taskExecutor);
@@ -109,7 +108,6 @@ public class StorageServiceImpl implements StorageService {
                     .o(o)
                     .build();
         } catch (UnsupportedImageFormatException e) {
-            // Re-throw as-is; GlobalExceptionHandler maps this to 422
             throw e;
         } catch (Exception e) {
             log.error("[{}][{}] Multi-upload failed: {}", ctx.getProjectCode(), customPath, e.getMessage(), e);
@@ -126,8 +124,7 @@ public class StorageServiceImpl implements StorageService {
         }
     }
 
-    private java.util.function.Supplier<StorageUploadResponse> withMdc(
-            java.util.Map<String, String> mdcContext, java.util.function.Supplier<StorageUploadResponse> task) {
+    private Supplier<StorageUploadResponse> withMdc(Map<String, String> mdcContext, Supplier<StorageUploadResponse> task) {
         return () -> {
             if (mdcContext != null) {
                 MDC.setContextMap(mdcContext);
@@ -140,13 +137,20 @@ public class StorageServiceImpl implements StorageService {
         };
     }
 
-    // ── Delete ───────────────────────────────────────────────────────────────
-
     @Override
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public StorageDeleteResponse deleteAll(String path) {
         String prefix = StorageKeyUtil.prefix(path);
-        List<String> deletedKeys = deleteByPrefix(prefix);
+        List<String> deletedKeys = List.of();
+
+        if (!storageProperties.isStoreOnDatabase()) {
+            try {
+                deletedKeys = deleteByPrefix(prefix);
+            } catch (Exception e) {
+                log.warn("[{}] S3 delete prefix failed (storeOnDatabase=false): {}", path, e.getMessage());
+            }
+        }
+
         storageResourceRepository.deleteByPath(path);
         storageBase64Repository.deleteByObjectKeyPrefix(prefix);
 
@@ -157,12 +161,6 @@ public class StorageServiceImpl implements StorageService {
                 .build();
     }
 
-    // ── Internals ─────────────────────────────────────────────────────────────
-
-    /**
-     * Resizes (if requested), uploads to S3, and responds immediately on success.
-     * The audit row is persisted asynchronously so the DB write never blocks the response.
-     */
     private StorageUploadResponse uploadResized(byte[] decodable, String projectCode, String resolvedPath,
                                                  String name, int maxWidth,
                                                  String originalFilename) throws IOException {
@@ -174,7 +172,7 @@ public class StorageServiceImpl implements StorageService {
                 .outputQuality(0.85);
 
         if (maxWidth > 0) {
-            BufferedImage img = javax.imageio.ImageIO.read(new ByteArrayInputStream(decodable));
+            BufferedImage img = ImageIO.read(new ByteArrayInputStream(decodable));
             int targetWidth = Math.min(img.getWidth(), maxWidth);
             builder = builder.width(targetWidth);
         } else {
@@ -204,7 +202,7 @@ public class StorageServiceImpl implements StorageService {
             try {
                 storageBase64Repository.save(StorageBase64.builder()
                         .objectKey(key)
-                        .content(java.util.Base64.getEncoder().encodeToString(bytes))
+                        .content(Base64.getEncoder().encodeToString(bytes))
                         .build());
             } catch (Exception e) {
                 log.error("Failed to store Base64 content in database for key=[{}]: {}", key, e.getMessage());
@@ -233,87 +231,56 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public byte[] getFile(String key) {
-        java.util.Optional<StorageBase64> base64Opt = storageBase64Repository.findByObjectKey(key);
+        Optional<StorageBase64> base64Opt = storageBase64Repository.findByObjectKey(key);
         if (base64Opt.isPresent() && base64Opt.get().getContent() != null) {
             try {
-                return java.util.Base64.getDecoder().decode(base64Opt.get().getContent());
+                return Base64.getDecoder().decode(base64Opt.get().getContent());
             } catch (Exception e) {
                 log.error("Failed to decode Base64 content for key=[{}]: {}", key, e.getMessage());
             }
         }
 
-        try {
-            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                    .bucket(storageProperties.getBucket())
-                    .key(key)
-                    .build();
-            return storageS3Client.getObjectAsBytes(getObjectRequest).asByteArray();
-        } catch (Exception e) {
-            log.error("Failed to fetch file from S3 for key=[{}]: {}", key, e.getMessage());
-            throw new RuntimeException("File not found or S3 error: " + e.getMessage(), e);
+        if (!storageProperties.isStoreOnDatabase()) {
+            try {
+                GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                        .bucket(storageProperties.getBucket())
+                        .key(key)
+                        .build();
+                return storageS3Client.getObjectAsBytes(getObjectRequest).asByteArray();
+            } catch (Exception e) {
+                log.error("Failed to fetch file from S3 for key=[{}]: {}", key, e.getMessage());
+                throw new RuntimeException("File not found or S3 error: " + e.getMessage(), e);
+            }
         }
+
+        throw new RuntimeException("File not found in database for key: " + key);
     }
 
-    /**
-     * Ensures the uploaded bytes are decodable by the rest of the pipeline.
-     *
-     * <p><b>Stage 1 — magic-byte detection</b>: Reads the file header to identify
-     * formats that need ffmpeg directly (AVIF, HEIC/HEIF, camera RAW — CR2, NEF, ARW).
-     * These are forwarded straight to ffmpeg, skipping the ImageIO attempt.</p>
-     *
-     * <p><b>Stage 2 — TwelveMonkeys + ImageIO</b>: Handles the vast majority of
-     * formats in pure Java: JPEG, PNG, GIF, WebP, TIFF, BMP, PSD, ICNS, PCX, PNM,
-     * TGA, SGI, etc. TwelveMonkeys registers its plugins via ServiceLoader at startup.</p>
-     *
-     * <p><b>Stage 3 — ffmpeg fallback</b>: Last resort for any format that slipped
-     * through stages 1 and 2. Requires {@code ffmpeg} on the host PATH (see Dockerfile).
-     * If ffmpeg is absent an {@link UnsupportedImageFormatException} is thrown, which
-     * maps to HTTP 422 so the caller gets a clear error instead of a generic 500.</p>
-     */
     private byte[] ensureDecodable(byte[] original, String originalFilename) throws IOException {
         String detectedFormat = detectFormat(original);
 
-        // AVIF, HEIC, and camera RAW have no pure-Java decoder — go straight to ffmpeg.
         if (detectedFormat != null) {
             log.info("Detected [{}] format for [{}] — routing directly to ffmpeg", detectedFormat, originalFilename);
             return convertWithFfmpeg(original, originalFilename);
         }
 
-        // Try TwelveMonkeys + standard ImageIO (covers JPEG, PNG, GIF, WebP, TIFF, BMP, PSD, etc.)
-        if (javax.imageio.ImageIO.read(new ByteArrayInputStream(original)) != null) {
+        if (ImageIO.read(new ByteArrayInputStream(original)) != null) {
             return original;
         }
 
-        // Last resort: ffmpeg for anything else ImageIO couldn't handle
-        log.info("ImageIO (+ TwelveMonkeys) could not decode [{}] — attempting ffmpeg fallback", originalFilename);
+        log.info("ImageIO could not decode [{}] — attempting ffmpeg fallback", originalFilename);
         byte[] converted = convertWithFfmpeg(original, originalFilename);
 
-        if (javax.imageio.ImageIO.read(new ByteArrayInputStream(converted)) == null) {
+        if (ImageIO.read(new ByteArrayInputStream(converted)) == null) {
             throw new UnsupportedImageFormatException(
-                    "Unsupported or corrupt image format: '" + originalFilename + "'. "
-                    + "Please upload a JPEG, PNG, WebP, AVIF, HEIC, TIFF, BMP, PSD, or other common image format.");
+                    "Unsupported or corrupt image format: '" + originalFilename + "'.");
         }
         return converted;
     }
 
-    /**
-     * Identifies formats that cannot be decoded by Java ImageIO (even with TwelveMonkeys)
-     * by inspecting the raw file header (magic bytes).
-     *
-     * <p>Returns a human-readable format name if the file must go through ffmpeg,
-     * or {@code null} if ImageIO should be tried first.</p>
-     *
-     * <ul>
-     *   <li>AVIF — ISO Base Media container with {@code avif} / {@code avis} brand</li>
-     *   <li>HEIC/HEIF — ISO Base Media container with {@code heic} / {@code heif} / {@code mif1} brand</li>
-     *   <li>Camera RAW — Canon CR2, Nikon NEF, Sony ARW, Olympus ORF, Fuji RAF</li>
-     * </ul>
-     */
     private String detectFormat(byte[] data) {
         if (data == null || data.length < 12) return null;
 
-        // ISO Base Media File Format (MP4 / HEIF / AVIF family)
-        // Bytes [4..7] = 'ftyp', bytes [8..11] = major brand
         if (data.length >= 12
                 && data[4] == 'f' && data[5] == 't' && data[6] == 'y' && data[7] == 'p') {
             String brand = new String(data, 8, 4).toLowerCase();
@@ -323,48 +290,32 @@ public class StorageServiceImpl implements StorageService {
                     || brand.startsWith("heis") || brand.startsWith("hevx")) return "HEIC/HEIF";
         }
 
-        // Canon CR2 — starts with II (little-endian TIFF) + magic 0x002A + offset 0x00000008, then CR
         if (data[0] == 0x49 && data[1] == 0x49 && data[2] == 0x2A && data[3] == 0x00
                 && data.length >= 10 && data[8] == 'C' && data[9] == 'R') return "Canon CR2";
 
-        // Nikon NEF / Sony ARW / Olympus ORF — TIFF-based RAW (little-endian or big-endian)
-        // We use a lightweight check: standard TIFF magic then no ImageIO decode = RAW
-        // (handled by the ImageIO fallback path; only override if we add more magic here)
-
-        // Fuji RAF
         if (data.length >= 8) {
             String header = new String(data, 0, 8);
             if (header.startsWith("FUJIFILM")) return "Fuji RAF";
         }
 
-        return null; // let ImageIO try first
+        return null;
     }
 
-    /**
-     * Converts an image to JPEG using ffmpeg, reading from a temp file on disk.
-     *
-     * <p>AVIF, HEIC and other ISOBMFF-based containers are <em>seekable</em> formats:
-     * ffmpeg must jump around the file to locate the {@code moov}/{@code ftyp} box.
-     * Piping bytes via {@code pipe:0} gives ffmpeg a non-seekable stream and causes
-     * it to exit with code 183 (ENOTSUP / cannot seek). Writing to a temp file on
-     * disk restores random-access and lets ffmpeg decode any container format.</p>
-     */
     private byte[] convertWithFfmpeg(byte[] original, String originalFilename) throws IOException {
         Path tempInput  = Files.createTempFile("storage-in-",  ".tmp");
         Path tempOutput = Files.createTempFile("storage-out-", ".jpg");
         try {
-            // Write raw bytes to a real file so ffmpeg can seek freely
             Files.write(tempInput, original);
 
             ProcessBuilder pb = new ProcessBuilder(
                     "ffmpeg", "-y",
                     "-i",         tempInput.toString(),
                     "-frames:v",  "1",
-                    "-vf",        "scale=iw:ih",   // preserve dimensions
-                    "-q:v",       "2",              // high quality JPEG (1=best, 31=worst)
+                    "-vf",        "scale=iw:ih",
+                    "-q:v",       "2",
                     tempOutput.toString()
             );
-            pb.redirectErrorStream(true); // merge stderr so we can log it on failure
+            pb.redirectErrorStream(true);
 
             Process process;
             try {
@@ -373,14 +324,11 @@ public class StorageServiceImpl implements StorageService {
                 if (e.getMessage() != null && e.getMessage().contains("error=2")) {
                     log.warn("ffmpeg is not installed — cannot decode [{}]", originalFilename);
                     throw new UnsupportedImageFormatException(
-                            "The image format '" + originalFilename + "' requires ffmpeg to be decoded, "
-                            + "but ffmpeg is not available on this server. "
-                            + "Please upload a JPEG, PNG, WebP, or other standard image format.", e);
+                            "The image format '" + originalFilename + "' requires ffmpeg to be decoded.", e);
                 }
                 throw e;
             }
 
-            // Drain ffmpeg stdout/stderr (redirected to stdout above) to prevent blocking
             String ffmpegOutput;
             try (InputStream stdout = process.getInputStream()) {
                 ffmpegOutput = new String(stdout.readAllBytes());
@@ -395,8 +343,7 @@ public class StorageServiceImpl implements StorageService {
                 if (process.exitValue() != 0) {
                     log.warn("ffmpeg exit={} for [{}]: {}", process.exitValue(), originalFilename, ffmpegOutput);
                     throw new UnsupportedImageFormatException(
-                            "ffmpeg could not decode '" + originalFilename + "' (exit=" + process.exitValue() + "). "
-                            + "The file may be corrupt or in an unsupported format.");
+                            "ffmpeg could not decode '" + originalFilename + "'.");
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -406,8 +353,7 @@ public class StorageServiceImpl implements StorageService {
             byte[] result = Files.readAllBytes(tempOutput);
             if (result.length == 0) {
                 throw new UnsupportedImageFormatException(
-                        "ffmpeg produced an empty output for '" + originalFilename + "'. "
-                        + "The file may be corrupt or in an unsupported format.");
+                        "ffmpeg produced empty output for '" + originalFilename + "'.");
             }
             return result;
 

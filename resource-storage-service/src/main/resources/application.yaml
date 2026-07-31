@@ -45,20 +45,6 @@ management:
     tags:
       application: ${spring.application.name}
 
-spaces:
-  endpoint: "${SPACES_ENDPOINT:https://sgp1.digitaloceanspaces.com}"
-  region: "${SPACES_REGION:sgp1}"
-  bucket: "${SPACES_BUCKET:emenu-cambodia}"
-  access-key: "${SPACES_ACCESS_KEY:DO00QQ6TAV62YPV3DC4U}"
-  secret-key: "${SPACES_SECRET_KEY:+ye4MKS7msULnLoNvmEy60KpBGaG8IWGepnTNrdTfTw}"
-  cdn-base-url: "${SPACES_CDN_BASE_URL:https://emenu-cambodia.sgp1.cdn.digitaloceanspaces.com}"
-  store-on-database: "${STORE_ON_DATABASE:true}"
-  local-base-url: "http://localhost:${server.port}"
-  admin-username: "${ADMIN_USERNAME:phatmenghor}"
-  admin-password: "${ADMIN_PASSWORD:Hour1819}"
-  # API keys are now stored in the database (api_keys table).
-  # Use POST /api/v1/admin/keys to create keys — no YAML config needed.
-
 logging:
   level:
     org.hibernate.orm.deprecation: ERROR

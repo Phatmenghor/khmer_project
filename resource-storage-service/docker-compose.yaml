@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  resource-storage-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: resource-storage-service
+    restart: always
+    ports:
+      - "7072:7072"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      DB_HOST: host.docker.internal
+      DB_PORT: 5432
+      DB_NAME: resource-service
+      DB_USERNAME: postgres
+      DB_PASSWORD: "Hour1819"
+      STORE_ON_DATABASE: "true"
+      LOCAL_BASE_URL: "http://localhost:7072"
+      SERVER_PORT: 7072
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:7072/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
