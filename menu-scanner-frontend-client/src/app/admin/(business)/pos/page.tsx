@@ -41,6 +41,10 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { applyDiscount, buildQuantityMap } from "@/utils/common/customization-utils";
 import { POSCartItem } from "@/components/pos-custom/pos-cart-item";
+import { POSHeaderFilters } from "@/components/pos-custom/pos-header-filters";
+import { POSCategorySelector } from "@/components/pos-custom/pos-category-bar";
+import { POSProductGrid } from "@/components/pos-custom/pos-product-grid";
+import { POSCartSidebar } from "@/components/pos-custom/pos-cart-sidebar";
 import { POSMoreOptionsModal } from "@/components/pos-custom/pos-more-options-modal";
 import { POSOrderSuccessModal } from "@/components/pos-custom/pos-order-success-modal";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -229,8 +233,11 @@ function PosPageInner() {
     successOrder,
     showOrderDetailsModal,
     brandOpen,
+    categoryOpen,
     promotionFilter,
     promotionOpen,
+    minPrice,
+    maxPrice,
   } = usePOSPageState();
 
 
@@ -261,20 +268,7 @@ function PosPageInner() {
 
 
 
-  useEffect(() => {
-    const applyResponsiveZoom = () => {
-      if (posPageRef.current) {
-        if (window.innerWidth < 768) {
-          posPageRef.current.style.zoom = "1";
-        } else {
-          posPageRef.current.style.zoom = "0.8";
-        }
-      }
-    };
-    applyResponsiveZoom();
-    window.addEventListener("resize", applyResponsiveZoom);
-    return () => window.removeEventListener("resize", applyResponsiveZoom);
-  }, []);
+
 
 
   useEffect(() => {
@@ -360,6 +354,8 @@ function PosPageInner() {
     dispatch(setProductPage(1));
     dispatch(setProducts([]));
     dispatch(setProductsLoading(true));
+    const parsedMin = minPrice ? parseFloat(minPrice) : undefined;
+    const parsedMax = maxPrice ? parseFloat(maxPrice) : undefined;
     dispatch(
       fetchPOSPageProductsService({
         page: 1,
@@ -367,14 +363,18 @@ function PosPageInner() {
         categoryId: selectedCategory?.id,
         brandId: selectedBrand?.id,
         hasPromotion: promotionFilter,
+        minPrice: parsedMin,
+        maxPrice: parsedMax,
         reset: true,
       })
     );
-  }, [debouncedSearch, selectedCategory, selectedBrand, promotionFilter, dispatch]);
+  }, [debouncedSearch, selectedCategory, selectedBrand, promotionFilter, minPrice, maxPrice, dispatch]);
 
   const loadMoreProducts = () => {
     if (hasMoreProducts && !productsLoading) {
       const nextPage = productPage + 1;
+      const parsedMin = minPrice ? parseFloat(minPrice) : undefined;
+      const parsedMax = maxPrice ? parseFloat(maxPrice) : undefined;
 
       dispatch(setProductPage(nextPage));
       dispatch(
@@ -384,6 +384,8 @@ function PosPageInner() {
           categoryId: selectedCategory?.id,
           brandId: selectedBrand?.id,
           hasPromotion: promotionFilter,
+          minPrice: parsedMin,
+          maxPrice: parsedMax,
         })
       );
     }
@@ -804,500 +806,79 @@ function PosPageInner() {
   return (
     <div
       ref={posPageRef}
-      className="flex flex-col h-full w-full max-md:p-1"
-      style={{ zoom: "0.8" }}
+      className="flex flex-col h-full flex-1 min-h-0 w-full overflow-hidden bg-background"
     >
-      {}
-      <div className="flex max-md:flex-col md:flex-row flex-1 overflow-hidden">
-        {}
-        <div className="flex-1 flex flex-col overflow-hidden relative">
-          {}
-          <div className="flex flex-wrap items-end gap-1 max-md:gap-1 max-md:p-1 md:p-2 border-b bg-muted/20 shrink-0 py-0.5">
-            <div className="relative flex-1 max-md:min-w-[140px] md:min-w-[200px]">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 max-md:h-2.5 max-md:w-2.5 h-3 w-3 text-muted-foreground" />
-              <Input
-                ref={searchInputRef}
-                type="search"
-                placeholder="Search..."
-                className="max-md:pl-5 max-md:h-7 max-md:text-xs pl-7 h-8"
-                value={searchTerm}
-                onChange={(e) => dispatch(setSearchTerm(e.target.value))}
-              />
-            </div>
-            {}
-            <Popover open={brandOpen} onOpenChange={(open) => dispatch(setBrandOpen(open))}>
-              <PopoverTrigger asChild>
-                <CustomButton
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={brandOpen}
-                  className="max-md:w-[120px] md:w-[200px] justify-between h-8 text-xs"
-                >
-                  {selectedBrand?.name || "All Brands"}
-                  <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
-                </CustomButton>
-              </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0">
-                <Command>
-                  <CommandInput placeholder="Search brands..." />
-                  <CommandEmpty>No brand found.</CommandEmpty>
-                  <CommandList>
-                    <CommandGroup>
-                      <CommandItem
-                        value=""
-                        onSelect={() => {
-                          dispatch(setSelectedBrand(null));
-                          dispatch(setBrandOpen(false));
-                        }}
-                        className="cursor-pointer"
-                      >
-                        <Check
-                          className={cn(
-                            "mr-1 h-3 w-3",
-                            selectedBrand === null ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        All Brands
-                      </CommandItem>
-                      {brands.map((brand) => (
-                        <CommandItem
-                          key={brand.id}
-                          value={brand.id}
-                          onSelect={() => {
-                            dispatch(setSelectedBrand(brand));
-                            dispatch(setBrandOpen(false));
-                          }}
-                          className="cursor-pointer"
-                        >
-                          <Check
-                            className={cn(
-                              "mr-1 h-3 w-3",
-                              selectedBrand?.id === brand.id ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          {brand.name}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-            {}
-            <Popover open={promotionOpen} onOpenChange={(open) => dispatch(setPromotionOpen(open))}>
-              <PopoverTrigger asChild>
-                <CustomButton
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={promotionOpen}
-                  className="max-md:w-[100px] md:w-[130px] justify-between h-8 text-xs max-md:text-xs"
-                >
-                  {promotionFilter === undefined ? "All Products" : "Promotion"}
-                  <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
-                </CustomButton>
-              </PopoverTrigger>
-              <PopoverContent className="w-[130px] p-0">
-                <Command>
-                  <CommandList>
-                    <CommandGroup>
-                      <CommandItem
-                        value="all"
-                        onSelect={() => {
-                          dispatch(setPromotionFilter(undefined));
-                          dispatch(setPromotionOpen(false));
-                        }}
-                        className="cursor-pointer"
-                      >
-                        <Check
-                          className={cn(
-                            "mr-1 h-3 w-3",
-                            promotionFilter === undefined ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        All Products
-                      </CommandItem>
-                      <CommandItem
-                        value="promotion"
-                        onSelect={() => {
-                          dispatch(setPromotionFilter(true));
-                          dispatch(setPromotionOpen(false));
-                        }}
-                        className="cursor-pointer"
-                      >
-                        <Check
-                          className={cn(
-                            "mr-1 h-3 w-3",
-                            promotionFilter === true ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        Promotion
-                      </CommandItem>
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-            {}
+      <div className="flex max-md:flex-col md:flex-row flex-1 h-full min-h-0 overflow-hidden relative">
+        {/* Main Product Area */}
+        <div className="flex-1 flex flex-col overflow-hidden relative border-r border-border/60">
+          <POSHeaderFilters
+            searchInputRef={searchInputRef}
+            searchTerm={searchTerm}
+            selectedBrand={selectedBrand}
+            selectedCategory={selectedCategory}
+            categories={categories}
+            brands={brands}
+            brandOpen={brandOpen}
+            categoryOpen={categoryOpen}
+            promotionOpen={promotionOpen}
+            promotionFilter={promotionFilter}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+          />
+
+          <POSProductGrid
+            products={products}
+            productsLoading={productsLoading}
+            productsError={productsError}
+            hasMoreProducts={hasMoreProducts}
+            skeletonCount={skeletonCount}
+            showScrollToTop={showScrollToTop}
+            debouncedSearch={debouncedSearch}
+            selectedCategoryId={selectedCategory?.id}
+            selectedBrandId={selectedBrand?.id}
+            promotionFilter={promotionFilter}
+            productGridRef={productGridRef}
+            observerTarget={observerTarget}
+            handleProductClick={handleProductClick}
+            updateQuantity={updateQuantity}
+            scrollProductsToTop={scrollProductsToTop}
+          />
+
+          {/* Mobile Floating Cart Summary Button */}
+          {cartItems.length > 0 && !showCart && (
+            <div className="md:hidden fixed bottom-3 left-3 right-3 z-40">
               <CustomButton
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-50"
-                onClick={() => {
-                  dispatch(setSearchTerm(""));
-                  dispatch(setSelectedCategory(null));
-                  dispatch(setSelectedBrand(null));
-                  dispatch(setPromotionFilter(undefined));
-                }}
-                title="Clear all filters"
+                onClick={() => dispatch(setShowCart(true))}
+                className="w-full h-12 bg-primary text-primary-foreground rounded-[12px] shadow-xl flex items-center justify-between px-4"
               >
-                <X className="w-3 h-3" />
-              </CustomButton>
-          </div>
-
-          {}
-          <div className="shrink-0 border-b bg-muted/10 flex items-center gap-1 px-1 h-7 mt-1">
-            <CustomButton
-              variant="outline"
-              size="icon"
-              className="h-7 w-7 shrink-0 hover:bg-primary/10"
-              onClick={() => scrollCategories("left")}
-              title="Scroll left"
-            >
-              <ChevronRight className="h-3 w-3 transform rotate-180" />
-            </CustomButton>
-            <ScrollArea className="flex-1 h-7 overflow-hidden" ref={categoryScrollRef}>
-              <div className="flex gap-2 px-1 h-7 items-center">
-                <CustomButton variant="unstyled" size="unstyled"
-                  onClick={() => dispatch(setSelectedCategory(null))}
-                  className={cn(
-                    "shrink-0 px-3 py-1 rounded text-xs font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer h-7 flex items-center",
-                    selectedCategory === null
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-white border border-border text-foreground hover:bg-muted"
-                  )}
-                >
-                  All
-                </CustomButton>
-                {categoriesLoading ? (
-                  <div className="flex items-center gap-1 px-2 h-7">
-                    <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
-                  </div>
-                ) : (
-                  categories.map((category) => (
-                    <CustomButton variant="unstyled" size="unstyled"
-                      key={category.id}
-                      onClick={() => dispatch(setSelectedCategory(category))}
-                      className={cn(
-                        "shrink-0 px-3 py-1 rounded text-xs font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer h-7 flex items-center",
-                        selectedCategory?.id === category.id
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-white border border-border text-foreground hover:bg-muted"
-                      )}
-                      title={category.name}
-                    >
-                      {category.name}
-                    </CustomButton>
-                  ))
-                )}
-              </div>
-            </ScrollArea>
-            <CustomButton
-              variant="outline"
-              size="icon"
-              className="h-7 w-7 shrink-0 hover:bg-primary/10"
-              onClick={() => scrollCategories("right")}
-              title="Scroll right"
-            >
-              <ChevronRight className="h-3 w-3" />
-            </CustomButton>
-          </div>
-
-          {}
-          <ScrollArea className="flex-1 w-full overflow-hidden" ref={productGridRef}>
-            <div
-              className="w-full max-md:p-1 md:p-3"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-                gap: "0.75rem",
-              }}
-            >
-              {productsLoading && products.length === 0 &&
-                Array.from({ length: 12 }).map((_, i) => (
-                  <ProductCardSkeleton key={`skeleton-initial-${i}`} />
-                ))}
-              {products.map((product, index) => (
-                <POSProductCard
-                  key={`${product.id}-${index}`}
-                  product={product}
-                  onAddClick={handleProductClick}
-                  onQuantityChange={updateQuantity}
-                />
-              ))}
-              {}
-              {hasMoreProducts &&
-                Array.from({ length: skeletonCount }).map((_, i) => (
-                  <ProductCardSkeleton key={`skeleton-pagination-${i}`} />
-                ))}
-              {}
-              {hasMoreProducts && (
-                <div className="col-span-full flex flex-col items-center justify-center py-5">
-                  <Loader2 className="h-4 w-4 animate-spin text-primary mb-1" />
-                  <p className="text-xs sm:text-xs text-muted-foreground">
-                    Loading more products...
-                  </p>
+                <div className="flex items-center gap-2">
+                  <ShoppingCart className="w-4.5 h-4.5" />
+                  <span className="text-xs sm:text-sm font-bold">
+                    View Order ({cartSummary.totalQuantity})
+                  </span>
                 </div>
-              )}
+                <span className="text-sm sm:text-base font-black">
+                  {formatCurrency(cartSummary.finalTotal)}
+                </span>
+              </CustomButton>
             </div>
-            {hasMoreProducts && !productsLoading && (
-              <div ref={observerTarget} className="h-1" />
-            )}
-            {!productsLoading && products.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-14 text-muted-foreground">
-                {productsError ? (
-                  <>
-                    <Package className="w-11 h-11 mb-3 opacity-20 text-destructive" />
-                    <p className="text-xs font-medium text-destructive">Failed to load products</p>
-                    <p className="text-xs mt-1">{productsError}</p>
-                    <CustomButton
-                      variant="outline"
-                      size="sm"
-                      className="mt-2"
-                      onClick={() => {
-                        dispatch(setProducts([]));
-                        dispatch(setProductsLoading(true));
-                        dispatch(
-                          fetchPOSPageProductsService({
-                            page: 1,
-                            search: debouncedSearch,
-                            categoryId: selectedCategory?.id,
-                            brandId: selectedBrand?.id,
-                            hasPromotion: promotionFilter,
-                            reset: true,
-                          })
-                        );
-                      }}
-                    >
-                      Retry
-                    </CustomButton>
-                  </>
-                ) : (
-                  <>
-                    <Package className="w-11 h-11 mb-3 opacity-20" />
-                    <p className="text-xs font-medium">No products found</p>
-                    <p className="text-xs mt-1">Try adjusting your search or filter</p>
-                  </>
-                )}
-              </div>
-            )}
-          </ScrollArea>
-
-          {}
-          {showScrollToTop && (
-            <CustomButton
-              variant="outline"
-              size="icon"
-              className="absolute bottom-3 right-3 h-7 w-7 rounded-full border-2 border-primary shadow-lg bg-background hover:bg-primary hover:text-primary-foreground transition-all duration-200 animate-fade-in"
-              onClick={scrollProductsToTop}
-              title="Scroll to top"
-            >
-              <ChevronRight className="h-3 w-3 transform -rotate-90" />
-            </CustomButton>
           )}
         </div>
 
-        {}
-        <div
-          className={`${
-            showCart ? "flex" : "hidden"
-          } md:flex w-full max-md:border-t md:border-l md:w-[380px] xl:w-[420px] max-md:h-1/3 md:h-full flex-col bg-card shrink-0 overflow-hidden ${
-            showCart && "fixed inset-0 z-50 md:relative md:z-auto max-md:bottom-0 max-md:w-full max-md:h-auto"
-          }`}
-        >
-          {}
-          <div className="flex items-center justify-between px-3 py-2 border-b shrink-0">
-            <div>
-              <h2 className="font-semibold text-xs">Current Order</h2>
-              {cartItems.length > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  {cartItems.length} {cartItems.length === 1 ? "item" : "items"} • {cartSummary.totalQuantity} total
-                </p>
-              )}
-            </div>
-            <div className="flex items-center gap-1">
-              {cartItems.length > 0 && (
-                <CustomButton
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearCart}
-                  className="text-xs text-destructive hover:text-destructive hover:bg-destructive/10 h-5 rounded gap-1"
-                >
-                  <Trash2 className="w-2.5 h-2.5" />
-                  Clear
-                </CustomButton>
-              )}
-              <CustomButton
-                variant="ghost"
-                size="icon"
-                className="h-5 w-5 lg:hidden"
-                onClick={() => dispatch(setShowCart(false))}
-              >
-                <X className="w-3 h-3" />
-              </CustomButton>
-            </div>
-          </div>
-
-          {}
-          <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-            {cartItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-muted-foreground flex-1">
-                <ShoppingCart className="w-14 h-14 mb-3 opacity-20" />
-                <p className="text-xs font-semibold">No items yet</p>
-                <p className="text-xs mt-1 text-center px-3 leading-relaxed">
-                  Click on products to add them to the order
-                </p>
-              </div>
-            ) : (
-              <ScrollArea className="flex-1 min-h-0">
-                <div className="space-y-2 p-2">
-                  {cartItems.map((item) => (
-                    <POSCartItem
-                      key={item.id}
-                      id={item.id}
-                      productName={item.productName}
-                      productImageUrl={item.productImageUrl}
-                      sizeName={item.sizeName}
-                      currentPrice={item.currentPrice}
-                      finalPrice={item.finalPrice}
-                      quantity={item.quantity}
-                      hasPromotion={item.hasPromotion}
-                      promotionType={item.promotionType}
-                      promotionValue={item.promotionValue}
-                      customizations={item.customizations}
-                      onQuantityChange={(delta) => updateQuantity(item.id, delta)}
-                      onRemove={() => removeItem(item.id)}
-                      onEdit={() => handleEditPriceItem(item)}
-                    />
-                  ))}
-                </div>
-              </ScrollArea>
-            )}
-          </div>
-
-          {}
-          <div className="border-t bg-card shrink-0">
-            <div className="p-2 space-y-1">
-              <div className="grid grid-cols-2 gap-1">
-                <div className="space-y-1 min-w-0">
-                  <Label className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
-                    <Truck className="w-2 h-2 shrink-0" />
-                    Delivery
-                  </Label>
-                  <ComboboxSelectDelivery
-                    dataSelect={selectedDeliveryOption as any}
-                    onChangeSelected={(item) => dispatch(setSelectedDeliveryOption(item as any))}
-                    placeholder="Delivery..."
-                    label=""
-                    businessId={AppDefault.BUSINESS_ID}
-                    statuses={["ACTIVE"]}
-                  />
-                </div>
-                <div className="space-y-1 min-w-0">
-                  <Label className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
-                    <CreditCard className="w-2 h-2 shrink-0" />
-                    Payment
-                  </Label>
-                  <ComboboxSelectPayment
-                    dataSelect={selectedPaymentOption as any}
-                    onChangeSelected={(item) => dispatch(setSelectedPaymentOption(item as any))}
-                    placeholder="Payment..."
-                    label=""
-                    statuses={["ACTIVE"]}
-                  />
-                </div>
-              </div>
-
-              <div className="rounded border border-border bg-muted/20 px-2 py-1 space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">
-                    Subtotal ({cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"})
-                  </span>
-                  <span className="font-medium">{formatCurrency(cartSummary.subtotal)}</span>
-                </div>
-                {cartSummary.discountAmount > 0 && (
-                  <div className="flex justify-between text-xs">
-                    <span className="text-red-500 font-medium">Discount</span>
-                    <span className="text-red-500 font-semibold">-{formatCurrency(cartSummary.discountAmount)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Delivery Fee</span>
-                  <span className="font-medium text-primary">
-                    {cartSummary.deliveryFee > 0 ? `+${formatCurrency(cartSummary.deliveryFee)}` : "Free"}
-                  </span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground flex items-center gap-1">
-                    Tax<span className="text-[9px] bg-muted px-1 py-0.5 rounded font-medium">{cartSummary.taxPercentage}%</span>
-                  </span>
-                  <span className="font-medium">{formatCurrency(cartSummary.taxAmount)}</span>
-                </div>
-                <Separator />
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-bold">Total</span>
-                  <span className="text-sm font-bold text-primary">
-                    {formatCurrency(cartSummary.finalTotal)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="px-2 pb-2">
-              <div className="rounded overflow-hidden border border-border shadow-sm flex items-stretch">
-                <CustomButton
-                  variant="ghost"
-                  size="sm"
-                  className="h-auto px-2 gap-1 text-xs font-semibold border-r border-border hover:bg-muted/50"
-                  onClick={() => dispatch(setShowOrderDetailsModal(true))}
-                >
-                  <Tag className="w-2.5 h-2.5" />
-                </CustomButton>
-                <div className="flex-1 px-2 py-1 bg-muted/30 min-w-0 flex items-center justify-between">
-                  <div>
-                    <p className="text-[10px] text-muted-foreground font-medium">
-                      {cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"}
-                      {selectedPaymentOption && (
-                        <span className="ml-1 text-muted-foreground/70">
-                          · {selectedPaymentOption.name || selectedPaymentOption.paymentOptionType}
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-sm font-bold text-primary leading-tight">{formatCurrency(cartSummary.finalTotal)}</p>
-                  </div>
-                </div>
-                <CustomButton variant="unstyled" size="unstyled"
-                  onClick={handleSubmitOrder}
-                  disabled={cartItems.length === 0 || isSubmitting}
-                  className={cn(
-                    "flex flex-col items-center justify-center px-3 gap-0.5 transition-all shrink-0",
-                    cartItems.length === 0 || isSubmitting
-                      ? "bg-muted text-muted-foreground cursor-not-allowed"
-                      : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 cursor-pointer"
-                  )}
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  ) : (
-                    <ReceiptText className="w-3 h-3" />
-                  )}
-                  <span className="text-[11px] font-semibold whitespace-nowrap">
-                    {isSubmitting ? "Processing..." : "Place Order"}
-                  </span>
-                </CustomButton>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Right Cart Sidebar / Checkout Section */}
+        <POSCartSidebar
+          showCart={showCart}
+          cartItems={cartItems}
+          cartSummary={cartSummary}
+          selectedDeliveryOption={selectedDeliveryOption}
+          selectedPaymentOption={selectedPaymentOption}
+          isSubmitting={isSubmitting}
+          clearCart={clearCart}
+          updateQuantity={updateQuantity}
+          removeItem={removeItem}
+          handleEditPriceItem={handleEditPriceItem}
+          handleSubmitOrder={handleSubmitOrder}
+        />
       </div>
       {sizePickerProduct && (
         <SizePickerModal

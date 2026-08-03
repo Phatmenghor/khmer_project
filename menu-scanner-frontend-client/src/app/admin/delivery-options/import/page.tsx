@@ -11,6 +11,7 @@ import {
 import { GenericExcelImport } from "@/components/shared/import/GenericExcelImport";
 import { ImportTableColumn, RowStatus, BaseImportRow } from "@/components/shared/import/types";
 import { AppDefault } from "@/constants/app-resource/default/default";
+import { uploadMultiSize } from "@/services/spaces-service";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { resetState } from "@/features/master-data/store/slice/delivery-options-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
@@ -19,6 +20,7 @@ interface ImportDeliveryOptionRow extends BaseImportRow {
   name: string;
   price: string;
   status: string;
+  __imageFile?: File | null;
   __nameError?: boolean;
   __priceError?: boolean;
 }
@@ -62,6 +64,7 @@ export default function DeliveryOptionImportPage() {
         name,
         price,
         status,
+        __imageFile: null,
         __status: "pending" as RowStatus,
       };
     });
@@ -99,17 +102,39 @@ export default function DeliveryOptionImportPage() {
   };
 
   const onImportBatch = async (rowsToProcess: ImportDeliveryOptionRow[], importId?: string) => {
-    const payloads = rowsToProcess.map((row) => ({
-      name: row.name,
-      price: parseFloat(row.price),
-      businessId: businessId,
-      status: row.status || "ACTIVE",
-    }));
+    const payloads = [];
+    for (const row of rowsToProcess) {
+      let imagePayload: { sm: string; md: string; o: string } | undefined = undefined;
+      if (row.__imageFile) {
+        try {
+          const result = await uploadMultiSize(row.__imageFile, businessId);
+          imagePayload = { sm: result.sm.url, md: result.md.url, o: result.o.url };
+        } catch (uploadErr) {
+          console.error("Failed to upload delivery option image", row.name, uploadErr);
+        }
+      }
+
+      payloads.push({
+        name: row.name,
+        price: parseFloat(row.price),
+        image: imagePayload,
+        businessId: businessId,
+        status: row.status || "ACTIVE",
+      });
+    }
 
     return await dispatch(importDeliveryOptionsBatchService({ requests: payloads, importId })).unwrap();
   };
 
   const columns: ImportTableColumn<ImportDeliveryOptionRow>[] = [
+    {
+      key: "image",
+      label: "Image",
+      type: "image",
+      fieldKey: "__imageFile" as any,
+      width: "150px",
+      minWidth: "130px",
+    },
     {
       key: "name",
       label: "Delivery Option Name",

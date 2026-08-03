@@ -37,7 +37,7 @@ export function TableImage({
   previewSrc,
   alt = "Image",
   fallbackText,
-  className = "h-9 w-9",
+  className = "h-10 w-10 rounded-[10px]",
   priority,
   loading,
 }: TableImageProps) {
@@ -72,10 +72,25 @@ export function TableImage({
     }
   };
 
+  const [imgDimensions, setImgDimensions] = useState<{ width: number; height: number; ratio: number } | null>(null);
+
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const { naturalWidth, naturalHeight } = e.currentTarget;
+    if (naturalWidth && naturalHeight) {
+      setImgDimensions({
+        width: naturalWidth,
+        height: naturalHeight,
+        ratio: naturalWidth / naturalHeight,
+      });
+    }
+  };
+
+  const isWide = (imgDimensions?.ratio ?? 1) > 1.4;
+
   return (
     <>
       <div
-        className={`relative group rounded overflow-hidden bg-muted border border-border flex-shrink-0 ${className}`}
+        className={`relative group rounded-[10px] overflow-hidden bg-muted border border-border flex-shrink-0 ${className}`}
       >
         {src && !thumbErrored ? (
           <>
@@ -88,42 +103,45 @@ export function TableImage({
               loading={loading}
               onError={() => setThumbErrored(true)}
             />
-            {/* View — top left */}
-            <CustomButton
-              variant="unstyled"
-              size="unstyled"
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setViewOpen(true);
-              }}
-              className="absolute top-0.5 left-0.5 p-px bg-black/55 hover:bg-black/80 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-              title="View"
-            >
-              <Eye className="h-2 w-2 text-white" />
-            </CustomButton>
-            {/* Download — top right */}
-            <CustomButton
-              variant="unstyled"
-              size="unstyled"
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDownload(e);
-              }}
-              className={cn(
-                "absolute top-0.5 right-0.5 p-px bg-black/55 hover:bg-black/80 rounded transition-opacity duration-150",
-                isDownloading ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-              )}
-              title="Download"
-              disabled={isDownloading}
-            >
-              {isDownloading ? (
-                <Loader2 className="h-2 w-2 text-white animate-spin" />
-              ) : (
-                <Download className="h-2 w-2 text-white" />
-              )}
-            </CustomButton>
+            {/* Dynamic hover overlay actions — starting from top */}
+            <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none flex items-start justify-between p-0.5">
+              {/* View — top left */}
+              <CustomButton
+                variant="unstyled"
+                size="unstyled"
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setViewOpen(true);
+                }}
+                className="pointer-events-auto p-0.5 bg-black/60 hover:bg-black/85 backdrop-blur-[2px] rounded-[4px] text-white shadow-2xs transition-transform hover:scale-105"
+                title="View"
+              >
+                <Eye className="h-2.5 w-2.5" />
+              </CustomButton>
+              {/* Download — top right */}
+              <CustomButton
+                variant="unstyled"
+                size="unstyled"
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDownload(e);
+                }}
+                className={cn(
+                  "pointer-events-auto p-0.5 bg-black/60 hover:bg-black/85 backdrop-blur-[2px] rounded-[4px] text-white shadow-2xs transition-transform hover:scale-105",
+                  isDownloading && "opacity-100"
+                )}
+                title="Download"
+                disabled={isDownloading}
+              >
+                {isDownloading ? (
+                  <Loader2 className="h-2.5 w-2.5 animate-spin" />
+                ) : (
+                  <Download className="h-2.5 w-2.5" />
+                )}
+              </CustomButton>
+            </div>
           </>
         ) : (
           <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
@@ -134,75 +152,101 @@ export function TableImage({
         )}
       </div>
 
-      {/* View modal */}
+      {/* Dynamic View modal */}
       {viewOpen && (
         <CustomModal
           isOpen={viewOpen}
           onClose={() => setViewOpen(false)}
-          size="lg"
-          className="max-h-[92vh] gap-0 flex flex-col"
+          size={isWide ? "xl" : "md"}
+          className={cn(
+            "max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden transition-all duration-300",
+            isWide ? "sm:max-w-4xl" : "sm:max-w-lg"
+          )}
           disableScrollWrapper={true}
         >
-          <DialogHeader className="p-4 border-b border-primary/30 m-0 mx-0 mt-0 bg-muted/30 flex-shrink-0">
+          <DialogHeader className="p-3.5 sm:p-4 border-b border-border/80 m-0 mx-0 mt-0 bg-muted/40 flex-shrink-0">
             <div className="flex items-center justify-between gap-3 pr-8 text-left w-full">
               <div className="flex-1 min-w-0 text-left">
-                <DialogTitle className="text-sm md:text-base font-semibold leading-tight text-foreground truncate">
-                  {alt}
-                </DialogTitle>
+                <div className="flex items-center gap-2">
+                  <DialogTitle className="text-sm sm:text-base font-semibold leading-tight text-foreground truncate">
+                    {alt}
+                  </DialogTitle>
+                  {imgDimensions && (
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 shrink-0">
+                      {imgDimensions.width} × {imgDimensions.height} px
+                    </span>
+                  )}
+                </div>
                 <DialogDescription className="text-xs text-muted-foreground leading-snug mt-0.5 truncate">
-                  Image preview
+                  High Resolution Image Preview
                 </DialogDescription>
               </div>
+
               <div className="flex items-center gap-1.5 flex-shrink-0">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <CustomButton
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 p-0"
-                      icon={<MoreHorizontal className="h-4 w-4" />}
-                    />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleDownload()} disabled={isDownloading}>
-                      {isDownloading ? (
-                        <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
-                      ) : (
-                        <Download className="h-3.5 w-3.5 mr-2" />
-                      )}
-                      {isDownloading ? "Downloading..." : "Download"}
-                    </DropdownMenuItem>
-                    {effectivePreview && (
-                      <DropdownMenuItem
-                        onClick={() => window.open(effectivePreview, "_blank")}
-                      >
-                        <ExternalLink className="h-3.5 w-3.5 mr-2" />
-                        Open in new tab
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <CustomButton
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDownload()}
+                  disabled={isDownloading}
+                  className="h-8 px-2.5 text-xs gap-1.5 rounded-[10px]"
+                  title="Download Image"
+                >
+                  {isDownloading ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Download className="h-3.5 w-3.5" />
+                  )}
+                  <span className="hidden sm:inline">Download</span>
+                </CustomButton>
+
+                {effectivePreview && (
+                  <CustomButton
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.open(effectivePreview, "_blank")}
+                    className="h-8 w-8 p-0 rounded-[10px]"
+                    title="Open in new tab"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </CustomButton>
+                )}
               </div>
             </div>
           </DialogHeader>
 
-          {/* Body */}
-          <div className="flex-1 overflow-y-auto p-4 flex items-center justify-center bg-muted/5 min-h-[280px]">
+          {/* Dynamic Image Body with Ambient Blur */}
+          <div className="relative flex-1 overflow-hidden p-4 flex items-center justify-center bg-black/90 dark:bg-black/95 min-h-[300px]">
             {effectivePreview && !previewErrored ? (
-              <div className="relative w-full max-w-full h-[60vh]">
-                <SmartImage
-                  src={effectivePreview}
-                  alt={alt}
-                  fill
-                  objectFit="contain"
-                  rounded="md"
-                  onError={() => setPreviewErrored(true)}
+              <>
+                {/* Ambient Blurred Background Layer */}
+                <div
+                  className="absolute inset-0 bg-cover bg-center opacity-25 blur-2xl scale-110 pointer-events-none"
+                  style={{ backgroundImage: `url(${effectivePreview})` }}
                 />
-              </div>
+
+                {/* Main Dynamic Image Container */}
+                <div className={cn(
+                  "relative z-10 flex items-center justify-center w-full h-full overflow-hidden p-1",
+                  isWide ? "max-h-[72vh]" : "max-h-[520px] max-w-[520px] aspect-square"
+                )}>
+                  <img
+                    src={effectivePreview}
+                    alt={alt}
+                    onLoad={handleImageLoad}
+                    onError={() => setPreviewErrored(true)}
+                    className={cn(
+                      "rounded-xl shadow-2xl transition-all duration-300 object-contain",
+                      isWide
+                        ? "max-h-[72vh] w-full max-w-full"
+                        : "w-full h-full aspect-square bg-black/40 border border-white/10 p-2"
+                    )}
+                  />
+                </div>
+              </>
             ) : (
-              <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                <ImageIcon className="h-12 w-12 opacity-30" />
-                <p className="text-sm">No image available</p>
+              <div className="flex flex-col items-center gap-2 text-muted-foreground z-10 py-12">
+                <ImageIcon className="h-12 w-12 opacity-30 text-white" />
+                <p className="text-sm text-white/70">No image available</p>
               </div>
             )}
           </div>

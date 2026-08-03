@@ -323,7 +323,7 @@ export function DownloadTemplateButton({
       isLoading={isDownloading}
       icon={!isDownloading ? <Download className="w-3.5 h-3.5" /> : undefined}
       className={cn(
-        "gap-1.5 h-[28px] text-xs border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500 min-w-[95px]",
+        "gap-1.5 h-[36px] text-xs font-semibold rounded-[12px] border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500 min-w-[95px] px-3",
         className
       )}
       title="Download Excel template"
@@ -354,7 +354,7 @@ export function ImportSpreadsheetButton({
       onClick={onClick}
       icon={<FileSpreadsheet className="w-3.5 h-3.5" />}
       className={cn(
-        "gap-1.5 h-[28px] text-xs border-pink-500/30 text-pink-600 dark:text-pink-400 hover:bg-pink-500/10 hover:border-pink-500 min-w-[75px]",
+        "gap-1.5 h-[36px] text-xs font-semibold rounded-[12px] border-pink-500/30 text-pink-600 dark:text-pink-400 hover:bg-pink-500/10 hover:border-pink-500 min-w-[75px] px-3",
         className
       )}
       title={title}

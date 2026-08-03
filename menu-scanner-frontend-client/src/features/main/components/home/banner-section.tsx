@@ -90,10 +90,11 @@ const BannerSectionComponent = ({
               <CarouselItem key={banner.id + "-" + index}>
                 <div className="relative w-full h-[200px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded-[20px] sm:rounded-[24px] overflow-hidden border border-border/60 shadow-2xs group">
                   <SmartImage
-                    src={banner.image?.md}
+                    src={banner.image?.o || banner.image?.md}
                     alt={banner.businessName || "Banner"}
                     fill
                     priority={index === 0}
+                    loading={index === 0 ? "eager" : "lazy"}
                     sizes="100vw"
                   />
                 </div>

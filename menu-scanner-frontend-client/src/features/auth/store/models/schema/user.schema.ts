@@ -94,7 +94,14 @@ export const createUserSchema = z.object({
     .string()
     .min(1, "User identifier is required")
     .min(3, "User identifier must be at least 3 characters"),
-  email: z.string().min(1, "Email is required").email("Invalid email format"),
+  email: z
+    .string()
+    .optional()
+    .or(z.literal(""))
+    .refine(
+      (val) => !val || z.string().email().safeParse(val).success,
+      "Invalid email format"
+    ),
   password: z
     .string()
     .min(1, "Password is required")

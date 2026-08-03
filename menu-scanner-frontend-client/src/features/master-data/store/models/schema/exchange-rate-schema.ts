@@ -2,15 +2,8 @@ import { z } from "zod";
 
 
 export const createExchangeRateSchema = z.object({
-  usdToKhrRate: z.number().min(0.01, "USD To KHR rate must be greater than 0"),
-  usdToCnyRate: z
-    .number()
-    .min(0.01, "USD To CNY rate must be greater than 0")
-    .optional(),
-  usdToVndRate: z
-    .number()
-    .min(0.01, "USD To VND rate must be greater than 0")
-    .optional(),
+  businessId: z.string().optional(),
+  usdToKhrRate: z.coerce.number().min(0.01, "USD To KHR rate must be greater than 0"),
   status: z.enum(["ACTIVE", "INACTIVE"], {
     errorMap: () => ({ message: "Status must be ACTIVE or INACTIVE" }),
   }).optional(),
@@ -19,15 +12,7 @@ export const createExchangeRateSchema = z.object({
 
 
 export const updateExchangeRateSchema = z.object({
-  usdToKhrRate: z.number().min(0.01, "USD To KHR rate must be greater than 0"),
-  usdToCnyRate: z
-    .number()
-    .min(0.01, "USD To CNY rate must be greater than 0")
-    .optional(),
-  usdToVndRate: z
-    .number()
-    .min(0.01, "USD To VND rate must be greater than 0")
-    .optional(),
+  usdToKhrRate: z.coerce.number().min(0.01, "USD To KHR rate must be greater than 0"),
   status: z.enum(["ACTIVE", "INACTIVE"], {
     errorMap: () => ({ message: "Status must be ACTIVE or INACTIVE" }),
   }).optional(),

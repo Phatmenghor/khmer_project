@@ -16,7 +16,7 @@ export default function DashboardGroupLayout({
 }: DashboardGroupLayoutProps) {
   return (
     <DashboardLayout>
-      <div className="flex-1 h-full space-y-3 pl-0 sm:pl-1">{children}</div>
+      <div className="flex-1 h-full flex flex-col min-h-0 pl-0 sm:pl-1">{children}</div>
     </DashboardLayout>
   );
 }

@@ -1,122 +1,124 @@
 "use client";
 
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
-import { formatProductCount } from "@/utils/format/product-count-formatter";
-import { BrandResponseModel } from "../store/models/response/brand-response";
 import { cn } from "@/lib/utils";
 import { Package } from "lucide-react";
 import { SmartImage } from "@/components/shared/image/smart-image";
-
+import { useAppDispatch, useAppSelector } from "@/store";
+import { useEffect } from "react";
+import { DetailModal } from "@/components/shared/modal/detail-modal";
 import { SectionTitle, InfoRow } from "@/components/shared/modal/detail-section";
+import { BrandResponseModel } from "../store/models/response/brand-response";
+import {
+  selectBrandContent,
+  selectSelectedBrand,
+} from "../store/selectors/brand-selector";
+import { clearSelectedBrand } from "../store/slice/brand-slice";
+import { fetchBrandByIdService } from "../store/thunks/brand-thunks";
+
+function BrandDetailImage({ src, alt }: { src?: string; alt: string }) {
+  return (
+    <div className="relative flex-shrink-0 w-14 h-14 rounded-[10px] overflow-hidden bg-muted border border-border flex items-center justify-center shadow-xs">
+      {src ? (
+        <SmartImage src={src} alt={alt} fill showSkeleton={false} />
+      ) : (
+        <Package className="h-6 w-6 text-muted-foreground/60" />
+      )}
+    </div>
+  );
+}
 
 interface BrandDetailModalProps {
-  brand: BrandResponseModel | null;
+  brandId?: string;
+  brand?: BrandResponseModel | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
 export function BrandDetailModal({
-  brand,
+  brandId,
+  brand: propBrand,
   isOpen,
   onClose,
 }: BrandDetailModalProps) {
-  if (!brand) {
-    return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogTitle className="sr-only">Brand Details</DialogTitle>
-        <DialogContent className="w-full sm:max-w-2xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-center h-full">
-            <p className="text-muted-foreground">No brand data available</p>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
+  const dispatch = useAppDispatch();
+  const brandContent = useAppSelector(selectBrandContent);
+  const selectedBrand = useAppSelector(selectSelectedBrand);
+  const targetId = brandId || propBrand?.id;
 
-  const isActive = brand.status === "ACTIVE";
+  const brand =
+    propBrand ||
+    brandContent.find((b) => b.id === targetId) ||
+    (selectedBrand?.id === targetId ? selectedBrand : null);
+
+  useEffect(() => {
+    if (isOpen && targetId && !brand) {
+      dispatch(fetchBrandByIdService(targetId));
+    }
+  }, [isOpen, targetId, brand, dispatch]);
+
+  const handleClose = () => {
+    dispatch(clearSelectedBrand());
+    onClose();
+  };
+
+  const isActive = brand?.status === "ACTIVE";
+  const totalProducts = brand?.totalProducts ?? 0;
+  const activeProducts = brand?.activeProducts ?? 0;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogTitle className="sr-only">Brand Details - {brand.name}</DialogTitle>
-      <DialogContent className="w-full sm:max-w-2xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
-          <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
-            {(brand.image?.sm || brand.image?.md || brand.image?.o) ? (
-              <SmartImage
-                src={brand.image?.md || brand.image?.o || brand.image?.sm}
-                alt={brand.name || "Brand"}
-                fill
-                showSkeleton={false}
-              />
-            ) : (
-              <Package className="h-5 w-5 text-muted-foreground" />
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-foreground">Brand</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Manage product brands for your business</p>
-          </div>
-        </div>
-
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
-            {/* Left column */}
-            <div className="lg:col-span-2 space-y-3">
-              <div className="rounded border border-border/50 bg-card p-3">
-                <SectionTitle>Brand Information</SectionTitle>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
-                  <InfoRow label="Name" value={brand.name || "-"} />
-                  <InfoRow
-                    label="Status"
-                    value={
-                      <span className={cn("font-semibold", isActive ? "text-green-700" : "text-gray-500")}>
-                        {brand.status ? formatEnumValue(brand.status) : "-"}
-                      </span>
-                    }
-                  />
-                  <InfoRow label="Description" value={brand.description || "-"} fullWidth />
-                </div>
-              </div>
-
-              {/* Product Stats */}
-              <div className="rounded border border-border/50 bg-card p-3">
-                <SectionTitle>Product Stats</SectionTitle>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col items-center gap-1 p-3 rounded bg-muted/30 border border-border/40">
-                    <span className="text-lg font-bold text-foreground">
-                      {brand.totalProducts ?? 0}
-                    </span>
-                    <span className="text-xs text-muted-foreground">Total Products</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1 p-3 rounded bg-muted/30 border border-border/40">
-                    <span className="text-lg font-bold text-green-700">
-                      {brand.activeProducts ?? 0}
-                    </span>
-                    <span className="text-xs text-muted-foreground">Active Products</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right sidebar */}
-            <div className="space-y-3">
-              <div className="rounded border border-border/50 bg-card p-3">
-                <SectionTitle>System Info</SectionTitle>
-                <div className="space-y-2.5">
-<InfoRow label="Created By" value={brand.createdBy || "-"} />
-                  <InfoRow label="Created At" value={dateTimeFormat(brand.createdAt ?? "")} />
-                  <InfoRow label="Updated By" value={brand.updatedBy || "-"} />
-                  <InfoRow label="Last Updated" value={dateTimeFormat(brand.updatedAt ?? "")} />
-                </div>
-              </div>
+    <DetailModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      isLoading={isOpen && !brand}
+      isEmpty={!brand}
+      emptyMessage="No brand data available"
+      title="Brand"
+      description="Manage product brands for your business"
+      size="xl"
+    >
+      {brand && (
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 p-1 text-left">
+          <SectionTitle>Brand Information</SectionTitle>
+          <div className="col-span-2 flex items-center gap-3.5 p-2 rounded-[12px] bg-muted/30 border border-border/60 mb-1">
+            <BrandDetailImage
+              src={brand.image?.md ?? brand.image?.o ?? brand.image?.sm}
+              alt={brand.name || "Brand"}
+            />
+            <div className="min-w-0 flex-1">
+              <h4 className="text-sm font-semibold text-foreground truncate">
+                {brand.name || "-"}
+              </h4>
+              <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5">
+                <span>Status:</span>
+                <span
+                  className={cn(
+                    "font-semibold px-2 py-0.5 rounded-md text-[11px]",
+                    isActive
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                      : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  {brand.status ? formatEnumValue(brand.status) : "-"}
+                </span>
+              </p>
             </div>
           </div>
+
+          <InfoRow label="Description" value={brand.description || "-"} fullWidth />
+
+          <SectionTitle>Product Stats</SectionTitle>
+          <InfoRow label="Total Products" value={totalProducts} />
+          <InfoRow label="Active Products" value={activeProducts} />
+
+          <SectionTitle>Audit Information</SectionTitle>
+          <InfoRow label="Created By" value={brand.createdBy || "-"} />
+          <InfoRow label="Created At" value={dateTimeFormat(brand.createdAt ?? "")} />
+          <InfoRow label="Updated By" value={brand.updatedBy || "-"} />
+          <InfoRow label="Last Updated" value={dateTimeFormat(brand.updatedAt ?? "")} />
         </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </DetailModal>
   );
 }

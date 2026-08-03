@@ -1,6 +1,3 @@
-
-
-
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
   selectPOSPageState,
@@ -29,8 +26,11 @@ import {
   selectSuccessOrder,
   selectShowOrderDetailsModal,
   selectBrandOpen,
+  selectCategoryOpen,
   selectPromotionFilter,
   selectPromotionOpen,
+  selectMinPrice,
+  selectMaxPrice,
 } from "../selectors/pos-page-selector";
 
 export const usePOSPageState = () => {
@@ -62,8 +62,11 @@ export const usePOSPageState = () => {
   const successOrder = useAppSelector(selectSuccessOrder);
   const showOrderDetailsModal = useAppSelector(selectShowOrderDetailsModal);
   const brandOpen = useAppSelector(selectBrandOpen);
+  const categoryOpen = useAppSelector(selectCategoryOpen);
   const promotionFilter = useAppSelector(selectPromotionFilter);
   const promotionOpen = useAppSelector(selectPromotionOpen);
+  const minPrice = useAppSelector(selectMinPrice);
+  const maxPrice = useAppSelector(selectMaxPrice);
 
   return {
     dispatch,
@@ -93,7 +96,10 @@ export const usePOSPageState = () => {
     successOrder,
     showOrderDetailsModal,
     brandOpen,
+    categoryOpen,
     promotionFilter,
     promotionOpen,
+    minPrice,
+    maxPrice,
   };
 };

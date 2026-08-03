@@ -29,8 +29,9 @@ export function TextField<T extends FieldValues = FieldValues>({
 }: TextFormFieldProps<T>) {
   return (
     <div className={`flex flex-col gap-1 w-full ${className}`}>
-      <Label htmlFor={name} className={`text-xs font-medium text-foreground ${labelClassName}`}>
-        {label} {required && <span className="text-red-500 ml-1">*</span>}
+      <Label htmlFor={name} className={cn("text-xs font-semibold text-foreground leading-tight flex items-center min-h-[16px]", labelClassName)}>
+        <span>{label}</span>
+        {required && <span className="text-destructive ml-0.5">*</span>}
       </Label>
       <Controller
         control={control}
@@ -51,33 +52,26 @@ export function TextField<T extends FieldValues = FieldValues>({
               if (valueAsNumber && type === "number") {
                 const value = e.target.valueAsNumber;
 
-
                 if (isNaN(value)) {
                   field.onChange(undefined);
                   return;
                 }
-
 
                 if (value === 0 && !allowZero) {
                   field.onChange(undefined);
                   return;
                 }
 
-
                 field.onChange(value);
               } else if (type === "number" && !valueAsNumber) {
-
                 const value = e.target.value;
                 field.onChange(value === "" ? undefined : value);
               } else {
-
                 let value = e.target.value;
-
 
                 if (pattern) {
                   const regex = new RegExp(`^${pattern}*$`);
                   if (!regex.test(value)) {
-
                     return;
                   }
                 }
@@ -89,13 +83,13 @@ export function TextField<T extends FieldValues = FieldValues>({
             pattern={pattern ? `${pattern}*` : undefined}
             className={cn(
               disabled && "bg-muted/50",
-              error && "border-red-500 focus:border-red-500 focus:ring-red-500/30",
+              error && "border-destructive focus:border-destructive",
               inputClassName
             )}
           />
         )}
       />
-      <p className={`text-xs text-red-500 ${error?.message ? "min-h-[16px]" : ""}`}>{error?.message || ""}</p>
+      {error?.message && <p className="text-xs text-destructive font-medium mt-1">{error.message}</p>}
     </div>
   );
 }

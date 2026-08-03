@@ -20,7 +20,6 @@ interface ImportPaymentOptionRow extends BaseImportRow {
   name: string;
   paymentOptionType: string;
   status: string;
-  description: string;
   __imageFile?: File | null;
   __nameError?: boolean;
   __typeError?: boolean;
@@ -44,7 +43,6 @@ export default function PaymentOptionImportPage() {
       const name = get(["payment option name", "name"]);
       const rawType = get(["type", "paymentOptionType"]);
       const rawStatus = get(["status"]);
-      const description = get(["description"]);
 
       let paymentOptionType = "BANK";
       const cleanType = rawType.trim().toUpperCase();
@@ -70,7 +68,6 @@ export default function PaymentOptionImportPage() {
         name,
         paymentOptionType,
         status,
-        description,
         __imageFile: null,
         __status: "pending" as RowStatus,
       };
@@ -126,7 +123,6 @@ export default function PaymentOptionImportPage() {
         name: row.name,
         paymentOptionType: row.paymentOptionType || "BANK",
         status: row.status || "ACTIVE",
-        description: row.description || undefined,
         image: imagePayload,
       });
     }
@@ -135,6 +131,14 @@ export default function PaymentOptionImportPage() {
   };
 
   const columns: ImportTableColumn<ImportPaymentOptionRow>[] = [
+    {
+      key: "image",
+      label: "Image",
+      type: "image",
+      fieldKey: "__imageFile" as any,
+      width: "150px",
+      minWidth: "130px",
+    },
     {
       key: "name",
       label: "Payment Option Name",
@@ -156,14 +160,6 @@ export default function PaymentOptionImportPage() {
       ],
     },
     {
-      key: "image",
-      label: "Image",
-      type: "image",
-      fieldKey: "__imageFile" as any,
-      width: "120px",
-      minWidth: "100px",
-    },
-    {
       key: "status",
       label: "Status",
       type: "select",
@@ -173,15 +169,6 @@ export default function PaymentOptionImportPage() {
         { value: "ACTIVE", label: "Active" },
         { value: "INACTIVE", label: "Inactive" },
       ],
-    },
-    {
-      key: "description",
-      label: "Description",
-      type: "text",
-      fieldKey: "description",
-      placeholder: "Description",
-      width: "300px",
-      minWidth: "200px",
     },
   ];
 

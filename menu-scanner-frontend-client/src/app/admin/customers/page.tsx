@@ -150,7 +150,7 @@ function CustomerPageInner() {
       roles: [],
       userTypes: [UserGropeType.CUSTOMER],
       accountStatuses:
-        filters.accountStatus === AccountStatus.ALL
+        !filters.accountStatus || filters.accountStatus === AccountStatus.ALL
           ? []
           : [filters.accountStatus],
     };
@@ -262,7 +262,7 @@ function CustomerPageInner() {
         label: "Account Status",
         placeholder: "All Status",
         value: filters.accountStatus,
-        onChange: (value) => dispatch(setAccountStatusFilter(value as AccountStatus)),
+        onChange: (value) => dispatch(setAccountStatusFilter((value || AccountStatus.ALL) as AccountStatus)),
         options: ACCOUNT_STATUS_FILTER.filter(status => status.value !== AccountStatus.END_WORK),
       },
     ],

@@ -99,20 +99,20 @@ export default function BrandImportPage() {
 
   const columns: ImportTableColumn<ImportBrandRow>[] = [
     {
+      key: "image",
+      label: "Image",
+      type: "image",
+      fieldKey: "__imageFile" as any,
+      width: "150px",
+      minWidth: "130px",
+    },
+    {
       key: "name",
       label: "Brand Name",
       type: "text",
       required: true,
       fieldKey: "name",
       placeholder: "Brand Name",
-    },
-    {
-      key: "image",
-      label: "Brand Image",
-      type: "image",
-      fieldKey: "__imageFile" as any,
-      width: "120px",
-      minWidth: "100px",
     },
     {
       key: "description",

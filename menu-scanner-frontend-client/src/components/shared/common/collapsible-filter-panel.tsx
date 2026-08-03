@@ -260,9 +260,9 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
                 disabled={config.buttonDisabled}
                 variant="default"
                 onClick={config.onButtonClick}
-                className="gap-1 flex-shrink-0 h-[28px] px-3 text-xs"
+                className="gap-1.5 flex-shrink-0 h-[36px] rounded-[12px] px-3.5 text-xs font-semibold"
                 title={config.buttonTooltip}
-                icon={<Plus className="w-3 h-3" />}
+                icon={<Plus className="w-3.5 h-3.5" />}
               >
                 {config.buttonText}
               </CustomButton>
@@ -270,14 +270,14 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
           </div>
         </div>
 
-        {/* Search + essential filters row — every control here is h-[28px] */}
+        {/* Search + essential filters row */}
         <div className="flex flex-wrap items-end gap-2">
           <div className="relative w-full sm:w-[280px]">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/80 pointer-events-none" />
             <Input
               type="text"
               placeholder={config.searchPlaceholder}
-              className="pl-7 pr-7 h-[28px] text-xs w-full focus:border-primary focus:ring-primary/30 hover:border-primary transition-colors"
+              className="pl-9 pr-8 h-[36px] text-xs rounded-[12px] bg-muted/30 border border-border/80 w-full focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25 hover:bg-muted/50 hover:border-border transition-all shadow-2xs"
               value={config.searchValue}
               onChange={config.onSearchChange}
             />
@@ -289,10 +289,10 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
                     target: { value: "" },
                   } as React.ChangeEvent<HTMLInputElement>)
                 }
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground p-0.5 rounded-full hover:bg-destructive/15 transition-colors"
                 aria-label="Clear search"
               >
-                <X className="h-3 w-3" />
+                <X className="h-3.5 w-3.5" />
               </CustomButton>
             )}
           </div>

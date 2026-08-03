@@ -141,7 +141,7 @@ export default function DashboardLayout({
         />
         <main className={cn(
           "dashboard-main flex-1",
-          isPosPage ? "overflow-hidden" : "px-1.5 py-1.5"
+          isPosPage ? "overflow-hidden flex flex-col h-full min-h-0" : "px-1.5 py-1.5"
         )}>
           {children}
         </main>

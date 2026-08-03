@@ -15,6 +15,8 @@ interface FetchProductsParams {
   categoryId?: string;
   brandId?: string;
   hasPromotion?: boolean;
+  minPrice?: number;
+  maxPrice?: number;
   reset?: boolean;
 }
 
@@ -78,6 +80,8 @@ export const fetchPOSPageProductsService = createAsyncThunk(
         categoryId: params.categoryId || undefined,
         brandId: params.brandId || undefined,
         hasPromotion: params.hasPromotion,
+        minPrice: params.minPrice !== undefined && !isNaN(params.minPrice) ? params.minPrice : undefined,
+        maxPrice: params.maxPrice !== undefined && !isNaN(params.maxPrice) ? params.maxPrice : undefined,
         pageNo: params.page,
         pageSize: 30,
         status: "ACTIVE",

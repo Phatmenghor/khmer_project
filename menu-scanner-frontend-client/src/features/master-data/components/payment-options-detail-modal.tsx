@@ -17,11 +17,11 @@ import { fetchPaymentOptionByIdService } from "../store/thunks/payment-options-t
 
 function PaymentOptionDetailImage({ src, alt }: { src?: string; alt: string }) {
   return (
-    <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
+    <div className="relative flex-shrink-0 w-14 h-14 rounded-[10px] overflow-hidden bg-muted border border-border flex items-center justify-center shadow-xs">
       {src ? (
         <SmartImage src={src} alt={alt} fill showSkeleton={false} />
       ) : (
-        <CreditCard className="h-5 w-5 text-muted-foreground" />
+        <CreditCard className="h-6 w-6 text-muted-foreground/60" />
       )}
     </div>
   );
@@ -73,24 +73,32 @@ export function PaymentOptionDetailModal({
     >
       {paymentOption && (
         <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 p-1 text-left">
-          <SectionTitle>Payment Option Image</SectionTitle>
-          <div className="col-span-2">
+          <SectionTitle>Payment Option Information</SectionTitle>
+          <div className="col-span-2 flex items-center gap-3.5 p-2 rounded-[12px] bg-muted/30 border border-border/60 mb-1">
             <PaymentOptionDetailImage
               src={paymentOption.image?.md ?? paymentOption.image?.o ?? paymentOption.image?.sm}
               alt={paymentOption.name || "Payment option"}
             />
+            <div className="min-w-0 flex-1">
+              <h4 className="text-sm font-semibold text-foreground truncate">
+                {paymentOption.name || "-"}
+              </h4>
+              <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5">
+                <span>Status:</span>
+                <span
+                  className={cn(
+                    "font-semibold px-2 py-0.5 rounded-md text-[11px]",
+                    isActive
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                      : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  {paymentOption.status ? formatEnumValue(paymentOption.status) : "-"}
+                </span>
+              </p>
+            </div>
           </div>
 
-          <SectionTitle>Payment Option Information</SectionTitle>
-          <InfoRow label="Payment Method Name" value={paymentOption.name || "-"} />
-          <InfoRow
-            label="Status"
-            value={
-              <span className={cn("font-semibold", isActive ? "text-green-700" : "text-gray-500")}>
-                {paymentOption.status ? formatEnumValue(paymentOption.status) : "-"}
-              </span>
-            }
-          />
           <InfoRow
             label="Type"
             value={paymentOption.paymentOptionType ? formatEnumValue(paymentOption.paymentOptionType) : "-"}

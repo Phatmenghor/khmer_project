@@ -217,7 +217,7 @@ export default function BannerModal({
               </div>
             )}
 
-            <div className="space-y-0.5">
+            <div className="space-y-4">
               <SpacesImageUpload
                 multiSize
                 deferred

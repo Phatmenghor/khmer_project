@@ -99,7 +99,7 @@ export default function UserPage() {
         roles: [],
         userTypes: [UserGropeType.BUSINESS_USER],
         accountStatus:
-          filters.accountStatus === AccountStatus.ALL
+          !filters.accountStatus || filters.accountStatus === AccountStatus.ALL
             ? []
             : [filters.accountStatus],
       })
@@ -118,9 +118,9 @@ export default function UserPage() {
     setResetPasswordState({
       isOpen: true,
       userId: user.id || "",
-      userName: user.userIdentifier || "",
-      profileImageUrl: user.profileImageUrl || undefined,
-      roles: user.roles || [],
+      userName: user.userIdentifier,
+      roles: user.roles,
+      profileImageUrl: user.profileImage?.sm,
     });
   };
 
@@ -148,7 +148,7 @@ export default function UserPage() {
   };
 
   const handleStatusChange = (status: AccountStatus) => {
-    dispatch(setAccountStatusFilter(status));
+    dispatch(setAccountStatusFilter((status || AccountStatus.ALL) as AccountStatus));
   };
 
   const handlePageChangeWrapper = (page: number) => {

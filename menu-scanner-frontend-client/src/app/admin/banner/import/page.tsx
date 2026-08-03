@@ -116,7 +116,7 @@ export default function BannerImportPage() {
   const columns: ImportTableColumn<ImportBannerRow>[] = [
     {
       key: "image",
-      label: "Banner Image",
+      label: "Image",
       type: "image",
       fieldKey: "__imageFile" as any,
       width: "160px",

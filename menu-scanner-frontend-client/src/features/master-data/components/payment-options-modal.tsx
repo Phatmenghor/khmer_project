@@ -236,7 +236,7 @@ export default function PaymentOptionsModal({
               </div>
             )}
 
-            <div className="space-y-2">
+            <div className="space-y-4">
               <SpacesImageUpload
                 multiSize
                 deferred
@@ -269,11 +269,7 @@ export default function PaymentOptionsModal({
                 helperText="Square image works best — e.g. bank QR code (500×500)"
               />
 
-              <div className="border-t pt-4">
-                <h3 className="text-xs font-semibold text-foreground mb-3">
-                  Payment Details
-                </h3>
-                <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                   <TextField
                     control={control}
                     name="name"
@@ -306,7 +302,6 @@ export default function PaymentOptionsModal({
                     error={errors.status}
                   />
                 </div>
-              </div>
             </div>
           </FormBody>
 

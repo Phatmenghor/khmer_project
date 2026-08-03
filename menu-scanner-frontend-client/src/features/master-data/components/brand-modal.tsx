@@ -201,7 +201,7 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
               </div>
             )}
 
-            <div className="space-y-2">
+            <div className="space-y-4">
               <SpacesImageUpload
                 multiSize
                 deferred
@@ -239,43 +239,37 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
                 helperText="PNG with transparent background recommended"
               />
 
-              <div className="border-t pt-4">
-                <h3 className="text-xs font-semibold text-foreground mb-3">
-                  Brand Details
-                </h3>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <TextField
-                    control={control}
-                    name="name"
-                    label="Brand Name"
-                    placeholder="Enter brand name"
-                    disabled={isSubmitting}
-                    error={errors.name}
-                  />
-
-                  <SelectField
-                    control={control}
-                    name="status"
-                    label="Status"
-                    placeholder="Select status"
-                    options={BANNER_STATUS_CREATE_UPDATE}
-                    required
-                    disabled={isSubmitting}
-                    error={errors.status}
-                  />
-                </div>
-
-                <TextareaField
+              <div className="grid grid-cols-2 gap-4">
+                <TextField
                   control={control}
-                  name="description"
-                  label="Description"
-                  placeholder="Enter any additional description (optional)"
-                  rows={5}
+                  name="name"
+                  label="Brand Name"
+                  placeholder="Enter brand name"
                   disabled={isSubmitting}
-                  error={errors.description}
+                  error={errors.name}
+                />
+
+                <SelectField
+                  control={control}
+                  name="status"
+                  label="Status"
+                  placeholder="Select status"
+                  options={BANNER_STATUS_CREATE_UPDATE}
+                  required
+                  disabled={isSubmitting}
+                  error={errors.status}
                 />
               </div>
+
+              <TextareaField
+                control={control}
+                name="description"
+                label="Description"
+                placeholder="Enter any additional description (optional)"
+                rows={5}
+                disabled={isSubmitting}
+                error={errors.description}
+              />
             </div>
           </FormBody>
 

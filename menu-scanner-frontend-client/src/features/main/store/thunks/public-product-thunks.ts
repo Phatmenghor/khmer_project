@@ -14,11 +14,35 @@ import { Status } from "@/constants/status/status";
 export const fetchPublicProducts = createApiThunk<any, AllProductRequest>(
   "publicProducts/fetchList",
   async (params) => {
-    const response = await axiosClient.post("/api/v1/public/products/all", {
+    const payload: any = {
       businessId: AppDefault.BUSINESS_ID,
       status: Status.ACTIVE,
       ...params,
-    });
+    };
+
+    if (payload.minPrice !== undefined && payload.minPrice !== null && payload.minPrice !== "") {
+      const parsedMin = Number(payload.minPrice);
+      if (!isNaN(parsedMin)) {
+        payload.minPrice = parsedMin;
+      } else {
+        delete payload.minPrice;
+      }
+    } else {
+      delete payload.minPrice;
+    }
+
+    if (payload.maxPrice !== undefined && payload.maxPrice !== null && payload.maxPrice !== "") {
+      const parsedMax = Number(payload.maxPrice);
+      if (!isNaN(parsedMax)) {
+        payload.maxPrice = parsedMax;
+      } else {
+        delete payload.maxPrice;
+      }
+    } else {
+      delete payload.maxPrice;
+    }
+
+    const response = await axiosClient.post("/api/v1/public/products/all", payload);
     return response.data.data;
   }
 );

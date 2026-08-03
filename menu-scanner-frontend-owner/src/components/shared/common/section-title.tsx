@@ -22,19 +22,21 @@ interface SectionTitleProps {
  */
 export function SectionTitle({ icon: Icon, title, subtitle }: SectionTitleProps) {
   return (
-    <div className="flex items-center gap-2 min-w-0">
-      <div className="shrink-0 p-1.5 rounded-md bg-primary/10 text-primary">
-        <Icon className="w-4 h-4" />
-      </div>
-      <div className="min-w-0">
-        <CardTitle className="text-sm font-semibold leading-tight truncate">
-          {title}
-        </CardTitle>
-        {subtitle && (
-          <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-            {subtitle}
-          </p>
-        )}
+    <div className="flex items-center justify-between pb-2 mb-1 border-b border-border/80 w-full min-w-0">
+      <div className="flex items-center gap-2 min-w-0">
+        <div className="shrink-0 p-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+          <Icon className="w-4 h-4" />
+        </div>
+        <div className="min-w-0">
+          <CardTitle className="text-xs sm:text-sm font-bold tracking-tight leading-tight truncate">
+            {title}
+          </CardTitle>
+          {subtitle && (
+            <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
+              {subtitle}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -72,13 +72,12 @@ export default function CustomerImportPage() {
   const onValidateRow = (row: ImportCustomerRow) => {
     const isValid = !!(
       row.username &&
-      row.password &&
-      row.email
+      row.password
     );
 
     return {
       isValid,
-      error: isValid ? undefined : "Required fields missing.",
+      error: isValid ? undefined : "Required fields (Username, Password) missing.",
       fieldErrors: {
         __usernameError: !row.username,
       },
@@ -135,7 +134,6 @@ export default function CustomerImportPage() {
       key: "email",
       label: "Email",
       type: "text",
-      required: true,
       fieldKey: "email",
       placeholder: "Email Address",
     },

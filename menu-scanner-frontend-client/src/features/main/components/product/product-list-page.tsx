@@ -129,8 +129,6 @@ export function ProductListPage({
           ...(brandId && { brandId }),
           ...(statuses.length > 0 && { statuses }),
           ...(sortBy && { sortBy }),
-          ...(minPrice && { minPrice: Number(minPrice) }),
-          ...(maxPrice && { maxPrice: Number(maxPrice) }),
         }),
       );
     },
@@ -143,12 +141,21 @@ export function ProductListPage({
       categoryId,
       brandId,
       sortBy,
-      minPrice,
-      maxPrice,
       getPageSize,
     ],
   );
 
+  const filteredProducts = useMemo(() => {
+    if (!minPrice && !maxPrice) return products;
+    const min = minPrice ? Number(minPrice) : null;
+    const max = maxPrice ? Number(maxPrice) : null;
+    return products.filter((p: any) => {
+      const price = p.displayPrice ?? p.price ?? 0;
+      if (min !== null && price < min) return false;
+      if (max !== null && price > max) return false;
+      return true;
+    });
+  }, [products, minPrice, maxPrice]);
 
   const handleLoadMore = useCallback(() => {
     if (pagination.hasMore && !loading.list && products.length > 0) {
@@ -163,13 +170,11 @@ export function ProductListPage({
     loadProducts,
   ]);
 
-
   const { handleLoadMore: debouncedLoadMore } = usePaginationLoadMore(
     handleLoadMore,
     pagination.hasMore && !loading.list,
     [pagination.hasMore, loading.list, handleLoadMore],
   );
-
 
   useEffect(() => {
     const hasProductsInStore = products.length > 0;
@@ -199,7 +204,7 @@ export function ProductListPage({
 
   return (
     <div className="min-h-screen bg-background">
-      {}
+      {/* Hero Header slot */}
       {hero && (
         <div className="relative">
           <PageContainer className="max-w-8xl pt-2 max sm:pt-4 pb-0">
@@ -208,22 +213,21 @@ export function ProductListPage({
         </div>
       )}
 
-      {}
+      {/* Main Content Layout */}
       <div className="relative py-4 sm:py-7">
         <PageContainer className="max-w-8xl">
           <div className="flex gap-4 lg:gap-5 flex-col lg:flex-row">
-            {}
+            {/* Sidebar Filters */}
             <ProductFilters
-              totalResults={pagination.totalElements}
+              totalResults={filteredProducts.length}
               basePath={basePath}
               lockedPromotion={lockedPromotion}
             />
 
-            {}
+            {/* Product Grid Area */}
             <div className="flex-1 min-w-0">
-
-              {}
-              {mounted && !loading.list && products.length === 0 && (
+              {/* Empty / No Results State */}
+              {mounted && !loading.list && filteredProducts.length === 0 && (
                 <PageState
                   type={noSearch ? "no-results" : "empty"}
                   title={lockedPromotion ? "No deals found" : "No products found"}
@@ -238,11 +242,11 @@ export function ProductListPage({
                 />
               )}
 
-              {}
-              {(products.length > 0 || isInitialLoad) && (
+              {/* Product Grid & Infinite Scroll */}
+              {(filteredProducts.length > 0 || isInitialLoad) && (
                 <>
                   <PaginatedProductsGrid
-                    products={products}
+                    products={filteredProducts}
                     loading={loading.list}
                     hasMore={pagination.hasMore}
                     onLoadMore={debouncedLoadMore}
@@ -251,8 +255,8 @@ export function ProductListPage({
                     sectionKey={lockedPromotion ? "promotions" : "products"}
                   />
 
-                  {}
-                  {!pagination.hasMore && products.length > 0 && !loading.list && (
+                  {/* End of results message */}
+                  {!pagination.hasMore && filteredProducts.length > 0 && !loading.list && (
                     <div className="flex flex-col items-center justify-center mt-7 py-5">
                       <div
                         className={`flex items-center justify-center w-11 h-11 rounded-full mb-3 ${

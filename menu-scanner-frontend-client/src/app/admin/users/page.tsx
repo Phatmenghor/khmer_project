@@ -188,10 +188,10 @@ function UserBusinessPageInner() {
       search: debouncedSearch,
       pageNo: filters.pageNo,
       pageSize: globalPageSize,
-      roles: filters.role === UserRole.ALL ? [] : [filters.role],
+      roles: !filters.role || filters.role === UserRole.ALL ? [] : [filters.role],
       userTypes: [UserGropeType.BUSINESS_USER],
       accountStatuses:
-        filters.accountStatus === AccountStatus.ALL
+        !filters.accountStatus || filters.accountStatus === AccountStatus.ALL
           ? []
           : [filters.accountStatus],
     };
@@ -309,7 +309,7 @@ function UserBusinessPageInner() {
           placeholder: "All Status",
           value: filters.accountStatus,
           onChange: (value) =>
-            dispatch(setAccountStatusFilter(value as AccountStatus)),
+            dispatch(setAccountStatusFilter((value || AccountStatus.ALL) as AccountStatus)),
           options: ACCOUNT_STATUS_FILTER,
         },
         {
@@ -318,7 +318,8 @@ function UserBusinessPageInner() {
           label: "Business Role",
           placeholder: "All Roles",
           value: filters.role,
-          onChange: (value) => dispatch(setRoleFilter(value as UserRole)),
+          onChange: (value) =>
+            dispatch(setRoleFilter((value || UserRole.ALL) as UserRole)),
           options: roleFilterOptions,
         },
       ],

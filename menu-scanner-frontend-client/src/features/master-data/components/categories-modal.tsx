@@ -232,7 +232,7 @@ export default function CategoriesModal({
               </div>
             )}
 
-            <div className="space-y-2">
+            <div className="space-y-4">
               <SpacesImageUpload
                 multiSize
                 deferred
@@ -270,33 +270,28 @@ export default function CategoriesModal({
                 helperText="Square image works best (500x500)"
               />
 
-              <div className="border-t pt-4">
-                <h3 className="text-xs font-semibold text-foreground mb-3">
-                  Category Details
-                </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <TextField
+                  control={control}
+                  name="name"
+                  label="Category Name"
+                  placeholder="Enter category name"
+                  required
+                  disabled={isSubmitting}
+                  error={errors.name}
+                />
 
-                <div className="grid grid-cols-2 gap-3">
-                  <TextField
-                    control={control}
-                    name="name"
-                    label="Category Name"
-                    placeholder="Enter category name"
-                    required
-                    disabled={isSubmitting}
-                    error={errors.name}
-                  />
-
-                  <SelectField
-                    control={control}
-                    name="status"
-                    label="Status"
-                    placeholder="Select status"
-                    options={BANNER_STATUS_CREATE_UPDATE}
-                    required
-                    disabled={isSubmitting}
-                    error={errors.status}
-                  />
-                </div>
+                <SelectField
+                  control={control}
+                  name="status"
+                  label="Status"
+                  placeholder="Select status"
+                  options={BANNER_STATUS_CREATE_UPDATE}
+                  required
+                  disabled={isSubmitting}
+                  error={errors.status}
+                />
+              </div>
 
                 <TextareaField
                   control={control}
@@ -307,7 +302,6 @@ export default function CategoriesModal({
                   disabled={isSubmitting}
                   error={errors.description}
                 />
-              </div>
             </div>
           </FormBody>
 

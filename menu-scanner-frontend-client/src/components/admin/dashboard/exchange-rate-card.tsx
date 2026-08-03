@@ -30,8 +30,6 @@ export function ExchangeRateCard({ activeRate }: ExchangeRateCardProps) {
           <div className="space-y-2">
             {[
               { label: "USD → KHR", value: activeRate.usdToKhrRate, unit: "KHR" },
-              { label: "USD → CNY", value: activeRate.usdToCnyRate, unit: "CNY" },
-              { label: "USD → VND", value: activeRate.usdToVndRate, unit: "VND" },
             ].map((rate) => (
               <div key={rate.label} className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">{rate.label}</span>

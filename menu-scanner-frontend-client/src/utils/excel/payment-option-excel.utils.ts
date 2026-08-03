@@ -12,7 +12,6 @@ export const PAYMENT_OPTION_TEMPLATE_COLUMNS = [
   { key: "name",              label: "Payment Option Name *",  required: true },
   { key: "paymentOptionType",  label: "Type *",                 required: true },
   { key: "status",            label: "Status",                 required: false },
-  { key: "description",       label: "Description",            required: false },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -65,13 +64,12 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
   data[4] = ["Payment Option Name *", "YES", "Letters, numbers (e.g. ABA Bank)", "Name of the payment method."];
   data[5] = ["Type *",                 "YES", "CASH or BANK", "The type classification of the payment option."];
   data[6] = ["Status",                 "NO",  "ACTIVE or INACTIVE (default: ACTIVE)", "Initial status of the option."];
-  data[7] = ["Description",            "NO",  "Short description note", "Optional extra info or merchant instruction details."];
 
-  data[8] = ["", "", "", ""];
+  data[7] = ["", "", "", ""];
 
-  data[9] = ["VALID SPREADSHEET ROW EXAMPLES", "", "", ""];
-  data[10] = ["Payment Option Name *", "Type *", "Status", "Description"];
-  data[11] = ["ABA Transfer", "BANK", "ACTIVE", "ABA QR payment option"];
+  data[8] = ["VALID SPREADSHEET ROW EXAMPLES", "", "", ""];
+  data[9] = ["Payment Option Name *", "Type *", "Status"];
+  data[10] = ["ABA Transfer", "BANK", "ACTIVE"];
 
   const ws = XLSX.utils.aoa_to_sheet(data);
 

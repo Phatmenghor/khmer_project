@@ -119,9 +119,9 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
                 disabled={config.buttonDisabled}
                 variant="default"
                 onClick={config.onButtonClick}
-                className="gap-1 flex-shrink-0 h-[26px] px-3 text-xs"
+                className="gap-1.5 flex-shrink-0 h-[36px] rounded-[12px] px-3.5 text-xs font-semibold"
               >
-                <Plus className="w-3 h-3" />
+                <Plus className="w-3.5 h-3.5" />
                 {config.buttonText}
               </Button>
             )}
@@ -131,11 +131,11 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
         {/* Search + essential filters row */}
         <div className="flex flex-wrap items-end gap-2">
           <div className="relative w-full sm:w-[280px]">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/80 pointer-events-none" />
             <Input
               type="search"
               placeholder={config.searchPlaceholder}
-              className="pl-7 h-[26px] text-xs w-full focus:border-primary focus:ring-primary/30 hover:border-primary transition-colors"
+              className="pl-9 pr-8 h-[36px] text-xs rounded-[12px] bg-muted/30 border border-border/80 w-full focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25 hover:bg-muted/50 hover:border-border transition-all shadow-2xs"
               value={config.searchValue}
               onChange={config.onSearchChange}
             />

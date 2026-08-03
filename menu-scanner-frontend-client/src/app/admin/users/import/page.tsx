@@ -242,14 +242,13 @@ export default function UserImportPage() {
     const isValid = !!(
       row.username &&
       row.password &&
-      row.email &&
       row.__roleName &&
       !dobErr
     );
 
     return {
       isValid,
-      error: isValid ? undefined : "Required fields missing, or DOB format is invalid.",
+      error: isValid ? undefined : "Required fields (Username, Password, Role) missing, or DOB format is invalid.",
       fieldErrors: {
         __usernameError: !row.username,
         __roleError: !row.__roleName,
@@ -338,7 +337,6 @@ export default function UserImportPage() {
       key: "email",
       label: "Email",
       type: "text",
-      required: true,
       fieldKey: "email",
       placeholder: "Email",
     },

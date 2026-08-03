@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2, X } from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   Command,
@@ -20,10 +20,10 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import type { AsyncComboboxProps, ComboboxSize } from "./types";
 
-const SIZE_CLASSES: Record<ComboboxSize, string> = {
-  sm: "h-7 text-xs",
-  md: "h-[32px] text-base md:text-sm",
-  lg: "h-9 text-base md:text-sm",
+const SIZE_CLASSES = {
+  sm: "h-8 text-xs rounded-[10px] bg-muted/30 border border-border/80 px-3 hover:bg-muted/50 hover:border-border transition-all",
+  md: "h-[36px] text-base md:text-sm rounded-[12px] bg-muted/30 border border-border/80 px-3.5 hover:bg-muted/50 hover:border-border focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25 transition-all duration-200",
+  lg: "h-10 text-base md:text-sm rounded-[12px] bg-muted/30 border border-border/80 px-3.5 hover:bg-muted/50 hover:border-border focus:bg-background transition-all",
 };
 
 export function AsyncCombobox<T>({
@@ -84,14 +84,26 @@ export function AsyncCombobox<T>({
       ? isItemSelected(item, value)
       : value !== null && getId(item) === getId(value);
 
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (disabled) return;
+    if (onSelectInterceptor) {
+      onSelectInterceptor(null as unknown as T);
+    } else {
+      onChange(null as unknown as T);
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-1 w-full">
+    <div className={cn("flex flex-col gap-1 w-full", className)}>
       {label && (
-        <Label className="text-xs font-medium text-foreground">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+        <Label className="text-xs font-semibold text-foreground leading-tight flex items-center min-h-[16px]">
+          <span>{label}</span>
+          {required && <span className="text-destructive ml-0.5">*</span>}
         </Label>
       )}
+
       <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
           <CustomButton
@@ -99,29 +111,46 @@ export function AsyncCombobox<T>({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between min-w-[150px] px-2 py-1 transition-all duration-200 border-input",
+              "w-full justify-between min-w-[150px] shadow-2xs font-normal transition-all duration-200",
               SIZE_CLASSES[size],
-              !value && "text-muted-foreground",
-              "hover:bg-primary/10 hover:border-primary hover:text-primary",
-              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/20",
-              open && "bg-primary/20 border-primary text-primary",
-              error && "border-red-500",
-              disabled && "opacity-50 cursor-not-allowed",
+              !value && "text-muted-foreground/75",
+              open && "bg-background border-primary text-foreground ring-2 ring-primary/25",
+              error && "border-red-500 focus:border-red-500",
+              disabled && "opacity-50 cursor-not-allowed bg-muted/20",
               className
             )}
             disabled={disabled}
           >
-            <span className="truncate">{selectedLabel}</span>
-            <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
+            <span className="truncate flex-1 text-left">{selectedLabel}</span>
+            <div className="flex items-center gap-1 shrink-0 ml-1.5">
+              {Boolean(value) &&
+                (typeof value === "string"
+                  ? String(value).toUpperCase() !== "ALL" && String(value).trim() !== ""
+                  : true) &&
+                !disabled && (
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    title="Clear selection"
+                    onClick={handleClear}
+                    className="p-0.5 rounded-full hover:bg-destructive/15 hover:text-destructive text-muted-foreground/70 transition-colors cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </span>
+                )}
+              <ChevronsUpDown className="h-3.5 w-3.5 opacity-50 shrink-0" />
+            </div>
           </CustomButton>
         </PopoverTrigger>
 
         <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0 shadow-lg border-border"
+          className="min-w-[var(--radix-popover-trigger-width)] w-auto max-w-[90vw] sm:max-w-xs md:max-w-sm p-1 rounded-[12px] shadow-lg border-border bg-popover z-50 pointer-events-auto"
           align="start"
           side="bottom"
           sideOffset={4}
           onOpenAutoFocus={(e) => e.preventDefault()}
+          onWheel={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
         >
           <Command shouldFilter={false}>
             <CommandInput
@@ -134,21 +163,31 @@ export function AsyncCombobox<T>({
               <CommandGroup>
                 {data.map((item, index) => {
                   const id = getId(item);
+                  const selected = isSelected(item);
+                  const labelText = getLabel(item);
                   return (
                     <CommandItem
                       key={id}
                       value={String(id)}
                       onSelect={() => handleSelect(item)}
                       ref={index === data.length - 1 ? sentinelRef : null}
-                      className={SIZE_CLASSES[size]}
+                      title={labelText}
+                      className={cn(
+                        "h-8 px-2.5 text-xs rounded-[8px] flex items-center justify-between gap-2 cursor-pointer transition-all my-0.5 select-none",
+                        selected
+                          ? "bg-primary/15 text-primary font-semibold border border-primary/20 shadow-2xs"
+                          : "hover:bg-primary/10 hover:text-primary text-foreground"
+                      )}
                     >
+                      <span className="whitespace-nowrap flex-1 text-left">
+                        {renderItem ? renderItem(item) : labelText}
+                      </span>
                       <Check
                         className={cn(
-                          "mr-1 h-3 w-3",
-                          isSelected(item) ? "opacity-100" : "opacity-0"
+                          "h-3.5 w-3.5 shrink-0 transition-opacity",
+                          selected ? "opacity-100 text-primary" : "opacity-0"
                         )}
                       />
-                      {renderItem ? renderItem(item) : getLabel(item)}
                     </CommandItem>
                   );
                 })}

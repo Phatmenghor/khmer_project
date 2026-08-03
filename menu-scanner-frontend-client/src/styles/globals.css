@@ -566,15 +566,9 @@
 @layer base {
   html {
     font-size: 100%;
-    overflow-y: scroll !important;
-    overflow-x: hidden;
   }
 
   body {
-    overflow-x: hidden;
-    overflow-y: visible !important;
-    min-height: 100vh;
-    height: auto;
     @apply bg-background text-foreground antialiased;
     font-family:
       var(--font-geist-sans), "Noto Sans Khmer", ui-sans-serif, system-ui,

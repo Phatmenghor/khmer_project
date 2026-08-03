@@ -235,13 +235,13 @@ export function CustomDateTimePicker({
           id={id}
           variant="outline"
           className={cn(
-            "w-full justify-start text-left font-normal h-[32px] px-3 text-base md:text-sm rounded-xl transition-all duration-200 border-input",
-            !selectedDate && "text-muted-foreground",
-            "hover:bg-primary/10 hover:border-primary hover:text-primary",
-            "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/20",
-            isOpen && "bg-primary/20 border-primary text-primary",
+            "w-full justify-start text-left font-normal h-[36px] px-3.5 text-base md:text-sm rounded-[12px] transition-all duration-200 border border-border/80 bg-muted/30 shadow-2xs",
+            !selectedDate && "text-muted-foreground/75",
+            "hover:bg-muted/50 hover:border-border",
+            "focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25",
+            isOpen && "bg-background border-primary text-foreground ring-2 ring-primary/25",
             error && "border-red-500 focus:border-red-500",
-            disabled && "opacity-50 cursor-not-allowed",
+            disabled && "opacity-50 cursor-not-allowed bg-muted/20",
             className
           )}
           disabled={disabled}

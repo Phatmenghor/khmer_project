@@ -18,10 +18,6 @@ public class BusinessExchangeRateResponse extends BaseAuditResponse {
     // Required: USD to KHR
     private Double usdToKhrRate;
 
-    // Optional currencies
-    private Double usdToCnyRate;
-    private Double usdToVndRate;
-
     private Status status;
     private String notes;
 }

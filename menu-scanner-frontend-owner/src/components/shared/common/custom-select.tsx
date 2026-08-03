@@ -37,9 +37,9 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   required = false,
 }) => {
   const sizeClasses = {
-    sm: "h-7 text-xs rounded-xl",
-    md: "h-[32px] text-base md:text-sm rounded-xl",
-    lg: "h-9 text-base md:text-sm rounded-xl",
+    sm: "h-8 text-xs rounded-[10px]",
+    md: "h-[36px] text-base md:text-sm rounded-[12px]",
+    lg: "h-10 text-base md:text-sm rounded-[12px]",
   };
 
   return (

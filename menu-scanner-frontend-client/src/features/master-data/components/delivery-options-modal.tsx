@@ -234,7 +234,7 @@ export default function DeliveryOptionsModal({
               </div>
             )}
 
-            <div className="space-y-2">
+            <div className="space-y-4">
               <SpacesImageUpload
                 multiSize
                 deferred
@@ -267,12 +267,7 @@ export default function DeliveryOptionsModal({
                 helperText="Square image works best (500x500)"
               />
 
-              <div className="border-t pt-4">
-                <h3 className="text-xs font-semibold text-foreground mb-3">
-                  Delivery Options Details
-                </h3>
-
-                <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                   <TextField
                     control={control}
                     name="name"
@@ -288,8 +283,7 @@ export default function DeliveryOptionsModal({
                     name="price"
                     label="Price (USD)"
                     placeholder="e.g. 2.50"
-                    type="number"
-                    valueAsNumber
+                    type="text"
                     disabled={isSubmitting}
                     error={errors.price}
                   />
@@ -315,7 +309,6 @@ export default function DeliveryOptionsModal({
                   disabled={isSubmitting}
                   error={errors.description}
                 />
-              </div>
             </div>
           </FormBody>
 

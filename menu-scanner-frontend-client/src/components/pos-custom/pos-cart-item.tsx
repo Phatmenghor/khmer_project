@@ -54,26 +54,26 @@ export function POSCartItem({
 }: POSCartItemProps) {
   return (
     <div className="bg-white border border-slate-200 rounded p-3 hover:shadow-md transition-all duration-200 relative group">
-      {}
+      {/* Remove Button */}
       <CustomButton
         size="icon"
         variant="outline"
-        className="absolute top-2 right-2 h-5 w-5 shrink-0 text-red-600 hover:bg-red-100"
+        className="absolute top-2 right-2 h-7 w-7 shrink-0 text-red-600 hover:bg-red-100 rounded-[6px]"
         onClick={onRemove}
         title="Remove item"
       >
-        <X className="h-3 w-3" />
+        <X className="h-4 w-4" />
       </CustomButton>
 
       <div className="flex gap-3">
-        {}
-        <div className="relative w-[80px] h-[80px] rounded overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm">
+        {/* Product Image */}
+        <div className="relative w-[90px] h-[90px] rounded-[10px] overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm">
           <SmartImage src={productImageUrl} alt={productName} fill />
 
-          {}
+          {/* Promotion Badge */}
           {hasPromotion && (
             <div className="absolute top-1 left-1 z-10 pointer-events-none">
-              <Badge variant="destructive" className="text-[9px] font-bold px-1 py-0.5 shadow-md">
+              <Badge variant="destructive" className="text-xs font-extrabold px-1.5 py-0.5 shadow-md">
                 {promotionType === "PERCENTAGE"
                   ? `-${promotionValue}%`
                   : `-${formatCurrency(promotionValue || 0)}`}
@@ -82,84 +82,80 @@ export function POSCartItem({
           )}
         </div>
 
-        {}
-        <div className="flex-1 min-w-0 flex flex-col justify-between pr-1">
-          {}
-          <h3 className="font-semibold text-xs leading-tight text-slate-900 line-clamp-1 mb-1">
+        {/* Details */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between pr-3">
+          {/* Title */}
+          <h3 className="font-extrabold text-sm sm:text-base leading-snug text-slate-900 line-clamp-1 mb-1">
             {productName}
           </h3>
 
-          {}
-          <div className="mb-1 flex items-center gap-1">
+          {/* Size / Addons */}
+          <div className="mb-1 flex items-center gap-1.5 flex-wrap">
             {sizeName && (
-              <span className="text-xs font-medium text-primary bg-primary/5 px-1 py-1 rounded-full border border-primary/30 whitespace-nowrap">
+              <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/30 whitespace-nowrap">
                 {sizeName}
               </span>
             )}
             {customizations && customizations.length > 0 && (
-              <span className="text-xs font-medium text-green-700 bg-green-50 px-1 py-1 rounded-full border border-green-200 whitespace-nowrap">
+              <span className="text-xs font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-full border border-green-200 whitespace-nowrap">
                 Add-ons ×{customizations.length}
               </span>
             )}
           </div>
 
-          {}
-          <div className="flex items-center justify-between gap-2">
-            {}
-            <div className="flex items-baseline gap-1">
-              <span className="font-bold text-xs text-slate-900">
+          {/* Bottom Price & Qty */}
+          <div className="flex items-center justify-between gap-2 mt-1">
+            {/* Price */}
+            <div className="flex items-baseline gap-1.5">
+              <span className="font-black text-sm sm:text-base text-slate-900">
                 {formatCurrency(finalPrice)}
               </span>
               {hasPromotion && currentPrice > finalPrice && (
-                <span className="text-xs text-slate-500 line-through font-medium">
+                <span className="text-xs sm:text-sm text-slate-400 line-through font-semibold">
                   {formatCurrency(currentPrice)}
                 </span>
               )}
             </div>
 
-            {}
+            {/* Quantity Controls */}
             <div className="flex items-center gap-1">
-              {}
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-5 w-5 shrink-0 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-primary"
+                className="h-7.5 w-7.5 shrink-0 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-primary rounded-[6px]"
                 onClick={onEdit}
                 title="Edit size"
               >
-                <Edit2 className="h-2.5 w-2.5" />
+                <Edit2 className="h-3.5 w-3.5" />
               </CustomButton>
 
-              {}
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-5 w-5 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+                className="h-7.5 w-7.5 shrink-0 hover:bg-destructive hover:text-destructive-foreground rounded-[6px]"
                 onClick={() => onQuantityChange(-1)}
               >
-                <Minus className="h-2 w-2" />
+                <Minus className="h-3.5 w-3.5" />
               </CustomButton>
 
-              {}
-              <div className="flex-1 text-center h-5 bg-primary/10 text-primary font-semibold text-xs rounded border border-primary/20 flex items-center justify-center w-7">
+              <div className="flex-1 text-center h-7.5 bg-primary/10 text-primary font-black text-xs sm:text-sm rounded-[6px] border border-primary/20 flex items-center justify-center min-w-[32px]">
                 {quantity}
               </div>
 
-              {}
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-5 w-5 shrink-0 hover:bg-primary hover:text-primary-foreground"
+                className="h-7.5 w-7.5 shrink-0 hover:bg-primary hover:text-primary-foreground rounded-[6px]"
                 onClick={() => onQuantityChange(1)}
               >
-                <Plus className="h-2 w-2" />
+                <Plus className="h-3.5 w-3.5" />
               </CustomButton>
             </div>
           </div>
         </div>
       </div>
 
-      {}
+      {/* Audit Trail */}
       {hadChangeFromPOS && originalPrice && (
         <div className="mt-3 pt-3 border-t border-slate-200">
           <div className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1">

@@ -135,50 +135,50 @@ function POSProductCardComponent({
 
       </div>
 
-      {}
-      <div className="p-2 flex flex-col flex-1">
-        {}
-        <h3 className="font-medium text-xs line-clamp-2 mb-1 leading-snug min-h-[40px]">
+      {/* Content */}
+      <div className="p-2.5 sm:p-3 flex flex-col flex-1">
+        {/* Product Name */}
+        <h3 className="font-semibold text-xs sm:text-sm line-clamp-2 mb-1 leading-snug min-h-[36px] text-foreground">
           {product.name}
         </h3>
 
         <div className="mt-auto">
-          {}
-          <div className="flex flex-col mb-1">
-            <span className={cn("text-xs text-muted-foreground line-through", !product.hasPromotion && "invisible")}>
+          {/* Prices */}
+          <div className="flex flex-col mb-1.5">
+            <span className={cn("text-[11px] text-muted-foreground line-through font-normal", !product.hasPromotion && "invisible")}>
               {formatCurrency(product.displayOriginPrice)}
             </span>
-            <span className={cn("text-xs font-bold", product.hasPromotion ? "text-red-500" : "text-primary")}>
+            <span className={cn("text-xs sm:text-sm font-extrabold", product.hasPromotion ? "text-red-500 font-extrabold" : "text-primary")}>
               {formatCurrency(product.displayPrice || parseFloat(String(product.price || 0)))}
             </span>
           </div>
 
-          {}
+          {/* Action Buttons */}
           {quantity > 0 ? (
             <div className="flex items-center gap-1 w-full">
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-5 w-5 shrink-0 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                className="h-7 w-7 shrink-0 hover:bg-destructive hover:text-destructive-foreground transition-colors"
                 onClick={handleDecrement}
               >
-                <Minus className="h-2 w-2" />
+                <Minus className="h-3 w-3" />
               </CustomButton>
-              <div className="flex-1 text-center h-5 bg-primary/10 text-primary font-semibold text-xs rounded border border-primary/20 flex items-center justify-center">
+              <div className="flex-1 text-center h-7 bg-primary/10 text-primary font-bold text-xs rounded-[6px] border border-primary/20 flex items-center justify-center">
                 {quantity}
               </div>
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-5 w-5 shrink-0 hover:bg-primary hover:text-primary-foreground transition-colors"
+                className="h-7 w-7 shrink-0 hover:bg-primary hover:text-primary-foreground transition-colors"
                 onClick={handleIncrement}
               >
-                <Plus className="h-2 w-2" />
+                <Plus className="h-3 w-3" />
               </CustomButton>
             </div>
           ) : (
             <CustomButton
-              className="w-full gap-1 h-5 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="w-full gap-1.5 h-7.5 sm:h-8 text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xs rounded-[6px]"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -186,17 +186,15 @@ function POSProductCardComponent({
                 if (product.hasSizes || hasCustomizations) {
                   onAddClick(product);
                 } else if (quantity === 0) {
-                  // For new simple products, use onAddClick to add to cart
                   onAddClick(product);
                 } else {
-                  // For existing items, directly increment quantity
                   onQuantityChange(product.id, 1);
                 }
               }}
               disabled={isOutOfStock}
               size="sm"
             >
-              <ShoppingCart className="h-2.5 w-2.5" />
+              <ShoppingCart className="h-3.5 w-3.5" />
               Add to Cart
             </CustomButton>
           )}

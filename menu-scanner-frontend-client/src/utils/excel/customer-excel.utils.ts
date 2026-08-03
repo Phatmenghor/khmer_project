@@ -11,7 +11,7 @@ import * as XLSX from "xlsx-js-style";
 export const CUSTOMER_TEMPLATE_COLUMNS = [
   { key: "username",    label: "Username *",    required: true },
   { key: "password",    label: "Password *",    required: true },
-  { key: "email",       label: "Email *",       required: true },
+  { key: "email",       label: "Email",         required: false },
   { key: "fullName",    label: "Full Name",     required: false },
   { key: "phoneNumber", label: "Phone Number",  required: false },
   { key: "gender",      label: "Gender",        required: false },

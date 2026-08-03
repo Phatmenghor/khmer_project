@@ -10,7 +10,7 @@ export const createDeliveryOptionsSchema = z.object({
   name: z.string().min(1, "name is required"),
   image: imageUrlsSchema.optional(),
   description: z.string().optional().or(z.literal("")),
-  price: z.number().min(0, "USD To KHR rate must be greater than or equal 0"),
+  price: z.coerce.number().min(0, "Price must be greater than or equal to 0"),
   status: z.string().min(1, "Status is required"),
 });
 

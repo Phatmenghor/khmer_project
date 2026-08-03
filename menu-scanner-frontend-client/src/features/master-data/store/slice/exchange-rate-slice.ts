@@ -147,7 +147,18 @@ const exchnageRateSlice = createSlice({
       action: PayloadAction<ExchangeRateResponseModel>
     ) => {
       if (state.data) {
-        state.data.content = [action.payload, ...state.data.content];
+        const newRate = action.payload;
+        const isNewActive = newRate.status === "ACTIVE" || !newRate.status;
+        if (isNewActive) {
+          state.data.content = state.data.content.map((rate) => ({
+            ...rate,
+            status: "INACTIVE" as const,
+          }));
+        }
+        state.data.content = [
+          { ...newRate, status: isNewActive ? ("ACTIVE" as const) : (newRate.status || "INACTIVE" as const) },
+          ...state.data.content,
+        ];
         state.data.totalElements += 1;
         state.data.totalPages = Math.ceil(
           state.data.totalElements / state.data.pageSize
@@ -217,7 +228,18 @@ const exchnageRateSlice = createSlice({
       })
       .addCase(createExchangeRateService.fulfilled, (state, action) => {
         if (state.data) {
-          state.data.content = [action.payload, ...state.data.content];
+          const newRate = action.payload;
+          const isNewActive = newRate.status === "ACTIVE" || !newRate.status;
+          if (isNewActive) {
+            state.data.content = state.data.content.map((rate) => ({
+              ...rate,
+              status: "INACTIVE" as const,
+            }));
+          }
+          state.data.content = [
+            { ...newRate, status: isNewActive ? ("ACTIVE" as const) : (newRate.status || "INACTIVE" as const) },
+            ...state.data.content,
+          ];
           state.data.totalElements += 1;
           state.data.totalPages = Math.ceil(
             state.data.totalElements / state.data.pageSize

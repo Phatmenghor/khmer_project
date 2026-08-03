@@ -58,9 +58,13 @@ function ImportImageCell({
   }, [file]);
 
   return (
-    <div className="flex items-center gap-2 py-0.5">
+    <div className="flex items-center justify-start py-1">
       {previewUrl ? (
-        <div className={`relative ${isWide ? "w-24 h-10" : "w-10 h-10"} rounded border border-border overflow-hidden bg-muted flex-shrink-0 flex items-center justify-center`}>
+        <div
+          className={`relative group ${
+            isWide ? "w-32 h-14" : "w-14 h-14"
+          } rounded-[10px] border border-border overflow-hidden bg-muted flex-shrink-0 flex items-center justify-center shadow-2xs`}
+        >
           <img src={previewUrl} className="w-full h-full object-cover" alt="Preview" />
           {!disabled && (
             <button
@@ -69,9 +73,10 @@ function ImportImageCell({
                 e.stopPropagation();
                 onChange(null);
               }}
-              className="absolute top-0 right-0 p-0.5 bg-red-500 text-white rounded-bl hover:bg-red-600 transition-colors"
+              className="absolute top-0.5 right-0.5 p-1 bg-black/70 text-white rounded-full hover:bg-red-600 transition-all opacity-80 group-hover:opacity-100"
+              title="Remove image"
             >
-              <X className="w-2.5 h-2.5" />
+              <X className="w-3 h-3" />
             </button>
           )}
         </div>
@@ -80,11 +85,13 @@ function ImportImageCell({
           type="button"
           disabled={disabled}
           onClick={() => fileInputRef.current?.click()}
-          className={`${isWide ? "w-24 h-10" : "w-10 h-10"} rounded border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center text-muted-foreground hover:text-primary transition-all bg-muted/20`}
-          title="Select Image"
+          className={`${
+            isWide ? "w-32 h-14" : "w-14 h-14"
+          } rounded-[10px] border-2 border-dashed border-primary/30 hover:border-primary flex flex-col items-center justify-center text-primary/70 hover:text-primary transition-all bg-primary/5 hover:bg-primary/10 shadow-2xs gap-0.5`}
+          title="Click to upload image"
         >
-          <Plus className="w-3.5 h-3.5" />
-          <span className="text-[7px] font-medium leading-none mt-0.5">Image</span>
+          <Plus className="w-4 h-4" />
+          <span className="text-[10px] font-semibold leading-none">Upload</span>
         </button>
       )}
       <input
@@ -154,6 +161,36 @@ export function GenericExcelImport<T extends BaseImportRow>({
   // Initialize react-hook-form
   const { control, reset, setValue } = useForm();
 
+  // Helper to create a clean empty row for inline editing
+  const createEmptyRow = useCallback((): T => {
+    const rowObj: any = {
+      __status: "pending",
+      __imageFile: null,
+    };
+    columns.forEach((col) => {
+      if (col.type === "select" && col.options && col.options.length > 0) {
+        rowObj[col.fieldKey] = col.options[0].value;
+      } else if (col.type === "image") {
+        rowObj[col.fieldKey] = null;
+      } else {
+        rowObj[col.fieldKey] = "";
+      }
+    });
+    return rowObj as T;
+  }, [columns]);
+
+  // Initial default rows on mount so users don't have to wait for Excel upload
+  useEffect(() => {
+    if (rows.length === 0 && !fileName && !importDone) {
+      setRows([createEmptyRow()]);
+    }
+  }, [createEmptyRow]);
+
+  const handleAddRow = () => {
+    const newRow = createEmptyRow();
+    setRows((prev) => [...prev, newRow]);
+  };
+
   // ── Horizontal Table Scroll Controls ─────────────────────────────────────
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
@@ -207,6 +244,20 @@ export function GenericExcelImport<T extends BaseImportRow>({
     reset(values);
   }, [rows, columns, entityName, reset]);
 
+  // Helper to check if a row has no user-entered data
+  const isRowEmpty = useCallback(
+    (row: T) => {
+      return columns.every((col) => {
+        if (col.type === "image") {
+          return !row[col.fieldKey] && !(row as any).__imageFile;
+        }
+        const val = row[col.fieldKey];
+        return val === undefined || val === null || val === "";
+      });
+    },
+    [columns]
+  );
+
   // ── File processing ───────────────────────────────────────────────────────
 
   const processFile = useCallback(
@@ -224,16 +275,19 @@ export function GenericExcelImport<T extends BaseImportRow>({
 
       try {
         const { rows: r, errors } = await parseFile(file);
-        setRows(r);
+        setRows((prev) => {
+          const activeRows = prev.filter((row) => !isRowEmpty(row));
+          const combined = [...activeRows, ...r];
+          return combined.length > 0 ? combined : r;
+        });
         setParseErrors(errors);
-        reset({ [entityName]: r });
       } catch (e: any) {
         showToast.error(e.message || "Failed to parse file.");
       } finally {
         setIsParsingFile(false);
       }
     },
-    [parseFile, entityName, reset]
+    [parseFile, isRowEmpty]
   );
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -255,6 +309,9 @@ export function GenericExcelImport<T extends BaseImportRow>({
   const handleDeleteRow = (rowIdx: number) => {
     const updated = [...rows];
     updated.splice(rowIdx, 1);
+    if (updated.length === 0) {
+      updated.push(createEmptyRow());
+    }
     setRows(updated);
     reset({ [entityName]: updated });
   };
@@ -483,11 +540,12 @@ export function GenericExcelImport<T extends BaseImportRow>({
   };
 
   const handleReset = () => {
-    setRows([]);
+    const initialRows = [createEmptyRow()];
+    setRows(initialRows);
     setParseErrors([]);
     setFileName("");
     setImportDone(false);
-    reset({ [entityName]: [] });
+    reset({ [entityName]: initialRows });
   };
 
   const hasValidationErrors = useMemo(() => {
@@ -536,6 +594,14 @@ export function GenericExcelImport<T extends BaseImportRow>({
   return (
     <PageContainer className="max-w-none w-full px-3 sm:px-6 py-3 flex flex-col gap-3 min-h-[calc(100vh-80px)] overflow-hidden">
       <div ref={topRef} />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".xlsx,.xls"
+        className="hidden"
+        onChange={handleFileSelect}
+      />
+
       {/* Page Header */}
       <div className="flex items-center justify-between py-3 bg-background border-b border-border shrink-0">
         <div className="flex items-center gap-1.5">
@@ -555,6 +621,22 @@ export function GenericExcelImport<T extends BaseImportRow>({
         </div>
 
         <div className="flex items-center gap-1.5">
+          <CustomButton
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+                fileInputRef.current.click();
+              }
+            }}
+            disabled={isImporting}
+            className="h-8 gap-1.5"
+            icon={<Upload className="w-3.5 h-3.5 text-primary" />}
+          >
+            {fileName ? "Upload New Excel" : "Upload Excel"}
+          </CustomButton>
+
           <DownloadTemplateButton
             onDownload={downloadTemplate}
             className="h-8 min-w-[155px]"
@@ -582,15 +664,13 @@ export function GenericExcelImport<T extends BaseImportRow>({
               }}
               onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                if (fileInputRef.current) {
+                  fileInputRef.current.value = "";
+                  fileInputRef.current.click();
+                }
+              }}
             >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".xlsx,.xls"
-                className="hidden"
-                onChange={handleFileSelect}
-              />
               <div className="p-4 rounded-full bg-primary/10 w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Upload className="w-8 h-8 text-primary" />
               </div>
@@ -701,15 +781,26 @@ export function GenericExcelImport<T extends BaseImportRow>({
                   </div>
                 )}
                 {!isImporting && (
-                  <CustomButton
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleReset}
-                    className="h-7 text-red-500 hover:text-red-600 hover:bg-red-500/10 text-xs gap-1"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                    Clear File
-                  </CustomButton>
+                  <>
+                    <CustomButton
+                      size="sm"
+                      onClick={handleAddRow}
+                      className="h-7 text-xs gap-1"
+                      icon={<Plus className="w-3.5 h-3.5" />}
+                    >
+                      Add Row
+                    </CustomButton>
+
+                    <CustomButton
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleReset}
+                      className="h-7 text-red-500 hover:text-red-600 hover:bg-red-500/10 text-xs gap-1"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      Reset Rows
+                    </CustomButton>
+                  </>
                 )}
               </div>
             </div>
@@ -917,6 +1008,21 @@ export function GenericExcelImport<T extends BaseImportRow>({
                         </tr>
                       );
                     })}
+
+                    {!isImporting && (
+                      <tr>
+                        <td colSpan={columns.length + 3} className="p-2 border-b border-border/50 bg-muted/10">
+                          <button
+                            type="button"
+                            onClick={handleAddRow}
+                            className="w-full py-2 px-3 border-2 border-dashed border-primary/30 hover:border-primary rounded-[8px] text-xs font-semibold text-primary hover:bg-primary/5 flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Add New Row
+                          </button>
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>

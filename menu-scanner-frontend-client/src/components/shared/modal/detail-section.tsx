@@ -28,8 +28,8 @@ interface DetailRowProps {
 export function DetailRow({ label, value, isLast = false }: DetailRowProps) {
   return (
     <div
-      className={`flex items-start justify-between gap-3 py-1 ${
-        !isLast ? "border-b border-border" : ""
+      className={`flex items-start justify-between gap-3 py-1.5 ${
+        !isLast ? "border-b border-border/40" : ""
       }`}
     >
       <Label className="text-[11px] font-medium text-muted-foreground whitespace-nowrap flex-shrink-0 min-w-[120px]">
@@ -42,8 +42,9 @@ export function DetailRow({ label, value, isLast = false }: DetailRowProps) {
 
 export function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <div className="col-span-2 mt-3 mb-1 first:mt-0 border-b border-gray-300 dark:border-neutral-700 pb-1">
-      <h3 className="text-xs font-bold text-foreground">
+    <div className="col-span-2 mt-4 mb-2 first:mt-0 pb-2 border-b border-border/80 flex items-center justify-between">
+      <h3 className="text-xs font-bold text-foreground tracking-tight flex items-center gap-2">
+        <span className="w-1 h-4 rounded-full bg-gradient-to-b from-amber-500 to-amber-600 shrink-0 inline-block shadow-2xs" />
         {children}
       </h3>
     </div>

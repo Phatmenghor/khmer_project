@@ -29,9 +29,10 @@ export function DatePickerField<T extends FieldValues>({
   mode = "date",
 }: DatePickerFieldProps<T>) {
   return (
-    <div className="space-y-1">
-      <Label htmlFor={name} className="text-xs sm:text-xs font-semibold text-foreground">
-        {label} {required && <span className="text-destructive ml-1">*</span>}
+    <div className="flex flex-col gap-1 w-full">
+      <Label htmlFor={name} className="text-xs font-semibold text-foreground leading-tight flex items-center min-h-[16px]">
+        <span>{label}</span>
+        {required && <span className="text-destructive ml-0.5">*</span>}
       </Label>
       <Controller
         control={control}

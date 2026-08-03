@@ -266,7 +266,6 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
                         label="Email"
                         type="email"
                         placeholder="Enter email address"
-                        required
                         disabled={isSubmitting}
                         error={getFieldError(errors.email)}
                       />

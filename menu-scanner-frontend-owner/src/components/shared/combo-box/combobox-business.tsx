@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { Check, ChevronDown, Loader2 } from "lucide-react";
+import { Check, ChevronDown, Loader2, X } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useAppDispatch } from "@/redux/store";
 import { fetchAllBusinessService } from "@/redux/features/subscription/store/thunks/business-thunks";
@@ -147,11 +147,33 @@ export function ComboboxBusiness({
             <span className="flex-1 truncate min-w-0 text-left">
               {value ? value.name : placeholder}
             </span>
-            <ChevronDown className={cn("ml-1 h-3 w-3 shrink-0 transition-all duration-200", open ? "rotate-180 opacity-100 text-primary" : "opacity-50")} />
+            <div className="flex items-center gap-1 shrink-0 ml-1">
+              {Boolean(value) && value?.id !== "ALL" && value?.id !== "all" && !disabled && (
+                <span
+                  role="button"
+                  tabIndex={0}
+                  title="Clear selection"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onChange(null as any);
+                  }}
+                  className="p-0.5 rounded-full hover:bg-destructive/15 hover:text-destructive text-muted-foreground/70 transition-colors cursor-pointer"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </span>
+              )}
+              <ChevronDown className={cn("h-3 w-3 shrink-0 transition-all duration-200", open ? "rotate-180 opacity-100 text-primary" : "opacity-50")} />
+            </div>
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+        <PopoverContent
+          className="min-w-[var(--radix-popover-trigger-width)] w-auto max-w-[90vw] sm:max-w-xs md:max-w-sm p-1 rounded-[12px] shadow-lg border-border bg-popover z-50 pointer-events-auto"
+          align="start"
+          onWheel={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
+        >
           <Command>
             <CommandInput
               placeholder="Search business..."

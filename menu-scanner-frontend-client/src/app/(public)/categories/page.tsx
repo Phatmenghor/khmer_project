@@ -70,13 +70,6 @@ function CategoriesPageInner() {
       <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5">
         <PageHeader
           title="Categories"
-          icon={LayoutGrid}
-          count={totalCategories}
-          subtitle={
-            totalCategories > 0
-              ? `${totalCategories} categories available`
-              : "Browse all categories"
-          }
         />
 
         {categories.length === 0 && (

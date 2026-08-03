@@ -94,6 +94,9 @@ export interface POSPageState {
 
 
   brandOpen: boolean;
+  categoryOpen: boolean;
   promotionFilter: boolean | undefined;
   promotionOpen: boolean;
+  minPrice?: string;
+  maxPrice?: string;
 }

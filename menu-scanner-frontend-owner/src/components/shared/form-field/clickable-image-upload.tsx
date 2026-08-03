@@ -110,12 +110,12 @@ export function ClickableImageUpload({
         <div
           onClick={handleClick}
           className={cn(
-            "relative rounded overflow-hidden border-2 transition-all",
+            "relative rounded-[14px] overflow-hidden border-2 transition-all duration-300 group",
             getContainerHeight(),
             getContainerWidth(),
             value
-              ? "border-border hover:border-primary/50"
-              : "border-dashed border-border hover:border-primary",
+              ? "border-border/80 shadow-2xs hover:border-primary/50"
+              : "border-dashed border-primary/25 bg-muted/20 hover:bg-primary/5 hover:border-primary/60 shadow-2xs",
             disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:shadow-md",
             error && "border-destructive",
           )}
@@ -130,14 +130,14 @@ export function ClickableImageUpload({
           />
 
           {value ? (
-            <>
+            <div className="relative w-full h-full group/overlay">
               {isSquare ? (
                 <div className="w-full h-full flex items-center justify-center bg-muted/10">
-                  <div className="w-40 h-40 rounded overflow-hidden flex-shrink-0">
+                  <div className="w-36 h-36 rounded-[10px] overflow-hidden flex-shrink-0 border border-border/50">
                     <img
                       src={value}
                       alt="Preview"
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover/overlay:scale-105"
                     />
                   </div>
                 </div>
@@ -145,37 +145,36 @@ export function ClickableImageUpload({
                 <img
                   src={value}
                   alt="Preview"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover/overlay:scale-105"
                 />
               )}
 
-              <div className="absolute inset-0 group/overlay bg-black/0 hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
-                <div className="opacity-0 group-hover/overlay:opacity-100 transition-opacity duration-300 flex flex-col items-center gap-1 text-white">
-                  <Upload className="h-5 w-5" />
-                  <p className="text-xs font-medium">Click to change</p>
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover/overlay:opacity-100 transition-all duration-300 flex items-center justify-center">
+                <div className="px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-xs font-medium text-white flex items-center gap-1.5 shadow-md">
+                  <Upload className="h-3.5 w-3.5" />
+                  <span>Click to change image</span>
                 </div>
               </div>
 
               {!disabled && (
-                <Button
+                <button
                   type="button"
-                  variant="destructive"
-                  size="sm"
-                  className="absolute top-2 right-2 z-10"
+                  className="absolute top-2.5 right-2.5 z-20 h-7 w-7 rounded-full bg-destructive/90 text-destructive-foreground hover:bg-destructive hover:scale-110 shadow-md transition-all flex items-center justify-center"
                   onClick={handleRemove}
+                  title="Remove image"
                 >
-                  <X className="h-3 w-3" />
-                </Button>
+                  <X className="h-3.5 w-3.5" />
+                </button>
               )}
-            </>
+            </div>
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-muted/30">
-              <div className="p-3 bg-muted rounded-full">
-                <ImageIcon className="h-7 w-7 text-muted-foreground" />
+            <div className="w-full h-full flex flex-col items-center justify-center gap-2.5 p-4">
+              <div className="p-3 bg-primary/10 text-primary border border-primary/20 rounded-full shadow-2xs group-hover:scale-110 group-hover:bg-primary/15 transition-all duration-300">
+                <ImageIcon className="h-6 w-6" />
               </div>
               <div className="text-center px-3">
-                <p className="text-xs font-medium text-foreground">{placeholder}</p>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">{placeholder}</p>
+                <p className="text-[11px] text-muted-foreground/80 mt-0.5 font-normal">
                   {helperText || `PNG, JPG, GIF up to ${maxSize}MB`}
                 </p>
               </div>

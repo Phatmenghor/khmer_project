@@ -33,14 +33,6 @@ public class BusinessExchangeRate extends BaseUUIDEntity {
     @Column(name = "usd_to_khr_rate", nullable = false)
     private Double usdToKhrRate;
 
-    // Optional: USD to Chinese Yuan (CNY)
-    @Column(name = "usd_to_cny_rate")
-    private Double usdToCnyRate;
-
-    // Optional: USD to Vietnamese Dong (VND)
-    @Column(name = "usd_to_vnd_rate")
-    private Double usdToVndRate;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ExchangeRateStatus status = ExchangeRateStatus.ACTIVE;

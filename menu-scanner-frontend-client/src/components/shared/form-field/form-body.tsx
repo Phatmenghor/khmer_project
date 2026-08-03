@@ -17,7 +17,7 @@ export function FormBody({
 }: FormBodyProps) {
   return (
     <ScrollArea className={cn("flex-1 overflow-y-auto", className)}>
-      <div className={cn("pt-3 pb-2 space-y-2 md:pt-4 md:pb-3", contentClassName)}>
+      <div className={cn("px-4 py-3.5 space-y-4 md:space-y-4", contentClassName)}>
         {children}
       </div>
     </ScrollArea>

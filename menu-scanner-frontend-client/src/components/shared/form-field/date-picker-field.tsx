@@ -26,9 +26,10 @@ export function DateTimePickerField<T extends FieldValues = FieldValues>({
     <div className={`flex flex-col gap-1 w-full ${className}`}>
       <Label
         htmlFor={name}
-        className="text-xs sm:text-xs font-semibold text-foreground"
+        className="text-xs font-semibold text-foreground leading-tight flex items-center min-h-[16px]"
       >
-        {label} {required && <span className="text-destructive ml-1">*</span>}
+        <span>{label}</span>
+        {required && <span className="text-destructive ml-0.5">*</span>}
       </Label>
       <Controller
         control={control}
@@ -46,7 +47,11 @@ export function DateTimePickerField<T extends FieldValues = FieldValues>({
           />
         )}
       />
-      <p className={`text-xs text-destructive font-medium ${error?.message ? "min-h-[16px]" : ""}`}>{error?.message || ""}</p>
+      {error?.message && (
+        <p className="text-xs text-destructive font-medium mt-1">
+          {error.message}
+        </p>
+      )}
     </div>
   );
 }

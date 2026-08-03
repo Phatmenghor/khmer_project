@@ -216,8 +216,8 @@ export default function UserCustomerModal({ isOpen, onClose, userId, mode }: Pro
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {isCreate && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
+                {isCreate ? (
                   <>
                     <TextField
                       control={control}
@@ -234,9 +234,30 @@ export default function UserCustomerModal({ isOpen, onClose, userId, mode }: Pro
                       label="Email"
                       type="email"
                       placeholder="Enter email address"
-                      required
                       disabled={isSubmitting}
                       error={getFieldError(errors.email)}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <TextField
+                      control={control}
+                      name="email"
+                      label="Email"
+                      type="email"
+                      placeholder="Enter email address"
+                      disabled={isSubmitting}
+                      error={getFieldError(errors.email)}
+                    />
+                    <SelectField
+                      control={control}
+                      name="accountStatus"
+                      label="Account Status"
+                      placeholder="Select account status"
+                      options={ACCOUNT_STATUS_CREATE_UPDATE}
+                      required
+                      disabled={isSubmitting}
+                      error={getFieldError(errors.accountStatus)}
                     />
                   </>
                 )}
@@ -313,17 +334,6 @@ export default function UserCustomerModal({ isOpen, onClose, userId, mode }: Pro
                     error={getFieldError(errors.password)}
                   />
                 )}
-
-                <SelectField
-                  control={control}
-                  name="accountStatus"
-                  label="Account Status"
-                  placeholder="Select account status"
-                  options={ACCOUNT_STATUS_CREATE_UPDATE}
-                  required
-                  disabled={isSubmitting}
-                  error={getFieldError(errors.accountStatus)}
-                />
               </div>
 
               <TextareaField

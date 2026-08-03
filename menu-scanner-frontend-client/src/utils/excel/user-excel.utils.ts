@@ -13,7 +13,7 @@ export const USER_TEMPLATE_COLUMNS = [
   { key: "username",     label: "Username *", required: true },
   { key: "password",     label: "Password *", required: true },
   { key: "role",          label: "Role *", required: true },
-  { key: "email",          label: "Email *", required: true },
+  { key: "email",          label: "Email", required: false },
   { key: "fullName",     label: "Full Name", required: false },
   { key: "phoneNumber",    label: "Phone Number", required: false },
   { key: "gender",         label: "Gender", required: false },

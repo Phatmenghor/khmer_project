@@ -5,8 +5,10 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ModalMode } from "@/constants/app-resource/status/status";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import Loading from "@/components/shared/common/loading";
 import { TextField } from "@/components/shared/form-field/text-field";
+import { SelectField } from "@/components/shared/form-field/select-field";
 import { CancelButton } from "@/components/shared/button/cancel-button";
 import { SubmitButton } from "@/components/shared/button/submit-button";
 import { FormHeader } from "@/components/shared/form-field/form-header";
@@ -73,6 +75,7 @@ export default function ExchangeRateModal({
     ) as any,
     defaultValues: {
       usdToKhrRate: 0,
+      status: "ACTIVE",
       notes: "",
     },
     mode: "onChange",
@@ -94,6 +97,7 @@ export default function ExchangeRateModal({
           reset({
             id: resposne.id,
             usdToKhrRate: resposne.usdToKhrRate,
+            status: resposne.status || "ACTIVE",
             notes: resposne.notes,
           });
         }
@@ -110,6 +114,7 @@ export default function ExchangeRateModal({
     if (isOpen && isCreate) {
       reset({
         usdToKhrRate: 0,
+        status: "ACTIVE",
         notes: "",
       });
     }
@@ -126,8 +131,10 @@ export default function ExchangeRateModal({
     try {
       if (isCreate) {
         const payload: CreateExchangeRateRequest = {
+          businessId: AppDefault.BUSINESS_ID,
           usdToKhrRate: data.usdToKhrRate!,
           notes: data?.notes,
+          status: data.status || "ACTIVE",
         };
 
         const result = await dispatch(
@@ -207,15 +214,30 @@ export default function ExchangeRateModal({
                 </div>
               )}
 
-              <TextField
-                control={control}
-                name="usdToKhrRate"
-                label="USD To KHR Rate"
-                placeholder="e.g. 4100"
-                disabled={isSubmitting}
-                required
-                error={getFieldError(errors.usdToKhrRate)}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TextField
+                  control={control}
+                  name="usdToKhrRate"
+                  label="USD To KHR Rate"
+                  placeholder="e.g. 4100"
+                  type="text"
+                  disabled={isSubmitting}
+                  required
+                  error={getFieldError(errors.usdToKhrRate)}
+                />
+
+                <SelectField
+                  control={control}
+                  name="status"
+                  label="Status"
+                  disabled={isSubmitting}
+                  error={getFieldError(errors.status)}
+                  options={[
+                    { value: "ACTIVE", label: "Active" },
+                    { value: "INACTIVE", label: "Inactive" },
+                  ]}
+                />
+              </div>
             </FormBody>
 
             <FormFooter

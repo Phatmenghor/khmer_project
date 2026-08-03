@@ -132,7 +132,18 @@ const exchangeRateSlice = createSlice({
       .addCase(createExchangeRateService.fulfilled, (state, action) => {
         state.operations.isCreating = false;
         if (state.data) {
-          state.data.content = [action.payload, ...state.data.content];
+          const newRate = action.payload;
+          const isNewActive = newRate.status === "ACTIVE" || !newRate.status;
+          if (isNewActive) {
+            state.data.content = state.data.content.map((rate) => ({
+              ...rate,
+              status: "INACTIVE" as any,
+            }));
+          }
+          state.data.content = [
+            { ...newRate, status: isNewActive ? ("ACTIVE" as any) : (newRate.status || "INACTIVE") },
+            ...state.data.content,
+          ];
           state.data.totalElements += 1;
           state.data.totalPages = Math.ceil(
             state.data.totalElements / state.data.pageSize
@@ -154,11 +165,19 @@ const exchangeRateSlice = createSlice({
         state.operations.isUpdating = false;
         state.selectedExchangeRate = action.payload;
 
-        // Update in list
+        const updatedRate = action.payload;
         if (state.data) {
-          state.data.content = state.data.content.map((user) =>
-            user.id === action.payload.id ? action.payload : user
-          );
+          if (updatedRate.status === "ACTIVE") {
+            state.data.content = state.data.content.map((rate) =>
+              rate.id === updatedRate.id
+                ? updatedRate
+                : { ...rate, status: "INACTIVE" as any }
+            );
+          } else {
+            state.data.content = state.data.content.map((rate) =>
+              rate.id === updatedRate.id ? updatedRate : rate
+            );
+          }
         }
       })
       .addCase(updateExchangeRateService.rejected, (state, action) => {

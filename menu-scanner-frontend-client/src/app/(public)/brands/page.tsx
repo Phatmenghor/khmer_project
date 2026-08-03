@@ -72,13 +72,6 @@ function BrandsPageInner() {
       <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5">
         <PageHeader
           title="Brands"
-          icon={Store}
-          count={totalBrands}
-          subtitle={
-            totalBrands > 0
-              ? `${totalBrands} brands available`
-              : "Discover our brands"
-          }
         />
 
         {brands.length === 0 && (

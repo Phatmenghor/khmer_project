@@ -15,48 +15,45 @@ interface BrandCardProps {
 }
 
 function BrandCardComponent({ brand, className, loading = "lazy" }: BrandCardProps) {
-  const imageUrl = brand.image?.sm || brand.image?.md || "";
+  const imageUrl = brand.image?.sm || brand.image?.md || brand.image?.o || "";
+  const itemCount = brand.activeProducts ?? 0;
 
   return (
     <Link
       href={`/products?brandId=${brand.id}`}
-      className="group block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
-      aria-label={`Browse ${brand.activeProducts} products from ${brand.name}`}
+      className="group block focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 rounded-[20px] transition-all h-full"
+      aria-label={`Browse ${itemCount} products from ${brand.name}`}
     >
       <Card
         className={cn(
-          "overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-300 cursor-pointer h-full bg-card hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 hover-scale-102",
+          "relative overflow-hidden rounded-[20px] border border-border/60 bg-card p-3.5 sm:p-4 text-center transition-all duration-300 cursor-pointer h-full flex flex-col items-center justify-between gap-3 hover:shadow-md hover:shadow-primary/5 hover:border-primary/30 hover:-translate-y-1 active:scale-[0.97]",
           className
         )}
       >
-        <CardContent className="p-3 sm:p-3 flex flex-col items-center justify-center gap-2">
-          <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden rounded bg-muted/40 transition-all duration-300">
-            <SmartImage
-              src={imageUrl}
-              alt={brand.name}
-              fill
-              rounded="md"
-              loading={loading}
-              className="group-hover:scale-105"
-            />
-          </div>
+        {/* Subtle background ambient glow on hover */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/0 via-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-          <div className="text-center w-full">
-            <h3 className="font-semibold text-xs sm:text-xs line-clamp-2 text-foreground group-hover:text-primary transition-colors leading-snug">
-              {brand.name}
-            </h3>
-          </div>
+        {/* Hero Logo Container */}
+        <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center overflow-hidden rounded-[18px] bg-gradient-to-tr from-primary/10 via-muted/50 to-muted/20 border border-border/60 shadow-2xs group-hover:border-primary/40 group-hover:shadow-md group-hover:ring-2 group-hover:ring-primary/20 transition-all duration-300 shrink-0">
+          <SmartImage
+            src={imageUrl}
+            alt={brand.name}
+            fill
+            rounded="xl"
+            loading={loading}
+            className="object-cover group-hover:scale-110 transition-transform duration-300 ease-out"
+          />
+        </div>
 
-          {brand.activeProducts > 0 && (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground group-hover:text-primary/80 transition-colors">
-              <ShoppingBag className="h-2 w-2" />
-              <span className="font-medium">
-                {brand.activeProducts} {brand.activeProducts === 1 ? "item" : "items"}
-              </span>
-              <ArrowRight className="h-2 w-2 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-            </div>
-          )}
-        </CardContent>
+        {/* Brand Name */}
+        <div className="flex flex-col items-center justify-center w-full z-10">
+          <h3
+            title={brand.name}
+            className="font-bold text-xs sm:text-sm line-clamp-2 text-foreground group-hover:text-primary transition-colors leading-snug tracking-tight text-center"
+          >
+            {brand.name}
+          </h3>
+        </div>
       </Card>
     </Link>
   );

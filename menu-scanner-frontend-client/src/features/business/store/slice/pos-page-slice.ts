@@ -42,8 +42,11 @@ const initialState: POSPageState = {
   successOrder: null,
   showOrderDetailsModal: false,
   brandOpen: false,
+  categoryOpen: false,
   promotionFilter: undefined,
   promotionOpen: false,
+  minPrice: "",
+  maxPrice: "",
 };
 
 const posPageSlice = createSlice({
@@ -158,11 +161,20 @@ const posPageSlice = createSlice({
     setBrandOpen: (state, action: PayloadAction<boolean>) => {
       state.brandOpen = action.payload;
     },
+    setCategoryOpen: (state, action: PayloadAction<boolean>) => {
+      state.categoryOpen = action.payload;
+    },
     setPromotionFilter: (state, action: PayloadAction<boolean | undefined>) => {
       state.promotionFilter = action.payload;
     },
     setPromotionOpen: (state, action: PayloadAction<boolean>) => {
       state.promotionOpen = action.payload;
+    },
+    setMinPrice: (state, action: PayloadAction<string>) => {
+      state.minPrice = action.payload;
+    },
+    setMaxPrice: (state, action: PayloadAction<string>) => {
+      state.maxPrice = action.payload;
     },
 
 
@@ -287,8 +299,11 @@ export const {
   setSuccessOrder,
   setShowOrderDetailsModal,
   setBrandOpen,
+  setCategoryOpen,
   setPromotionFilter,
   setPromotionOpen,
+  setMinPrice,
+  setMaxPrice,
   loadPersistedFilters,
   loadPersistedCart,
   resetPOSPageState,

@@ -7,6 +7,7 @@ export const createExchangeRateSchema = z.object({
   usdToKhrRate: z.coerce
     .number()
     .min(0.01, "Exchange rate must be greater than 0"),
+  status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
   notes: z.string().optional().or(z.literal("")),
 });
 
@@ -18,6 +19,7 @@ export const updateExchangeRateSchema = z.object({
   usdToKhrRate: z.coerce
     .number()
     .min(0.01, "Exchange rate must be greater than 0"),
+  status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
   notes: z.string().optional().or(z.literal("")),
 });
 
@@ -25,7 +27,8 @@ export const updateExchangeRateSchema = z.object({
  * Combined form data type - includes all possible fields
  */
 export type ExchangeRateFormData = {
-  id: string;
+  id?: string;
   usdToKhrRate: number;
+  status?: "ACTIVE" | "INACTIVE";
   notes?: string;
 };

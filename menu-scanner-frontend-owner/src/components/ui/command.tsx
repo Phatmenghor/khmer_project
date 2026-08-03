@@ -15,7 +15,7 @@ const Command = React.forwardRef<
   <CommandPrimitive
     ref={ref}
     className={cn(
-      "flex h-full w-full flex-col overflow-hidden rounded bg-popover text-popover-foreground",
+      "flex h-full w-full flex-col overflow-hidden rounded bg-transparent text-popover-foreground",
       className
     )}
     {...props}
@@ -39,12 +39,12 @@ const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
-  <div className="flex items-center border-b px-2" cmdk-input-wrapper="">
-    <Search className="mr-1 h-3 w-3 shrink-0 opacity-50" />
+  <div className="flex items-center border-b border-border/60 px-2.5 bg-transparent" cmdk-input-wrapper="">
+    <Search className="mr-1.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
     <CommandPrimitive.Input
       ref={ref}
       className={cn(
-        "flex h-7 w-full rounded bg-transparent py-2 text-xs outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+        "flex h-8.5 sm:h-9 w-full rounded bg-transparent py-1.5 text-xs outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none",
         className
       )}
       {...props}
@@ -57,10 +57,18 @@ CommandInput.displayName = CommandPrimitive.Input.displayName
 const CommandList = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.List>
->(({ className, ...props }, ref) => (
+>(({ className, onWheel, onTouchMove, ...props }, ref) => (
   <CommandPrimitive.List
     ref={ref}
-    className={cn("max-h-[300px] overflow-y-auto overflow-x-hidden", className)}
+    onWheel={(e) => {
+      e.stopPropagation();
+      onWheel?.(e);
+    }}
+    onTouchMove={(e) => {
+      e.stopPropagation();
+      onTouchMove?.(e);
+    }}
+    className={cn("max-h-[300px] overflow-y-auto overflow-x-hidden overscroll-contain touch-auto pointer-events-auto", className)}
     {...props}
   />
 ))
@@ -115,7 +123,7 @@ const CommandItem = React.forwardRef<
   <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default gap-1 select-none items-center rounded-sm px-1 py-1 text-xs outline-none data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-3 [&_svg]:shrink-0",
+      "relative flex cursor-pointer gap-1 select-none items-center rounded-[8px] px-2.5 py-1.5 text-xs outline-none text-foreground transition-colors hover:bg-primary/10 hover:text-primary data-[selected=true]:bg-primary/10 data-[selected=true]:text-primary data-[selected=true]:font-medium data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-3 [&_svg]:shrink-0",
       className
     )}
     {...props}

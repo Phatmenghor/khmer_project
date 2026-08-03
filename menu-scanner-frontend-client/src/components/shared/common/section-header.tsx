@@ -25,7 +25,6 @@ export const SectionHeader = ({
     <div className={cn("mb-4 sm:mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-border/40 pb-2.5", className)}>
       <div className="space-y-0.5">
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-5 rounded-full bg-primary inline-block shrink-0 shadow-2xs" />
           {Icon && <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />}
           <h2 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground">
             {title}
@@ -71,15 +70,15 @@ export const ViewAllButton = ({
   className,
 }: ViewAllButtonProps) => {
   return (
-    <div className={cn("flex justify-center mt-4 sm:mt-5", className)}>
+    <div className={cn("flex justify-center mt-5 sm:mt-6", className)}>
       <Link href={href}>
         <CustomButton
           size="default"
           variant="outline"
-          className="gap-1 group border-2 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all px-3 sm:px-3"
+          className="gap-1.5 group rounded-full border border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary shadow-2xs hover:shadow transition-all duration-200 px-5 text-xs font-semibold active:scale-[0.97]"
         >
           {text}
-          <ArrowRight className="h-3 w-3 sm:h-3 sm:w-3 transition-transform group-hover:translate-x-1" />
+          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
         </CustomButton>
       </Link>
     </div>

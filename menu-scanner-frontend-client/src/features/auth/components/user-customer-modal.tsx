@@ -133,6 +133,8 @@ export default function UserCustomerModal({
 
           reset({
             id: data.id,
+            userIdentifier: data.userIdentifier || "",
+            email: data.email || "",
             firstName: data.firstName || "",
             lastName: data.lastName || "",
             nickname: data.nickname || "",
@@ -247,6 +249,7 @@ export default function UserCustomerModal({
         const payload: UpdateUserRequest = {
           firstName: data.firstName,
           lastName: data.lastName,
+          email: data.email,
           nickname: data.nickname || undefined,
           phoneNumber: data.phoneNumber,
           accountStatus: data.accountStatus,
@@ -328,57 +331,60 @@ export default function UserCustomerModal({
               )}
 
               <div className="space-y-4">
-                {isCreate && (
-                  <div className="space-y-3">
-                    <h3 className="text-xs font-semibold">
-                      Account Credentials <span className="text-red-500">*</span>
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <TextField
-                        control={control}
-                        name="userIdentifier"
-                        label="User Identifier"
-                        placeholder="Enter user identifier"
-                        required
-                        disabled={isSubmitting}
-                        error={errors.userIdentifier}
-                        autoComplete="new-password"
-                      />
-
-                      <TextField
-                        control={control}
-                        name="password"
-                        label="Password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter password"
-                        required
-                        disabled={isSubmitting}
-                        error={errors.password}
-                        autoComplete="new-password"
-                      />
-
-                      <TextField
-                        control={control}
-                        name="email"
-                        label="Email"
-                        type="email"
-                        placeholder="Enter email address"
-                        required
-                        disabled={isSubmitting}
-                        error={errors.email}
-                        autoComplete="new-password"
-                      />
-                    </div>
-                  </div>
-                )}
-
                 <div className="space-y-3">
                   <h3 className="text-xs font-semibold">
-                    Personal Information <span className="text-red-500">*</span>
+                    Account Credentials <span className="text-destructive ml-0.5">*</span>
                   </h3>
-                  <div className="space-y-3">
-                    {!isCreate && (
-                      <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                    {isCreate ? (
+                      <>
+                        <TextField
+                          control={control}
+                          name="userIdentifier"
+                          label="User Identifier"
+                          placeholder="Enter user identifier"
+                          required
+                          disabled={isSubmitting}
+                          error={errors.userIdentifier}
+                          autoComplete="new-password"
+                        />
+
+                        <TextField
+                          control={control}
+                          name="password"
+                          label="Password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter password"
+                          required
+                          disabled={isSubmitting}
+                          error={errors.password}
+                          autoComplete="new-password"
+                        />
+
+                        <TextField
+                          control={control}
+                          name="email"
+                          label="Email"
+                          type="email"
+                          placeholder="Enter email address"
+                          disabled={isSubmitting}
+                          error={errors.email}
+                          autoComplete="new-password"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <TextField
+                          control={control}
+                          name="email"
+                          label="Email"
+                          type="email"
+                          placeholder="Enter email address"
+                          disabled={isSubmitting}
+                          error={errors.email}
+                          autoComplete="new-password"
+                        />
+
                         <SelectField
                           control={control}
                           name="accountStatus"
@@ -389,10 +395,17 @@ export default function UserCustomerModal({
                           disabled={isSubmitting}
                           error={errors.accountStatus}
                         />
-                      </div>
+                      </>
                     )}
+                  </div>
+                </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <h3 className="text-xs font-semibold">
+                    Personal Information <span className="text-destructive ml-0.5">*</span>
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                       <TextField
                         control={control}
                         name="firstName"

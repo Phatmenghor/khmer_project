@@ -59,7 +59,10 @@ export const selectShowOrderDetailsModal = (state: RootState) =>
 
 
 export const selectBrandOpen = (state: RootState) => state.posPage.brandOpen;
+export const selectCategoryOpen = (state: RootState) => state.posPage.categoryOpen;
 export const selectPromotionFilter = (state: RootState) =>
   state.posPage.promotionFilter;
 export const selectPromotionOpen = (state: RootState) =>
   state.posPage.promotionOpen;
+export const selectMinPrice = (state: RootState) => state.posPage.minPrice;
+export const selectMaxPrice = (state: RootState) => state.posPage.maxPrice;

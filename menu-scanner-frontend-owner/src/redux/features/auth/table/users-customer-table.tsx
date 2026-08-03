@@ -50,7 +50,7 @@ export const userCustomerTableColumns = ({
           src={user.profileImage?.sm || user.profileImageUrl}
           alt={user?.firstName}
           fallbackText={user?.firstName || "U"}
-          className="h-8 w-8"
+          className="h-10 w-10 rounded-[10px]"
         />
       ),
     },

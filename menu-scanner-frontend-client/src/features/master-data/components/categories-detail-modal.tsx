@@ -17,11 +17,11 @@ import { fetchCategoriesByIdService } from "../store/thunks/categories-thunks";
 
 function CategoriesDetailImage({ src, alt }: { src?: string; alt: string }) {
   return (
-    <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
+    <div className="relative flex-shrink-0 w-14 h-14 rounded-[10px] overflow-hidden bg-muted border border-border flex items-center justify-center shadow-xs">
       {src ? (
         <SmartImage src={src} alt={alt} fill showSkeleton={false} />
       ) : (
-        <Tag className="h-5 w-5 text-muted-foreground" />
+        <Tag className="h-6 w-6 text-muted-foreground/60" />
       )}
     </div>
   );
@@ -73,24 +73,25 @@ export function CategoriesDetailModal({
     >
       {categories && (
         <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 p-1 text-left">
-          <SectionTitle>Category Image</SectionTitle>
-          <div className="col-span-2">
+          <SectionTitle>Category Information</SectionTitle>
+          <div className="col-span-2 flex items-center gap-3.5 p-2 rounded-[12px] bg-muted/30 border border-border/60 mb-1">
             <CategoriesDetailImage
               src={categories.image?.md ?? categories.image?.o ?? categories.image?.sm}
               alt={categories.name || "Category"}
             />
+            <div className="min-w-0 flex-1">
+              <h4 className="text-sm font-semibold text-foreground truncate">
+                {categories.name || "-"}
+              </h4>
+              <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5">
+                <span>Status:</span>
+                <span className={cn("font-semibold px-2 py-0.5 rounded-md text-[11px]", isActive ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-muted text-muted-foreground")}>
+                  {categories.status ? formatEnumValue(categories.status) : "-"}
+                </span>
+              </p>
+            </div>
           </div>
 
-          <SectionTitle>Category Information</SectionTitle>
-          <InfoRow label="Name" value={categories.name || "-"} />
-          <InfoRow
-            label="Status"
-            value={
-              <span className={cn("font-semibold", isActive ? "text-green-700" : "text-gray-500")}>
-                {categories.status ? formatEnumValue(categories.status) : "-"}
-              </span>
-            }
-          />
           <InfoRow label="Description" value={categories.description || "-"} fullWidth />
 
           <SectionTitle>Product Stats</SectionTitle>

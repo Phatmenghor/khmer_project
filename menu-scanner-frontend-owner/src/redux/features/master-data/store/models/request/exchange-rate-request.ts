@@ -8,8 +8,10 @@ export interface AllExchangeRateRequest {
 }
 
 export interface CreateExchangeRateRequest {
+  businessId?: string;
   usdToKhrRate: number;
   notes?: string;
+  status?: string;
 }
 
 export interface UpdateExchangeRateRequest {

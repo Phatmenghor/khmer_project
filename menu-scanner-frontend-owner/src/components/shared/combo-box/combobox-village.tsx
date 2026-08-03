@@ -185,8 +185,10 @@ export function ComboboxSelectVillage({
         </PopoverTrigger>
 
         <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0"
+          className="min-w-[var(--radix-popover-trigger-width)] w-auto max-w-[90vw] sm:max-w-xs md:max-w-sm p-1 rounded-[12px] shadow-lg border-border bg-popover z-50 pointer-events-auto"
           align="start"
+          onWheel={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
         >
           <Command>
             <CommandInput

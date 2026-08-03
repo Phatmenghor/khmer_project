@@ -517,7 +517,7 @@ export default function UserBusinessModal({
                     <h3 className="text-xs font-semibold">
                       Account Credentials <span className="text-red-500">*</span>
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                       <TextField
                         control={control}
                         name="userIdentifier"
@@ -547,7 +547,6 @@ export default function UserBusinessModal({
                         label="Email"
                         type="email"
                         placeholder="Enter email address"
-                        required
                         disabled={isSubmitting}
                         error={errors.email}
                         autoComplete="new-password"

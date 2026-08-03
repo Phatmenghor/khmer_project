@@ -11,6 +11,7 @@ import { CancelButton, SubmitButton } from "@/components/shared/button/custom-bu
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { ModalMode } from "@/constants/status/status";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -113,9 +114,10 @@ export default function ExchangeRateModal({
   const onSubmit = async (data: ExchangeRateFormData) => {
     try {
       const payload: CreateExchangeRateData = {
+        businessId: AppDefault.BUSINESS_ID,
         usdToKhrRate: data.usdToKhrRate,
         notes: data.notes,
-        status: !isCreate && data.status ? data.status : undefined,
+        status: data.status || "ACTIVE",
       };
 
       if (isCreate) {
@@ -194,32 +196,29 @@ export default function ExchangeRateModal({
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <TextField
                 control={control as any}
                 name="usdToKhrRate"
-                label="🇰🇭 USD To KHR Rate"
+                label="USD To KHR Rate"
                 placeholder="e.g. 4100"
-                type="number"
-                valueAsNumber
+                type="text"
                 disabled={isSubmitting}
                 required
                 error={errors.usdToKhrRate}
               />
 
-              {!isCreate && (
-                <SelectField
-                  control={control as any}
-                  name="status"
-                  label="Status"
-                  disabled={isSubmitting}
-                  error={errors.status}
-                  options={[
-                    { value: "ACTIVE", label: "Active" },
-                    { value: "INACTIVE", label: "Inactive" },
-                  ]}
-                />
-              )}
+              <SelectField
+                control={control as any}
+                name="status"
+                label="Status"
+                disabled={isSubmitting}
+                error={errors.status}
+                options={[
+                  { value: "ACTIVE", label: "Active" },
+                  { value: "INACTIVE", label: "Inactive" },
+                ]}
+              />
             </div>
 
             <TextareaField
