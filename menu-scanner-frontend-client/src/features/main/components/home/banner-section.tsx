@@ -60,7 +60,7 @@ const BannerSectionComponent = ({
   if (loading) {
     return (
       <div className="w-full mb-3 sm:mb-5">
-        <div className="relative w-full h-[200px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded overflow-hidden bg-muted">
+        <div className="relative w-full h-[200px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded-[20px] sm:rounded-[24px] overflow-hidden bg-muted border border-border/60 shadow-2xs">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
         </div>
       </div>
@@ -88,7 +88,7 @@ const BannerSectionComponent = ({
           <CarouselContent>
             {banners.map((banner, index) => (
               <CarouselItem key={banner.id + "-" + index}>
-                <div className="relative w-full h-[200px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded overflow-hidden group">
+                <div className="relative w-full h-[200px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded-[20px] sm:rounded-[24px] overflow-hidden border border-border/60 shadow-2xs group">
                   <SmartImage
                     src={banner.image?.md}
                     alt={banner.businessName || "Banner"}

@@ -42,8 +42,8 @@ export default function HomePage() {
   } = useHomeState();
 
   useScrollRestoration({
-    enabled: true,
-    restoreOnMount: true,
+    enabled: false,
+    restoreOnMount: false,
     customKey: "home",
   });
 

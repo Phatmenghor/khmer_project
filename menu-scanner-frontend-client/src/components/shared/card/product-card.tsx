@@ -319,8 +319,8 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
     <>
       <div
         className={cn(
-          "group relative bg-card rounded border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col hover-scale-102 hover-lift",
-          isInCart && "ring-1 ring-primary/30 border-primary/50",
+          "group relative bg-card rounded-[16px] border border-border/80 hover:border-primary/30 shadow-2xs hover:shadow-md overflow-hidden transition-all duration-300 flex flex-col hover:-translate-y-0.5 active:scale-[0.98]",
+          isInCart && "ring-1.5 ring-primary/40 border-primary/50 shadow-xs",
           isOutOfStock && "opacity-70",
           !isInCart && product?.hasPromotion && "ring-1 ring-amber-500/20",
           className,

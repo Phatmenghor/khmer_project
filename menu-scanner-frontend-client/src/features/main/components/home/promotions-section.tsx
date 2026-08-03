@@ -58,23 +58,28 @@ const PromotionsSectionComponent = ({
 
 
   const PromotionHeader = ({ showDecoration = false }) => (
-    <div className="relative overflow-hidden rounded bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 dark:from-red-950/20 dark:via-orange-950/20 dark:to-yellow-950/20 p-3 sm:p-4 md:p-5 mb-4 shadow-sm">
-      {}
+    <div className="relative overflow-hidden rounded-[16px] border border-orange-500/20 bg-gradient-to-r from-red-500/10 via-orange-500/10 to-amber-500/5 dark:from-red-950/30 dark:via-orange-950/20 dark:to-amber-950/10 p-4 sm:p-5 mb-5 shadow-2xs">
       {showDecoration && (
-        <div className="absolute top-0 right-0 w-24 h-24 sm:w-44 sm:h-44 bg-gradient-to-br from-red-200/20 to-orange-200/20 dark:from-red-800/10 dark:to-orange-800/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-red-500/20 to-amber-500/20 rounded-full blur-2xl pointer-events-none" />
       )}
 
-      <div className="relative">
-        <h2 className="text-xs sm:text-sm md:text-xs font-bold tracking-tight flex items-center gap-1 mb-1">
-          <Flame
-            className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-red-500 flex-shrink-0"
-            aria-label="Hot deals icon"
-          />
-          {title}
-        </h2>
-        <p className="text-muted-foreground text-xs sm:text-xs">
-          Limited time offers - Don't miss out! 🎁
-        </p>
+      <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="p-1.5 rounded-full bg-red-500/15 text-red-500 shrink-0">
+              <Flame className="h-4 w-4 sm:h-5 sm:w-5" aria-label="Hot deals icon" />
+            </span>
+            <h2 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground">
+              {title}
+            </h2>
+            <span className="text-[10px] sm:text-[11px] font-semibold bg-red-500/10 text-red-600 dark:text-red-400 px-2.5 py-0.5 rounded-full border border-red-500/20">
+              Limited Offer
+            </span>
+          </div>
+          <p className="text-xs sm:text-xs text-muted-foreground mt-1 font-normal">
+            Limited time offers — Don't miss out on special discounts! 🎁
+          </p>
+        </div>
       </div>
     </div>
   );

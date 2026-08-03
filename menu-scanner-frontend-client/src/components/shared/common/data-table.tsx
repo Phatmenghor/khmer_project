@@ -175,7 +175,7 @@ export function DataTableWithPagination<T = any>({
   if (loading) {
     return (
       <div className="space-y-3">
-        <div className={`rounded border overflow-x-auto ${className}`}>
+        <div className={`rounded-[16px] border border-border/80 bg-card overflow-x-auto shadow-2xs ${className}`}>
           <table
             className="text-xs"
             style={{
@@ -184,12 +184,12 @@ export function DataTableWithPagination<T = any>({
               width: "auto",
             }}
           >
-            <thead className="bg-muted/50">
+            <thead className="bg-muted/40">
               <tr>
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className={`px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border ${
+                    className={`px-3.5 py-2.5 text-left font-semibold text-xs text-muted-foreground border-b border-border/70 ${
                       column.className || ""
                     }`}
                     style={{
@@ -205,18 +205,18 @@ export function DataTableWithPagination<T = any>({
             </thead>
             <tbody>
               {[...Array(12)].map((_, i) => (
-                <tr key={i}>
+                <tr key={i} className="border-b border-border/40 last:border-0">
                   {columns.map((column) => (
                     <td
                       key={column.key}
-                      className="px-3 py-2 border-b border-border/50"
+                      className="px-3.5 py-3 border-b border-border/40"
                       style={{
                         ...(column.width && { width: column.width }),
                         ...(column.maxWidth && { maxWidth: column.maxWidth }),
                         ...(column.minWidth && { minWidth: column.minWidth }),
                       }}
                     >
-                      <div className="h-3 bg-muted animate-pulse rounded" />
+                      <div className="h-3.5 bg-muted/60 animate-pulse rounded-[6px]" />
                     </td>
                   ))}
                 </tr>
@@ -232,7 +232,7 @@ export function DataTableWithPagination<T = any>({
     <div className="space-y-3">
       {/* Top Table Controls: Entries info on left, Scroll buttons on right */}
       {hasControls && (
-        <div className="sticky top-[44px] z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-2 pt-1.5 flex justify-between items-center h-10 px-2 border-b border-border/80 shadow-sm transition-all duration-200">
+        <div className="sticky top-[44px] z-20 bg-background/90 backdrop-blur-md pb-2 pt-1.5 flex justify-between items-center h-10 px-2 border-b border-border/60 shadow-2xs transition-all duration-200">
           <div className="text-xs text-muted-foreground font-medium">
             {totalItems > 0 && (
               <span>
@@ -243,13 +243,13 @@ export function DataTableWithPagination<T = any>({
             )}
           </div>
           {(showLeftScroll || showRightScroll) && (
-            <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-md border border-border/50 flex-shrink-0">
+            <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-[10px] border border-border/60 flex-shrink-0">
               <CustomButton
                 variant="unstyled"
                 size="unstyled"
                 type="button"
                 onClick={() => handleScroll("left")}
-                className="h-6 w-6 flex items-center justify-center rounded border border-primary/30 text-primary hover:bg-primary/10 hover:border-primary transition-all duration-150"
+                className="h-6 w-6 flex items-center justify-center rounded-[8px] border border-primary/30 text-primary hover:bg-primary/10 hover:border-primary transition-all duration-150"
                 icon={<ChevronLeft className="h-3 w-3" />}
                 title="Scroll Left"
               />
@@ -261,7 +261,7 @@ export function DataTableWithPagination<T = any>({
                 size="unstyled"
                 type="button"
                 onClick={() => handleScroll("right")}
-                className="h-6 w-6 flex items-center justify-center rounded border border-primary/30 text-primary hover:bg-primary/10 hover:border-primary transition-all duration-150"
+                className="h-6 w-6 flex items-center justify-center rounded-[8px] border border-primary/30 text-primary hover:bg-primary/10 hover:border-primary transition-all duration-150"
                 icon={<ChevronRight className="h-3 w-3" />}
                 title="Scroll Right"
               />
@@ -272,7 +272,7 @@ export function DataTableWithPagination<T = any>({
 
       <div
         ref={scrollContainerRef}
-        className={`rounded border overflow-x-auto ${className}`}
+        className={`rounded-[16px] border border-border/80 bg-card overflow-x-auto shadow-2xs ${className}`}
       >
         <table
           className="text-xs"
@@ -282,12 +282,12 @@ export function DataTableWithPagination<T = any>({
             width: "auto",
           }}
         >
-          <thead className="bg-muted/50">
+          <thead className="bg-muted/40">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border ${
+                  className={`px-3.5 py-2.5 text-left font-semibold text-xs text-muted-foreground border-b border-border/70 ${
                     column.className || ""
                   }`}
                   style={{
