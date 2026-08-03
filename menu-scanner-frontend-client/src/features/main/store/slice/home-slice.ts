@@ -198,7 +198,9 @@ const homeSlice = createSlice({
 
     addSectionPending(fetchHomeCategories, "categories");
     builder.addCase(fetchHomeCategories.fulfilled, (state, action) => {
-      state.categories = action.payload.content || [];
+      state.categories = Array.isArray(action.payload)
+        ? action.payload
+        : action.payload?.content || [];
       state.sections.categories.loading = false;
       state.sections.categories.loaded = true;
     });
@@ -206,7 +208,7 @@ const homeSlice = createSlice({
 
     addSectionPending(fetchHomePromotionProducts, "promotionProducts");
     builder.addCase(fetchHomePromotionProducts.fulfilled, (state, action) => {
-      state.promotionProducts = action.payload.content || [];
+      state.promotionProducts = action.payload?.content || [];
       state.sections.promotionProducts.loading = false;
       state.sections.promotionProducts.loaded = true;
     });
@@ -214,15 +216,15 @@ const homeSlice = createSlice({
 
     addSectionPending(fetchHomeFeaturedProducts, "featuredProducts");
     builder.addCase(fetchHomeFeaturedProducts.fulfilled, (state, action) => {
-      const newProducts = action.payload.content || [];
+      const newProducts = action.payload?.content || [];
 
 
       state.featuredProducts = [...state.featuredProducts, ...newProducts];
 
 
-      state.featuredPagination.currentPage = action.payload.pageNo || 1;
-      state.featuredPagination.totalPages = action.payload.totalPages || 1;
-      state.featuredPagination.hasMore = !action.payload.last;
+      state.featuredPagination.currentPage = action.payload?.pageNo || 1;
+      state.featuredPagination.totalPages = action.payload?.totalPages || 1;
+      state.featuredPagination.hasMore = !action.payload?.last;
       state.sections.featuredProducts.loading = false;
       state.sections.featuredProducts.loaded = true;
     });
@@ -230,7 +232,9 @@ const homeSlice = createSlice({
 
     addSectionPending(fetchHomeBrands, "brands");
     builder.addCase(fetchHomeBrands.fulfilled, (state, action) => {
-      state.brands = action.payload.content || [];
+      state.brands = Array.isArray(action.payload)
+        ? action.payload
+        : action.payload?.content || [];
       state.sections.brands.loading = false;
       state.sections.brands.loaded = true;
     });

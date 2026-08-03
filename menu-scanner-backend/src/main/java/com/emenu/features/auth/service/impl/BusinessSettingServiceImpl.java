@@ -53,9 +53,9 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
     @Override
     @Transactional(readOnly = true)
     public BusinessSettingResponse getBusinessSettingByBusinessId(UUID businessId) {
-        BusinessSetting businessSetting = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
-                .orElseThrow(() -> new ValidationException("Business setting not found"));
-        return businessSettingMapper.toResponse(businessSetting);
+        return businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
+                .map(businessSettingMapper::toResponse)
+                .orElse(null);
     }
 
     @Override

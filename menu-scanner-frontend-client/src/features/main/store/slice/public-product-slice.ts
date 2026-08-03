@@ -134,7 +134,9 @@ const publicProductSlice = createSlice({
       })
       .addCase(fetchPublicCategories.fulfilled, (state, action) => {
         state.loading.filters = false;
-        state.categories = action.payload;
+        state.categories = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload?.content || [];
       })
       .addCase(fetchPublicCategories.rejected, (state) => {
         state.loading.filters = false;
@@ -146,7 +148,9 @@ const publicProductSlice = createSlice({
       })
       .addCase(fetchPublicBrands.fulfilled, (state, action) => {
         state.loading.filters = false;
-        state.brands = action.payload;
+        state.brands = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload?.content || [];
       })
       .addCase(fetchPublicBrands.rejected, (state) => {
         state.loading.filters = false;
