@@ -24,7 +24,7 @@ export const fetchHomeBanners = createApiThunk<any, AllBannerRequest>(
 export const fetchHomeCategories = createApiThunk<any, AllCategoriesRequest>(
   "home/fetchCategories",
   async (request) => {
-    const response = await axiosClient.post("/api/v1/public/categories/all", {
+    const response = await axiosClient.post("/api/v1/public/categories/all-data", {
       status: Status.ACTIVE,
       businessId: AppDefault.BUSINESS_ID,
       ...request,
@@ -71,10 +71,9 @@ export const fetchHomeFeaturedProducts = createApiThunk<
 export const fetchHomeBrands = createApiThunk<any, void>(
   "home/fetchBrands",
   async () => {
-    const response = await axiosClientWithAuth.post(
-      "/api/v1/public/brands/all",
+    const response = await axiosClient.post(
+      "/api/v1/public/brands/all-data",
       {
-        pageSize: 30,
         status: Status.ACTIVE,
         businessId: AppDefault.BUSINESS_ID,
       },

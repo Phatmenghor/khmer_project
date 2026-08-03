@@ -28,6 +28,8 @@ interface TableImageProps {
   alt?: string;
   fallbackText?: string;
   className?: string;
+  priority?: boolean;
+  loading?: "lazy" | "eager";
 }
 
 export function TableImage({
@@ -36,6 +38,8 @@ export function TableImage({
   alt = "Image",
   fallbackText,
   className = "h-9 w-9",
+  priority,
+  loading,
 }: TableImageProps) {
   const [viewOpen, setViewOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -80,6 +84,8 @@ export function TableImage({
               alt={alt}
               fill
               showSkeleton={false}
+              priority={priority}
+              loading={loading}
               onError={() => setThumbErrored(true)}
             />
             {/* View — top left */}

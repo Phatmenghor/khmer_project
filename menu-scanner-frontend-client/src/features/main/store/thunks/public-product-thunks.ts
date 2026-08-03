@@ -36,19 +36,21 @@ export const fetchPublicProductById = createApiThunk<
 export const fetchPublicCategories = createApiThunk<any, void>(
   "publicProducts/fetchCategories",
   async () => {
-    const response = await axiosClientWithAuth.post("/api/v1/categories/all", {
-      pageSize: 100,
+    const response = await axiosClient.post("/api/v1/public/categories/all-data", {
+      status: Status.ACTIVE,
+      businessId: AppDefault.BUSINESS_ID,
     });
-    return response.data.data.content;
+    return response.data.data;
   }
 );
 
 export const fetchPublicBrands = createApiThunk<any, void>(
   "publicProducts/fetchBrands",
   async () => {
-    const response = await axiosClientWithAuth.post("/api/v1/brands/all", {
-      pageSize: 100,
+    const response = await axiosClient.post("/api/v1/public/brands/all-data", {
+      status: Status.ACTIVE,
+      businessId: AppDefault.BUSINESS_ID,
     });
-    return response.data.data.content;
+    return response.data.data;
   }
 );

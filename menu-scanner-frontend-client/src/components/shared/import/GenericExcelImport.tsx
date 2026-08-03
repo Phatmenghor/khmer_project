@@ -226,13 +226,14 @@ export function GenericExcelImport<T extends BaseImportRow>({
         const { rows: r, errors } = await parseFile(file);
         setRows(r);
         setParseErrors(errors);
+        reset({ [entityName]: r });
       } catch (e: any) {
         showToast.error(e.message || "Failed to parse file.");
       } finally {
         setIsParsingFile(false);
       }
     },
-    [parseFile]
+    [parseFile, entityName, reset]
   );
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -255,6 +256,7 @@ export function GenericExcelImport<T extends BaseImportRow>({
     const updated = [...rows];
     updated.splice(rowIdx, 1);
     setRows(updated);
+    reset({ [entityName]: updated });
   };
 
   const handleCellChange = (rowIdx: number, field: keyof T, value: any) => {
@@ -485,6 +487,7 @@ export function GenericExcelImport<T extends BaseImportRow>({
     setParseErrors([]);
     setFileName("");
     setImportDone(false);
+    reset({ [entityName]: [] });
   };
 
   const hasValidationErrors = useMemo(() => {

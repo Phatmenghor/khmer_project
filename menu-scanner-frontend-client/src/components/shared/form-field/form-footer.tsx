@@ -13,6 +13,7 @@ interface FormFooterProps {
   noChangesMessage?: string;
   children: React.ReactNode;
   className?: string;
+  showStatusText?: boolean;
 }
 
 export function FormFooter({
@@ -24,6 +25,7 @@ export function FormFooter({
   noChangesMessage = "No changes made",
   children,
   className,
+  showStatusText = true,
 }: FormFooterProps) {
   const getStatusMessage = () => {
     if (isSubmitting) {
@@ -38,21 +40,23 @@ export function FormFooter({
   return (
     <div
       className={cn(
-        "-mx-4 -mb-4 px-4 py-3 md:-mx-6 md:-mb-4 md:px-6 md:py-4",
-        "flex flex-row items-center justify-between gap-3 border-t border-primary/30 bg-muted/30 flex-shrink-0",
-        className
+        "flex flex-col gap-1.5 px-2.5 py-2 border-t border-primary/30 bg-muted/30 flex-shrink-0",
+        "sm:flex-row sm:items-center sm:justify-between sm:px-3",
+        className,
       )}
     >
-      <div className="text-xs text-muted-foreground flex items-center gap-1.5 min-w-0 flex-1">
-        {isSubmitting && (
-          <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse shrink-0" />
-        )}
-        {isDirty && !isSubmitting && (
-          <div className="h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
-        )}
-        <span className="truncate">{getStatusMessage()}</span>
-      </div>
-      <div className="flex gap-2 shrink-0">{children}</div>
+      {showStatusText && (
+        <div className="text-[11px] text-muted-foreground flex items-center gap-1 order-2 sm:order-1">
+          {isSubmitting && (
+            <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
+          )}
+          {isDirty && !isSubmitting && (
+            <div className="h-1 w-1 rounded-full bg-orange-500" />
+          )}
+          <span>{getStatusMessage()}</span>
+        </div>
+      )}
+      <div className={cn("flex gap-2 order-1 sm:order-2", !showStatusText && "ml-auto")}>{children}</div>
     </div>
   );
 }

@@ -147,7 +147,7 @@ const roleSlice = createSlice({
         state.operations.isUpdating = false;
         state.selectedRole = action.payload;
 
-        const updatedId = action.payload?.id || action.meta?.arg?.id;
+        const updatedId = action.payload?.id || (action.meta?.arg as any)?.roleId || (action.meta?.arg as any)?.id;
         if (state.data && updatedId) {
           state.data.content = state.data.content.map((role: RoleResponseModel) =>
             role.id === updatedId ? { ...role, ...action.payload } : role,

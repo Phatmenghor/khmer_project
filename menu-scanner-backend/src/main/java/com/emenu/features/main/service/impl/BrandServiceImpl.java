@@ -34,10 +34,14 @@ import com.emenu.shared.cancellation.RequestCancellationRegistry;
 import com.emenu.shared.mapper.PaginationMapper;
 import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.util.ArrayList;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -101,10 +105,10 @@ public class BrandServiceImpl implements BrandService {
                     results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
                     successCount++;
                     success = true;
-                } catch (jakarta.validation.ConstraintViolationException ex) {
+                } catch (ConstraintViolationException ex) {
                     errorMsg = ex.getConstraintViolations().stream()
-                            .map(jakarta.validation.ConstraintViolation::getMessage)
-                            .collect(java.util.stream.Collectors.joining(", "));
+                            .map(ConstraintViolation::getMessage)
+                            .collect(Collectors.joining(", "));
                     log.error("Batch brand creation failed at index {} due to validation: {}", i, errorMsg);
                     results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
                     errorCount++;
@@ -117,7 +121,7 @@ public class BrandServiceImpl implements BrandService {
 
                 if (importId != null) {
                     int progress = (int) (((double) (i + 1) / requests.size()) * 100);
-                    java.util.Map<String, Object> lastResult = java.util.Map.of(
+                    Map<String, Object> lastResult = Map.of(
                         "index", i,
                         "success", success,
                         "error", errorMsg != null ? errorMsg : ""
@@ -179,8 +183,8 @@ public class BrandServiceImpl implements BrandService {
 
         List<Object[]> productCountData = brandRepository.countTotalAndActiveProductsForBrands(brandIds);
 
-        java.util.Map<UUID, Long> totalProductCountMap = new java.util.HashMap<>();
-        java.util.Map<UUID, Long> activeProductCountMap = new java.util.HashMap<>();
+        Map<UUID, Long> totalProductCountMap = new HashMap<>();
+        Map<UUID, Long> activeProductCountMap = new HashMap<>();
         for (Object[] data : productCountData) {
             UUID brandId = (UUID) data[0];
             totalProductCountMap.put(brandId, ((Number) data[1]).longValue());

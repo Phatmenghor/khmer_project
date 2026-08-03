@@ -150,11 +150,10 @@ export function DeleteConfirmationModal({
           </FormBody>
 
           <FormFooter
-            isSubmitting={inFlight}
+            isSubmitting={false}
+            showStatusText={!inFlight}
             isDirty={!requireConfirmation || confirmationValue === confirmationText}
             isCreate={false}
-            createMessage="Deleting..."
-            updateMessage="Deleting..."
             noChangesMessage={
               requireConfirmation
                 ? `Type ${confirmationText} to enable delete`
@@ -174,15 +173,9 @@ export function DeleteConfirmationModal({
               variant="destructive"
               onClick={handleDelete}
               disabled={isDeleteDisabled}
+              isLoading={inFlight}
             >
-              {inFlight ? (
-                <>
-                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                buttonLabel
-              )}
+              {inFlight ? "Deleting..." : buttonLabel}
             </CustomButton>
           </FormFooter>
         </div>

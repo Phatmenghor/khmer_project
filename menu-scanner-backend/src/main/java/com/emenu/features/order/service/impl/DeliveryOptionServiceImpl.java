@@ -17,6 +17,7 @@ import com.emenu.features.order.specification.DeliveryOptionSpecification;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -120,7 +121,7 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
 
                 if (importId != null) {
                     int progress = (int) (((double) (i + 1) / requests.size()) * 100);
-                    java.util.Map<String, Object> lastResult = java.util.Map.of(
+                    Map<String, Object> lastResult = Map.of(
                         "index", i,
                         "success", success,
                         "error", errorMsg != null ? errorMsg : ""

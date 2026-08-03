@@ -12,6 +12,7 @@ interface FormFooterProps {
   noChangesMessage?: string;
   children: React.ReactNode;
   className?: string;
+  showStatusText?: boolean;
 }
 
 export function FormFooter({
@@ -23,6 +24,7 @@ export function FormFooter({
   noChangesMessage = "No changes made",
   children,
   className,
+  showStatusText = true,
 }: FormFooterProps) {
   const getStatusMessage = () => {
     if (isSubmitting) {
@@ -42,16 +44,18 @@ export function FormFooter({
         className,
       )}
     >
-      <div className="text-[11px] text-muted-foreground flex items-center gap-1 order-2 sm:order-1">
-        {isSubmitting && (
-          <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
-        )}
-        {isDirty && !isSubmitting && (
-          <div className="h-1 w-1 rounded-full bg-orange-500" />
-        )}
-        <span>{getStatusMessage()}</span>
-      </div>
-      <div className="flex gap-2 order-1 sm:order-2">{children}</div>
+      {showStatusText && (
+        <div className="text-[11px] text-muted-foreground flex items-center gap-1 order-2 sm:order-1">
+          {isSubmitting && (
+            <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
+          )}
+          {isDirty && !isSubmitting && (
+            <div className="h-1 w-1 rounded-full bg-orange-500" />
+          )}
+          <span>{getStatusMessage()}</span>
+        </div>
+      )}
+      <div className={cn("flex gap-2 order-1 sm:order-2", !showStatusText && "ml-auto")}>{children}</div>
     </div>
   );
 }

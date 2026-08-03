@@ -33,10 +33,13 @@ import com.emenu.shared.cancellation.RequestCancellationRegistry;
 import com.emenu.shared.mapper.PaginationMapper;
 import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.util.ArrayList;
-
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -67,7 +70,7 @@ public class BannerServiceImpl implements BannerService {
         banner.setBusinessId(currentUser.getBusinessId());
 
         Banner savedBanner = bannerRepository.save(banner);
-        log.info("Banner created successfully: id={}, businessId={}", savedBanner.getId(), currentUser.getBusinessId());
+        log.info("Banner created successfully: id={}", savedBanner.getId());
         return bannerMapper.toResponse(savedBanner);
     }
 
@@ -94,10 +97,10 @@ public class BannerServiceImpl implements BannerService {
                     results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
                     successCount++;
                     success = true;
-                } catch (jakarta.validation.ConstraintViolationException ex) {
+                } catch (ConstraintViolationException ex) {
                     errorMsg = ex.getConstraintViolations().stream()
-                            .map(jakarta.validation.ConstraintViolation::getMessage)
-                            .collect(java.util.stream.Collectors.joining(", "));
+                            .map(ConstraintViolation::getMessage)
+                            .collect(Collectors.joining(", "));
                     log.error("Batch banner creation failed at index {} due to validation: {}", i, errorMsg);
                     results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
                     errorCount++;
@@ -110,7 +113,7 @@ public class BannerServiceImpl implements BannerService {
 
                 if (importId != null) {
                     int progress = (int) (((double) (i + 1) / requests.size()) * 100);
-                    java.util.Map<String, Object> lastResult = java.util.Map.of(
+                    Map<String, Object> lastResult = Map.of(
                         "index", i,
                         "success", success,
                         "error", errorMsg != null ? errorMsg : ""

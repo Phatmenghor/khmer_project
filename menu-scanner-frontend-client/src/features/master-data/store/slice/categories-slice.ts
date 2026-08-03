@@ -165,7 +165,7 @@ const categoriesSlice = createSlice({
         state.selectedCategories = action.payload;
         state.operations.isUpdating = false;
 
-        const updatedId = action.payload?.id || (action.meta?.arg as { id?: string })?.id;
+        const updatedId = action.payload?.id || (action.meta?.arg as { categoriesId?: string })?.categoriesId || (action.meta?.arg as { id?: string })?.id;
         if (state.data && updatedId) {
           state.data.content = state.data.content.map((item) =>
             item.id === updatedId ? { ...item, ...action.payload } : item
@@ -188,15 +188,26 @@ const categoriesSlice = createSlice({
       .addCase(deleteCategoriesService.pending, (state, action) => {
         state.operations.isDeleting = true;
         state.error = null;
-        state.rollbackSnapshot = state.data ? JSON.parse(JSON.stringify(state.data)) : null;
+        state.rollbackSnapshot = {
+          data: state.data ? JSON.parse(JSON.stringify(state.data)) : null,
+          dataWithProductCount: state.dataWithProductCount ? JSON.parse(JSON.stringify(state.dataWithProductCount)) : null,
+        };
         const id = action.meta.arg as string;
         if (state.data) {
           state.data.content = state.data.content.filter((item) => item.id !== id);
-          state.data.totalElements -= 1;
-          state.data.totalPages = Math.ceil(state.data.totalElements / state.data.pageSize);
+          state.data.totalElements = Math.max(0, state.data.totalElements - 1);
+          state.data.totalPages = Math.ceil(state.data.totalElements / state.data.pageSize) || 1;
           state.data.last = state.data.pageNo >= state.data.totalPages;
           state.data.hasNext = !state.data.last;
           state.data.hasPrevious = state.data.pageNo > 1;
+        }
+        if (state.dataWithProductCount) {
+          state.dataWithProductCount.content = state.dataWithProductCount.content.filter((item) => item.id !== id);
+          state.dataWithProductCount.totalElements = Math.max(0, state.dataWithProductCount.totalElements - 1);
+          state.dataWithProductCount.totalPages = Math.ceil(state.dataWithProductCount.totalElements / state.dataWithProductCount.pageSize) || 1;
+          state.dataWithProductCount.last = state.dataWithProductCount.pageNo >= state.dataWithProductCount.totalPages;
+          state.dataWithProductCount.hasNext = !state.dataWithProductCount.last;
+          state.dataWithProductCount.hasPrevious = state.dataWithProductCount.pageNo > 1;
         }
       })
       .addCase(deleteCategoriesService.fulfilled, (state) => {
@@ -207,29 +218,35 @@ const categoriesSlice = createSlice({
         state.operations.isDeleting = false;
         state.error = action.payload as string;
         if (state.rollbackSnapshot) {
-          state.data = state.rollbackSnapshot;
+          if (state.rollbackSnapshot.data) state.data = state.rollbackSnapshot.data;
+          if (state.rollbackSnapshot.dataWithProductCount) state.dataWithProductCount = state.rollbackSnapshot.dataWithProductCount;
           state.rollbackSnapshot = null;
         }
       });
 
-
     builder
+      .addCase(toggleCategoriesStatusService.pending, (state) => {
+        state.operations.isUpdating = true;
+        state.error = null;
+      })
       .addCase(toggleCategoriesStatusService.fulfilled, (state, action) => {
-
+        state.operations.isUpdating = false;
         if (state.data) {
           state.data.content = state.data.content.map((category) =>
             category.id === action.payload.id ? action.payload : category
           );
         }
         if (state.dataWithProductCount) {
-          state.dataWithProductCount.content = state.dataWithProductCount.content.map(
-            (category) =>
-              category.id === action.payload.id ? action.payload : category
+          state.dataWithProductCount.content = state.dataWithProductCount.content.map((category) =>
+            category.id === action.payload.id
+              ? { ...category, ...action.payload, totalProducts: category.totalProducts, activeProducts: category.activeProducts }
+              : category
           );
         }
       })
       .addCase(toggleCategoriesStatusService.rejected, (state, action) => {
         state.error = action.payload as string;
+        state.operations.isUpdating = false;
       });
   },
 });

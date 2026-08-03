@@ -49,7 +49,7 @@ export const bannerTableColumns = ({
       label: "Banner Image",
       minWidth: "200px",
       maxWidth: "280px",
-      render: (banner) => {
+      render: (banner, index) => {
         return (
           <TableImage
             src={banner.image?.sm}
@@ -57,6 +57,8 @@ export const bannerTableColumns = ({
             alt="Banner"
             fallbackText="B"
             className="w-44 h-24"
+            priority={index < 4}
+            loading={index < 4 ? "eager" : undefined}
           />
         );
       },

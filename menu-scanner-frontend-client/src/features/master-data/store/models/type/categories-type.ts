@@ -18,7 +18,10 @@ export interface OperationStates {
 
 export interface CategoriesManagementState {
   data: AllCategoriesResponseModel | null;
-  rollbackSnapshot: AllCategoriesResponseModel | null;
+  rollbackSnapshot: {
+    data: AllCategoriesResponseModel | null;
+    dataWithProductCount: AllCategoriesResponseModel | null;
+  } | null;
   dataWithProductCount: AllCategoriesResponseModel | null;
   selectedCategories: CategoriesResponseModel | null;
   isLoading: boolean;

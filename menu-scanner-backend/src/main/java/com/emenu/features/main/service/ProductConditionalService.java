@@ -20,7 +20,15 @@ public class ProductConditionalService {
     }
 
     public boolean businessUsesBrands(UUID businessId) {
-        BusinessSettingResponse settings = businessSettingService.getBusinessSettingByBusinessId(businessId);
-        return settings != null && (settings.getUseBrands() != null && settings.getUseBrands());
+        if (businessId == null) {
+            return true;
+        }
+        try {
+            BusinessSettingResponse settings = businessSettingService.getBusinessSettingByBusinessId(businessId);
+            return settings == null || settings.getUseBrands() == null || settings.getUseBrands();
+        } catch (Exception ex) {
+            log.warn("Business setting not found for businessId={}. Defaulting useBrands to true.", businessId);
+            return true;
+        }
     }
 }

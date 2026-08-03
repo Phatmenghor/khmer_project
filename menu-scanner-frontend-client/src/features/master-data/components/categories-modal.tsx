@@ -76,7 +76,7 @@ export default function CategoriesModal({
 
   const categoriesContent = useAppSelector(selectCategoriesWithProductCountContent);
   const selectedCategories = useAppSelector(selectSelectedCategories);
-  const categories = categoriesContent.find(c => c.id === categoriesId) || (selectedCategories?.id === categoriesId ? selectedCategories : null);
+  const categories = (selectedCategories?.id === categoriesId ? selectedCategories : null) || categoriesContent.find(c => c.id === categoriesId);
 
   const {
     control,
@@ -98,10 +98,10 @@ export default function CategoriesModal({
   });
 
   useEffect(() => {
-    if (isOpen && !isCreate && categoriesId && !categories) {
+    if (isOpen && !isCreate && categoriesId) {
       dispatch(fetchCategoriesByIdService(categoriesId));
     }
-  }, [isOpen, isCreate, categoriesId, categories, dispatch]);
+  }, [isOpen, isCreate, categoriesId, dispatch]);
 
   useEffect(() => {
     if (isOpen) {

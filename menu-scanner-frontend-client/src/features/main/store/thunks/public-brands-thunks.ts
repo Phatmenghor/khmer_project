@@ -16,19 +16,28 @@ export const fetchPublicBrands = createAsyncThunk<
   PaginationResponseModel<BrandResponseModel>,
   FetchPublicBrandsParams,
   { rejectValue: string }
->("publicBrands/fetchAll", async (params, { rejectWithValue }) => {
+>("publicBrands/fetchAll", async (params = {}, { rejectWithValue }) => {
   try {
     const response = await axiosClient.post(
-      "/api/v1/public/brands/all",
+      "/api/v1/public/brands/all-data",
       {
-        pageNo: params.pageNo || 1,
-        pageSize: params.pageSize,
         search: params.search || undefined,
         status: params.status || "ACTIVE",
         businessId: AppDefault.BUSINESS_ID,
       }
     );
-    return response.data.data;
+    const items: BrandResponseModel[] = response.data.data || [];
+    return {
+      content: items,
+      pageNo: 1,
+      pageSize: items.length,
+      totalElements: items.length,
+      totalPages: 1,
+      first: true,
+      last: true,
+      hasNext: false,
+      hasPrevious: false,
+    };
   } catch (error: unknown) {
     return rejectWithValue(
       (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to fetch brands"

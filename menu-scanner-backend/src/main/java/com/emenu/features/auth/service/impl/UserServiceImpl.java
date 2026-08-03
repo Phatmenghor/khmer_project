@@ -146,7 +146,7 @@ public class UserServiceImpl implements UserService {
 
                 if (importId != null) {
                     int progress = (int) (((double) (i + 1) / requests.size()) * 100);
-                    java.util.Map<String, Object> lastResult = java.util.Map.of(
+                    Map<String, Object> lastResult = Map.of(
                         "index", i,
                         "success", success,
                         "error", errorMsg != null ? errorMsg : ""

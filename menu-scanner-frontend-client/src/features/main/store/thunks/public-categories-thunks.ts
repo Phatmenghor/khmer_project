@@ -16,19 +16,28 @@ export const fetchPublicCategories = createAsyncThunk<
   PaginationResponseModel<CategoriesResponseModel>,
   FetchPublicCategoriesParams,
   { rejectValue: string }
->("publicCategories/fetchAll", async (params, { rejectWithValue }) => {
+>("publicCategories/fetchAll", async (params = {}, { rejectWithValue }) => {
   try {
     const response = await axiosClient.post(
-      "/api/v1/public/categories/all",
+      "/api/v1/public/categories/all-data",
       {
-        pageNo: params.pageNo || 1,
-        pageSize: params.pageSize,
         search: params.search || undefined,
         status: params.status || "ACTIVE",
         businessId: AppDefault.BUSINESS_ID,
       }
     );
-    return response.data.data;
+    const items: CategoriesResponseModel[] = response.data.data || [];
+    return {
+      content: items,
+      pageNo: 1,
+      pageSize: items.length,
+      totalElements: items.length,
+      totalPages: 1,
+      first: true,
+      last: true,
+      hasNext: false,
+      hasPrevious: false,
+    };
   } catch (error: unknown) {
     return rejectWithValue(
       (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to fetch categories"
