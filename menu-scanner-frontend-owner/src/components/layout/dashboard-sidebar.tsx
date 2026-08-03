@@ -70,9 +70,9 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start hover:bg-primary/10 hover:text-primary rounded relative",
+                  "w-full justify-start hover:bg-primary/10 hover:text-primary rounded-[12px] relative transition-all duration-200 active:scale-[0.98]",
                   isActive &&
-                    "bg-primary/15 text-primary font-medium border-l-2 border-primary",
+                    "bg-primary/15 text-primary font-semibold border-l-3 border-primary shadow-2xs rounded-[12px]",
                 )}
                 onClick={() =>
                   route.section && !isCollapsed && toggleSection(route.section)

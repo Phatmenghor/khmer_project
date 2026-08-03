@@ -123,14 +123,14 @@ export function DataTableWithPagination<T = any>({
   if (loading) {
     return (
       <div className="space-y-3">
-        <div className={`rounded border overflow-x-auto ${className}`}>
+        <div className={`rounded-[16px] border border-border/80 bg-card overflow-x-auto shadow-2xs ${className}`}>
           <table className="w-full text-xs">
-            <thead className="bg-muted/50">
+            <thead className="bg-muted/40">
               <tr>
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className={`px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border ${
+                    className={`px-3.5 py-2.5 text-left font-semibold text-xs text-muted-foreground border-b border-border/70 ${
                       column.className || ""
                     }`}
                     style={{
@@ -146,18 +146,18 @@ export function DataTableWithPagination<T = any>({
             </thead>
             <tbody>
               {[...Array(12)].map((_, i) => (
-                <tr key={i}>
+                <tr key={i} className="border-b border-border/40 last:border-0">
                   {columns.map((column) => (
                     <td
                       key={column.key}
-                      className="px-3 py-2 border-b border-border/50"
+                      className="px-3.5 py-3 border-b border-border/40"
                       style={{
                         ...(column.width && { width: column.width }),
                         ...(column.maxWidth && { maxWidth: column.maxWidth }),
                         ...(column.minWidth && { minWidth: column.minWidth }),
                       }}
                     >
-                      <div className="h-3 bg-muted animate-pulse rounded" />
+                      <div className="h-3.5 bg-muted/60 animate-pulse rounded-[6px]" />
                     </td>
                   ))}
                 </tr>
@@ -172,14 +172,14 @@ export function DataTableWithPagination<T = any>({
   return (
     <div className="space-y-3">
       {/* Data Table */}
-      <div className={`rounded border overflow-x-auto ${className}`}>
+      <div className={`rounded-[16px] border border-border/80 bg-card overflow-x-auto shadow-2xs ${className}`}>
         <table className="w-full text-xs">
-          <thead className="bg-muted/50">
+          <thead className="bg-muted/40">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-3 py-2 text-left font-semibold text-xs text-muted-foreground border-b border-border ${
+                  className={`px-3.5 py-2.5 text-left font-semibold text-xs text-muted-foreground border-b border-border/70 ${
                     column.className || ""
                   }`}
                   style={{

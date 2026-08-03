@@ -631,9 +631,22 @@
     --chart-4: 146 79% 41%;
     --chart-5: 2 85% 55%;
 
-    --radius: 0.35rem;
-    --card-radius: 0.525rem;
-    --button-radius: 0.35rem;
+    /* Modernized iOS Radii Scale */
+    --radius-xs: 0.5rem;   /* 8px - Badges, tags, small controls */
+    --radius-sm: 0.625rem; /* 10px - Compact controls */
+    --radius: 0.75rem;     /* 12px - Inputs, standard buttons, select controls */
+    --radius-md: 0.75rem;  /* 12px */
+    --radius-lg: 1rem;     /* 16px - Cards, containers, table wrappers */
+    --radius-xl: 1.25rem;  /* 20px - Dialogs, popovers, dropdown menus */
+    --radius-2xl: 1.5rem;  /* 24px - Mobile sheets, hero banners, floating panels */
+    --card-radius: 1rem;   /* 16px */
+    --button-radius: 0.75rem; /* 12px */
+
+    /* iOS Spring & Micro-elevation Shadows */
+    --shadow-ios-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+    --shadow-ios-md: 0 6px 20px -4px rgba(0, 0, 0, 0.06), 0 2px 6px -2px rgba(0, 0, 0, 0.04);
+    --shadow-ios-lg: 0 12px 32px -6px rgba(0, 0, 0, 0.08), 0 4px 12px -4px rgba(0, 0, 0, 0.04);
+    --shadow-ios-xl: 0 20px 48px -10px rgba(0, 0, 0, 0.12), 0 8px 24px -6px rgba(0, 0, 0, 0.06);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;

@@ -5,6 +5,7 @@
  * - parseUserImportFile: reads an uploaded Excel and returns row objects
  */
 
+// @ts-ignore
 import * as XLSX from "xlsx";
 import { UserResponseModel } from "@/redux/features/auth/store/models/response/users-response";
 

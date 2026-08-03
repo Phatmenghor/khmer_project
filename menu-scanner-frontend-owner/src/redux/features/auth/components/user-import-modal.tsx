@@ -28,7 +28,7 @@ import { AppDispatch } from "@/redux/store";
 
 type RowStatus = "pending" | "success" | "error";
 
-interface ImportRow extends ParsedUserRow {
+interface ImportRow extends Record<string, any> {
   __status: RowStatus;
   __error?: string;
 }
