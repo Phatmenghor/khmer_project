@@ -12,7 +12,6 @@ import { GenericExcelImport } from "@/components/shared/import/GenericExcelImpor
 import { ImportTableColumn, RowStatus, BaseImportRow } from "@/components/shared/import/types";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { resetState } from "@/features/auth/store/slice/role-slice";
-import { UserGropeType } from "@/constants/status/status";
 
 interface ImportRoleRow extends BaseImportRow {
   name: string;
@@ -92,6 +91,8 @@ export default function RoleImportPage() {
       required: true,
       fieldKey: "name",
       placeholder: "Role Name",
+      width: "220px",
+      minWidth: "160px",
     },
     {
       key: "description",
@@ -99,8 +100,8 @@ export default function RoleImportPage() {
       type: "text",
       fieldKey: "description",
       placeholder: "Description",
-      width: "400px",
-      minWidth: "300px",
+      width: "300px",
+      minWidth: "200px",
     },
   ];
 
@@ -117,13 +118,11 @@ export default function RoleImportPage() {
       onImportBatch={onImportBatch}
       columns={columns}
       rowIdentifierKey="name"
-      disableRedirectOnSuccess={true}
       onSuccess={() => {
         dispatch(resetState());
         dispatch(
           fetchAllRolesListService({
             includeAll: false,
-            userTypes: [UserGropeType.BUSINESS_USER],
           })
         );
       }}

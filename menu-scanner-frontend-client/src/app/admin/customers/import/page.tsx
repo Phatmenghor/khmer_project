@@ -15,8 +15,8 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { resetState } from "@/features/auth/store/slice/customers-slice";
 import { parseGender } from "@/utils/genderParser";
-import { UserGropeType } from "@/constants/status/status";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { GENDER_OPTIONS } from "@/constants/form-options";
 
 interface ImportCustomerRow extends BaseImportRow {
   username: string;
@@ -54,7 +54,6 @@ export default function CustomerImportPage() {
 
       const gender = parseGender(genderVal);
 
-
       return {
         username,
         password,
@@ -70,10 +69,7 @@ export default function CustomerImportPage() {
   };
 
   const onValidateRow = (row: ImportCustomerRow) => {
-    const isValid = !!(
-      row.username &&
-      row.password
-    );
+    const isValid = !!(row.username && row.password);
 
     return {
       isValid,
@@ -97,7 +93,6 @@ export default function CustomerImportPage() {
 
   const onImportBatch = async (rowsToProcess: ImportCustomerRow[], importId?: string) => {
     const payloads = rowsToProcess.map((row) => {
-      // Force customer role and user type, and leave dateOfBirth as undefined
       const mapPayload = {
         username: row.username,
         password: row.password,
@@ -121,6 +116,8 @@ export default function CustomerImportPage() {
       required: true,
       fieldKey: "username",
       placeholder: "Username",
+      width: "160px",
+      minWidth: "130px",
     },
     {
       key: "password",
@@ -129,13 +126,8 @@ export default function CustomerImportPage() {
       required: true,
       fieldKey: "password",
       placeholder: "Password",
-    },
-    {
-      key: "email",
-      label: "Email",
-      type: "text",
-      fieldKey: "email",
-      placeholder: "Email Address",
+      width: "140px",
+      minWidth: "120px",
     },
     {
       key: "fullName",
@@ -143,25 +135,36 @@ export default function CustomerImportPage() {
       type: "text",
       fieldKey: "fullName",
       placeholder: "Full Name",
+      width: "180px",
+      minWidth: "140px",
+    },
+    {
+      key: "email",
+      label: "Email",
+      type: "text",
+      fieldKey: "email",
+      placeholder: "Email",
+      width: "190px",
+      minWidth: "150px",
     },
     {
       key: "phoneNumber",
-      label: "Phone Number",
+      label: "Phone",
       type: "text",
       fieldKey: "phoneNumber",
-      placeholder: "Phone Number",
+      placeholder: "Phone",
+      width: "140px",
+      minWidth: "110px",
     },
     {
       key: "gender",
       label: "Gender",
       type: "select",
       fieldKey: "gender",
-      placeholder: "Select Gender...",
-      options: [
-        { value: "MALE", label: "Male" },
-        { value: "FEMALE", label: "Female" },
-        { value: "OTHER", label: "Other" },
-      ],
+      placeholder: "Gender",
+      options: GENDER_OPTIONS,
+      width: "120px",
+      minWidth: "100px",
     },
   ];
 
@@ -178,6 +181,7 @@ export default function CustomerImportPage() {
       onImportBatch={onImportBatch}
       columns={columns}
       rowIdentifierKey="username"
+      disableRedirectOnSuccess={true}
       onSuccess={() => {
         dispatch(resetState());
         dispatch(
@@ -185,9 +189,6 @@ export default function CustomerImportPage() {
             search: "",
             pageNo: 1,
             pageSize: globalPageSize,
-            roles: [],
-            userTypes: [UserGropeType.CUSTOMER],
-            accountStatuses: [],
           })
         );
       }}

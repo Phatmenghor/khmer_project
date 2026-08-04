@@ -149,3 +149,14 @@ export const createBulkPromotionsService = createApiThunk<
     return response.data.data;
   }
 );
+
+export const importProductsBatchService = createApiThunk<
+  any,
+  { requests: any[]; importId?: string }
+>("products/importBatch", async ({ requests, importId }) => {
+  const response = await axiosClientWithAuth.post(
+    `/api/v1/products/batch${importId ? `?importId=${importId}` : ""}`,
+    requests
+  );
+  return response.data.data;
+});

@@ -93,6 +93,13 @@ export const PRODUCT_STATUS_CREATE_UPDATE = [
   { value: ProductStatus.OUT_OF_STOCK, label: "Out of Stock" },
 ];
 
+export const PRODUCT_STOCK_STATUS_CREATE_UPDATE = [
+  { value: "ENABLED", label: "Enabled" },
+  { value: "DISABLED", label: "Disabled" },
+  { value: "OUT_OF_STOCK", label: "Out of Stock" },
+  { value: "IN_STOCK", label: "In Stock" },
+];
+
 export const PROMOTION_TYPE_CREATE_UPDATE = [
   { value: PromotionType.NONE, label: "No Promotion" },
   { value: PromotionType.PERCENTAGE, label: "Percentage" },

@@ -63,11 +63,11 @@ public class ProductSpecification extends BaseSpecification {
         return (root, query, cb) -> {
             if (minPrice == null && maxPrice == null) return cb.conjunction();
             if (minPrice != null && maxPrice != null) {
-                return cb.between(root.get("displayPrice"), minPrice, maxPrice);
+                return cb.between(root.get("price"), minPrice, maxPrice);
             } else if (minPrice != null) {
-                return cb.greaterThanOrEqualTo(root.get("displayPrice"), minPrice);
+                return cb.greaterThanOrEqualTo(root.get("price"), minPrice);
             } else {
-                return cb.lessThanOrEqualTo(root.get("displayPrice"), maxPrice);
+                return cb.lessThanOrEqualTo(root.get("price"), maxPrice);
             }
         };
     }

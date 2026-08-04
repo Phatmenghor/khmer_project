@@ -40,9 +40,16 @@ import com.emenu.features.main.utils.ProductUtils;
 import com.emenu.features.order.utils.CartQueryHelper;
 import com.emenu.features.stock.repository.ProductStockRepository;
 import com.emenu.security.SecurityUtils;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
+import com.emenu.shared.dto.BatchImportResponse;
 import com.emenu.shared.dto.PaginationResponse;
-import com.emenu.shared.mapper.PaginationMapper;
-import com.emenu.shared.pagination.PaginationUtils;
+import com.emenu.shared.service.RequestCancellationRegistry;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.transaction.annotation.Propagation;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
@@ -61,6 +68,10 @@ import java.util.*;
 @Slf4j
 public class ProductServiceImpl implements ProductService {
 
+    @Autowired
+    @Lazy
+    private ProductService self;
+
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
     private final ProductSizeRepository productSizeRepository;
@@ -77,6 +88,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductFavoriteQueryHelper favoriteQueryHelper;
     private final CartQueryHelper cartQueryHelper;
     private final ProductStockRepository productStockRepository;
+    private final WebSocketNotificationService webSocketNotificationService;
+    private final RequestCancellationRegistry cancellationRegistry;
 
     @Override
     @Transactional(readOnly = true)
@@ -737,6 +750,69 @@ public class ProductServiceImpl implements ProductService {
             log.error("Failed to create product: name={}, error={}", request.getName(), e.getMessage(), e);
             throw e;
         }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public BatchImportResponse<ProductDetailDto> createProductBatch(List<ProductCreateDto> requests, String importId) {
+        log.info("Batch product creation initiated: size={}, importId={}", requests.size(), importId);
+        List<BatchImportResponse.RowResult<ProductDetailDto>> results = new ArrayList<>();
+        int successCount = 0;
+        int errorCount = 0;
+
+        cancellationRegistry.registerImport(importId);
+
+        try {
+            for (int i = 0; i < requests.size(); i++) {
+                cancellationRegistry.checkCancelled(importId);
+
+                ProductCreateDto req = requests.get(i);
+                boolean success = false;
+                String errorMsg = null;
+                ProductDetailDto resp = null;
+                try {
+                    resp = self.createProduct(req);
+                    results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
+                    successCount++;
+                    success = true;
+                } catch (ConstraintViolationException ex) {
+                    errorMsg = ex.getConstraintViolations().stream()
+                            .map(ConstraintViolation::getMessage)
+                            .collect(Collectors.joining(", "));
+                    log.error("Batch product creation failed at index {} due to validation: {}", i, errorMsg);
+                    results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
+                    errorCount++;
+                } catch (Exception ex) {
+                    log.error("Batch product creation failed at index {}: {}", i, ex.getMessage());
+                    errorMsg = ex.getMessage();
+                    results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
+                    errorCount++;
+                }
+
+                if (importId != null) {
+                    int progress = (int) (((double) (i + 1) / requests.size()) * 100);
+                    Map<String, Object> lastResult = Map.of(
+                        "index", i,
+                        "success", success,
+                        "error", errorMsg != null ? errorMsg : ""
+                    );
+                    webSocketNotificationService.notifyImportProgress(
+                        importId,
+                        progress,
+                        i + 1,
+                        requests.size(),
+                        successCount,
+                        errorCount,
+                        (i + 1) == requests.size(),
+                        lastResult
+                    );
+                }
+            }
+        } finally {
+            cancellationRegistry.cleanUp(importId);
+        }
+
+        return new BatchImportResponse<>(successCount, errorCount, results);
     }
 
     @Override

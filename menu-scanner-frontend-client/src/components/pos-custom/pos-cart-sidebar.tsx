@@ -71,7 +71,7 @@ export function POSCartSidebar({
   return (
     <div
       className={cn(
-        "w-full md:w-[410px] lg:w-[450px] xl:w-[490px] max-md:border-t md:border-l border-border h-full flex flex-col justify-between bg-card shrink-0 overflow-hidden",
+        "w-full md:w-[350px] lg:w-[380px] xl:w-[410px] max-md:border-t md:border-l border-border h-full flex flex-col justify-between bg-card shrink-0 overflow-hidden",
         showCart ? "flex fixed inset-0 z-50 md:relative md:z-auto bg-background" : "hidden md:flex"
       )}
     >

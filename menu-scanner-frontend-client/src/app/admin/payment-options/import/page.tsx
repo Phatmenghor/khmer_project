@@ -15,6 +15,7 @@ import { uploadMultiSize } from "@/services/spaces-service";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { resetState } from "@/features/master-data/store/slice/payment-options-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { BANNER_STATUS_CREATE_UPDATE } from "@/constants/status/create-update-status";
 
 interface ImportPaymentOptionRow extends BaseImportRow {
   name: string;
@@ -24,6 +25,11 @@ interface ImportPaymentOptionRow extends BaseImportRow {
   __nameError?: boolean;
   __typeError?: boolean;
 }
+
+const PAYMENT_TYPE_OPTIONS = [
+  { value: "BANK", label: "Bank Transfer" },
+  { value: "CASH", label: "Cash" },
+];
 
 export default function PaymentOptionImportPage() {
   const dispatch = useAppDispatch();
@@ -133,19 +139,21 @@ export default function PaymentOptionImportPage() {
   const columns: ImportTableColumn<ImportPaymentOptionRow>[] = [
     {
       key: "image",
-      label: "Image",
+      label: "QR / Logo",
       type: "image",
       fieldKey: "__imageFile" as any,
-      width: "150px",
-      minWidth: "130px",
+      width: "140px",
+      minWidth: "110px",
     },
     {
       key: "name",
-      label: "Payment Option Name",
+      label: "Name",
       type: "text",
       required: true,
       fieldKey: "name",
       placeholder: "Payment Option Name",
+      width: "220px",
+      minWidth: "160px",
     },
     {
       key: "type",
@@ -153,22 +161,20 @@ export default function PaymentOptionImportPage() {
       type: "select",
       required: true,
       fieldKey: "paymentOptionType",
-      placeholder: "Select Type...",
-      options: [
-        { value: "BANK", label: "Bank Transfer" },
-        { value: "CASH", label: "Cash" },
-      ],
+      placeholder: "Type",
+      options: PAYMENT_TYPE_OPTIONS,
+      width: "140px",
+      minWidth: "110px",
     },
     {
       key: "status",
       label: "Status",
       type: "select",
       fieldKey: "status",
-      placeholder: "Select Status...",
-      options: [
-        { value: "ACTIVE", label: "Active" },
-        { value: "INACTIVE", label: "Inactive" },
-      ],
+      placeholder: "Status",
+      options: BANNER_STATUS_CREATE_UPDATE,
+      width: "130px",
+      minWidth: "110px",
     },
   ];
 

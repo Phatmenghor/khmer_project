@@ -12,6 +12,7 @@ import com.emenu.features.main.service.ProductService;
 import com.emenu.features.main.service.ProductConditionalService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
+import com.emenu.shared.dto.BatchImportResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -116,6 +118,15 @@ public class ProductController {
         ProductDetailDto product = productService.createProduct(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Product created successfully", product));
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<ApiResponse<BatchImportResponse<ProductDetailDto>>> createProductBatch(
+            @RequestBody List<ProductCreateDto> requests,
+            @RequestParam(required = false) String importId) {
+        log.info("Endpoint: createProductBatch - product batch creation: size={}, importId={}", requests.size(), importId);
+        BatchImportResponse<ProductDetailDto> response = productService.createProductBatch(requests, importId);
+        return ResponseEntity.ok(ApiResponse.success("Batch product import completed", response));
     }
 
     @PutMapping("/{id}")

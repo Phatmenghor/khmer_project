@@ -100,19 +100,21 @@ export default function CategoryImportPage() {
   const columns: ImportTableColumn<ImportCategoryRow>[] = [
     {
       key: "image",
-      label: "Image",
+      label: "Icon",
       type: "image",
       fieldKey: "__imageFile" as any,
-      width: "150px",
-      minWidth: "130px",
+      width: "140px",
+      minWidth: "110px",
     },
     {
       key: "name",
-      label: "Category Name",
+      label: "Name",
       type: "text",
       required: true,
       fieldKey: "name",
       placeholder: "Category Name",
+      width: "220px",
+      minWidth: "160px",
     },
     {
       key: "description",
@@ -120,8 +122,8 @@ export default function CategoryImportPage() {
       type: "text",
       fieldKey: "description",
       placeholder: "Description",
-      width: "400px",
-      minWidth: "300px",
+      width: "280px",
+      minWidth: "180px",
     },
   ];
 

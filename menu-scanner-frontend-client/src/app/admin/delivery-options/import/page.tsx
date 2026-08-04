@@ -15,6 +15,7 @@ import { uploadMultiSize } from "@/services/spaces-service";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { resetState } from "@/features/master-data/store/slice/delivery-options-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { BANNER_STATUS_CREATE_UPDATE } from "@/constants/status/create-update-status";
 
 interface ImportDeliveryOptionRow extends BaseImportRow {
   name: string;
@@ -132,16 +133,18 @@ export default function DeliveryOptionImportPage() {
       label: "Image",
       type: "image",
       fieldKey: "__imageFile" as any,
-      width: "150px",
-      minWidth: "130px",
+      width: "140px",
+      minWidth: "110px",
     },
     {
       key: "name",
-      label: "Delivery Option Name",
+      label: "Name",
       type: "text",
       required: true,
       fieldKey: "name",
       placeholder: "Delivery Option Name",
+      width: "220px",
+      minWidth: "160px",
     },
     {
       key: "price",
@@ -149,18 +152,19 @@ export default function DeliveryOptionImportPage() {
       type: "text",
       required: true,
       fieldKey: "price",
-      placeholder: "Price (e.g. 1.50)",
+      placeholder: "Price",
+      width: "110px",
+      minWidth: "90px",
     },
     {
       key: "status",
       label: "Status",
       type: "select",
       fieldKey: "status",
-      placeholder: "Select Status...",
-      options: [
-        { value: "ACTIVE", label: "Active" },
-        { value: "INACTIVE", label: "Inactive" },
-      ],
+      placeholder: "Status",
+      options: BANNER_STATUS_CREATE_UPDATE,
+      width: "130px",
+      minWidth: "110px",
     },
   ];
 

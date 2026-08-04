@@ -260,6 +260,8 @@ function PosPageInner() {
 
 
   const debouncedSearch = useDebounce(searchTerm, 400);
+  const debouncedMinPrice = useDebounce(minPrice || "", 400);
+  const debouncedMaxPrice = useDebounce(maxPrice || "", 400);
 
   const [editingItemForPrice, setEditingItemForPrice] = useState<PosPageCartItem | null>(null);
   const [orderDiscount, setOrderDiscount] = useState<OrderDiscountType>(null);
@@ -354,8 +356,8 @@ function PosPageInner() {
     dispatch(setProductPage(1));
     dispatch(setProducts([]));
     dispatch(setProductsLoading(true));
-    const parsedMin = minPrice ? parseFloat(minPrice) : undefined;
-    const parsedMax = maxPrice ? parseFloat(maxPrice) : undefined;
+    const parsedMin = debouncedMinPrice ? parseFloat(debouncedMinPrice) : undefined;
+    const parsedMax = debouncedMaxPrice ? parseFloat(debouncedMaxPrice) : undefined;
     dispatch(
       fetchPOSPageProductsService({
         page: 1,
@@ -368,13 +370,13 @@ function PosPageInner() {
         reset: true,
       })
     );
-  }, [debouncedSearch, selectedCategory, selectedBrand, promotionFilter, minPrice, maxPrice, dispatch]);
+  }, [debouncedSearch, selectedCategory, selectedBrand, promotionFilter, debouncedMinPrice, debouncedMaxPrice, dispatch]);
 
   const loadMoreProducts = () => {
     if (hasMoreProducts && !productsLoading) {
       const nextPage = productPage + 1;
-      const parsedMin = minPrice ? parseFloat(minPrice) : undefined;
-      const parsedMax = maxPrice ? parseFloat(maxPrice) : undefined;
+      const parsedMin = debouncedMinPrice ? parseFloat(debouncedMinPrice) : undefined;
+      const parsedMax = debouncedMaxPrice ? parseFloat(debouncedMaxPrice) : undefined;
 
       dispatch(setProductPage(nextPage));
       dispatch(

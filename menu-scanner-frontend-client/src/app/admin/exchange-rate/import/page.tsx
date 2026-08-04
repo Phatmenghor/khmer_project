@@ -14,6 +14,7 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { resetState } from "@/features/master-data/store/slice/exchange-rate-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { BANNER_STATUS_CREATE_UPDATE } from "@/constants/status/create-update-status";
 
 interface ImportExchangeRateRow extends BaseImportRow {
   usdToKhrRate: string;
@@ -103,31 +104,32 @@ export default function ExchangeRateImportPage() {
   const columns: ImportTableColumn<ImportExchangeRateRow>[] = [
     {
       key: "usdToKhrRate",
-      label: "USD to KHR Rate",
+      label: "Rate (USD->KHR)",
       type: "text",
       required: true,
       fieldKey: "usdToKhrRate",
       placeholder: "e.g. 4100",
+      width: "170px",
+      minWidth: "130px",
     },
     {
       key: "status",
       label: "Status",
       type: "select",
       fieldKey: "status",
-      placeholder: "Select Status...",
-      options: [
-        { value: "ACTIVE", label: "Active" },
-        { value: "INACTIVE", label: "Inactive" },
-      ],
+      placeholder: "Status",
+      options: BANNER_STATUS_CREATE_UPDATE,
+      width: "130px",
+      minWidth: "110px",
     },
     {
       key: "remark",
       label: "Remark",
       type: "text",
       fieldKey: "remark",
-      placeholder: "e.g. Main active rate",
-      width: "300px",
-      minWidth: "200px",
+      placeholder: "Remark",
+      width: "260px",
+      minWidth: "180px",
     },
   ];
 

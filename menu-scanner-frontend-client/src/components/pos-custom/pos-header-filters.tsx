@@ -58,17 +58,17 @@ export function POSHeaderFilters({
   );
 
   return (
-    <div className="flex flex-col gap-2.5 p-3 sm:px-4 sm:py-3 border-b border-border/80 bg-card/95 backdrop-blur-md shrink-0 shadow-2xs">
+    <div className="flex flex-col gap-2 p-2.5 sm:px-4 sm:py-2.5 border-b border-border/80 bg-card/95 backdrop-blur-md shrink-0 shadow-2xs">
       {/* Dynamic Row 1: Search, Category Combobox, Brand Combobox */}
       <div className="flex flex-wrap items-center gap-2.5 w-full">
         {/* Search Input */}
-        <div className="relative flex-1 min-w-[200px] sm:min-w-[260px]">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground pointer-events-none" />
+        <div className="relative flex-1 min-w-[180px] sm:min-w-[240px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
             ref={searchInputRef}
             type="search"
             placeholder="Search products by name, SKU..."
-            className="pl-10 pr-9 h-10 text-xs sm:text-sm font-medium bg-muted/30 border-border/70 focus-visible:bg-background transition-all rounded-[10px]"
+            className="pl-9 pr-8 h-[36px] text-xs sm:text-sm font-normal bg-muted/30 border-border/70 focus-visible:bg-background transition-all rounded-[8px]"
             value={searchTerm}
             onChange={(e) => dispatch(setSearchTerm(e.target.value))}
           />
@@ -76,9 +76,9 @@ export function POSHeaderFilters({
             <button
               type="button"
               onClick={() => dispatch(setSearchTerm(""))}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
@@ -91,18 +91,18 @@ export function POSHeaderFilters({
               role="combobox"
               aria-expanded={categoryOpen}
               className={cn(
-                "w-[140px] sm:w-[190px] justify-between h-10 text-xs sm:text-sm font-semibold rounded-[10px] border-border/70 bg-background",
+                "w-[130px] sm:w-[170px] justify-between h-[36px] text-xs sm:text-sm font-semibold rounded-[8px] border-border/70 bg-background",
                 selectedCategory && "border-primary/60 bg-primary/10 text-primary font-bold"
               )}
             >
               <span className="truncate">{selectedCategory?.name || "All Categories"}</span>
-              <ChevronsUpDown className="ml-1 h-4 w-4 shrink-0 opacity-50" />
+              <ChevronsUpDown className="ml-1 h-3.5 w-3.5 shrink-0 opacity-50" />
             </CustomButton>
           </PopoverTrigger>
-          <PopoverContent className="w-[220px] p-1 border border-border/80 bg-popover shadow-md rounded-[10px]" align="start">
+          <PopoverContent className="w-[200px] p-1 border border-border/80 bg-popover shadow-md rounded-[10px]" align="start">
             <Command>
-              <CommandInput placeholder="Search categories..." className="h-9.5 text-xs sm:text-sm font-medium" />
-              <CommandEmpty className="text-xs sm:text-sm py-2.5 text-center text-muted-foreground font-medium">No category found.</CommandEmpty>
+              <CommandInput placeholder="Search categories..." className="h-9 text-xs sm:text-sm font-medium" />
+              <CommandEmpty className="text-xs sm:text-sm py-2 text-center text-muted-foreground font-medium">No category found.</CommandEmpty>
               <CommandList>
                 <CommandGroup>
                   <CommandItem
@@ -154,18 +154,18 @@ export function POSHeaderFilters({
               role="combobox"
               aria-expanded={brandOpen}
               className={cn(
-                "w-[130px] sm:w-[180px] justify-between h-10 text-xs sm:text-sm font-semibold rounded-[10px] border-border/70 bg-background",
+                "w-[120px] sm:w-[160px] justify-between h-[36px] text-xs sm:text-sm font-semibold rounded-[8px] border-border/70 bg-background",
                 selectedBrand && "border-primary/60 bg-primary/10 text-primary font-bold"
               )}
             >
               <span className="truncate">{selectedBrand?.name || "All Brands"}</span>
-              <ChevronsUpDown className="ml-1 h-4 w-4 shrink-0 opacity-50" />
+              <ChevronsUpDown className="ml-1 h-3.5 w-3.5 shrink-0 opacity-50" />
             </CustomButton>
           </PopoverTrigger>
-          <PopoverContent className="w-[200px] p-1 border border-border/80 bg-popover shadow-md rounded-[10px]" align="start">
+          <PopoverContent className="w-[190px] p-1 border border-border/80 bg-popover shadow-md rounded-[10px]" align="start">
             <Command>
-              <CommandInput placeholder="Search brands..." className="h-9.5 text-xs sm:text-sm font-medium" />
-              <CommandEmpty className="text-xs sm:text-sm py-2.5 text-center text-muted-foreground font-medium">No brand found.</CommandEmpty>
+              <CommandInput placeholder="Search brands..." className="h-9 text-xs sm:text-sm font-medium" />
+              <CommandEmpty className="text-xs sm:text-sm py-2 text-center text-muted-foreground font-medium">No brand found.</CommandEmpty>
               <CommandList>
                 <CommandGroup>
                   <CommandItem
@@ -220,7 +220,7 @@ export function POSHeaderFilters({
               role="combobox"
               aria-expanded={promotionOpen}
               className={cn(
-                "w-[130px] sm:w-[170px] justify-between h-10 text-xs sm:text-sm font-semibold rounded-[10px] border-border/70 bg-background",
+                "w-[120px] sm:w-[155px] justify-between h-[36px] text-xs sm:text-sm font-semibold rounded-[8px] border-border/70 bg-background",
                 promotionFilter === true && "border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold",
                 promotionFilter === false && "border-blue-500/50 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold"
               )}
@@ -232,10 +232,10 @@ export function POSHeaderFilters({
                   ? "🔥 On Sale"
                   : "Standard Items"}
               </span>
-              <ChevronsUpDown className="ml-1 h-4 w-4 shrink-0 opacity-50" />
+              <ChevronsUpDown className="ml-1 h-3.5 w-3.5 shrink-0 opacity-50" />
             </CustomButton>
           </PopoverTrigger>
-          <PopoverContent className="w-[180px] p-1 border border-border/80 bg-popover shadow-md rounded-[10px]" align="start">
+          <PopoverContent className="w-[170px] p-1 border border-border/80 bg-popover shadow-md rounded-[10px]" align="start">
             <Command>
               <CommandList>
                 <CommandGroup>
@@ -245,7 +245,7 @@ export function POSHeaderFilters({
                       dispatch(setPromotionFilter(undefined));
                       dispatch(setPromotionOpen(false));
                     }}
-                    className="cursor-pointer text-xs sm:text-sm py-2 font-medium"
+                    className="cursor-pointer text-xs sm:text-sm py-1.5 font-medium"
                   >
                     <Check
                       className={cn(
@@ -262,7 +262,7 @@ export function POSHeaderFilters({
                       dispatch(setPromotionFilter(true));
                       dispatch(setPromotionOpen(false));
                     }}
-                    className="cursor-pointer text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400 py-2"
+                    className="cursor-pointer text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400 py-1.5"
                   >
                     <Check
                       className={cn(
@@ -279,7 +279,7 @@ export function POSHeaderFilters({
                       dispatch(setPromotionFilter(false));
                       dispatch(setPromotionOpen(false));
                     }}
-                    className="cursor-pointer text-xs sm:text-sm py-2 font-medium"
+                    className="cursor-pointer text-xs sm:text-sm py-1.5 font-medium"
                   >
                     <Check
                       className={cn(
@@ -295,8 +295,8 @@ export function POSHeaderFilters({
           </PopoverContent>
         </Popover>
 
-        {/* Price Range Input Group */}
-        <div className="flex items-center gap-1.5 bg-muted/30 px-2.5 py-1 rounded-[10px] border border-border/70 h-10">
+        {/* Price Range Input Group - Uniform h-[36px] height */}
+        <div className="flex items-center gap-1.5 bg-muted/30 px-2.5 rounded-[8px] border border-border/70 h-[36px]">
           <span className="text-xs text-muted-foreground font-extrabold flex items-center gap-0.5 whitespace-nowrap">
             <DollarSign className="w-3.5 h-3.5 text-primary shrink-0" />
             Price
@@ -310,7 +310,7 @@ export function POSHeaderFilters({
               const val = e.target.value.replace(/[^0-9.]/g, "");
               dispatch(setMinPrice(val));
             }}
-            className="h-8 w-[75px] sm:w-[90px] text-xs sm:text-sm px-2.5 bg-background border-border/60 rounded-[6px] font-semibold"
+            className="h-[26px] w-[70px] sm:w-[80px] text-xs sm:text-sm px-2 bg-background border-border/60 rounded-[6px] font-semibold"
           />
           <span className="text-muted-foreground text-xs font-extrabold">-</span>
           <Input
@@ -322,7 +322,7 @@ export function POSHeaderFilters({
               const val = e.target.value.replace(/[^0-9.]/g, "");
               dispatch(setMaxPrice(val));
             }}
-            className="h-8 w-[75px] sm:w-[90px] text-xs sm:text-sm px-2.5 bg-background border-border/60 rounded-[6px] font-semibold"
+            className="h-[26px] w-[70px] sm:w-[80px] text-xs sm:text-sm px-2 bg-background border-border/60 rounded-[6px] font-semibold"
           />
         </div>
 
@@ -331,7 +331,7 @@ export function POSHeaderFilters({
           <CustomButton
             variant="ghost"
             size="sm"
-            className="h-10 px-3 text-xs sm:text-sm font-bold text-red-500 hover:text-red-600 hover:bg-red-500/10 rounded-[10px] gap-1.5 ml-auto sm:ml-0"
+            className="h-[36px] px-3 text-xs sm:text-sm font-bold text-red-500 hover:text-red-600 hover:bg-red-500/10 rounded-[8px] gap-1.5 ml-auto sm:ml-0"
             onClick={() => {
               dispatch(setSearchTerm(""));
               dispatch(setSelectedCategory(null));

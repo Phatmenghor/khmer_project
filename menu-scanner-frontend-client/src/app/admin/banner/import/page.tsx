@@ -14,6 +14,7 @@ import { uploadMultiSize } from "@/services/spaces-service";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { resetState } from "@/features/master-data/store/slice/banner-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { BANNER_STATUS_CREATE_UPDATE } from "@/constants/status/create-update-status";
 
 interface ImportBannerRow extends BaseImportRow {
   description: string;
@@ -118,9 +119,10 @@ export default function BannerImportPage() {
       key: "image",
       label: "Image",
       type: "image",
+      required: true,
       fieldKey: "__imageFile" as any,
-      width: "160px",
-      minWidth: "140px",
+      width: "150px",
+      minWidth: "120px",
       isWide: true,
     },
     {
@@ -129,7 +131,18 @@ export default function BannerImportPage() {
       type: "text",
       required: true,
       fieldKey: "description",
-      placeholder: "Banner Description",
+      placeholder: "Description",
+      width: "280px",
+      minWidth: "180px",
+    },
+    {
+      key: "status",
+      label: "Status",
+      type: "select",
+      fieldKey: "status",
+      options: BANNER_STATUS_CREATE_UPDATE,
+      width: "130px",
+      minWidth: "110px",
     },
   ];
 

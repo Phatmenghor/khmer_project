@@ -8,14 +8,11 @@ import com.emenu.features.main.dto.response.ProductDetailDto;
 import com.emenu.features.main.dto.response.ProductListDto;
 import com.emenu.features.main.dto.response.BulkPromotionResultDto;
 import com.emenu.features.main.dto.update.ProductUpdateDto;
-import com.emenu.shared.dto.PaginationResponse;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.Map;
+import com.emenu.shared.dto.BatchImportResponse;
 
 public interface ProductService {
     ProductDetailDto createProduct(ProductCreateDto request);
+    BatchImportResponse<ProductDetailDto> createProductBatch(List<ProductCreateDto> requests, String importId);
     PaginationResponse<ProductDetailDto> getAllProductsAdmin(ProductFilterDto filter);
     PaginationResponse<ProductDetailDto> getAllProductsAdminPos(ProductFilterDto filter);
     PaginationResponse<ProductDetailDto> getAllProductsAdminStock(ProductFilterDto filter);

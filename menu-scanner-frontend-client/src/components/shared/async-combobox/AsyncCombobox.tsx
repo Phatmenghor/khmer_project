@@ -97,7 +97,7 @@ export function AsyncCombobox<T>({
 
   return (
     <div className={cn("flex flex-col gap-1 w-full", className)}>
-      {label && (
+      {Boolean(label && label.trim() !== "") && (
         <Label className="text-xs font-semibold text-foreground leading-tight flex items-center min-h-[16px]">
           <span>{label}</span>
           {required && <span className="text-destructive ml-0.5">*</span>}

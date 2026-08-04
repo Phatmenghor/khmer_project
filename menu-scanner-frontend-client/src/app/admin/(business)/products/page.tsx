@@ -4,7 +4,10 @@ import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState, Suspense} from "react";
 
 import { useDebounce } from "@/utils/debounce/debounce";
+import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
+import { downloadProductTemplate } from "@/utils/excel/product-excel.utils";
+import { DownloadTemplateButton, ImportSpreadsheetButton } from "@/components/shared/button/custom-button";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
@@ -56,6 +59,7 @@ const SORT_DIRECTION_OPTIONS = [
 ];
 
 function ProductPageInner() {
+  const router = useRouter();
 
   useAdminCleanup(resetState);
 
@@ -358,6 +362,12 @@ function ProductPageInner() {
     buttonText: "New Product",
     buttonDisabled: false,
     onButtonClick: handleCreateBrand,
+    extraActions: (
+      <div className="flex items-center gap-1">
+        <DownloadTemplateButton onDownload={downloadProductTemplate} />
+        <ImportSpreadsheetButton onClick={() => router.push(ROUTES.ADMIN.PRODUCTS_IMPORT)} title="Import products from Excel" />
+      </div>
+    ),
     onClearAll: handleClearAllFilters,
     filters: [
       {

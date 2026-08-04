@@ -201,44 +201,30 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
         )}
 
         {value && !isUploading ? (
-          <div className="relative w-full h-full group/overlay">
-            {aspectRatio === "square" ? (
-              <div className="w-full h-full flex items-center justify-center bg-muted/10">
-                <div className="relative w-36 h-36 rounded-[10px] overflow-hidden flex-shrink-0 border border-border/50">
-                  <SmartImage
-                    src={value}
-                    alt="Preview"
-                    fill
-                    showSkeleton={false}
-                    className="object-cover transition-transform duration-500 group-hover/overlay:scale-105"
-                  />
-                </div>
-              </div>
-            ) : (
-              <SmartImage
-                src={value}
-                alt="Preview"
-                fill
-                showSkeleton={false}
-                className="object-cover transition-transform duration-500 group-hover/overlay:scale-105"
-              />
-            )}
+          <div className="relative w-full h-full group/overlay overflow-hidden rounded-[8px]">
+            <SmartImage
+              src={value}
+              alt="Preview"
+              fill
+              showSkeleton={false}
+              className="object-cover transition-transform duration-500 group-hover/overlay:scale-105"
+            />
 
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover/overlay:opacity-100 transition-all duration-300 flex items-center justify-center">
-              <div className="px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-xs font-medium text-white flex items-center gap-1.5 shadow-md">
-                <Upload className="h-3.5 w-3.5" />
-                <span>Click to change image</span>
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover/overlay:opacity-100 transition-all duration-300 flex items-center justify-center p-1">
+              <div className="px-2 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-[10px] font-medium text-white flex items-center gap-1 shadow-md">
+                <Upload className="h-3 w-3" />
+                <span className="hidden sm:inline">Change</span>
               </div>
             </div>
 
             {!disabled && (
               <button
                 type="button"
-                className="absolute top-2.5 right-2.5 z-20 h-7 w-7 rounded-full bg-destructive/90 text-destructive-foreground hover:bg-destructive hover:scale-110 shadow-md transition-all flex items-center justify-center"
+                className="absolute top-1 right-1 z-20 h-5 w-5 rounded-full bg-destructive/90 text-destructive-foreground hover:bg-destructive hover:scale-110 shadow-md transition-all flex items-center justify-center cursor-pointer"
                 onClick={handleRemove}
                 title="Remove image"
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="h-3 w-3" />
               </button>
             )}
           </div>

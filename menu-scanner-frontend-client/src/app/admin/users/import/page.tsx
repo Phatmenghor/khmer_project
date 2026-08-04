@@ -20,6 +20,7 @@ import { GENDER_OPTIONS } from "@/constants/form-options";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { resetState } from "@/features/auth/store/slice/users-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { CustomDateTimePicker } from "@/components/shared/common/custom-date-picker";
 
 interface ImportRow extends BaseImportRow {
   username: string;
@@ -71,23 +72,19 @@ export default function UserImportPage() {
       if (!roleText || !rolesList.length) return "";
 
       const cleanInput = roleText.trim().toLowerCase();
-      // Normalize spaces, underscores, and hyphens to spaces
       const normalize = (str: string) =>
         str.toLowerCase().replace(/[_-]/g, " ").replace(/\s+/g, " ").trim();
 
       const normalizedInput = normalize(cleanInput);
 
-      // 1. Try exact normalized match (e.g. "business admin" === "business admin")
       let match = rolesList.find((r) => normalize(r.name) === normalizedInput);
       if (match) return match.name;
 
-      // 2. Try clean alphanumeric match (e.g. "businessadmin" === "businessadmin")
       const alphaNum = (str: string) => str.replace(/[^a-z0-9]/g, "");
       const cleanInputAlpha = alphaNum(normalizedInput);
       match = rolesList.find((r) => alphaNum(normalize(r.name)) === cleanInputAlpha);
       if (match) return match.name;
 
-      // 3. Try substring match (e.g. "business admin" contains "admin")
       match = rolesList.find(
         (r) =>
           normalize(r.name).includes(normalizedInput) ||
@@ -95,7 +92,6 @@ export default function UserImportPage() {
       );
       if (match) return match.name;
 
-      // 4. Split into words and match significant keyword (ignoring "business")
       const inputWords = normalizedInput.split(" ").filter((w) => w !== "business" && w.length > 2);
       if (inputWords.length > 0) {
         for (const word of inputWords) {
@@ -112,78 +108,6 @@ export default function UserImportPage() {
     [rolesList]
   );
 
-  const isDobInvalid = (dob: string) => {
-    if (!dob) return false;
-    return !dob.match(/^\d{2}-\d{2}-\d{4}$/);
-  };
-
-  const normalizeDateOfBirth = (rawDob: string): string => {
-    if (!rawDob) return "";
-    const clean = rawDob.trim();
-    if (clean === "") return "";
-
-    // 1. Matches DD-MM-YYYY
-    if (/^\d{2}-\d{2}-\d{4}$/.test(clean)) {
-      return clean;
-    }
-
-    // 2. Matches DD-MM-YY, DD/MM/YY, DD-MM-YYYY, or DD/MM/YYYY
-    const dmyMatch = clean.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{2}|\d{4})$/);
-    if (dmyMatch) {
-      const day = dmyMatch[1].padStart(2, "0");
-      const month = dmyMatch[2].padStart(2, "0");
-      let year = dmyMatch[3];
-      if (year.length === 2) {
-        const yr = parseInt(year, 10);
-        year = yr >= 40 ? `19${year}` : `20${year}`;
-      }
-      return `${day}-${month}-${year}`;
-    }
-
-    // 3. Matches YYYY-MM-DD, YYYY/MM/DD, YY-MM-DD, or YY/MM/DD
-    const ymdMatch = clean.match(/^(\d{2}|\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
-    if (ymdMatch) {
-      let year = ymdMatch[1];
-      if (year.length === 2) {
-        const yr = parseInt(year, 10);
-        year = yr >= 40 ? `19${year}` : `20${year}`;
-      }
-      const month = ymdMatch[2].padStart(2, "0");
-      const day = ymdMatch[3].padStart(2, "0");
-      return `${day}-${month}-${year}`;
-    }
-
-    // 4. Check if it's an Excel serial date number (5-digit number for modern dates)
-    if (/^\d+$/.test(clean)) {
-      const serial = parseInt(clean, 10);
-      if (serial >= 10000 && serial <= 99999) {
-        const baseDate = new Date(1899, 11, 30);
-        const dateObj = new Date(baseDate.getTime() + serial * 24 * 60 * 60 * 1000);
-        if (!isNaN(dateObj.getTime())) {
-          const year = dateObj.getFullYear();
-          const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-          const day = String(dateObj.getDate()).padStart(2, "0");
-          return `${day}-${month}-${year}`;
-        }
-      }
-    }
-
-    // 5. Try JS Date parsing (e.g. for M/D/YY or other formats)
-    // Only parse if it's not a pure number to avoid parsing 5-digit zipcodes or serials as years
-    if (!/^\d+$/.test(clean)) {
-      const parsedTime = Date.parse(clean);
-      if (!isNaN(parsedTime)) {
-        const dateObj = new Date(parsedTime);
-        const year = dateObj.getFullYear();
-        const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-        const day = String(dateObj.getDate()).padStart(2, "0");
-        return `${day}-${month}-${year}`;
-      }
-    }
-
-    return clean;
-  };
-
   const parseFileCallback = async (file: File) => {
     const { rows: r, errors } = await parseUserImportFile(file);
 
@@ -195,30 +119,16 @@ export default function UserImportPage() {
         return matchedKey ? row[matchedKey] : "";
       };
 
-      const username = get(["username"]);
-      const password = get(["password"]);
-      const fullName = get(["name", "full"]);
+      const username = get(["username", "user"]);
+      const password = get(["password", "pass"]);
+      const fullName = get(["full name", "fullname", "name"]);
       const email = get(["email"]);
-      const phoneNumber = get(["phone", "number"]);
-      const genderVal = get(["gender"]);
-      const rawDateOfBirth = get(["birth", "dob"]);
-      const dateOfBirth = normalizeDateOfBirth(rawDateOfBirth);
-      const roleVal = get(["role"]);
+      const phoneNumber = get(["phone number", "phone"]);
+      const gender = get(["gender"]);
+      const rawDob = get(["date of birth", "dateofbirth", "dob"]);
+      const roleText = get(["role name", "role"]);
 
-      let gender = "";
-      const cleanGender = genderVal.trim().toLowerCase();
-      const maleSynonyms = ["male", "m", "boy", "man", "ប្រុស"];
-      const femaleSynonyms = ["female", "f", "girl", "woman", "ស្រី"];
-      const otherSynonyms = ["other", "o"];
-      if (maleSynonyms.some(s => cleanGender.includes(s))) {
-        gender = "MALE";
-      } else if (femaleSynonyms.some(s => cleanGender.includes(s))) {
-        gender = "FEMALE";
-      } else if (otherSynonyms.includes(cleanGender)) {
-        gender = "OTHER";
-      }
-
-      const resolvedName = resolveRoleId(roleVal);
+      const matchedRoleName = resolveRoleId(roleText);
 
       return {
         username,
@@ -226,11 +136,11 @@ export default function UserImportPage() {
         fullName,
         email,
         phoneNumber,
-        gender,
-        dateOfBirth,
-        role: roleVal,
+        gender: gender.toUpperCase() || "MALE",
+        dateOfBirth: rawDob,
+        role: matchedRoleName || roleText,
+        __roleName: matchedRoleName || roleText,
         __status: "pending" as RowStatus,
-        __roleName: resolvedName,
       };
     });
 
@@ -238,63 +148,56 @@ export default function UserImportPage() {
   };
 
   const onValidateRow = (row: ImportRow) => {
-    const dobErr = isDobInvalid(row.dateOfBirth);
-    const isValid = !!(
-      row.username &&
-      row.password &&
-      row.__roleName &&
-      !dobErr
-    );
+    const isUsernameValid = !!row.username;
+    const isRoleValid = !!row.role || !!row.__roleName;
+    const isValid = isUsernameValid && isRoleValid;
+
+    let error: string | undefined;
+    if (!isUsernameValid) error = "Username is required.";
+    else if (!isRoleValid) error = "Role is required.";
 
     return {
       isValid,
-      error: isValid ? undefined : "Required fields (Username, Password, Role) missing, or DOB format is invalid.",
+      error,
       fieldErrors: {
-        __usernameError: !row.username,
-        __roleError: !row.__roleName,
+        __usernameError: !isUsernameValid,
+        __roleError: !isRoleValid,
       },
     };
   };
 
   const determineFieldErrors = (row: ImportRow, msg: string) => {
-    const isDuplicate =
+    const isUsernameDuplicate =
       msg.toLowerCase().includes("username") ||
+      msg.toLowerCase().includes("user") ||
       msg.toLowerCase().includes("already exists") ||
       msg.toLowerCase().includes("duplicate");
+
     const isRoleErr = msg.toLowerCase().includes("role");
 
     return {
-      __usernameError: isDuplicate,
+      __usernameError: isUsernameDuplicate,
       __roleError: isRoleErr,
     };
   };
 
-  const convertDmyToYmd = (dmyStr: string): string => {
-    if (!dmyStr) return "";
-    const clean = dmyStr.trim();
-    const match = clean.match(/^(\d{2})-(\d{2})-(\d{4})$/);
-    if (match) {
-      const day = match[1];
-      const month = match[2];
-      const year = match[3];
-      return `${year}-${month}-${day}`;
-    }
-    return dmyStr;
-  };
-
   const onImportBatch = async (rowsToProcess: ImportRow[], importId?: string) => {
     const payloads = rowsToProcess.map((row) => {
-      const mapPayload: ParsedUserRow = {
-        username: row.username,
-        password: row.password,
-        fullName: row.fullName,
-        email: row.email,
-        phoneNumber: row.phoneNumber,
-        gender: row.gender,
-        dateOfBirth: convertDmyToYmd(row.dateOfBirth),
-        roleId: row.__roleName || "",
+      const selectedRole = rolesList.find((r) => r.name === (row.__roleName || row.role));
+      const roleId = selectedRole ? selectedRole.id : row.role;
+
+      const parsedUserRow: ParsedUserRow = {
+        "Username *": row.username,
+        "Password *": row.password,
+        "Full Name": row.fullName,
+        Email: row.email,
+        "Phone Number": row.phoneNumber,
+        Gender: row.gender,
+        "Date of Birth": row.dateOfBirth,
+        "Role Name *": selectedRole?.name || row.role,
       };
-      return mapRowToCreateRequest(mapPayload, "BUSINESS_USER", businessId);
+
+      return mapRowToCreateRequest(parsedUserRow, roleId, businessId);
     });
 
     return await dispatch(importUsersBatchService({ requests: payloads, importId })).unwrap();
@@ -308,6 +211,8 @@ export default function UserImportPage() {
       required: true,
       fieldKey: "username",
       placeholder: "Username",
+      width: "160px",
+      minWidth: "130px",
     },
     {
       key: "password",
@@ -316,6 +221,8 @@ export default function UserImportPage() {
       required: true,
       fieldKey: "password",
       placeholder: "Password",
+      width: "140px",
+      minWidth: "120px",
     },
     {
       key: "role",
@@ -324,7 +231,9 @@ export default function UserImportPage() {
       required: true,
       fieldKey: "__roleName",
       options: roleOptions,
-      placeholder: "Select Role...",
+      placeholder: "Role",
+      width: "160px",
+      minWidth: "130px",
     },
     {
       key: "fullName",
@@ -332,6 +241,8 @@ export default function UserImportPage() {
       type: "text",
       fieldKey: "fullName",
       placeholder: "Full Name",
+      width: "180px",
+      minWidth: "140px",
     },
     {
       key: "email",
@@ -339,6 +250,8 @@ export default function UserImportPage() {
       type: "text",
       fieldKey: "email",
       placeholder: "Email",
+      width: "190px",
+      minWidth: "150px",
     },
     {
       key: "phoneNumber",
@@ -346,6 +259,8 @@ export default function UserImportPage() {
       type: "text",
       fieldKey: "phoneNumber",
       placeholder: "Phone",
+      width: "140px",
+      minWidth: "110px",
     },
     {
       key: "gender",
@@ -353,15 +268,26 @@ export default function UserImportPage() {
       type: "select",
       fieldKey: "gender",
       options: GENDER_OPTIONS,
-      placeholder: "Gender...",
+      placeholder: "Gender",
+      width: "120px",
+      minWidth: "100px",
     },
     {
       key: "dateOfBirth",
       label: "DOB",
-      type: "text",
+      type: "custom",
       fieldKey: "dateOfBirth",
-      placeholder: "YYYY-MM-DD",
-      hasError: (row) => isDobInvalid(row.dateOfBirth),
+      width: "160px",
+      minWidth: "130px",
+      renderCustom: (row, rowIdx, isDisabled, onChange) => (
+        <CustomDateTimePicker
+          value={row.dateOfBirth}
+          onChange={(val) => onChange(val)}
+          disabled={isDisabled}
+          mode="date"
+          placeholder="DOB"
+        />
+      ),
     },
   ];
 

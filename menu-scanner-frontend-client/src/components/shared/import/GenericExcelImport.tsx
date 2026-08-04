@@ -10,6 +10,7 @@ import { CustomButton, DownloadTemplateButton } from "@/components/shared/button
 import { Badge } from "@/components/ui/badge";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { CustomSelect } from "@/components/shared/common/custom-select";
+import { CustomInputCell } from "@/components/shared/import/custom-import-cells";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { Card } from "@/components/ui/card";
 import {
@@ -58,11 +59,11 @@ function ImportImageCell({
   }, [file]);
 
   return (
-    <div className="flex items-center justify-start py-1">
+    <div className="flex items-center justify-start py-0.5">
       {previewUrl ? (
         <div
           className={`relative group ${
-            isWide ? "w-32 h-14" : "w-14 h-14"
+            isWide ? "w-32 h-11" : "w-11 h-11"
           } rounded-[10px] border border-border overflow-hidden bg-muted flex-shrink-0 flex items-center justify-center shadow-2xs`}
         >
           <img src={previewUrl} className="w-full h-full object-cover" alt="Preview" />
@@ -73,7 +74,7 @@ function ImportImageCell({
                 e.stopPropagation();
                 onChange(null);
               }}
-              className="absolute top-0.5 right-0.5 p-1 bg-black/70 text-white rounded-full hover:bg-red-600 transition-all opacity-80 group-hover:opacity-100"
+              className="absolute top-0.5 right-0.5 p-0.5 bg-black/70 text-white rounded-full hover:bg-red-600 transition-all opacity-80 group-hover:opacity-100"
               title="Remove image"
             >
               <X className="w-3 h-3" />
@@ -86,8 +87,8 @@ function ImportImageCell({
           disabled={disabled}
           onClick={() => fileInputRef.current?.click()}
           className={`${
-            isWide ? "w-32 h-14" : "w-14 h-14"
-          } rounded-[10px] border-2 border-dashed border-primary/30 hover:border-primary flex flex-col items-center justify-center text-primary/70 hover:text-primary transition-all bg-primary/5 hover:bg-primary/10 shadow-2xs gap-0.5`}
+            isWide ? "w-32 h-11" : "w-11 h-11"
+          } rounded-[10px] border border-dashed border-border/80 bg-background hover:bg-muted/40 hover:border-primary/50 transition-all flex flex-col items-center justify-center text-muted-foreground cursor-pointer shadow-2xs group flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed`}
           title="Click to upload image"
         >
           <Plus className="w-4 h-4" />
@@ -895,7 +896,7 @@ export function GenericExcelImport<T extends BaseImportRow>({
                             minWidth: col.minWidth || "140px",
                           }}
                         >
-                          {col.label} {col.required && <span className="text-red-500">*</span>}
+                          {col.label.replace(/\s*\*+\s*$/, "")} {col.required && <span className="text-red-500">*</span>}
                         </th>
                       ))}
                     </tr>
@@ -913,9 +914,9 @@ export function GenericExcelImport<T extends BaseImportRow>({
                             ${row.__status === "pending" ? (isRowErr ? "bg-amber-500/5 hover:bg-amber-500/10" : "") : ""}
                           `}
                         >
-                          <td className="px-3 py-2 text-muted-foreground font-medium">{rowIdx + 1}</td>
+                          <td className="px-3 py-2 text-muted-foreground font-medium align-middle">{rowIdx + 1}</td>
 
-                          <td className="px-3 py-2">
+                          <td className="px-3 py-2 align-middle">
                             <CustomButton
                               variant="ghost"
                               size="icon"
@@ -927,7 +928,7 @@ export function GenericExcelImport<T extends BaseImportRow>({
                             />
                           </td>
 
-                          <td className="px-3 py-2">
+                          <td className="px-3 py-2 align-middle">
                             {row.__status === "pending" && (
                               <Badge
                                 variant={isRowErr ? "outline" : "secondary"}
@@ -955,20 +956,14 @@ export function GenericExcelImport<T extends BaseImportRow>({
                             const hasFieldErr = (row as any)[errKey] || (col.hasError ? col.hasError(row) : false);
 
                             return (
-                              <td key={col.key} className="p-1">
+                              <td key={col.key} className="p-1 align-middle">
                                 {col.type === "text" && (
-                                  <TextField
-                                    name={`${entityName}.${rowIdx}.${String(col.fieldKey)}`}
-                                    label=""
-                                    labelClassName="hidden"
-                                    className="gap-0"
-                                    control={control}
+                                  <CustomInputCell
+                                    value={row[col.fieldKey] as string}
+                                    onChange={(val) => handleCellChange(rowIdx, col.fieldKey, val)}
                                     disabled={isImporting || row.__status === "success"}
                                     placeholder={col.placeholder || col.label}
-                                    onCustomChange={(val) => handleCellChange(rowIdx, col.fieldKey, val)}
-                                    inputClassName={`h-[32px] py-1 text-xs bg-background focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0
-                                      ${hasFieldErr ? "border-red-500 bg-red-500/5 focus-visible:ring-red-500" : "border-border"}
-                                    `}
+                                    hasError={hasFieldErr}
                                   />
                                 )}
 
