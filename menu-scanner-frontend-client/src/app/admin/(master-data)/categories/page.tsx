@@ -95,13 +95,6 @@ function CategoriesPageInner() {
   useEffect(() => {
     if (!isHydrated) return;
 
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      if (categoriesWithProductCount && categoriesWithProductCount.length > 0) {
-        return;
-      }
-    }
-
     dispatch(
       fetchAllCategoriesWithProductCountService({
         search: debouncedSearch,

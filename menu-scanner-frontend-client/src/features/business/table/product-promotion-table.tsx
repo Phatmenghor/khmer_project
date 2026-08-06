@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { TableImage } from "@/components/shared/table/table-image";
+import { hasAnyPromotion, isPromotionActive, isPromotionScheduled } from "@/constants/status/status";
 import {
   Select,
   SelectContent,
@@ -40,21 +41,74 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
 
   return (
     <div className="flex flex-nowrap gap-1 overflow-x-auto pb-1">
-      {sizes.map((size) => (
-        <div
-          key={size.id}
-          className="px-1 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap border-[0.5px] border-primary"
-        >
-          {size.name} ${size.finalPrice}
-          {size.hasPromotion && (
-            <span className="text-red-600 font-semibold ml-1">
-              {size.promotionType === "FIXED_AMOUNT"
-                ? `-$${size.promotionValue}`
-                : `-${size.promotionValue}%`}
-            </span>
-          )}
+      {sizes.map((size) => {
+        const isActive = isPromotionActive(size.hasPromotion);
+        const isScheduled = isPromotionScheduled(size.hasPromotion);
+        const hasPromoValue = size.promotionValue != null && Number(size.promotionValue) > 0;
+        const promoText = size.promotionType === "FIXED_AMOUNT" || size.promotionType === "FIXED"
+          ? `-$${size.promotionValue}`
+          : `-${size.promotionValue}%`;
+
+        return (
+          <div
+            key={size.id}
+            className="px-1 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap border-[0.5px] border-primary flex items-center gap-1"
+          >
+            <span>{size.name} ${parseFloat((size.finalPrice ?? 0).toString()).toFixed(2)}</span>
+            {isActive && hasPromoValue && (
+              <span className="text-red-600 font-semibold">
+                {promoText} (Active)
+              </span>
+            )}
+            {isScheduled && hasPromoValue && (
+              <span className="text-yellow-600 font-semibold">
+                {promoText} (Future)
+              </span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function PricingDisplay({ product }: { product: ProductDetailResponseModel }) {
+  const isDiff = Boolean(product?.displayOriginPrice && product.displayOriginPrice !== product.displayPrice);
+  const isActive = isPromotionActive(product?.hasPromotion);
+  const isScheduled = isPromotionScheduled(product?.hasPromotion);
+  
+  const promoValue = product?.displayPromotionValue ?? product?.promotionValue;
+  const promoType = product?.displayPromotionType ?? product?.promotionType;
+  const hasPromoValue = promoValue != null && Number(promoValue) > 0;
+
+  const promoValueText = promoType === "PERCENTAGE"
+    ? `-${promoValue}%`
+    : `-$${promoValue}`;
+
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center gap-1.5 flex-wrap whitespace-nowrap">
+        {isDiff && (
+          <span className="text-xs text-muted-foreground line-through whitespace-nowrap">
+            ${parseFloat((product.displayOriginPrice ?? 0).toString()).toFixed(2)}
+          </span>
+        )}
+        <span className="text-xs font-semibold text-foreground whitespace-nowrap">
+          ${parseFloat((product?.displayPrice ?? 0).toString()).toFixed(2)}
+        </span>
+      </div>
+
+      {isActive && hasPromoValue && (
+        <div className="text-xs font-semibold text-red-600 whitespace-nowrap">
+          {promoValueText} (Active)
         </div>
-      ))}
+      )}
+
+      {isScheduled && hasPromoValue && (
+        <div className="text-xs font-semibold text-yellow-600 whitespace-nowrap">
+          {promoValueText} (Future)
+        </div>
+      )}
     </div>
   );
 }
@@ -135,29 +189,9 @@ export const productPromotionTableColumns = ({
     {
       key: "pricing",
       label: "Price",
-      minWidth: "150px",
-      maxWidth: "250px",
-      render: (product) => (
-        <div className="space-y-1">
-          <div className="flex items-center gap-1">
-            {product?.displayOriginPrice && product.displayOriginPrice !== product.displayPrice && (
-              <span className="text-xs text-muted-foreground line-through">
-                ${parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(2)}
-              </span>
-            )}
-            <span className="text-xs font-semibold text-foreground">
-              ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
-            </span>
-          </div>
-          {product?.hasPromotion && (
-            <div className="text-xs font-semibold text-red-600">
-              {product.displayPromotionType === "PERCENTAGE"
-                ? `-${product.displayPromotionValue}%`
-                : `-$${product.displayPromotionValue}`}
-            </div>
-          )}
-        </div>
-      ),
+      minWidth: "180px",
+      maxWidth: "350px",
+      render: (product) => <PricingDisplay product={product} />,
     },
 
     {

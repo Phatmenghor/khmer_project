@@ -26,7 +26,7 @@ export interface CartItemCardProps {
   finalPrice: number;
   quantity: number;
   totalPrice: number;
-  hasPromotion?: boolean;
+  hasPromotion?: boolean | string;
   promotionType?: string | null;
   promotionValue?: number | null;
 

@@ -2,7 +2,7 @@
 
 import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -176,123 +176,122 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
   const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingImage || isProcessing;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-3xl max-h-[92vh] p-0 flex flex-col">
-        <FormHeader
-          title={isCreate ? "Create New Brand" : "Edit Brand"}
-          description={
-            isCreate
-              ? "Upload an image and configure brand settings"
-              : "Update brand information below"
-          }
-          isCreate={isCreate}
-        />
+    <CustomModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size="3xl"
+      className="max-h-[92vh] gap-0 p-0 flex flex-col overflow-hidden"
+      disableScrollWrapper={true}
+    >
+      <FormHeader
+        title={isCreate ? "Create New Brand" : "Edit Brand"}
+        description={
+          isCreate
+            ? "Upload an image and configure brand settings"
+            : "Update brand information below"
+        }
+        isCreate={isCreate}
+      />
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col flex-1 overflow-visible"
-        >
-          <FormBody>
-            {reduxError && (
-              <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
-                <p className="text-xs text-destructive font-medium">
-                  {reduxError}
-                </p>
-              </div>
-            )}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col flex-1 min-h-0 overflow-hidden"
+      >
+        <FormBody>
+          {reduxError && (
+            <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
+              <p className="text-xs text-destructive font-medium">
+                {reduxError}
+              </p>
+            </div>
+          )}
 
-            <div className="space-y-4">
-              <SpacesImageUpload
-                multiSize
-                deferred
-                label="Brand Logo"
-                businessId={AppDefault.BUSINESS_ID}
-                value={previewUrl}
-                onFileSelected={(file) => {
-                  setPendingFile(file);
-                  if (file) {
-                    const objectUrl = URL.createObjectURL(file);
-                    setPreviewUrl(objectUrl);
-                    setValue(
-                      "image",
-                      { sm: objectUrl, md: objectUrl, o: objectUrl },
-                      { shouldDirty: true, shouldValidate: true },
-                    );
-                  } else {
-                    setPreviewUrl("");
-                    setValue(
-                      "image",
-                      { sm: "", md: "", o: "" },
-                      { shouldDirty: true, shouldValidate: true },
-                    );
-                  }
-                }}
-                aspectRatio="square"
-                maxSizeMb={5}
+          <div className="space-y-4">
+            <SpacesImageUpload
+              multiSize
+              deferred
+              label="Brand Logo"
+              businessId={AppDefault.BUSINESS_ID}
+              value={previewUrl}
+              onFileSelected={(file) => {
+                setPendingFile(file);
+                if (file) {
+                  const objectUrl = URL.createObjectURL(file);
+                  setPreviewUrl(objectUrl);
+                  setValue(
+                    "image",
+                    { sm: objectUrl, md: objectUrl, o: objectUrl },
+                    { shouldDirty: true, shouldValidate: true },
+                  );
+                } else {
+                  setPreviewUrl("");
+                  setValue(
+                    "image",
+                    { sm: "", md: "", o: "" },
+                    { shouldDirty: true, shouldValidate: true },
+                  );
+                }
+              }}
+              aspectRatio="square"
+              maxSizeMb={5}
+              disabled={isSubmitting}
+              placeholder="Click to upload brand logo"
+              helperText="PNG with transparent background recommended"
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <TextField
+                control={control}
+                name="name"
+                label="Brand Name"
+                placeholder="Enter brand name"
+                disabled={isSubmitting}
+                error={errors.name}
+              />
+
+              <SelectField
+                control={control}
+                name="status"
+                label="Status"
+                placeholder="Select status"
+                options={BANNER_STATUS_CREATE_UPDATE}
                 required
                 disabled={isSubmitting}
-                error={
-                  (errors.image as any)?.message ||
-                  (errors.image as any)?.root?.message
-                }
-                placeholder="Click to upload brand logo"
-                helperText="PNG with transparent background recommended"
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <TextField
-                  control={control}
-                  name="name"
-                  label="Brand Name"
-                  placeholder="Enter brand name"
-                  disabled={isSubmitting}
-                  error={errors.name}
-                />
-
-                <SelectField
-                  control={control}
-                  name="status"
-                  label="Status"
-                  placeholder="Select status"
-                  options={BANNER_STATUS_CREATE_UPDATE}
-                  required
-                  disabled={isSubmitting}
-                  error={errors.status}
-                />
-              </div>
-
-              <TextareaField
-                control={control}
-                name="description"
-                label="Description"
-                placeholder="Enter any additional description (optional)"
-                rows={5}
-                disabled={isSubmitting}
-                error={errors.description}
+                error={errors.status}
               />
             </div>
-          </FormBody>
 
-          <FormFooter
+            <TextareaField
+              control={control}
+              name="description"
+              label="Description"
+              placeholder="Enter any additional description (optional)"
+              rows={5}
+              disabled={isSubmitting}
+              error={errors.description}
+            />
+          </div>
+        </FormBody>
+
+        <FormFooter
+          isSubmitting={isSubmitting}
+          isDirty={isDirty}
+          isCreate={isCreate}
+          createMessage="Creating brand..."
+          updateMessage="Updating brand..."
+        >
+          <CancelButton onClick={handleClose} disabled={isSubmitting} />
+          <SubmitButton
             isSubmitting={isSubmitting}
             isDirty={isDirty}
             isCreate={isCreate}
-            createMessage="Creating brand..."
-            updateMessage="Updating brand..."
-          >
-            <CancelButton onClick={handleClose} disabled={isSubmitting} />
-            <SubmitButton
-              isSubmitting={isSubmitting}
-              isDirty={isDirty}
-              isCreate={isCreate}
-              createText="Create Brand"
-              updateText="Update Brand"
-              submittingCreateText="Creating..."
-              submittingUpdateText="Updating..."
-            />
-          </FormFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            createText="Create Brand"
+            updateText="Update Brand"
+            submittingCreateText="Creating..."
+            submittingUpdateText="Updating..."
+          />
+        </FormFooter>
+      </form>
+    </CustomModal>
   );
 }

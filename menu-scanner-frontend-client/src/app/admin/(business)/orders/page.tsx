@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState, Suspense} from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { usePagination } from "@/hooks/use-pagination";
 import { useOrderAdminState } from "@/features/business/store/state/order-admin-state";
 import {
   deleteOrderAdminService,
@@ -37,6 +36,7 @@ import {
 import { useDownloadReceipt } from "@/hooks/use-download-receipt";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { useRouter } from "next/navigation";
+import { useAdminTableUrlState } from "@/hooks/use-admin-table-url-state";
 
 function OrdersAdminPageInner() {
   useAdminCleanup(resetState);
@@ -74,12 +74,43 @@ function OrdersAdminPageInner() {
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
 
-  const { updateUrlWithPage, handlePageChange } = usePagination({
+  const {
+    isHydrated,
+    viewId,
+    editId,
+    deleteId,
+    openView,
+    openEdit,
+    openDelete,
+    closeModal: closeRouteModal,
+    updateUrlWithPage,
+    handlePageChange,
+  } = useAdminTableUrlState({
     baseRoute: ROUTES.ADMIN.ORDERS,
+    filters: {
+      search: filters.search,
+      orderStatus: filters.orderStatus && filters.orderStatus !== "ALL" ? filters.orderStatus : "",
+      paymentStatus: filters.paymentStatus && filters.paymentStatus !== "ALL" ? filters.paymentStatus : "",
+      startDate: filters.startDate || "",
+      endDate: filters.endDate || "",
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
+    },
+    onInit: (params) => {
+      if (params.search) dispatch(setSearchFilter(params.search));
+      if (params.orderStatus) dispatch(setOrderStatusFilter(params.orderStatus));
+      if (params.paymentStatus) dispatch(setPaymentStatusFilter(params.paymentStatus));
+      if (params.startDate) dispatch(setStartDateFilter(params.startDate));
+      if (params.endDate) dispatch(setEndDateFilter(params.endDate));
+      if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
+      if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
+    },
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
   useEffect(() => {
+    if (!isHydrated) return;
+
     const requestParams: Record<string, unknown> = {
       search: debouncedSearch,
       pageNo: filters.pageNo,
@@ -104,6 +135,7 @@ function OrdersAdminPageInner() {
 
     dispatch(fetchAllOrderAdminService(requestParams));
   }, [
+    isHydrated,
     dispatch,
     debouncedSearch,
     filters.pageNo,
@@ -115,15 +147,16 @@ function OrdersAdminPageInner() {
   ]);
 
   const handleViewOrder = (order: OrderResponse) => {
-    setDetailModalState({ isOpen: true, orderId: order.id });
+    openView(order.id);
   };
 
   const handleEditOrder = (order: OrderResponse) => {
-    setUpdateModalState({ isOpen: true, orderId: order.id });
+    openEdit(order.id);
   };
 
   const handleDeleteOrder = (order: OrderResponse) => {
     setDeleteState({ isOpen: true, order });
+    openDelete(order.id);
   };
 
   const tableHandlers = useMemo(
@@ -133,7 +166,7 @@ function OrdersAdminPageInner() {
       handleDeleteOrder,
       handleDownloadReceipt,
     }),
-    []
+    [openView, openEdit, openDelete]
   );
 
   const columns = useMemo(
@@ -160,15 +193,25 @@ function OrdersAdminPageInner() {
     dispatch(setPageNo(1));
   };
 
+  const orderToDelete = useMemo(() => {
+    if (deleteState.order) return deleteState.order;
+    if (deleteId) {
+      return orderContent.find((o) => o.id === deleteId) || null;
+    }
+    return null;
+  }, [deleteState.order, deleteId, orderContent]);
+
   const handleDelete = async () => {
-    if (!deleteState.order?.id) return;
+    const activeId = deleteId || deleteState.order?.id;
+    if (!activeId) return;
 
     try {
-      await dispatch(deleteOrderAdminService(deleteState.order.id)).unwrap();
+      await dispatch(deleteOrderAdminService(activeId)).unwrap();
       showToast.success(
-        `Order #${deleteState.order.orderNumber ?? ""} deleted successfully`
+        `Order #${orderToDelete?.orderNumber ?? ""} deleted successfully`
       );
       closeDeleteModal();
+      closeRouteModal();
 
       if (orderContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
@@ -185,10 +228,11 @@ function OrdersAdminPageInner() {
   };
 
   const handleUpdateOrderFromDetail = () => {
-    const orderId = detailModalState.orderId;
+    const orderId = viewId || detailModalState.orderId;
     if (orderId) {
       closeDetailModal();
-      setUpdateModalState({ isOpen: true, orderId });
+      closeRouteModal();
+      openEdit(orderId);
     }
   };
 
@@ -218,6 +262,14 @@ function OrdersAdminPageInner() {
     dispatch(setEndDateFilter(dateString.trim() ? dateString : undefined));
   };
 
+  const handleClearAllFilters = () => {
+    dispatch(setSearchFilter(""));
+    dispatch(setOrderStatusFilter("ALL"));
+    dispatch(setPaymentStatusFilter("ALL"));
+    dispatch(setStartDateFilter(undefined));
+    dispatch(setEndDateFilter(undefined));
+  };
+
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Order Management",
     searchValue: filters.search,
@@ -226,6 +278,7 @@ function OrdersAdminPageInner() {
     buttonText: "New Order",
     buttonDisabled: false,
     onButtonClick: () => router.push(ROUTES.ADMIN.POS),
+    onClearAll: handleClearAllFilters,
     filters: [
       {
         id: "orderStatus",
@@ -266,7 +319,7 @@ function OrdersAdminPageInner() {
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
-      <div className="space-y-3">
+      <div className="space-y-2">
         <CollapsibleFilterPanel
           config={filterConfig}
           essentialFilterIds={["orderStatus", "paymentStatus"]}
@@ -289,27 +342,36 @@ function OrdersAdminPageInner() {
       </div>
 
       <OrderDetailModal
-        orderId={detailModalState.orderId}
-        isOpen={detailModalState.isOpen}
-        onClose={closeDetailModal}
+        orderId={viewId || detailModalState.orderId}
+        isOpen={!!viewId || detailModalState.isOpen}
+        onClose={() => {
+          closeDetailModal();
+          closeRouteModal();
+        }}
         onUpdateOrder={handleUpdateOrderFromDetail}
       />
 
       <OrderUpdateModal
-        orderId={updateModalState.orderId}
-        isOpen={updateModalState.isOpen}
-        onClose={closeUpdateModal}
+        orderId={editId || updateModalState.orderId}
+        isOpen={!!editId || updateModalState.isOpen}
+        onClose={() => {
+          closeUpdateModal();
+          closeRouteModal();
+        }}
       />
 
       <DeleteConfirmationModal
-        isOpen={deleteState.isOpen}
-        onClose={closeDeleteModal}
+        isOpen={!!deleteId || deleteState.isOpen}
+        onClose={() => {
+          closeDeleteModal();
+          closeRouteModal();
+        }}
         onDelete={handleDelete}
         title="Delete Order"
         description={`Are you sure you want to delete order #${
-          deleteState.order?.orderNumber || ""
+          orderToDelete?.orderNumber || ""
         }?`}
-        itemName={deleteState.order?.orderNumber || ""}
+        itemName={orderToDelete?.orderNumber || ""}
         isSubmitting={operations.isDeleting}
       />
     </div>

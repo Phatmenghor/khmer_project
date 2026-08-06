@@ -2,7 +2,7 @@
 
 import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -139,6 +139,15 @@ export default function CategoriesModal({
     }
   }, [isOpen, dispatch]);
 
+  const handleClose = () => {
+    reset();
+    setPendingFile(null);
+    setPreviewUrl("");
+    dispatch(clearError());
+    dispatch(clearSelectedCategories());
+    onClose();
+  };
+
   const onSubmit = async (data: CreateCategoriesData) => {
     setIsProcessing(true);
     try {
@@ -190,38 +199,34 @@ export default function CategoriesModal({
     }
   };
 
-  const handleClose = () => {
-    reset();
-    setPendingFile(null);
-    setPreviewUrl("");
-    dispatch(clearError());
-    dispatch(clearSelectedCategories());
-    onClose();
-  };
-
   const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingImage || isProcessing;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-3xl max-h-[92vh] p-0 flex flex-col">
-        <FormHeader
-          title={isCreate ? "Create New Category" : "Edit Category"}
-          description={
-            isCreate
-              ? "Upload an image and configure category settings"
-              : "Update category information below"
-          }
-          isCreate={isCreate}
-        />
+    <CustomModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size="3xl"
+      className="max-h-[92vh] gap-0 p-0 flex flex-col overflow-hidden"
+      disableScrollWrapper={true}
+    >
+      <FormHeader
+        title={isCreate ? "Create New Category" : "Edit Category"}
+        description={
+          isCreate
+            ? "Upload an image and configure category settings"
+            : "Update category information below"
+        }
+        isCreate={isCreate}
+      />
 
-        {!isCreate && isFetchingDetail ? (
-          <div className="p-4 flex items-center justify-center min-h-[50vh] flex-1">
-            <Loading />
-          </div>
-        ) : (
+      {!isCreate && isFetchingDetail ? (
+        <div className="p-4 flex items-center justify-center min-h-[50vh] flex-1">
+          <Loading />
+        </div>
+      ) : (
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col flex-1 overflow-visible"
+          className="flex flex-col flex-1 min-h-0 overflow-hidden"
         >
           <FormBody>
             {reduxError && (
@@ -260,12 +265,7 @@ export default function CategoriesModal({
                 }}
                 aspectRatio="square"
                 maxSizeMb={5}
-                required
                 disabled={isSubmitting}
-                error={
-                  (errors.image as any)?.message ||
-                  (errors.image as any)?.root?.message
-                }
                 placeholder="Click to upload category image"
                 helperText="Square image works best (500x500)"
               />
@@ -293,15 +293,15 @@ export default function CategoriesModal({
                 />
               </div>
 
-                <TextareaField
-                  control={control}
-                  name="description"
-                  label="Description"
-                  placeholder="Enter any additional description (optional)"
-                  rows={5}
-                  disabled={isSubmitting}
-                  error={errors.description}
-                />
+              <TextareaField
+                control={control}
+                name="description"
+                label="Description"
+                placeholder="Enter any additional description (optional)"
+                rows={5}
+                disabled={isSubmitting}
+                error={errors.description}
+              />
             </div>
           </FormBody>
 
@@ -324,8 +324,7 @@ export default function CategoriesModal({
             />
           </FormFooter>
         </form>
-        )}
-      </DialogContent>
-    </Dialog>
+      )}
+    </CustomModal>
   );
 }

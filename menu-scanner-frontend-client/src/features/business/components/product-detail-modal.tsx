@@ -11,9 +11,11 @@ import { fetchProductByIdService } from "../store/thunks/product-thunks";
 import { clearSelectedProduct } from "../store/slice/product-slice";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { DetailModal } from "@/components/shared/modal/detail-modal";
+import { hasAnyPromotion, isPromotionActive, isPromotionScheduled } from "@/constants/status/status";
 import { cn } from "@/lib/utils";
 import { Package, Eye, Heart, Box } from "lucide-react";
 import { SmartImage } from "@/components/shared/image/smart-image";
+import { CustomImagePreview } from "@/components/shared/image/custom-image-preview";
 
 import { SectionTitle, InfoRow } from "@/components/shared/modal/detail-section";
 import { CancelButton } from "@/components/shared/button/custom-button";
@@ -60,7 +62,7 @@ export function ProductDetailModal({
   }
 
   const isActive = productData.status === "ACTIVE";
-  const hasPromo = productData.hasPromotion;
+  const hasPromo = hasAnyPromotion(productData.hasPromotion);
 
   const promoLabel = hasPromo
     ? productData.displayPromotionType === "PERCENTAGE"
@@ -83,7 +85,7 @@ export function ProductDetailModal({
       size="5xl"
     >
       <div className="flex-1 overflow-y-auto">
-          <div className="p-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
+          <div className="pt-0 px-0 pb-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
 
             {/* ── Left column ── */}
             <div className="lg:col-span-2 space-y-3">
@@ -145,9 +147,15 @@ export function ProductDetailModal({
                       <InfoRow
                         label="Promotion"
                         value={
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-bold">
-                            {promoLabel}
-                          </span>
+                          isPromotionActive(productData.hasPromotion) ? (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-bold">
+                              {promoLabel} (Active)
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-bold">
+                              {promoLabel} (Future)
+                            </span>
+                          )
                         }
                       />
                       <InfoRow
@@ -179,7 +187,10 @@ export function ProductDetailModal({
                     </SectionTitle>
                     <div className="grid grid-cols-1 gap-2">
                       {productData.sizes.map((size) => {
-                        const sizePromoLabel = size.hasPromotion
+                        const isSizePromoActive = isPromotionActive(size.hasPromotion);
+                        const isSizePromoScheduled = isPromotionScheduled(size.hasPromotion);
+                        const hasSizePromo = isSizePromoActive || isSizePromoScheduled;
+                        const sizePromoLabel = hasSizePromo
                           ? size.promotionType === "PERCENTAGE"
                             ? `${size.promotionValue}% OFF`
                             : `${formatCurrency(size.promotionValue || 0)} OFF`
@@ -194,9 +205,14 @@ export function ProductDetailModal({
                               <span className="text-xs font-bold text-foreground">
                                 {size.name}
                               </span>
-                              {sizePromoLabel && (
+                              {sizePromoLabel && isSizePromoActive && (
                                 <span className="px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-bold leading-none">
-                                  {sizePromoLabel}
+                                  {sizePromoLabel} (Active)
+                                </span>
+                              )}
+                              {sizePromoLabel && isSizePromoScheduled && (
+                                <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-bold leading-none">
+                                  {sizePromoLabel} (Future)
                                 </span>
                               )}
                             </div>
@@ -261,19 +277,15 @@ export function ProductDetailModal({
                   <SectionTitle>
                     Images ({productData.images.length})
                   </SectionTitle>
-                  <div className="grid grid-cols-5 sm:grid-cols-7 md:grid-cols-9 gap-1.5">
+                  <div className="flex flex-wrap gap-2">
                     {productData.images.map((image, idx) => (
-                      <div
+                      <CustomImagePreview
                         key={image.id}
-                        className="relative aspect-square rounded overflow-hidden border border-border/50 hover:border-primary/50 transition-colors"
-                      >
-                        <SmartImage
-                          src={image.image?.md || image.image?.sm}
-                          alt={`Image ${idx + 1}`}
-                          fill
-                          showSkeleton={false}
-                        />
-                      </div>
+                        src={image.image?.sm || image.image?.md}
+                        previewSrc={image.image?.o || image.image?.md || image.image?.sm}
+                        alt={`${productData.name} image ${idx + 1}`}
+                        className="h-14 w-14 rounded-lg"
+                      />
                     ))}
                   </div>
                 </div>

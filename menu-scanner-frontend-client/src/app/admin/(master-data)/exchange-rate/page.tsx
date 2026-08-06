@@ -92,13 +92,6 @@ function ExchangeRatePageInner() {
   useEffect(() => {
     if (!isHydrated) return;
 
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      if (exchangeRateContent && exchangeRateContent.length > 0) {
-        return;
-      }
-    }
-
     dispatch(
       fetchAllMyBusinessExchangeRateService({
         search: debouncedSearch,
@@ -111,7 +104,14 @@ function ExchangeRatePageInner() {
       }),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, debouncedSearch, filters.isActive, filters.pageNo, globalPageSize, isHydrated]);
+  }, [
+    dispatch,
+    debouncedSearch,
+    filters.isActive,
+    filters.pageNo,
+    globalPageSize,
+    isHydrated,
+  ]);
 
   // ── Deep-link resolver ────────────────────────────────────────────────────
   const allExchangeRateContent = useAppSelector(selectExchangeRateContent);

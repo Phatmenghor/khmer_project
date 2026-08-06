@@ -46,7 +46,7 @@ export function FormHeader({
   return (
     <DialogHeader
       className={cn(
-        "-mx-4 -mt-4 px-4 py-4 md:-mx-6 md:-mt-4 md:px-6 md:py-5 border-b border-primary/30 flex-shrink-0",
+        "px-4 py-3 border-b border-border/80 flex-shrink-0 bg-background",
         className,
       )}
     >

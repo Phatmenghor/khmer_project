@@ -1,6 +1,7 @@
 import { BasePagination } from "@/utils/common/pagination";
 import { ProductCustomizationDto } from "./product-customization-response";
 import { ImageUrls } from "@/features/auth/store/models/request/users-request";
+import { PromotionStatus } from "@/constants/status/status";
 
 export interface AllProductResponseModel extends BasePagination {
   content: ProductDetailResponseModel[];
@@ -16,7 +17,7 @@ export interface ProductDetailResponseModel {
   description: string;
   status: string;
   price: string;
-  promotionType: string;
+  promotionType?: string;
   promotionValue: number;
   promotionFromDate: string;
   promotionToDate: string;
@@ -28,7 +29,7 @@ export interface ProductDetailResponseModel {
   displayPromotionToDate: string;
   hasSizes: boolean;
   quantity: number;
-  hasPromotion: boolean;
+  hasPromotion: PromotionStatus | string | boolean;
   mainImage: ImageUrls;
   viewCount: number;
   favoriteCount: number;

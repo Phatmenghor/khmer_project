@@ -15,19 +15,8 @@ import {
 import { clearSelectedCategories } from "../store/slice/categories-slice";
 import { fetchCategoriesByIdService } from "../store/thunks/categories-thunks";
 
-function CategoriesDetailImage({ src, alt }: { src?: string; alt: string }) {
-  return (
-    <div className="relative flex-shrink-0 w-14 h-14 rounded-[10px] overflow-hidden bg-muted border border-border flex items-center justify-center shadow-xs">
-      {src ? (
-        <SmartImage src={src} alt={alt} fill showSkeleton={false} />
-      ) : (
-        <Tag className="h-6 w-6 text-muted-foreground/60" />
-      )}
-    </div>
-  );
-}
-
 import { SectionTitle, InfoRow } from "@/components/shared/modal/detail-section";
+import { CustomImagePreview } from "@/components/shared/image/custom-image-preview";
 
 interface CategoriesDetailModalProps {
   categoriesId?: string;
@@ -75,9 +64,13 @@ export function CategoriesDetailModal({
         <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 p-1 text-left">
           <SectionTitle>Category Information</SectionTitle>
           <div className="col-span-2 flex items-center gap-3.5 p-2 rounded-[12px] bg-muted/30 border border-border/60 mb-1">
-            <CategoriesDetailImage
-              src={categories.image?.md ?? categories.image?.o ?? categories.image?.sm}
+            <CustomImagePreview
+              src={categories.image?.sm ?? categories.image?.md}
+              previewSrc={categories.image?.o ?? categories.image?.md ?? categories.image?.sm}
               alt={categories.name || "Category"}
+              fallbackText={categories.name || "C"}
+              className="h-14 w-14 rounded-[12px] aspect-square"
+              aspectRatio="1x1"
             />
             <div className="min-w-0 flex-1">
               <h4 className="text-sm font-semibold text-foreground truncate">

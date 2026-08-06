@@ -265,7 +265,7 @@ export default function CheckoutPage() {
             barcode: item.barcode || "",
             currentPrice: item.currentPrice,
             finalPrice: item.finalPrice,
-            hasPromotion: item.hasPromotion || false,
+            hasPromotion: Boolean(item.hasPromotion === "ACTIVE" || item.hasPromotion === "FUTURE_PROMOTION" || item.hasPromotion === true),
             quantity: item.quantity,
             totalBeforeDiscount: item.totalBeforeDiscount || 0,
             discountAmount: item.discountAmount || 0,

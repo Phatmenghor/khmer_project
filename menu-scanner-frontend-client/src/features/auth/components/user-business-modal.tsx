@@ -43,6 +43,7 @@ import {
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
+import { SectionTitle } from "@/components/shared/modal/detail-section";
 import {
   getArrayFieldError,
   getFieldError,
@@ -480,7 +481,6 @@ export default function UserBusinessModal({
               : "Update user information below"
           }
           isCreate={isCreate}
-          className="m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4"
         />
 
         {!isCreate && isFetchingDetail ? (
@@ -493,7 +493,7 @@ export default function UserBusinessModal({
             className="flex flex-col flex-1 min-h-0 overflow-hidden"
             autoComplete="off"
           >
-            <FormBody className="px-4">
+            <FormBody>
               {reduxError && (
                 <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
                   <p className="text-xs text-destructive font-medium">
@@ -506,9 +506,9 @@ export default function UserBusinessModal({
                 {}
                 {isCreate && (
                   <div className="space-y-3">
-                    <h3 className="text-xs font-semibold">
+                    <SectionTitle className="col-span-1 mt-0 mb-0 border-b-0 pb-0">
                       Account Credentials <span className="text-red-500">*</span>
-                    </h3>
+                    </SectionTitle>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                       <TextField
                         control={control}
@@ -574,9 +574,9 @@ export default function UserBusinessModal({
 
                 {}
                 <div className="space-y-3">
-                  <h3 className="text-xs font-semibold">
+                  <SectionTitle className="col-span-1 mt-0 mb-0 border-b-0 pb-0">
                     Personal Information <span className="text-red-500">*</span>
-                  </h3>
+                  </SectionTitle>
                   <div className="space-y-3">
                     {}
                     {!isCreate && (
@@ -711,9 +711,9 @@ export default function UserBusinessModal({
 
                 {}
                 <div className="space-y-3">
-                  <h3 className="text-xs font-semibold">
+                  <SectionTitle className="col-span-1 mt-0 mb-0 border-b-0 pb-0">
                     Employment Information
-                  </h3>
+                  </SectionTitle>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <TextField
                       control={control}
@@ -789,9 +789,9 @@ export default function UserBusinessModal({
 
                 {}
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between w-full">
                     <div>
-                      <h3 className="text-xs font-semibold">Addresses</h3>
+                      <SectionTitle className="col-span-1 mt-0 mb-0 border-b-0 pb-0">Addresses</SectionTitle>
                       <p className="text-xs text-muted-foreground">
                         {addressFields.length > 0
                           ? `${addressFields.length} address${
@@ -946,9 +946,9 @@ export default function UserBusinessModal({
 
                 {}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between w-full">
                     <div>
-                      <h3 className="text-xs font-semibold">Emergency Contacts</h3>
+                      <SectionTitle className="col-span-1 mt-0 mb-0 border-b-0 pb-0">Emergency Contacts</SectionTitle>
                       <p className="text-xs text-muted-foreground">
                         {contactFields.length > 0
                           ? `${contactFields.length} contact${
@@ -1045,9 +1045,9 @@ export default function UserBusinessModal({
 
                 {}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between w-full">
                     <div>
-                      <h3 className="text-xs font-semibold">Documents</h3>
+                      <SectionTitle className="col-span-1 mt-0 mb-0 border-b-0 pb-0">Documents</SectionTitle>
                       <p className="text-xs text-muted-foreground">
                         {documentFields.length > 0
                           ? `${documentFields.length} document${documentFields.length > 1 ? "s" : ""} added`
@@ -1157,9 +1157,9 @@ export default function UserBusinessModal({
 
                 {}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between w-full">
                     <div>
-                      <h3 className="text-xs font-semibold">Education</h3>
+                      <SectionTitle className="col-span-1 mt-0 mb-0 border-b-0 pb-0">Education</SectionTitle>
                       <p className="text-xs text-muted-foreground">
                         {educationFields.length > 0
                           ? `${educationFields.length} education${educationFields.length > 1 ? "s" : ""} added`

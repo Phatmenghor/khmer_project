@@ -1,14 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef, useCallback, Suspense} from "react";
-
+import { useEffect, useMemo, useState, useRef, useCallback, Suspense } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { ModalMode, ProductStatus, Status } from "@/constants/status/status";
-import { usePagination } from "@/hooks/use-pagination";
+import { ProductStatus } from "@/constants/status/status";
 import { useStockState } from "@/features/business/store/state/stock-state";
 import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
 import { fetchAllProductStockAdminService } from "@/features/business/store/thunks/stock-thunks";
@@ -24,10 +22,7 @@ import { sizeStockTableColumns } from "@/features/business/table/product-size-st
 import { ProductDetailModal } from "@/features/business/components/product-detail-modal";
 import { SizeStockManagementModal } from "@/features/business/components/size-stock-management-modal";
 import { updateStockStatusService } from "@/features/business/store/thunks/stock-thunks";
-import { CustomSelect } from "@/components/shared/common/custom-select";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
-import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
-import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
@@ -35,6 +30,7 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
+import { useAdminTableUrlState } from "@/hooks/use-admin-table-url-state";
 
 const STOCK_STATUS_FILTER = [
   { value: "ALL", label: "All Stock Status" },
@@ -43,7 +39,6 @@ const STOCK_STATUS_FILTER = [
 ];
 
 function SizeStockPageInner() {
-
   useAdminCleanup(resetState);
 
   const {
@@ -67,11 +62,8 @@ function SizeStockPageInner() {
     product: null as ProductDetailResponseModel | null,
   });
 
-  const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(
-    null,
-  );
-  const [selectedCategories, setSelectedCategories] =
-    useState<CategoriesResponseModel | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<CategoriesResponseModel | null>(null);
   const [stockStatusFilter, setStockStatusFilter] = useState("ALL");
 
   const stockStatusDebounceRefs = useRef<{ [key: string]: NodeJS.Timeout }>({});
@@ -84,12 +76,40 @@ function SizeStockPageInner() {
 
   const debouncedSearch = useDebounce(filters.search, 400);
 
-  const { updateUrlWithPage, handlePageChange } = usePagination({
+  const {
+    isHydrated,
+    viewId,
+    editId,
+    openView,
+    openEdit,
+    closeModal: closeRouteModal,
+    updateUrlWithPage,
+    handlePageChange,
+  } = useAdminTableUrlState({
     baseRoute: ROUTES.MANAGE_STOCK.SIZE_STOCK,
+    filters: {
+      search: filters.search,
+      status: filters.status && filters.status !== ProductStatus.ALL ? filters.status : "",
+      categoryId: selectedCategories?.id || "",
+      brandId: selectedBrand?.id || "",
+      stockStatus: stockStatusFilter !== "ALL" ? stockStatusFilter : "",
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
+    },
+    onInit: (params) => {
+      if (params.search) dispatch(setSearchFilter(params.search));
+      if (params.status) dispatch(selectProductStatus(params.status as ProductStatus));
+      if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
+      if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
+      if (params.stockStatus) setStockStatusFilter(params.stockStatus);
+      if (params.categoryId) setSelectedCategories({ id: params.categoryId, name: "" } as any);
+      if (params.brandId) setSelectedBrand({ id: params.brandId, name: "" } as any);
+    },
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
   useEffect(() => {
+    if (!isHydrated) return;
 
     let stockStatuses: string[] | undefined;
     if (stockStatusFilter === "ENABLED" || stockStatusFilter === "DISABLED") {
@@ -114,6 +134,7 @@ function SizeStockPageInner() {
       }),
     );
   }, [
+    isHydrated,
     dispatch,
     debouncedSearch,
     filters.pageNo,
@@ -125,8 +146,9 @@ function SizeStockPageInner() {
   ]);
 
   useEffect(() => {
-    if (stockManagementSuccessMessage) {
+    if (!isHydrated) return;
 
+    if (stockManagementSuccessMessage) {
       let stockStatuses: string[] | undefined;
       if (stockStatusFilter === "ENABLED" || stockStatusFilter === "DISABLED") {
         stockStatuses = [stockStatusFilter];
@@ -150,20 +172,18 @@ function SizeStockPageInner() {
         }),
       );
     }
-  }, [stockManagementSuccessMessage]);
+  }, [isHydrated, stockManagementSuccessMessage]);
 
   const handleCreateStock = (product: ProductDetailResponseModel) => {
     setStockManagementState({
       isOpen: true,
       product,
     });
+    openEdit(product.id || "");
   };
 
   const handleProductViewDetail = (product: ProductDetailResponseModel) => {
-    setDetailModalState({
-      isOpen: true,
-      productId: product.id || "",
-    });
+    openView(product.id || "");
   };
 
   const handleToggleStockStatus = useCallback(
@@ -198,7 +218,6 @@ function SizeStockPageInner() {
             );
           })
           .catch((error: unknown) => {
-
             dispatch(
               revertStockStatusOptimistic({
                 productId: product.id,
@@ -221,7 +240,7 @@ function SizeStockPageInner() {
       handleCreateStock: handleCreateStock,
       handleToggleStockStatus,
     }),
-    [handleCreateStock, handleToggleStockStatus],
+    [handleToggleStockStatus, openView, openEdit]
   );
 
   const columns = useMemo(
@@ -230,7 +249,7 @@ function SizeStockPageInner() {
         data: stockData,
         handlers: tableHandlers,
       }),
-    [stockState, tableHandlers],
+    [stockState, tableHandlers]
   );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -269,15 +288,29 @@ function SizeStockPageInner() {
     setSelectedBrand(brand);
   };
 
-  const handleCategoriesChange = (
-    categories: CategoriesResponseModel | null,
-  ) => {
+  const handleCategoriesChange = (categories: CategoriesResponseModel | null) => {
     setSelectedCategories(categories);
   };
 
   const handleStockStatusChange = (value: string | number | boolean | null | undefined) => {
     setStockStatusFilter(String(value ?? ""));
   };
+
+  const handleClearAllFilters = () => {
+    dispatch(setSearchFilter(""));
+    dispatch(selectProductStatus(ProductStatus.ALL));
+    setSelectedBrand(null);
+    setSelectedCategories(null);
+    setStockStatusFilter("ALL");
+  };
+
+  const stockProduct = useMemo(() => {
+    if (stockManagementState.product) return stockManagementState.product;
+    if (editId) {
+      return stockContent.find((p) => p.id === editId) || null;
+    }
+    return null;
+  }, [stockManagementState.product, editId, stockContent]);
 
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Size Stock Information",
@@ -287,6 +320,7 @@ function SizeStockPageInner() {
     buttonText: undefined,
     buttonDisabled: false,
     onButtonClick: () => {},
+    onClearAll: handleClearAllFilters,
     filters: [
       {
         id: "productStatus",
@@ -329,15 +363,13 @@ function SizeStockPageInner() {
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
-      <div className="space-y-3">
+      <div className="space-y-2">
         <CollapsibleFilterPanel
           config={filterConfig}
           essentialFilterIds={["productStatus", "stockStatus"]}
         />
 
-        {}
-        <div className="overflow-x-auto max-w-full rounded border">
-          <DataTableWithPagination
+        <DataTableWithPagination
           data={stockContent}
           columns={columns}
           loading={isLoading}
@@ -351,21 +383,24 @@ function SizeStockPageInner() {
           onPageSizeChange={handlePageSizeChange}
           pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
-        </div>
       </div>
 
-      {}
       <ProductDetailModal
-        productId={detailModalState.productId}
-        isOpen={detailModalState.isOpen}
-        onClose={closeDetailModal}
+        productId={viewId || detailModalState.productId}
+        isOpen={!!viewId || detailModalState.isOpen}
+        onClose={() => {
+          closeDetailModal();
+          closeRouteModal();
+        }}
       />
 
-      {}
       <SizeStockManagementModal
-        isOpen={stockManagementState.isOpen}
-        onClose={closeStockManagementModal}
-        product={stockManagementState.product}
+        isOpen={!!editId || stockManagementState.isOpen}
+        onClose={() => {
+          closeStockManagementModal();
+          closeRouteModal();
+        }}
+        product={stockProduct}
       />
     </div>
   );

@@ -176,13 +176,6 @@ function UserBusinessPageInner() {
   useEffect(() => {
     if (!isHydrated) return;
 
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      if (usersContent && usersContent.length > 0) {
-        return;
-      }
-    }
-
     const filterPayload = {
       search: debouncedSearch,
       pageNo: filters.pageNo,

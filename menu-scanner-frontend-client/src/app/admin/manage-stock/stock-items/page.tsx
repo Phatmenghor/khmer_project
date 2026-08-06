@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback, Suspense} from "react";
+import { useEffect, useMemo, useState, useCallback, Suspense } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
-import { usePagination } from "@/hooks/use-pagination";
 import { useStockItemsState } from "@/features/business/store/state/stock-items-state";
 import { ProductStockItemDto } from "@/features/business/store/models/response/stock-response";
 import { getProductStockItemsService } from "@/features/business/store/thunks/stock-management-thunks";
@@ -33,7 +32,7 @@ import { selectGlobalPageSize } from "@/store/selectors/global-settings-selector
 import { useAppSelector } from "@/store";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { selectLowStockThreshold } from "@/features/business/store/selectors/business-settings-selector";
-
+import { useAdminTableUrlState } from "@/hooks/use-admin-table-url-state";
 
 const STOCK_STATUS_FILTER = [
   { value: "ALL", label: "All Stock Status" },
@@ -41,13 +40,11 @@ const STOCK_STATUS_FILTER = [
   { value: "DISABLED", label: "Stock Disabled" },
 ];
 
-
 const HAS_SIZES_FILTER = [
   { value: "ALL", label: "All Products" },
   { value: "WITH_SIZES", label: "Products with Sizes" },
   { value: "WITHOUT_SIZES", label: "Products without Sizes" },
 ];
-
 
 const SORT_BY_OPTIONS = [
   { value: "totalStock", label: "Total Stock" },
@@ -62,9 +59,7 @@ const SORT_DIRECTION_OPTIONS = [
 ];
 
 function StockItemsPageInner() {
-
   useAdminCleanup(resetState);
-
 
   const {
     stockItemsState,
@@ -75,7 +70,6 @@ function StockItemsPageInner() {
     pagination,
     dispatch,
   } = useStockItemsState();
-
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
@@ -92,20 +86,70 @@ function StockItemsPageInner() {
   const [stockStatusFilterUI, setStockStatusFilterUI] = useState("ALL");
   const [hasSizesFilterUI, setHasSizesFilterUI] = useState("ALL");
 
-
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const businessLowStockThreshold = useAppSelector(selectLowStockThreshold);
 
   const debouncedSearch = useDebounce(filters.search, 400);
   const debouncedLowStockThreshold = useDebounce(filters.lowStockThreshold, 400);
 
-  const { updateUrlWithPage, handlePageChange } = usePagination({
+  const {
+    isHydrated,
+    viewId,
+    editId,
+    openView,
+    openEdit,
+    closeModal: closeRouteModal,
+    updateUrlWithPage,
+    handlePageChange,
+  } = useAdminTableUrlState({
     baseRoute: ROUTES.MANAGE_STOCK.STOCK_ITEMS,
+    filters: {
+      search: filters.search,
+      sortBy: filters.sortBy || "",
+      sortDirection: filters.sortDirection || "",
+      status: filters.status || "",
+      stockStatus: filters.stockStatus || "",
+      lowStockThreshold: filters.lowStockThreshold !== undefined ? String(filters.lowStockThreshold) : "",
+      hasSizes: filters.hasSizes !== undefined ? String(filters.hasSizes) : "",
+      categoryId: selectedCategories?.id || "",
+      brandId: selectedBrand?.id || "",
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
+    },
+    onInit: (params) => {
+      if (params.search) dispatch(setSearchFilter(params.search));
+      if (params.sortBy) dispatch(setSortBy(params.sortBy as any));
+      if (params.sortDirection) dispatch(setSortDirection(params.sortDirection as "ASC" | "DESC"));
+      if (params.status) dispatch(setStatusFilter(params.status as "ACTIVE" | "INACTIVE"));
+      if (params.stockStatus) {
+        dispatch(setStockStatusFilter(params.stockStatus as "ENABLED" | "DISABLED"));
+        setStockStatusFilterUI(params.stockStatus);
+      }
+      if (params.lowStockThreshold) dispatch(setLowStockThreshold(Number(params.lowStockThreshold)));
+      if (params.hasSizes) {
+        const val = params.hasSizes;
+        if (val === "true") {
+          dispatch(setHasSizesFilter(true));
+          setHasSizesFilterUI("WITH_SIZES");
+        } else if (val === "false") {
+          dispatch(setHasSizesFilter(false));
+          setHasSizesFilterUI("WITHOUT_SIZES");
+        }
+      }
+      if (params.categoryId) setSelectedCategories({ id: params.categoryId, name: "" } as any);
+      if (params.brandId) setSelectedBrand({ id: params.brandId, name: "" } as any);
+      if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
+      if (params.pageSize) {
+        dispatch(setPageSize(Number(params.pageSize)));
+        dispatch(setGlobalPageSize(Number(params.pageSize)));
+      }
+    },
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
-
   useEffect(() => {
+    if (!isHydrated) return;
+
     const request = {
       pageNo: filters.pageNo,
       pageSize: globalPageSize,
@@ -120,6 +164,7 @@ function StockItemsPageInner() {
 
     dispatch(getProductStockItemsService(request));
   }, [
+    isHydrated,
     dispatch,
     filters.pageNo,
     filters.sortBy,
@@ -133,12 +178,8 @@ function StockItemsPageInner() {
     businessLowStockThreshold,
   ]);
 
-
   const handleViewItem = (item: ProductStockItemDto) => {
-    setDetailModalState({
-      isOpen: true,
-      productId: item.productId,
-    });
+    openView(item.productId);
   };
 
   const handleEditStock = (item: ProductStockItemDto) => {
@@ -146,6 +187,7 @@ function StockItemsPageInner() {
       isOpen: true,
       item,
     });
+    openEdit(item.id);
   };
 
   const tableHandlers = useMemo(
@@ -153,7 +195,7 @@ function StockItemsPageInner() {
       handleViewItem,
       handleEditStock,
     }),
-    [handleViewItem, handleEditStock],
+    [openView, openEdit],
   );
 
   const columns = useMemo(
@@ -234,6 +276,25 @@ function StockItemsPageInner() {
     dispatch(setLowStockThreshold(threshold));
   };
 
+  const handleClearAllFilters = () => {
+    dispatch(setSearchFilter(""));
+    dispatch(setStatusFilter(undefined));
+    dispatch(setStockStatusFilter(undefined));
+    setStockStatusFilterUI("ALL");
+    dispatch(setHasSizesFilter(undefined));
+    setHasSizesFilterUI("ALL");
+    dispatch(setLowStockThreshold(undefined));
+    setSelectedBrand(null);
+    setSelectedCategories(null);
+  };
+
+  const stockItem = useMemo(() => {
+    if (stockManagementState.item) return stockManagementState.item;
+    if (editId) {
+      return stockItemsContent.find((item) => item.id === editId) || null;
+    }
+    return null;
+  }, [stockManagementState.item, editId, stockItemsContent]);
 
   const filterConfig: FilterPanelConfig = useMemo(
     () => ({
@@ -241,9 +302,8 @@ function StockItemsPageInner() {
       searchValue: filters.search,
       searchPlaceholder: "Search product name...",
       onSearchChange: handleSearchChange,
-
+      onClearAll: handleClearAllFilters,
       filters: [
-
         {
           id: "sortBy",
           type: "select" as const,
@@ -260,8 +320,6 @@ function StockItemsPageInner() {
           value: filters.sortDirection,
           onChange: handleSortDirectionChange,
         },
-
-
         {
           id: "brand",
           type: "combobox-brand" as const,
@@ -314,7 +372,6 @@ function StockItemsPageInner() {
           min: 1,
         },
       ],
-
       buttonText: undefined,
       buttonDisabled: true,
     }),
@@ -334,14 +391,12 @@ function StockItemsPageInner() {
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
-      <div className="space-y-3">
-        {}
+      <div className="space-y-2">
         <CollapsibleFilterPanel
           config={filterConfig}
           essentialFilterIds={["sortBy", "sortDirection"]}
         />
 
-        {}
         <DataTableWithPagination
           data={stockItemsContent}
           columns={columns}
@@ -358,18 +413,22 @@ function StockItemsPageInner() {
         />
       </div>
 
-      {}
       <ProductDetailModal
-        productId={detailModalState.productId}
-        isOpen={detailModalState.isOpen}
-        onClose={closeDetailModal}
+        productId={viewId || detailModalState.productId}
+        isOpen={!!viewId || detailModalState.isOpen}
+        onClose={() => {
+          closeDetailModal();
+          closeRouteModal();
+        }}
       />
 
-      {}
       <StockItemManagementModal
-        isOpen={stockManagementState.isOpen}
-        onClose={closeStockManagementModal}
-        stockItem={stockManagementState.item || undefined}
+        isOpen={!!editId || stockManagementState.isOpen}
+        onClose={() => {
+          closeStockManagementModal();
+          closeRouteModal();
+        }}
+        stockItem={stockItem || undefined}
       />
     </div>
   );

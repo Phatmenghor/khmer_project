@@ -201,32 +201,37 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
         )}
 
         {value && !isUploading ? (
-          <div className="relative w-full h-full group/overlay overflow-hidden rounded-[8px]">
-            <SmartImage
-              src={value}
-              alt="Preview"
-              fill
-              showSkeleton={false}
-              className="object-cover transition-transform duration-500 group-hover/overlay:scale-105"
-            />
+          <div className="relative w-full h-full group/overlay flex items-center justify-center p-1 bg-muted/10">
+            <div className={cn(
+              "relative rounded-[10px] overflow-hidden border border-border/50 shadow-2xs",
+              aspectRatio === "square" ? "h-full aspect-square max-h-full" : "w-full h-full"
+            )}>
+              <SmartImage
+                src={value}
+                alt="Preview"
+                fill
+                showSkeleton={false}
+                className="object-cover transition-transform duration-500 group-hover/overlay:scale-105"
+              />
 
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover/overlay:opacity-100 transition-all duration-300 flex items-center justify-center p-1">
-              <div className="px-2 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-[10px] font-medium text-white flex items-center gap-1 shadow-md">
-                <Upload className="h-3 w-3" />
-                <span className="hidden sm:inline">Change</span>
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover/overlay:opacity-100 transition-all duration-300 flex items-center justify-center p-1">
+                <div className="px-2 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-[10px] font-medium text-white flex items-center gap-1 shadow-md">
+                  <Upload className="h-3 w-3" />
+                  <span className="hidden sm:inline">Change</span>
+                </div>
               </div>
-            </div>
 
-            {!disabled && (
-              <button
-                type="button"
-                className="absolute top-1 right-1 z-20 h-5 w-5 rounded-full bg-destructive/90 text-destructive-foreground hover:bg-destructive hover:scale-110 shadow-md transition-all flex items-center justify-center cursor-pointer"
-                onClick={handleRemove}
-                title="Remove image"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            )}
+              {!disabled && (
+                <button
+                  type="button"
+                  className="absolute top-1 right-1 z-20 h-5 w-5 rounded-full bg-destructive/90 text-destructive-foreground hover:bg-destructive hover:scale-110 shadow-md transition-all flex items-center justify-center cursor-pointer"
+                  onClick={handleRemove}
+                  title="Remove image"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+            </div>
           </div>
         ) : !isUploading ? (
           <div className="w-full h-full flex flex-col items-center justify-center gap-2.5 p-4">

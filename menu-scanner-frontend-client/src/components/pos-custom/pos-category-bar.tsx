@@ -45,7 +45,7 @@ export function POSCategorySelector({
             size="unstyled"
             onClick={() => dispatch(setSelectedCategory(null))}
             className={cn(
-              "shrink-0 px-4 py-1.5 rounded-[8px] text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer h-8 flex items-center border",
+              "shrink-0 px-4 py-1.5 rounded-[8px] text-[11px] sm:text-xs font-bold transition-all whitespace-nowrap cursor-pointer h-8 flex items-center border",
               selectedCategory === null
                 ? "bg-primary text-primary-foreground border-primary shadow-2xs font-extrabold"
                 : "bg-background border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -57,7 +57,7 @@ export function POSCategorySelector({
           {categoriesLoading ? (
             <div className="flex items-center gap-1.5 px-2 h-8">
               <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-              <span className="text-xs sm:text-sm text-muted-foreground font-medium">
+              <span className="text-[11px] sm:text-xs text-muted-foreground font-medium">
                 Loading categories...
               </span>
             </div>
@@ -69,7 +69,7 @@ export function POSCategorySelector({
                 key={category.id}
                 onClick={() => dispatch(setSelectedCategory(category))}
                 className={cn(
-                  "shrink-0 px-4 py-1.5 rounded-[8px] text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer h-8 flex items-center border",
+                  "shrink-0 px-4 py-1.5 rounded-[8px] text-[11px] sm:text-xs font-semibold transition-all whitespace-nowrap cursor-pointer h-8 flex items-center border",
                   selectedCategory?.id === category.id
                     ? "bg-primary text-primary-foreground border-primary shadow-2xs font-extrabold"
                     : "bg-background border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/50"

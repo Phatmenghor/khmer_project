@@ -91,13 +91,6 @@ function DeliveryOptionsPageInner() {
   useEffect(() => {
     if (!isHydrated) return;
 
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      if (deliveryOptionsContent && deliveryOptionsContent.length > 0) {
-        return;
-      }
-    }
-
     dispatch(
       fetchMyBusinessDeliveryOptionsService({
         search: debouncedSearch,

@@ -2,7 +2,7 @@
 
 import { Messages } from "@/constants/messages";
 import React, { useEffect } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -171,24 +171,29 @@ export default function ExchangeRateModal({
   const isSubmitting = isCreate ? isCreating : isUpdating;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-3xl max-h-[92vh] p-0 flex flex-col">
-        <FormHeader
-          title={isCreate ? "Create New Exchange Rate" : "Edit Exchange Rate"}
-          description={
-            isCreate
-              ? "Configure the USD to KHR exchange rate"
-              : "Update exchange rate information below"
-          }
-          isCreate={isCreate}
-        />
+    <CustomModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size="3xl"
+      className="max-h-[92vh] gap-0 p-0 flex flex-col overflow-hidden"
+      disableScrollWrapper={true}
+    >
+      <FormHeader
+        title={isCreate ? "Create New Exchange Rate" : "Edit Exchange Rate"}
+        description={
+          isCreate
+            ? "Configure the USD to KHR exchange rate"
+            : "Update exchange rate information below"
+        }
+        isCreate={isCreate}
+      />
 
-        {!isCreate && isFetchingDetail ? (
-          <div className="p-4 flex items-center justify-center min-h-[50vh] flex-1">
-            <Loading />
-          </div>
-        ) : (
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-visible">
+      {!isCreate && isFetchingDetail ? (
+        <div className="p-4 flex items-center justify-center min-h-[50vh] flex-1">
+          <Loading />
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden">
           <FormBody>
             {reduxError && (
               <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
@@ -251,8 +256,7 @@ export default function ExchangeRateModal({
             />
           </FormFooter>
         </form>
-        )}
-      </DialogContent>
-    </Dialog>
+      )}
+    </CustomModal>
   );
 }

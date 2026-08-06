@@ -7,6 +7,48 @@ import { ProductDetailResponseModel } from "../store/models/response/product-res
 import { Badge } from "@/components/ui/badge";
 import { Eye, RotateCcw } from "lucide-react";
 import { ActionButton } from "@/components/shared/button/custom-button";
+import { isPromotionActive, isPromotionScheduled } from "@/constants/status/status";
+
+function PricingDisplay({ product }: { product: ProductDetailResponseModel }) {
+  const isDiff = Boolean(product?.displayOriginPrice && product.displayOriginPrice !== product.displayPrice);
+  const isActive = isPromotionActive(product?.hasPromotion);
+  const isScheduled = isPromotionScheduled(product?.hasPromotion);
+  
+  const promoValue = product?.displayPromotionValue ?? product?.promotionValue;
+  const promoType = product?.displayPromotionType ?? product?.promotionType;
+  const hasPromoValue = promoValue != null && Number(promoValue) > 0;
+
+  const promoValueText = promoType === "PERCENTAGE"
+    ? `-${promoValue}%`
+    : `-$${promoValue}`;
+
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center gap-1.5 flex-wrap whitespace-nowrap">
+        {isDiff && (
+          <span className="text-xs text-muted-foreground line-through whitespace-nowrap">
+            ${parseFloat((product.displayOriginPrice ?? 0).toString()).toFixed(2)}
+          </span>
+        )}
+        <span className="text-xs font-semibold text-foreground whitespace-nowrap">
+          ${parseFloat((product?.displayPrice ?? 0).toString()).toFixed(2)}
+        </span>
+      </div>
+
+      {isActive && hasPromoValue && (
+        <div className="text-xs font-semibold text-red-600 whitespace-nowrap">
+          {promoValueText} (Active)
+        </div>
+      )}
+
+      {isScheduled && hasPromoValue && (
+        <div className="text-xs font-semibold text-yellow-600 whitespace-nowrap">
+          {promoValueText} (Future)
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface BulkPromotionTableOptions {
   selectedProductIds: Map<string, boolean>;
@@ -114,25 +156,10 @@ export const bulkPromotionTableColumns = ({
     {
       key: "pricing",
       label: "Price",
-      minWidth: "100px",
-      maxWidth: "200px",
+      minWidth: "180px",
+      maxWidth: "350px",
       className: "px-3",
-      render: (product) => {
-        return (
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-foreground">
-              ${Number(product.displayPrice || 0).toFixed(2)}
-            </span>
-            {product.displayOriginPrice &&
-              product.displayPrice <
-                Number(product.displayOriginPrice || 0) && (
-                <div className="text-xs text-muted-foreground line-through">
-                  ${Number(product.displayOriginPrice).toFixed(2)}
-                </div>
-              )}
-          </div>
-        );
-      },
+      render: (product) => <PricingDisplay product={product} />,
     },
     {
       key: "sizes",

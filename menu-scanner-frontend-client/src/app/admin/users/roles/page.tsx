@@ -91,13 +91,6 @@ function RolesPageInner() {
   useEffect(() => {
     if (!isHydrated) return;
 
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      if (allRolesContent && allRolesContent.length > 0) {
-        return;
-      }
-    }
-
     dispatch(
       fetchAllRoleService({
         search: debouncedSearch,

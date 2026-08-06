@@ -147,8 +147,8 @@ export function ClickableImageUpload({
           {value ? (
             <div className="relative w-full h-full group/overlay">
               {isSquare ? (
-                <div className="w-full h-full flex items-center justify-center bg-muted/10">
-                  <div className="relative w-36 h-36 rounded-[10px] overflow-hidden flex-shrink-0 border border-border/50">
+                <div className="w-full h-full flex items-center justify-center bg-muted/10 p-1">
+                  <div className="relative h-full aspect-square max-h-full rounded-[10px] overflow-hidden flex-shrink-0 border border-border/50">
                     <SmartImage
                       src={value}
                       alt="Preview"

@@ -106,13 +106,6 @@ function BrandPageInner() {
   useEffect(() => {
     if (!isHydrated) return;
 
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      if (brandContent && brandContent.length > 0) {
-        return;
-      }
-    }
-
     const promise = dispatch(
       fetchAllBrandWithProductCountService({
         search: debouncedSearch,
@@ -126,6 +119,7 @@ function BrandPageInner() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    isHydrated,
     dispatch,
     debouncedSearch,
     filters.status,

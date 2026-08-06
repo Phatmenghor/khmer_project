@@ -94,13 +94,6 @@ function PaymentOptionsPageInner() {
   useEffect(() => {
     if (!isHydrated) return;
 
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      if (paymentOptionsContent && paymentOptionsContent.length > 0) {
-        return;
-      }
-    }
-
     dispatch(
       fetchMyBusinessPaymentOptionsService({
         search: debouncedSearch,

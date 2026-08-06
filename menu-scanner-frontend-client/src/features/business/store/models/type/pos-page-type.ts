@@ -38,7 +38,7 @@ export interface PosPageCartItem {
   totalPrice: number;
 
 
-  hasPromotion?: boolean;
+  hasPromotion?: boolean | string;
   promotionType?: string | null;
   promotionValue?: number | null;
   promotionFromDate?: string | null;

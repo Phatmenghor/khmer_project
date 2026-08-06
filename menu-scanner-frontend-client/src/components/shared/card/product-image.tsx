@@ -8,16 +8,17 @@ import { CustomButton } from "../button/custom-button";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
+import { isPromotionActive } from "@/constants/status/status";
 
 interface ProductImageProps {
   product: ProductDetailResponseModel;
   imageUrl: string;
   isOutOfStock: boolean;
-  isFavorited: boolean;
+  isFavorited?: boolean;
   loading?: "eager" | "lazy";
   onImageLoad?: () => void;
   onImageError?: () => void;
-  onToggleFavorite: (e: React.MouseEvent) => void;
+  onToggleFavorite?: (e: React.MouseEvent) => void;
 }
 
 function ProductImageComponent({
@@ -44,7 +45,7 @@ function ProductImageComponent({
       />
 
       {/* Promotion Badge */}
-      {product?.hasPromotion && (
+      {isPromotionActive(product?.hasPromotion) && (
         <div className="absolute top-1 left-1 z-10 pointer-events-none">
           <Badge variant="destructive" className="text-xs font-bold px-1 py-0.5 shadow-md">
             {product.displayPromotionType === "PERCENTAGE"

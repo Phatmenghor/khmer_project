@@ -25,7 +25,7 @@ export interface CartItemModel {
   status?: string;
   currentPrice: number;
   finalPrice: number;
-  hasPromotion?: boolean;
+  hasPromotion?: boolean | string;
   quantity: number;
   totalPrice: number;
   isAvailable?: boolean;

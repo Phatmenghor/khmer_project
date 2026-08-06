@@ -26,6 +26,7 @@ export interface UseProductTableFiltersOptions {
   buttonDisabled?: boolean;
   onButtonClick?: () => void;
   extraActions?: React.ReactNode;
+  showPromotionDates?: boolean;
 }
 
 export function useProductTableFilters({
@@ -37,6 +38,7 @@ export function useProductTableFilters({
   buttonDisabled = false,
   onButtonClick,
   extraActions,
+  showPromotionDates = false,
 }: UseProductTableFiltersOptions) {
   const { filters, dispatch } = useProductState();
 
@@ -45,6 +47,8 @@ export function useProductTableFilters({
   const [sizeFilter, setSizeFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("");
   const [sortDirection, setSortDirection] = useState("");
+  const [promotionFromDate, setPromotionFromDate] = useState("");
+  const [promotionToDate, setPromotionToDate] = useState("");
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setSearchFilter(e.target.value));
@@ -82,6 +86,8 @@ export function useProductTableFilters({
     setSizeFilter("ALL");
     setSortBy("");
     setSortDirection("");
+    setPromotionFromDate("");
+    setPromotionToDate("");
   };
 
   const filterConfig = useMemo(
@@ -134,6 +140,26 @@ export function useProductTableFilters({
           onChange: handleCategoriesChange,
           showAllOption: true,
         },
+        ...(showPromotionDates
+          ? [
+              {
+                id: "promotionFromDate",
+                type: "date" as const,
+                label: "Promo From",
+                placeholder: "Select start date",
+                value: promotionFromDate,
+                onChange: (value: any) => setPromotionFromDate(value ? String(value) : ""),
+              },
+              {
+                id: "promotionToDate",
+                type: "date" as const,
+                label: "Promo To",
+                placeholder: "Select end date",
+                value: promotionToDate,
+                onChange: (value: any) => setPromotionToDate(value ? String(value) : ""),
+              },
+            ]
+          : []),
         {
           id: "sortBy",
           type: "select",
@@ -170,6 +196,9 @@ export function useProductTableFilters({
       selectedCategories,
       sortBy,
       sortDirection,
+      promotionFromDate,
+      promotionToDate,
+      showPromotionDates,
     ]
   );
 
@@ -185,6 +214,10 @@ export function useProductTableFilters({
     setSortBy,
     sortDirection,
     setSortDirection,
+    promotionFromDate,
+    setPromotionFromDate,
+    promotionToDate,
+    setPromotionToDate,
     handleClearAllFilters,
   };
 }

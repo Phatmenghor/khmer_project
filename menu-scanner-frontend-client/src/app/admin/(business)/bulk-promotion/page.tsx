@@ -23,6 +23,9 @@ import {
 } from "@/components/shared/common/data-table";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
+import { SectionTitle } from "@/components/shared/modal/detail-section";
+import { PromotionSetupSidebar } from "@/features/business/components/promotion-setup-sidebar";
+import { BulkPromotionFilterBar } from "@/features/business/components/bulk-promotion-filter-bar";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { useProductState } from "@/features/business/store/state/product-state";
 import {
@@ -408,12 +411,13 @@ export default function BulkPromotionPage() {
   }, [promotionType, promotionValue]);
 
   const hasValidPromotionType = !!promotionType;
-  const hasValidPromotionValue = promotionValue && promotionValue > 0;
-  const hasValidDates =
+  const hasValidPromotionValue = !!(promotionValue && Number(promotionValue) > 0);
+  const hasValidDates = !!(
     form.watch("promotionFromDate") &&
     form.watch("promotionToDate") &&
     new Date(form.watch("promotionFromDate")) <
-      new Date(form.watch("promotionToDate"));
+      new Date(form.watch("promotionToDate"))
+  );
   const hasSelectedProducts = selectedIds.length > 0;
 
   const isFormValid =
@@ -729,119 +733,26 @@ export default function BulkPromotionPage() {
         className="flex flex-1 flex-col lg:flex-row overflow-hidden min-h-0"
       >
         {}
-        <div className="flex-1 flex flex-col gap-3 px-1 sm:px-3 py-3 overflow-y-auto min-h-0 lg:border-r lg:border-border scroll-smooth">
-          {}
-          <div className="rounded border border-border/60 bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30 transition-all duration-200 overflow-hidden">
-            {}
-            <div className="px-3 py-2 border-b border-border/40">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                {}
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <CustomCheckbox
-                    checked={allSelected}
-                    onCheckedChange={handleSelectAll}
-                    disabled={isLoading}
-                    size="lg"
-                    variant="default"
-                    ariaLabel="Select all products on this page"
-                    className="flex-shrink-0"
-                  />
-
-                  {}
-                  <div className="flex flex-col gap-0.5 min-w-0">
-                    <span className="text-xs font-semibold text-foreground">
-                      {allSelected
-                        ? "All products selected"
-                        : someSelected
-                          ? `${
-                              Array.from(selectedProductIds.keys()).filter(
-                                (id) => productContent.some((p) => p.id === id),
-                              ).length
-                            } products selected`
-                          : "Select all products"}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {productContent.length} products on this page
-                    </span>
-                  </div>
-                </div>
-
-                {}
-                <div className="flex items-center gap-1 flex-wrap w-full sm:w-auto">
-                  {}
-                  <div className="relative flex-1 sm:flex-none sm:w-auto sm:min-w-[300px] sm:max-w-[370px]">
-                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
-                    <input
-                      type="text"
-                      placeholder="Search product..."
-                      value={searchQuery}
-                      onChange={(e) => handleSearchChange(e.target.value)}
-                      className="w-full pl-6 pr-6 py-1 rounded border border-border bg-background text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                    />
-                    {searchQuery && (
-                      <CustomButton variant="unstyled" size="unstyled"
-                        type="button"
-                        onClick={handleClearSearch}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-muted rounded transition-colors"
-                        title="Clear search"
-                      >
-                        <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
-                      </CustomButton>
-                    )}
-                  </div>
-
-                  {}
-                  {selectedIds.length > 0 && (
-                    <CustomButton variant="unstyled" size="unstyled"
-                      type="button"
-                      onClick={handleClearAllSelections}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-destructive border border-destructive/40 bg-destructive/5 hover:border-destructive/70 hover:bg-destructive/15 hover:text-destructive transition-colors duration-150 flex-shrink-0"
-                      title="Clear all selections (stored in browser)"
-                    >
-                      <Trash2 className="h-2.5 w-2.5" />
-                      <span className="hidden sm:inline">Clear</span>
-                    </CustomButton>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {}
-            <div className="px-3 py-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
-              {}
-              <div className="min-w-0">
-                <ComboboxSelectCategories
-                  dataSelect={selectedCategories}
-                  onChangeSelected={handleCategoriesChange}
-                  placeholder="All Categories"
-                  showAllOption={true}
-                />
-              </div>
-
-              {}
-              <div className="min-w-0">
-                <ComboboxSelectBrand
-                  dataSelect={selectedBrand}
-                  onChangeSelected={handleBrandChange}
-                  placeholder="All Brand"
-                  showAllOption={true}
-                />
-              </div>
-
-              {}
-              <div className="min-w-0">
-                <CustomSelect
-                  options={PROMOTION_FILTER_OPTIONS}
-                  value={hasPromotionFilter}
-                  placeholder="All Products"
-                  onValueChange={handlePromotionFilterChange}
-                  className="w-full"
-                  label="Promotion Status"
-                  size="md"
-                />
-              </div>
-            </div>
-          </div>
+        <div className="flex-1 flex flex-col gap-2 px-1 sm:px-3 py-3 overflow-y-auto min-h-0 lg:border-r lg:border-border scroll-smooth">
+          <BulkPromotionFilterBar
+            allSelected={allSelected}
+            someSelected={someSelected}
+            selectedProductCount={Array.from(selectedProductIds.keys()).filter((id) => productContent.some((p) => p.id === id)).length}
+            totalProductsOnPage={productContent.length}
+            handleSelectAll={handleSelectAll}
+            searchQuery={searchQuery}
+            handleSearchChange={handleSearchChange}
+            handleClearSearch={handleClearSearch}
+            selectedIdsLength={selectedIds.length}
+            handleClearAllSelections={handleClearAllSelections}
+            selectedCategories={selectedCategories}
+            handleCategoriesChange={handleCategoriesChange}
+            selectedBrand={selectedBrand}
+            handleBrandChange={handleBrandChange}
+            hasPromotionFilter={hasPromotionFilter}
+            handlePromotionFilterChange={handlePromotionFilterChange}
+            isLoading={isLoading}
+          />
 
           {}
           <div className="flex-1 overflow-y-auto overflow-x-auto min-h-0">
@@ -864,161 +775,16 @@ export default function BulkPromotionPage() {
         </div>
 
         {}
-        <div className="w-full lg:w-64 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0 overflow-hidden scroll-smooth bg-background">
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="px-3 sm:px-3 md:px-3 lg:px-3 py-4 sm:py-5 md:py-4 lg:py-5 space-y-3 sm:space-y-4 md:space-y-3 lg:space-y-4">
-              {}
-              <div className="space-y-1 border-b border-border pb-3">
-                <h2 className="text-xs sm:text-xs font-bold text-foreground">
-                  Promotion Setup
-                </h2>
-                <p className="text-xs sm:text-xs text-muted-foreground">
-                  Configure discount details for selected products
-                </p>
-              </div>
-
-              {}
-              <div className="rounded p-3 bg-gradient-to-r from-primary/15 to-green-500/15 border border-primary/25 shadow-sm">
-                <div className="space-y-2">
-                  <p className="text-xs font-bold uppercase tracking-wider text-primary/70">
-                    Selection Status
-                  </p>
-
-                  {}
-                  <div className="flex items-center gap-4 sm:gap-5">
-                    {}
-                    <div className="flex items-baseline gap-1">
-                      <p className="text-xs sm:text-sm font-black text-primary">
-                        {selectedIds.length}
-                      </p>
-                      <p className="text-xs sm:text-xs font-semibold text-foreground/60">
-                        {selectedIds.length === 1 ? "Product" : "Products"}
-                      </p>
-                    </div>
-
-                    {}
-                    <div className="h-8 w-px bg-primary/20" />
-
-                    {}
-                    <div className="flex items-baseline gap-1">
-                      <p className="text-xs sm:text-sm font-black text-green-600">
-                        {Object.values(selectedSizesFromRedux).reduce(
-                          (sum, sizeArray) => sum + sizeArray.length,
-                          0,
-                        )}
-                      </p>
-                      <p className="text-xs sm:text-xs font-semibold text-foreground/60">
-                        {Object.values(selectedSizesFromRedux).reduce(
-                          (sum, sizeArray) => sum + sizeArray.length,
-                          0,
-                        ) === 1
-                          ? "Size"
-                          : "Sizes"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {}
-              <div className="space-y-3">
-                {}
-                <div className="rounded border border-border/60 p-3 space-y-2 bg-muted/30 hover:bg-muted/50 transition-colors">
-                  <h3 className="text-xs font-semibold text-foreground flex items-center gap-1">
-                    <span className="w-1 h-1 rounded-full bg-primary" />
-                    Discount Settings
-                  </h3>
-                  <div className="space-y-2">
-                    <CustomSelect
-                      placeholder="Choose discount type..."
-                      label="Discount Type"
-                      options={PROMOTION_TYPES}
-                      value={promotionType}
-                      onValueChange={(value) =>
-                        form.setValue(
-                          "promotionType",
-                          value as "FIXED_AMOUNT" | "PERCENTAGE",
-                        )
-                      }
-                      disabled={isSubmitting}
-                      required
-                    />
-                    {form.formState.errors.promotionType && (
-                      <p className="text-xs text-destructive font-medium">
-                        {form.formState.errors.promotionType.message}
-                      </p>
-                    )}
-
-                    <PromotionValueField
-                      control={form.control}
-                      name="promotionValue"
-                      label={
-                        promotionType === "PERCENTAGE"
-                          ? "Discount Percentage"
-                          : "Discount Amount"
-                      }
-                      promotionType={promotionType}
-                      error={form.formState.errors.promotionValue}
-                      disabled={isSubmitting}
-                      required
-                    />
-                  </div>
-                </div>
-
-                {}
-                <div className="rounded border border-border/60 p-3 space-y-2 bg-muted/30 hover:bg-muted/50 transition-colors">
-                  <h3 className="text-xs font-semibold text-foreground flex items-center gap-1">
-                    <span className="w-1 h-1 rounded-full bg-green-600" />
-                    Duration
-                  </h3>
-                  <div className="space-y-2">
-                    <DateTimePickerField
-                      control={form.control}
-                      name="promotionFromDate"
-                      label="Start Date"
-                      required
-                      mode="date"
-                      error={form.formState.errors.promotionFromDate}
-                    />
-
-                    <DateTimePickerField
-                      control={form.control}
-                      name="promotionToDate"
-                      label="End Date"
-                      required
-                      mode="date"
-                      error={form.formState.errors.promotionToDate}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {}
-              <div className="border-t border-border pt-3">
-                <div className="flex gap-2 sm:gap-3 md:gap-2 lg:gap-3">
-                  <CancelButton
-                    onClick={() => router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION)}
-                    disabled={isSubmitting}
-                    variant="outline"
-                    className="flex-1 h-7 sm:h-8 md:h-7 lg:h-8 text-xs sm:text-xs md:text-xs lg:text-xs font-semibold rounded border border-border hover:bg-muted/50 transition-colors"
-                    text="Cancel"
-                  />
-                  <SubmitButton
-                    isSubmitting={isSubmitting}
-                    isDirty={selectedIds.length > 0}
-                    isCreate={true}
-                    createText="Apply Promotion"
-                    submittingCreateText="Applying..."
-                    disabled={!isFormValid}
-                    onClick={handleApplyClick}
-                    variant="default"
-                    className="flex-1 h-7 sm:h-8 md:h-7 lg:h-8 text-xs sm:text-xs md:text-xs lg:text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded shadow-md hover:shadow-lg transition-all disabled:opacity-50"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PromotionSetupSidebar
+          form={form}
+          selectedProductCount={selectedIds.length}
+          selectedSizesCount={Object.values(selectedSizesFromRedux).reduce((sum, sizeArray) => sum + sizeArray.length, 0)}
+          promotionType={promotionType}
+          isSubmitting={isSubmitting}
+          isFormValid={isFormValid}
+          onCancel={() => router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION)}
+          onApply={handleApplyClick}
+        />
       </form>
 
       {}

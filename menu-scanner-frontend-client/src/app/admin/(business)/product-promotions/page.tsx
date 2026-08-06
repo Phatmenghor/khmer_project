@@ -78,12 +78,17 @@ function ProductPromotionPageInner() {
     setSortBy,
     sortDirection,
     setSortDirection,
+    promotionFromDate,
+    setPromotionFromDate,
+    promotionToDate,
+    setPromotionToDate,
   } = useProductTableFilters({
     title: "Product Promotions",
     subtitle: "Products with active promotional discounts",
     totalCount: pagination.totalElements,
     buttonText: "Create Promotion",
     onButtonClick: handleCreatePromotion,
+    showPromotionDates: true,
   });
 
   const [modalState, setModalState] = useState({
@@ -144,6 +149,8 @@ function ProductPromotionPageInner() {
       sortDirection: sortDirection || "",
       pageNo: filters.pageNo,
       pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
+      promotionFromDate: promotionFromDate || "",
+      promotionToDate: promotionToDate || "",
     },
     onInit: (params) => {
       if (params.search) dispatch(setSearchFilter(params.search));
@@ -155,6 +162,8 @@ function ProductPromotionPageInner() {
       if (params.sortDirection) setSortDirection(params.sortDirection);
       if (params.categoryId) setSelectedCategories({ id: params.categoryId, name: "" } as any);
       if (params.brandId) setSelectedBrand({ id: params.brandId, name: "" } as any);
+      if (params.promotionFromDate) setPromotionFromDate(params.promotionFromDate);
+      if (params.promotionToDate) setPromotionToDate(params.promotionToDate);
     },
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
@@ -182,6 +191,8 @@ function ProductPromotionPageInner() {
         hasSize,
         sortBy: sortBy || "createdAt",
         sortDirection: sortDirection || "DESC",
+        promotionFromDate: promotionFromDate || undefined,
+        promotionToDate: promotionToDate || undefined,
       }),
     );
   }, [
@@ -196,6 +207,8 @@ function ProductPromotionPageInner() {
     sizeFilter,
     sortBy,
     sortDirection,
+    promotionFromDate,
+    promotionToDate,
   ]);
 
   const handleEditProduct = (product: ProductDetailResponseModel) => {
@@ -387,15 +400,14 @@ function ProductPromotionPageInner() {
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
-      <div className="space-y-3">
+      <div className="space-y-2">
         <CollapsibleFilterPanel
           config={filterConfig}
           essentialFilterIds={["size", "status"]}
         />
 
         {}
-        <div className="overflow-x-auto max-w-full rounded border">
-          <DataTableWithPagination
+        <DataTableWithPagination
           data={productContent}
           columns={columns}
           loading={isLoading}
@@ -409,7 +421,6 @@ function ProductPromotionPageInner() {
           onPageSizeChange={handlePageSizeChange}
           pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
-        </div>
       </div>
 
       {}

@@ -36,6 +36,7 @@ import {
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
+import { SectionTitle } from "@/components/shared/modal/detail-section";
 import {
   AccountStatus,
   ModalMode,
@@ -308,7 +309,6 @@ export default function UserCustomerModal({
               : "Update customer profile information below"
           }
           isCreate={isCreate}
-          className="m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4"
         />
 
         {!isCreate && isFetchingDetail ? (
@@ -321,7 +321,7 @@ export default function UserCustomerModal({
             className="flex flex-col flex-1 min-h-0 overflow-hidden"
             autoComplete="off"
           >
-            <FormBody className="px-4">
+            <FormBody>
               {reduxError && (
                 <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
                   <p className="text-xs text-destructive font-medium">
@@ -332,9 +332,9 @@ export default function UserCustomerModal({
 
               <div className="space-y-4">
                 <div className="space-y-3">
-                  <h3 className="text-xs font-semibold">
+                  <SectionTitle className="col-span-1 mt-0 mb-0 border-b-0 pb-0">
                     Account Credentials <span className="text-destructive ml-0.5">*</span>
-                  </h3>
+                  </SectionTitle>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                     {isCreate ? (
                       <>
@@ -401,9 +401,9 @@ export default function UserCustomerModal({
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="text-xs font-semibold">
+                  <SectionTitle className="col-span-1 mt-0 mb-0 border-b-0 pb-0">
                     Personal Information <span className="text-destructive ml-0.5">*</span>
-                  </h3>
+                  </SectionTitle>
                   <div className="space-y-3">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                       <TextField

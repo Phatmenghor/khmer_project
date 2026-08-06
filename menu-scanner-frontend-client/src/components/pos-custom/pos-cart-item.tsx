@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import { formatCurrency } from "@/utils/common/currency-format";
+import { PromotionType } from "@/constants/status/status";
 
 interface POSCartItemProps {
   id: string;
@@ -14,7 +15,7 @@ interface POSCartItemProps {
   currentPrice: number;
   finalPrice: number;
   quantity: number;
-  hasPromotion?: boolean;
+  hasPromotion?: boolean | string;
   promotionType?: string | null;
   promotionValue?: number | null;
 
@@ -53,28 +54,28 @@ export function POSCartItem({
   onEdit,
 }: POSCartItemProps) {
   return (
-    <div className="bg-white border border-slate-200 rounded p-3 hover:shadow-md transition-all duration-200 relative group">
+    <div className="bg-card border border-border/80 rounded-[8px] p-2 hover:shadow-sm transition-all duration-200 relative group">
       {/* Remove Button */}
       <CustomButton
         size="icon"
-        variant="outline"
-        className="absolute top-2 right-2 h-7 w-7 shrink-0 text-red-600 hover:bg-red-100 rounded-[6px]"
+        variant="ghost"
+        className="absolute top-1.5 right-1.5 h-6 w-6 shrink-0 text-destructive hover:bg-destructive/10 rounded-[4px]"
         onClick={onRemove}
         title="Remove item"
       >
-        <X className="h-4 w-4" />
+        <X className="h-3.5 w-3.5" />
       </CustomButton>
 
-      <div className="flex gap-3">
+      <div className="flex gap-2">
         {/* Product Image */}
-        <div className="relative w-[90px] h-[90px] rounded-[10px] overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm">
+        <div className="relative w-[72px] h-[72px] rounded-[6px] overflow-hidden bg-muted border border-border/70 flex-shrink-0 shadow-2xs">
           <SmartImage src={productImageUrl} alt={productName} fill />
 
           {/* Promotion Badge */}
           {hasPromotion && (
-            <div className="absolute top-1 left-1 z-10 pointer-events-none">
-              <Badge variant="destructive" className="text-xs font-extrabold px-1.5 py-0.5 shadow-md">
-                {promotionType === "PERCENTAGE"
+            <div className="absolute top-0.5 left-0.5 z-10 pointer-events-none">
+              <Badge variant="destructive" className="text-[9px] font-black px-1 py-0 shadow-xs">
+                {promotionType === PromotionType.PERCENTAGE
                   ? `-${promotionValue}%`
                   : `-${formatCurrency(promotionValue || 0)}`}
               </Badge>
@@ -83,72 +84,72 @@ export function POSCartItem({
         </div>
 
         {/* Details */}
-        <div className="flex-1 min-w-0 flex flex-col justify-between pr-3">
+        <div className="flex-1 min-w-0 flex flex-col justify-between pr-4">
           {/* Title */}
-          <h3 className="font-extrabold text-sm sm:text-base leading-snug text-slate-900 line-clamp-1 mb-1">
+          <h3 className="font-extrabold text-[11px] sm:text-xs leading-tight text-foreground truncate">
             {productName}
           </h3>
 
           {/* Size / Addons */}
-          <div className="mb-1 flex items-center gap-1.5 flex-wrap">
+          <div className="flex items-center gap-1 flex-wrap my-0.5">
             {sizeName && (
-              <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/30 whitespace-nowrap">
+              <span className="text-[9px] font-extrabold text-primary bg-primary/10 px-1.5 py-0.2 rounded-full border border-primary/30 whitespace-nowrap">
                 {sizeName}
               </span>
             )}
             {customizations && customizations.length > 0 && (
-              <span className="text-xs font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-full border border-green-200 whitespace-nowrap">
-                Add-ons ×{customizations.length}
+              <span className="text-[9px] font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded-full border border-emerald-500/20 whitespace-nowrap">
+                +Addons ({customizations.length})
               </span>
             )}
           </div>
 
           {/* Bottom Price & Qty */}
-          <div className="flex items-center justify-between gap-2 mt-1">
+          <div className="flex items-center justify-between gap-1 mt-0.5">
             {/* Price */}
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-black text-sm sm:text-base text-slate-900">
+            <div className="flex items-baseline gap-1 min-w-0">
+              <span className="font-black text-[11px] sm:text-xs text-foreground truncate">
                 {formatCurrency(finalPrice)}
               </span>
               {hasPromotion && currentPrice > finalPrice && (
-                <span className="text-xs sm:text-sm text-slate-400 line-through font-semibold">
+                <span className="text-[9px] text-muted-foreground line-through font-semibold hidden sm:inline">
                   {formatCurrency(currentPrice)}
                 </span>
               )}
             </div>
 
             {/* Quantity Controls */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5 shrink-0">
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-7.5 w-7.5 shrink-0 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-primary rounded-[6px]"
+                className="h-6 w-6 shrink-0 border-border/70 hover:bg-muted rounded-[4px]"
                 onClick={onEdit}
                 title="Edit size"
               >
-                <Edit2 className="h-3.5 w-3.5" />
+                <Edit2 className="h-3 w-3" />
               </CustomButton>
 
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-7.5 w-7.5 shrink-0 hover:bg-destructive hover:text-destructive-foreground rounded-[6px]"
+                className="h-6 w-6 shrink-0 hover:bg-destructive hover:text-destructive-foreground rounded-[4px]"
                 onClick={() => onQuantityChange(-1)}
               >
-                <Minus className="h-3.5 w-3.5" />
+                <Minus className="h-3 w-3" />
               </CustomButton>
 
-              <div className="flex-1 text-center h-7.5 bg-primary/10 text-primary font-black text-xs sm:text-sm rounded-[6px] border border-primary/20 flex items-center justify-center min-w-[32px]">
+              <div className="text-center h-6 px-1.5 bg-primary/10 text-primary font-black text-[11px] rounded-[4px] border border-primary/20 flex items-center justify-center min-w-[24px]">
                 {quantity}
               </div>
 
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-7.5 w-7.5 shrink-0 hover:bg-primary hover:text-primary-foreground rounded-[6px]"
+                className="h-6 w-6 shrink-0 hover:bg-primary hover:text-primary-foreground rounded-[4px]"
                 onClick={() => onQuantityChange(1)}
               >
-                <Plus className="h-3.5 w-3.5" />
+                <Plus className="h-3 w-3" />
               </CustomButton>
             </div>
           </div>

@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { CustomButton } from "../button/custom-button";
 import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
+import { PromotionType, PromotionStatus } from "@/constants/status/status";
 import { selectPOSProductQuantity } from "@/features/business/store/selectors/pos-cart-selectors";
 
 interface POSProductCardProps {
@@ -22,12 +23,12 @@ function POSProductCardComponent({
   onAddClick,
   onQuantityChange,
 }: POSProductCardProps) {
-
   const productId = product?.id;
 
   const quantity = useAppSelector((state) =>
     selectPOSProductQuantity(state, productId || "")
   );
+
   const handleIncrement = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -59,137 +60,134 @@ function POSProductCardComponent({
   const handleCardClick = useCallback(() => {
     const hasCustomizations = product.customizations && product.customizations.length > 0;
     if (product.hasSizes || hasCustomizations) {
-      // If product has sizes or customizations, open the modal
       onAddClick(product);
     } else if (quantity === 0) {
-      // For new simple products, use onAddClick to add to cart
       onAddClick(product);
     } else {
-      // For existing items, directly increment quantity with +
       onQuantityChange(product.id, 1);
     }
   }, [product, onAddClick, onQuantityChange, quantity]);
+
+  const imageUrl = product.mainImage?.md || product.mainImage?.sm || product.mainImage?.o || "";
+  const displayPrice = product.displayPrice || parseFloat(String(product.price || 0));
+
+  // Pure backend PromotionStatus enum check
+  const hasPromotion = product.hasPromotion === PromotionStatus.ACTIVE;
 
   return (
     <div
       onClick={handleCardClick}
       className={cn(
-        "group relative bg-card rounded border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer hover:scale-[1.02]",
-        quantity > 0 && "ring-1 ring-primary/30 border-primary/50",
-        product.hasPromotion && "ring-1 ring-amber-500/20",
-        isOutOfStock && "opacity-60"
+        "group relative bg-card rounded-[10px] border border-border/80 hover:border-primary/50 hover:shadow-md overflow-hidden transition-all duration-200 flex flex-col cursor-pointer",
+        quantity > 0 && "ring-1.5 ring-primary border-primary bg-primary/5",
+        hasPromotion && "ring-1 ring-amber-500/30",
+        isOutOfStock && "opacity-60 pointer-events-none"
       )}
     >
-      {}
-      <div className={cn("relative aspect-square overflow-hidden bg-muted/30")}>
-        {(product.mainImage?.md || product.mainImage?.sm) ? (
+      {/* Product Image Container - Scaled height ~15% smaller */}
+      <div className="relative aspect-[16/13.5] w-full overflow-hidden bg-muted/30 shrink-0">
+        {imageUrl ? (
           <SmartImage
-            src={product.mainImage?.md || product.mainImage?.sm}
+            src={imageUrl}
             alt={product.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="group-hover:scale-110"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            <Package className="w-5 h-5 opacity-30" />
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-muted/20">
+            <Package className="w-7 h-7 opacity-30" />
           </div>
         )}
 
-        {}
+        {/* Status Overlay */}
         {isOutOfStock && (
-          <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center pointer-events-none">
-            <Badge variant="secondary" className="text-xs font-semibold px-2 py-1">Out of Stock</Badge>
+          <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center">
+            <Badge variant="secondary" className="text-[10px] font-black px-2 py-0.5">Out of Stock</Badge>
           </div>
         )}
 
-        {}
-        {product.hasPromotion && (
-          <div className="absolute top-1 left-1 z-10 pointer-events-none">
-            <Badge variant="destructive" className="text-xs font-bold px-1 py-0.5 shadow-md">
-              {product.displayPromotionType === "PERCENTAGE"
+        {/* Promotion Badge - Driven directly by product.hasPromotion */}
+        {hasPromotion && (
+          <div className="absolute top-1.5 left-1.5 z-10">
+            <Badge variant="destructive" className="text-[10px] font-black px-2 py-0.5 shadow-sm bg-red-600 text-white border-0 uppercase">
+              {product.displayPromotionType === PromotionType.PERCENTAGE
                 ? `-${product.displayPromotionValue}%`
                 : `-${formatCurrency(product.displayPromotionValue)}`}
             </Badge>
           </div>
         )}
 
-        {}
+        {/* Has Sizes or Add-ons Badge */}
         {(product.hasSizes || (product.customizations && product.customizations.length > 0)) && (
-          <div className="absolute bottom-1 left-1 z-10 pointer-events-none">
-            <Badge variant="secondary" className="text-xs font-medium px-1 py-0.5 shadow-sm bg-background/90 backdrop-blur-sm gap-1">
+          <div className="absolute bottom-1.5 left-1.5 z-10">
+            <Badge variant="secondary" className="text-[10px] font-bold px-2 py-0.5 shadow-2xs bg-background/90 backdrop-blur-sm gap-1 border-border/60">
               {product.hasSizes ? (
                 <>
-                  <Ruler className="h-2 w-2" />
-                  Sizes
+                  <Ruler className="h-3 w-3 text-primary" />
+                  Options
                 </>
               ) : (
                 <>
-                  <Package className="h-2 w-2" />
+                  <Package className="h-3 w-3 text-emerald-500" />
                   Add-ons
                 </>
               )}
             </Badge>
           </div>
         )}
-
       </div>
 
-      {/* Content */}
-      <div className="p-2.5 sm:p-3 flex flex-col flex-1">
+      {/* Content Body - Scaled +5% larger */}
+      <div className="p-2.5 sm:p-3 flex flex-col flex-1 justify-between gap-1.5">
         {/* Product Name */}
-        <h3 className="font-semibold text-xs sm:text-sm line-clamp-2 mb-1 leading-snug min-h-[36px] text-foreground">
+        <h3 className="font-extrabold text-xs sm:text-xs leading-snug text-foreground line-clamp-2 min-h-[30px]" title={product.name}>
           {product.name}
         </h3>
 
-        <div className="mt-auto">
-          {/* Prices */}
-          <div className="flex flex-col mb-1.5">
-            <span className={cn("text-[11px] text-muted-foreground line-through font-normal", !product.hasPromotion && "invisible")}>
-              {formatCurrency(product.displayOriginPrice)}
+        <div>
+          {/* Price Row */}
+          <div className="flex items-baseline justify-between gap-1 mb-2">
+            <span className={cn("text-xs sm:text-sm font-black", hasPromotion ? "text-red-500 font-extrabold" : "text-primary")}>
+              {formatCurrency(displayPrice)}
             </span>
-            <span className={cn("text-xs sm:text-sm font-extrabold", product.hasPromotion ? "text-red-500 font-extrabold" : "text-primary")}>
-              {formatCurrency(product.displayPrice || parseFloat(String(product.price || 0)))}
-            </span>
+            {hasPromotion && product.displayOriginPrice && (
+              <span className="text-[10px] sm:text-[11px] text-muted-foreground line-through font-semibold">
+                {formatCurrency(product.displayOriginPrice)}
+              </span>
+            )}
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons - Centered button at bottom */}
           {quantity > 0 ? (
-            <div className="flex items-center gap-1 w-full">
+            <div className="flex items-center gap-1.5 w-full">
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-7 w-7 shrink-0 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground rounded-[6px]"
                 onClick={handleDecrement}
               >
-                <Minus className="h-3 w-3" />
+                <Minus className="h-3.5 w-3.5" />
               </CustomButton>
-              <div className="flex-1 text-center h-7 bg-primary/10 text-primary font-bold text-xs rounded-[6px] border border-primary/20 flex items-center justify-center">
+              <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-black text-xs rounded-[6px] border border-primary/20 flex items-center justify-center">
                 {quantity}
               </div>
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-7 w-7 shrink-0 hover:bg-primary hover:text-primary-foreground transition-colors"
+                className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground rounded-[6px]"
                 onClick={handleIncrement}
               >
-                <Plus className="h-3 w-3" />
+                <Plus className="h-3.5 w-3.5" />
               </CustomButton>
             </div>
           ) : (
             <CustomButton
-              className="w-full gap-1.5 h-7.5 sm:h-8 text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xs rounded-[6px]"
+              className="w-full gap-1.5 h-8 text-xs font-black bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xs rounded-[6px]"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const hasCustomizations = product.customizations && product.customizations.length > 0;
-                if (product.hasSizes || hasCustomizations) {
-                  onAddClick(product);
-                } else if (quantity === 0) {
-                  onAddClick(product);
-                } else {
-                  onQuantityChange(product.id, 1);
-                }
+                handleCardClick();
               }}
               disabled={isOutOfStock}
               size="sm"

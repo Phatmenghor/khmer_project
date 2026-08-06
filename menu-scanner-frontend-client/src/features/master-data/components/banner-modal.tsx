@@ -2,7 +2,7 @@
 
 import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
@@ -187,26 +187,31 @@ export default function BannerModal({
   const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingImage || isProcessing;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-xl max-h-[92vh] p-0 flex flex-col">
-        <FormHeader
-          title={isCreate ? "Create New Banner" : "Edit Banner"}
-          description={
-            isCreate
-              ? "Upload an image and configure banner settings"
-              : "Update banner information below"
-          }
-          isCreate={isCreate}
-        />
+    <CustomModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size="xl"
+      className="max-h-[92vh] gap-0 p-0 flex flex-col overflow-hidden"
+      disableScrollWrapper={true}
+    >
+      <FormHeader
+        title={isCreate ? "Create New Banner" : "Edit Banner"}
+        description={
+          isCreate
+            ? "Upload an image and configure banner settings"
+            : "Update banner information below"
+        }
+        isCreate={isCreate}
+      />
 
-        {!isCreate && isFetchingDetail ? (
-          <div className="p-4 flex items-center justify-center min-h-[50vh] flex-1">
-            <Loading />
-          </div>
-        ) : (
+      {!isCreate && isFetchingDetail ? (
+        <div className="p-4 flex items-center justify-center min-h-[50vh] flex-1">
+          <Loading />
+        </div>
+      ) : (
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col flex-1 overflow-visible"
+          className="flex flex-col flex-1 min-h-0 overflow-hidden"
         >
           <FormBody>
             {reduxError && (
@@ -229,8 +234,6 @@ export default function BannerModal({
                   if (file) {
                     const objectUrl = URL.createObjectURL(file);
                     setPreviewUrl(objectUrl);
-                    // Mark the form as dirty so the submit button enables;
-                    // the real URLs are filled in onSubmit after upload.
                     setValue(
                       "image",
                       { sm: objectUrl, md: objectUrl, o: objectUrl },
@@ -246,12 +249,7 @@ export default function BannerModal({
                   }
                 }}
                 aspectRatio="banner"
-                required
                 disabled={isSubmitting}
-                error={
-                  (errors.image as any)?.message ||
-                  (errors.image as any)?.root?.message
-                }
                 placeholder="Click to upload banner image"
               />
 
@@ -297,8 +295,7 @@ export default function BannerModal({
             />
           </FormFooter>
         </form>
-        )}
-      </DialogContent>
-    </Dialog>
+      )}
+    </CustomModal>
   );
 }

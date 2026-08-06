@@ -40,28 +40,42 @@ export const sizeSchema = z
   })
   .refine(
     (data) => {
-
       if (data.promotionType && data.promotionType !== "NONE") {
-        return (
-          data.promotionValue !== undefined &&
-          data.promotionValue > 0 &&
-          data.promotionFromDate &&
-          data.promotionFromDate !== "" &&
-          data.promotionToDate &&
-          data.promotionToDate !== ""
-        );
+        return data.promotionValue !== undefined && data.promotionValue > 0;
       }
       return true;
     },
     {
-      message:
-        "Promotion value and dates are required when promotion type is selected",
+      message: "Promotion value is required",
       path: ["promotionValue"],
     }
   )
   .refine(
     (data) => {
-
+      if (data.promotionType && data.promotionType !== "NONE") {
+        return Boolean(data.promotionFromDate && data.promotionFromDate !== "");
+      }
+      return true;
+    },
+    {
+      message: "Start date is required",
+      path: ["promotionFromDate"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.promotionType && data.promotionType !== "NONE") {
+        return Boolean(data.promotionToDate && data.promotionToDate !== "");
+      }
+      return true;
+    },
+    {
+      message: "End date is required",
+      path: ["promotionToDate"],
+    }
+  )
+  .refine(
+    (data) => {
       if (
         data.promotionType &&
         data.promotionType !== "NONE" &&
@@ -75,7 +89,7 @@ export const sizeSchema = z
       return true;
     },
     {
-      message: "Promotion end date must be after start date",
+      message: "End date must be after start date",
       path: ["promotionToDate"],
     }
   );
@@ -123,32 +137,54 @@ export const createProductSchema = baseProductSchema
   )
   .refine(
     (data) => {
-
       if (
         (!data.sizes || data.sizes.length === 0) &&
         data.promotionType &&
         data.promotionType !== "NONE"
       ) {
-        return (
-          data.promotionValue !== undefined &&
-          data.promotionValue > 0 &&
-          data.promotionFromDate &&
-          data.promotionFromDate !== "" &&
-          data.promotionToDate &&
-          data.promotionToDate !== ""
-        );
+        return data.promotionValue !== undefined && data.promotionValue > 0;
       }
       return true;
     },
     {
-      message:
-        "Promotion value and dates are required when promotion type is selected",
+      message: "Promotion value is required",
       path: ["promotionValue"],
     }
   )
   .refine(
     (data) => {
-
+      if (
+        (!data.sizes || data.sizes.length === 0) &&
+        data.promotionType &&
+        data.promotionType !== "NONE"
+      ) {
+        return Boolean(data.promotionFromDate && data.promotionFromDate !== "");
+      }
+      return true;
+    },
+    {
+      message: "Start date is required",
+      path: ["promotionFromDate"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (
+        (!data.sizes || data.sizes.length === 0) &&
+        data.promotionType &&
+        data.promotionType !== "NONE"
+      ) {
+        return Boolean(data.promotionToDate && data.promotionToDate !== "");
+      }
+      return true;
+    },
+    {
+      message: "End date is required",
+      path: ["promotionToDate"],
+    }
+  )
+  .refine(
+    (data) => {
       if (
         (!data.sizes || data.sizes.length === 0) &&
         data.promotionType &&
@@ -163,7 +199,7 @@ export const createProductSchema = baseProductSchema
       return true;
     },
     {
-      message: "Promotion end date must be after start date",
+      message: "End date must be after start date",
       path: ["promotionToDate"],
     }
   );
@@ -188,32 +224,54 @@ export const updateProductSchema = baseProductSchema
   )
   .refine(
     (data) => {
-
       if (
         (!data.sizes || data.sizes.length === 0) &&
         data.promotionType &&
         data.promotionType !== "NONE"
       ) {
-        return (
-          data.promotionValue !== undefined &&
-          data.promotionValue > 0 &&
-          data.promotionFromDate &&
-          data.promotionFromDate !== "" &&
-          data.promotionToDate &&
-          data.promotionToDate !== ""
-        );
+        return data.promotionValue !== undefined && data.promotionValue > 0;
       }
       return true;
     },
     {
-      message:
-        "Promotion value and dates are required when promotion type is selected",
+      message: "Promotion value is required",
       path: ["promotionValue"],
     }
   )
   .refine(
     (data) => {
-
+      if (
+        (!data.sizes || data.sizes.length === 0) &&
+        data.promotionType &&
+        data.promotionType !== "NONE"
+      ) {
+        return Boolean(data.promotionFromDate && data.promotionFromDate !== "");
+      }
+      return true;
+    },
+    {
+      message: "Start date is required",
+      path: ["promotionFromDate"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (
+        (!data.sizes || data.sizes.length === 0) &&
+        data.promotionType &&
+        data.promotionType !== "NONE"
+      ) {
+        return Boolean(data.promotionToDate && data.promotionToDate !== "");
+      }
+      return true;
+    },
+    {
+      message: "End date is required",
+      path: ["promotionToDate"],
+    }
+  )
+  .refine(
+    (data) => {
       if (
         (!data.sizes || data.sizes.length === 0) &&
         data.promotionType &&
@@ -228,7 +286,7 @@ export const updateProductSchema = baseProductSchema
       return true;
     },
     {
-      message: "Promotion end date must be after start date",
+      message: "End date must be after start date",
       path: ["promotionToDate"],
     }
   );

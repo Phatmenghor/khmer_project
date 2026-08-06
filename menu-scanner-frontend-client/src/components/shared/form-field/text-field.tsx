@@ -49,33 +49,36 @@ export function TextField<T extends FieldValues = FieldValues>({
             step={step}
             autoComplete={autoComplete || "off"}
             onChange={(e) => {
-              if (valueAsNumber && type === "number") {
-                const value = e.target.valueAsNumber;
-
-                if (isNaN(value)) {
+              const raw = e.target.value;
+              if (valueAsNumber) {
+                if (raw === "") {
                   field.onChange(undefined);
+                  onCustomChange?.("");
                   return;
                 }
-
-                if (value === 0 && !allowZero) {
-                  field.onChange(undefined);
-                  return;
+                if (/^\d*\.?\d*$/.test(raw)) {
+                  const num = parseFloat(raw);
+                  if (isNaN(num)) {
+                    field.onChange(undefined);
+                    onCustomChange?.(raw);
+                  } else if (num === 0 && !allowZero) {
+                    field.onChange(undefined);
+                    onCustomChange?.(raw);
+                  } else {
+                    field.onChange(num);
+                    onCustomChange?.(raw);
+                  }
                 }
-
-                field.onChange(value);
-              } else if (type === "number" && !valueAsNumber) {
-                const value = e.target.value;
-                field.onChange(value === "" ? undefined : value);
+              } else if (type === "number") {
+                field.onChange(raw === "" ? undefined : raw);
               } else {
-                let value = e.target.value;
-
+                let value = raw;
                 if (pattern) {
                   const regex = new RegExp(`^${pattern}*$`);
                   if (!regex.test(value)) {
                     return;
                   }
                 }
-
                 field.onChange(value);
                 onCustomChange?.(value);
               }

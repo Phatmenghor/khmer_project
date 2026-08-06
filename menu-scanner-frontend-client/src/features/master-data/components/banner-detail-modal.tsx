@@ -12,21 +12,8 @@ import { selecBannerContent, selectSelectedBanner } from "../store/selectors/ban
 import { clearSelectedBanner } from "../store/slice/banner-slice";
 import { fetchBannerByIdService } from "../store/thunks/banner-thunks";
 
-function BannerDetailImage({ src, alt }: { src?: string; alt: string }) {
-  return (
-    <div className="relative w-full rounded overflow-hidden bg-muted border border-border/50 aspect-[16/5]">
-      {src ? (
-        <SmartImage src={src} alt={alt} fill />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center">
-          <ImageIcon className="h-8 w-8 text-muted-foreground/40" />
-        </div>
-      )}
-    </div>
-  );
-}
-
 import { SectionTitle, InfoRow } from "@/components/shared/modal/detail-section";
+import { CustomImagePreview } from "@/components/shared/image/custom-image-preview";
 
 interface BannerDetailModalProps {
   bannerId?: string;
@@ -72,7 +59,14 @@ export function BannerDetailModal({
         <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 p-1 text-left">
           <SectionTitle>Banner Image</SectionTitle>
           <div className="col-span-2">
-            <BannerDetailImage src={banner.image?.md ?? banner.image?.o} alt={banner.description || "Banner"} />
+            <CustomImagePreview
+              src={banner.image?.sm ?? banner.image?.md}
+              previewSrc={banner.image?.o ?? banner.image?.md ?? banner.image?.sm}
+              alt={banner.description || "Banner"}
+              fallbackText={banner.description || "B"}
+              className="w-full h-36 rounded-xl aspect-[16/5]"
+              aspectRatio="banner"
+            />
           </div>
 
           <SectionTitle>Banner Information</SectionTitle>

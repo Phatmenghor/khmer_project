@@ -191,7 +191,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col flex-1 min-h-0 overflow-hidden"
           >
-            <FormBody className="px-4">
+            <FormBody>
               {reduxError && (
                 <div className="p-3 bg-destructive/10 border border-destructive rounded">
                   <p className="text-xs text-destructive font-medium">

@@ -30,6 +30,7 @@ interface TableImageProps {
   className?: string;
   priority?: boolean;
   loading?: "lazy" | "eager";
+  aspectRatio?: "1x1" | "square" | "auto" | "banner";
 }
 
 export function TableImage({
@@ -40,6 +41,7 @@ export function TableImage({
   className = "h-10 w-10 rounded-[10px]",
   priority,
   loading,
+  aspectRatio = "1x1",
 }: TableImageProps) {
   const [viewOpen, setViewOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -85,7 +87,8 @@ export function TableImage({
     }
   };
 
-  const isWide = (imgDimensions?.ratio ?? 1) > 1.4;
+  const isForce1x1 = aspectRatio === "1x1" || aspectRatio === "square";
+  const isWide = !isForce1x1 && aspectRatio === "banner" && (imgDimensions?.ratio ?? 1) > 1.4;
 
   return (
     <>

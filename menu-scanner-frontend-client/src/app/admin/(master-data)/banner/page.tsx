@@ -91,13 +91,6 @@ function BannerPageInner() {
   useEffect(() => {
     if (!isHydrated) return;
 
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      if (bannerContent && bannerContent.length > 0) {
-        return;
-      }
-    }
-
     dispatch(
       fetchAllBannerService({
         search: debouncedSearch,

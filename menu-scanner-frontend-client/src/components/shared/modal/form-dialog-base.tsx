@@ -168,11 +168,11 @@ export function FormDialogBase({
         closeButtonClassName={hideCloseButton ? "hidden" : ""}
       >
         {noForm ? (
-          <div className="flex flex-col gap-2 px-3 pt-3">{inner}</div>
+          <div className="flex flex-col gap-2 p-0 pt-0 px-0">{inner}</div>
         ) : (
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-2 px-3 pt-3"
+            className="flex flex-col gap-2 p-0 pt-0 px-0"
           >
             {inner}
           </form>

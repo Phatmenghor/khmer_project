@@ -103,10 +103,131 @@ export function DataTableWithPagination<T = any>({
     const observer = new ResizeObserver(checkScroll);
     observer.observe(container);
 
+    let isDown = false;
+    let startX: number;
+    let scrollLeftVal: number;
+    let velX = 0;
+    let momentumID: number;
+    let lastX = 0;
+    let lastTime = 0;
+
+    const isScrollable = () => {
+      return container.scrollWidth > container.clientWidth;
+    };
+
+    const updateCursor = () => {
+      if (isScrollable()) {
+        container.style.cursor = isDown ? "grabbing" : "grab";
+      } else {
+        container.style.cursor = "default";
+      }
+    };
+
+    const beginMomentum = () => {
+      cancelAnimationFrame(momentumID);
+      
+      // If the user stopped moving before release, do not apply momentum
+      if (Date.now() - lastTime > 80) {
+        velX = 0;
+        return;
+      }
+
+      const step = () => {
+        container.scrollLeft -= velX;
+        velX *= 0.95; // Premium friction decay
+        if (Math.abs(velX) > 0.15) {
+          momentumID = requestAnimationFrame(step);
+        } else {
+          velX = 0;
+        }
+      };
+      momentumID = requestAnimationFrame(step);
+    };
+
+    const handleMouseDown = (e: MouseEvent) => {
+      if (!isScrollable()) return;
+      if (e.button !== 0) return;
+      const target = e.target as HTMLElement;
+      
+      // Ignore dragging if clicking interactive controls
+      if (target.closest("button") || target.closest("a") || target.closest("input") || target.closest("select") || target.closest("[role='checkbox']") || target.closest("[role='switch']")) {
+        return;
+      }
+
+      // Ignore dragging if clicking in index or action columns
+      const cell = target.closest("td") || target.closest("th");
+      if (cell) {
+        const columnKey = cell.getAttribute("data-column-key");
+        if (columnKey === "actions" || columnKey === "action" || columnKey === "index") {
+          return;
+        }
+      }
+      isDown = true;
+      container.style.cursor = "grabbing";
+      container.style.userSelect = "none";
+      startX = e.pageX - container.offsetLeft;
+      scrollLeftVal = container.scrollLeft;
+      lastX = e.pageX;
+      lastTime = Date.now();
+      cancelAnimationFrame(momentumID);
+      velX = 0;
+    };
+
+    const handleMouseLeave = () => {
+      if (isDown) {
+        isDown = false;
+        container.style.userSelect = "";
+        beginMomentum();
+      }
+      updateCursor();
+    };
+
+    const handleMouseUp = () => {
+      if (isDown) {
+        isDown = false;
+        container.style.userSelect = "";
+        beginMomentum();
+      }
+      updateCursor();
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDown) {
+        updateCursor();
+        return;
+      }
+      e.preventDefault();
+      const x = e.pageX - container.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      container.scrollLeft = scrollLeftVal - walk;
+
+      const now = Date.now();
+      const dt = now - lastTime;
+      if (dt > 0) {
+        const dx = e.pageX - lastX;
+        // Low pass filter to reduce noise & smooth out sudden spikes
+        velX = velX * 0.25 + ((dx / dt) * 16) * 0.75;
+      }
+      lastX = e.pageX;
+      lastTime = now;
+    };
+
+    updateCursor();
+    container.addEventListener("mousedown", handleMouseDown);
+    container.addEventListener("mouseleave", handleMouseLeave);
+    container.addEventListener("mouseup", handleMouseUp);
+    container.addEventListener("mousemove", handleMouseMove);
+
     return () => {
       container.removeEventListener("scroll", checkScroll);
       window.removeEventListener("resize", checkScroll);
       observer.disconnect();
+
+      cancelAnimationFrame(momentumID);
+      container.removeEventListener("mousedown", handleMouseDown);
+      container.removeEventListener("mouseleave", handleMouseLeave);
+      container.removeEventListener("mouseup", handleMouseUp);
+      container.removeEventListener("mousemove", handleMouseMove);
     };
   }, [data, loading]);
 
@@ -172,11 +293,11 @@ export function DataTableWithPagination<T = any>({
   };
 
   const totalItems = totalElements || tableData.length;
-  const hasControls = totalItems > 0 || showLeftScroll || showRightScroll;
+  const hasControls = showLeftScroll || showRightScroll;
 
   if (loading) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div className={`rounded-[16px] border border-border/80 bg-card overflow-x-auto shadow-2xs ${className}`}>
           <table
             className="text-xs"
@@ -233,10 +354,10 @@ export function DataTableWithPagination<T = any>({
   const isScrolledToEnd = !showRightScroll;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {/* Top Table Controls: Entries info on left, Single Toggle + Scroll buttons on right */}
       {hasControls && (
-        <div className="sticky top-[44px] z-20 bg-background/90 backdrop-blur-md pb-2 pt-1.5 flex justify-between items-center h-10 px-2 border-b border-border/60 shadow-2xs transition-all duration-200">
+        <div className="sticky top-[47px] z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex justify-between items-center h-10 px-3 border-b border-border shadow-sm transition-all duration-200">
           <div className="text-xs text-muted-foreground font-medium">
             {totalItems > 0 && (
               <span>
@@ -327,7 +448,8 @@ export function DataTableWithPagination<T = any>({
                 return (
                   <th
                     key={column.key}
-                    className={`px-3.5 py-3 text-left font-bold text-xs text-foreground bg-muted border-b border-border select-none ${actionStyle} ${column.className || ""}`}
+                    data-column-key={column.key}
+                    className={`px-3.5 py-3 text-left font-bold text-xs text-foreground bg-muted border-b border-border ${actionStyle} ${column.className || ""}`}
                     style={{
                       ...(column.width && { width: column.width }),
                       ...(column.maxWidth && { maxWidth: column.maxWidth }),
@@ -379,6 +501,7 @@ export function DataTableWithPagination<T = any>({
                     return (
                       <td
                         key={column.key}
+                        data-column-key={column.key}
                         className={`px-3 py-2 border-b border-border/50 ${actionCellStyle} ${column.className || ""}`}
                         style={{
                           ...(column.width && { width: column.width }),

@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SmartImage } from "@/components/shared/image/smart-image";
+import { CustomImagePreview } from "@/components/shared/image/custom-image-preview";
 
 const STATUS_CONFIG: Record<
   string,
@@ -433,25 +434,12 @@ export function OrderDetailModal({
                           className="flex gap-2.5 p-2 rounded border border-border/50 bg-muted/20"
                         >
                           {/* Image */}
-                          <div className="relative flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted border border-border/50">
-                            {item.product?.imageUrl ? (
-                              <SmartImage
-                                src={item.product.imageUrl}
-                                alt={name}
-                                fill
-                                showSkeleton={false}
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Package className="h-4 w-4 text-muted-foreground" />
-                              </div>
-                            )}
-                            {promotionLabel && (
-                              <div className="absolute bottom-0 left-0 right-0 bg-red-500/85 text-white text-center font-bold leading-none py-0.5" style={{ fontSize: "7px" }}>
-                                SALE
-                              </div>
-                            )}
-                          </div>
+                          <CustomImagePreview
+                            src={item.product?.imageUrl}
+                            alt={name}
+                            fallbackText={name}
+                            className="h-10 w-10 rounded-[8px]"
+                          />
 
                           {/* Content */}
                           <div className="flex-1 min-w-0">

@@ -4,7 +4,7 @@ import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { FormHeader } from "@/components/shared/form-field/form-header";
@@ -206,26 +206,31 @@ export default function PaymentOptionsModal({
     isProcessing;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-2xl max-h-[92vh] p-0 flex flex-col">
-        <FormHeader
-          title={isCreate ? "Create New Payment Option" : "Edit Payment Option"}
-          description={
-            isCreate
-              ? "Add a payment method your customers can use at checkout"
-              : "Update payment option information below"
-          }
-          isCreate={isCreate}
-        />
+    <CustomModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size="2xl"
+      className="max-h-[92vh] gap-0 p-0 flex flex-col overflow-hidden"
+      disableScrollWrapper={true}
+    >
+      <FormHeader
+        title={isCreate ? "Create New Payment Option" : "Edit Payment Option"}
+        description={
+          isCreate
+            ? "Add a payment method your customers can use at checkout"
+            : "Update payment option information below"
+        }
+        isCreate={isCreate}
+      />
 
-        {!isCreate && isFetchingDetail ? (
-          <div className="p-4 flex items-center justify-center min-h-[50vh] flex-1">
-            <Loading />
-          </div>
-        ) : (
+      {!isCreate && isFetchingDetail ? (
+        <div className="p-4 flex items-center justify-center min-h-[50vh] flex-1">
+          <Loading />
+        </div>
+      ) : (
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col flex-1 overflow-visible"
+          className="flex flex-col flex-1 min-h-0 overflow-hidden"
         >
           <FormBody>
             {reduxError && (
@@ -270,38 +275,38 @@ export default function PaymentOptionsModal({
               />
 
               <div className="grid grid-cols-2 gap-4">
-                  <TextField
-                    control={control}
-                    name="name"
-                    label="Payment Method Name"
-                    placeholder="e.g. ABA Bank, Cash, Wing"
-                    required
-                    disabled={isSubmitting}
-                    error={errors.name}
-                  />
+                <TextField
+                  control={control}
+                  name="name"
+                  label="Payment Method Name"
+                  placeholder="e.g. ABA Bank, Cash, Wing"
+                  required
+                  disabled={isSubmitting}
+                  error={errors.name}
+                />
 
-                  <SelectField
-                    control={control}
-                    name="paymentOptionType"
-                    label="Payment Type"
-                    placeholder="Select type"
-                    options={PAYMENT_OPTION_TYPE_OPTIONS}
-                    required
-                    disabled={isSubmitting}
-                    error={errors.paymentOptionType}
-                  />
+                <SelectField
+                  control={control}
+                  name="paymentOptionType"
+                  label="Payment Type"
+                  placeholder="Select type"
+                  options={PAYMENT_OPTION_TYPE_OPTIONS}
+                  required
+                  disabled={isSubmitting}
+                  error={errors.paymentOptionType}
+                />
 
-                  <SelectField
-                    control={control}
-                    name="status"
-                    label="Status"
-                    placeholder="Select status"
-                    options={STATUS_OPTIONS}
-                    required
-                    disabled={isSubmitting}
-                    error={errors.status}
-                  />
-                </div>
+                <SelectField
+                  control={control}
+                  name="status"
+                  label="Status"
+                  placeholder="Select status"
+                  options={STATUS_OPTIONS}
+                  required
+                  disabled={isSubmitting}
+                  error={errors.status}
+                />
+              </div>
             </div>
           </FormBody>
 
@@ -324,8 +329,7 @@ export default function PaymentOptionsModal({
             />
           </FormFooter>
         </form>
-        )}
-      </DialogContent>
-    </Dialog>
+      )}
+    </CustomModal>
   );
 }

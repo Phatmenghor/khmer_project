@@ -122,7 +122,7 @@ export default function ResetPasswordModal({
         avatarImageUrl={resolvedProfileImageUrl}
         showAvatar={true}
         isCreate={false}
-        className="w-full m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4 border-b border-border/60 shrink-0"
+        className="w-full m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-3 sm:p-4 border-b border-border/60 shrink-0"
       />
       {isFetchingDetail && !resolvedUserName ? (
         <div className="p-4 flex items-center justify-center py-8 flex-1">
@@ -130,29 +130,8 @@ export default function ResetPasswordModal({
         </div>
       ) : (
         <>
-          <FormBody className="px-4 py-4 flex-1">
+          <FormBody className="flex-1 min-h-0 overflow-y-auto">
             <div className="space-y-4">
-              <div className="border border-border/40 bg-muted/20 p-2.5 rounded-lg flex items-center gap-2.5 text-left">
-                <div className="relative h-8 w-8 rounded bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                  {resolvedProfileImageUrl ? (
-                    <SmartImage src={resolvedProfileImageUrl} alt={resolvedUserName || "User"} fill showSkeleton={false} />
-                  ) : (
-                    <span className="text-xs font-semibold text-primary">
-                      {resolvedUserName?.charAt(0)?.toUpperCase() || "U"}
-                    </span>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-foreground truncate">
-                    {resolvedUserName || "Unknown User"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {resolvedUserRole && resolvedUserRole.length > 0
-                      ? resolvedUserRole.map(role => formatEnumValue(role)).join(", ")
-                      : "User Account"}
-                  </p>
-                </div>
-              </div>
 
               <div className="space-y-2 text-left">
                 <div className="flex items-center gap-1">
@@ -220,7 +199,7 @@ export default function ResetPasswordModal({
             isDirty={false}
             isCreate={false}
             noChangesMessage="Resetting user password"
-            className="w-full m-0 mx-0 mb-0 md:mx-0 md:mb-0 p-4 md:p-4 border-t border-border/60 bg-muted/30 shrink-0"
+            className="w-full m-0 mx-0 mb-0 md:mx-0 md:mb-0 p-3 sm:p-4 border-t border-border/60 bg-muted/30 shrink-0"
           >
             <CancelButton onClick={handleClose} disabled={isResettingPassword} />
             <CustomButton

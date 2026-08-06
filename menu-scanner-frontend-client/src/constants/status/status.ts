@@ -190,3 +190,61 @@ export enum PromotionType {
   FIXED_AMOUNT = "FIXED_AMOUNT",
   NONE = "NONE",
 }
+
+export enum PromotionStatus {
+  NONE = "NONE",
+  ACTIVE = "ACTIVE",
+  FUTURE_PROMOTION = "FUTURE_PROMOTION",
+}
+
+export const PromotionStatusConfig = {
+  [PromotionStatus.NONE]: {
+    label: "No Promotion",
+    variant: "secondary" as const,
+  },
+  [PromotionStatus.ACTIVE]: {
+    label: "Active Promotion",
+    variant: "destructive" as const,
+  },
+  [PromotionStatus.FUTURE_PROMOTION]: {
+    label: "Scheduled Promotion",
+    variant: "outline" as const,
+  },
+};
+
+export const isPromotionActive = (hasPromotion?: string | boolean | null): boolean => {
+  if (!hasPromotion) return false;
+  return hasPromotion === true || hasPromotion === PromotionStatus.ACTIVE || hasPromotion === "ACTIVE";
+};
+
+export const isPromotionScheduled = (hasPromotion?: string | boolean | null): boolean => {
+  if (!hasPromotion) return false;
+  return hasPromotion === PromotionStatus.FUTURE_PROMOTION || hasPromotion === "FUTURE_PROMOTION";
+};
+
+export const hasAnyPromotion = (hasPromotion?: string | boolean | null): boolean => {
+  return isPromotionActive(hasPromotion) || isPromotionScheduled(hasPromotion);
+};
+
+export enum POSPromotionFilterKey {
+  ALL = "ALL",
+  ON_SALE = "ON_SALE",
+  STANDARD = "STANDARD",
+}
+
+export const POS_PROMOTION_FILTER_OPTIONS = [
+  { value: POSPromotionFilterKey.ALL, label: "All Items" },
+  { value: POSPromotionFilterKey.ON_SALE, label: "On Promotion" },
+  { value: POSPromotionFilterKey.STANDARD, label: "Regular Price" },
+];
+
+export const getPOSPromotionFilterValue = (promotionFilter?: boolean): POSPromotionFilterKey => {
+  if (promotionFilter === undefined) return POSPromotionFilterKey.ALL;
+  return promotionFilter ? POSPromotionFilterKey.ON_SALE : POSPromotionFilterKey.STANDARD;
+};
+
+export const getPromotionFilterFromKey = (key: string): boolean | undefined => {
+  if (key === POSPromotionFilterKey.ON_SALE) return true;
+  if (key === POSPromotionFilterKey.STANDARD) return false;
+  return undefined;
+};

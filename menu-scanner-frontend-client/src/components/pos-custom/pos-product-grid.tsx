@@ -57,8 +57,8 @@ export function POSProductGrid({
         className="w-full p-3 sm:p-4"
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(175px, 1fr))",
-          gap: "1rem",
+          gridTemplateColumns: "repeat(auto-fill, minmax(165px, 1fr))",
+          gap: "0.875rem",
         }}
       >
         {productsLoading &&

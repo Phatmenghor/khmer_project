@@ -2,7 +2,7 @@
 
 import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SelectField } from "@/components/shared/form-field/select-field";
@@ -202,28 +202,33 @@ export default function DeliveryOptionsModal({
   const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingImage || isProcessing;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-3xl max-h-[92vh] p-0 flex flex-col">
-        <FormHeader
-          title={
-            isCreate ? "Create New Delivery Options" : "Edit Delivery Options"
-          }
-          description={
-            isCreate
-              ? "Upload an image and configure delivery options settings"
-              : "Update delivery options information below"
-          }
-          isCreate={isCreate}
-        />
+    <CustomModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size="3xl"
+      className="max-h-[92vh] gap-0 p-0 flex flex-col overflow-hidden"
+      disableScrollWrapper={true}
+    >
+      <FormHeader
+        title={
+          isCreate ? "Create New Delivery Options" : "Edit Delivery Options"
+        }
+        description={
+          isCreate
+            ? "Upload an image and configure delivery options settings"
+            : "Update delivery options information below"
+        }
+        isCreate={isCreate}
+      />
 
-        {!isCreate && isFetchingDetail ? (
-          <div className="p-4 flex items-center justify-center min-h-[50vh] flex-1">
-            <Loading />
-          </div>
-        ) : (
+      {!isCreate && isFetchingDetail ? (
+        <div className="p-4 flex items-center justify-center min-h-[50vh] flex-1">
+          <Loading />
+        </div>
+      ) : (
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col flex-1 overflow-visible"
+          className="flex flex-col flex-1 min-h-0 overflow-hidden"
         >
           <FormBody>
             {reduxError && (
@@ -268,47 +273,47 @@ export default function DeliveryOptionsModal({
               />
 
               <div className="grid grid-cols-2 gap-4">
-                  <TextField
-                    control={control}
-                    name="name"
-                    label="Delivery Name"
-                    placeholder="e.g. Standard Delivery"
-                    required
-                    disabled={isSubmitting}
-                    error={errors.name}
-                  />
-
-                  <TextField
-                    control={control}
-                    name="price"
-                    label="Price (USD)"
-                    placeholder="e.g. 2.50"
-                    type="text"
-                    disabled={isSubmitting}
-                    error={errors.price}
-                  />
-
-                  <SelectField
-                    control={control}
-                    name="status"
-                    label="Status"
-                    placeholder="Select status"
-                    options={DELIVERY_OPTIONS_STATUS_CREATE_UPDATE}
-                    required
-                    disabled={isSubmitting}
-                    error={errors.status}
-                  />
-                </div>
-
-                <TextareaField
+                <TextField
                   control={control}
-                  name="description"
-                  label="Description"
-                  placeholder="Describe this delivery option (optional)"
-                  rows={4}
+                  name="name"
+                  label="Delivery Name"
+                  placeholder="e.g. Standard Delivery"
+                  required
                   disabled={isSubmitting}
-                  error={errors.description}
+                  error={errors.name}
                 />
+
+                <TextField
+                  control={control}
+                  name="price"
+                  label="Price (USD)"
+                  placeholder="e.g. 2.50"
+                  type="text"
+                  disabled={isSubmitting}
+                  error={errors.price}
+                />
+
+                <SelectField
+                  control={control}
+                  name="status"
+                  label="Status"
+                  placeholder="Select status"
+                  options={DELIVERY_OPTIONS_STATUS_CREATE_UPDATE}
+                  required
+                  disabled={isSubmitting}
+                  error={errors.status}
+                />
+              </div>
+
+              <TextareaField
+                control={control}
+                name="description"
+                label="Description"
+                placeholder="Describe this delivery option (optional)"
+                rows={4}
+                disabled={isSubmitting}
+                error={errors.description}
+              />
             </div>
           </FormBody>
 
@@ -331,8 +336,7 @@ export default function DeliveryOptionsModal({
             />
           </FormFooter>
         </form>
-        )}
-      </DialogContent>
-    </Dialog>
+      )}
+    </CustomModal>
   );
 }

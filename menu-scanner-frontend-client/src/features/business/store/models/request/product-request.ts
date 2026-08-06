@@ -11,6 +11,8 @@ export interface AllProductRequest extends BaseGetAllRequest {
   stockStatuses?: string[];
   minPrice?: number;
   maxPrice?: number;
+  promotionFromDate?: string;
+  promotionToDate?: string;
 }
 
 export interface ProductImageRequest {

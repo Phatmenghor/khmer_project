@@ -11,6 +11,8 @@ import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { CancelButton, CustomButton, SubmitButton } from "@/components/shared/button/custom-button";
+import { FileInputButton } from "@/components/shared/button/file-input-button";
+import { PromotionValueField } from "@/components/shared/form-field/promotion-value-field";
 
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,6 +53,7 @@ import {
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { Loading } from "@/components/shared/common/loading";
 import { SmartImage } from "@/components/shared/image/smart-image";
+import { SectionTitle } from "@/components/shared/modal/detail-section";
 
 type Props = {
   mode: ModalMode;
@@ -314,6 +317,12 @@ export default function ProductModal({
     }
   }, [isOpen, dispatch]);
 
+  const formatIsoDate = (val?: string, isEnd = false) => {
+    if (!val) return undefined;
+    if (val.includes("T")) return val;
+    return isEnd ? `${val}T23:59:59` : `${val}T00:00:00`;
+  };
+
   const cleanPromotionData = (
     promotionType?: string,
     promotionValue?: number,
@@ -332,8 +341,8 @@ export default function ProductModal({
     return {
       promotionType: promotionType || undefined,
       promotionValue: promotionValue || undefined,
-      promotionFromDate: promotionFromDate || undefined,
-      promotionToDate: promotionToDate || undefined,
+      promotionFromDate: formatIsoDate(promotionFromDate),
+      promotionToDate: formatIsoDate(promotionToDate, true),
     };
   };
 
@@ -480,7 +489,7 @@ export default function ProductModal({
           }
           avatarName={productName || "Product"}
           isCreate={isCreate}
-          className="m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4"
+          className="m-0 mx-0 mt-0 px-3 py-2.5"
         />
 
         {!isCreate && isFetchingDetail ? (
@@ -492,8 +501,8 @@ export default function ProductModal({
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col flex-1 min-h-0 overflow-hidden"
           >
-            <FormBody className="px-4 py-3.5 space-y-4">
-              <div className="space-y-4">
+            <FormBody contentClassName="p-3 space-y-3">
+              <div className="space-y-3">
                 {reduxError && (
                   <div className="p-3 bg-destructive/10 border border-destructive rounded-lg">
                     <p className="text-xs text-destructive font-medium">
@@ -502,10 +511,8 @@ export default function ProductModal({
                   </div>
                 )}
 
-                <div className="rounded-xl border border-border/70 bg-card p-4 space-y-3">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
-                    Basic Information
-                  </h3>
+                <div className="rounded-xl border border-border/70 bg-card p-3 md:p-3.5 space-y-2.5">
+                  <SectionTitle className="col-span-1 mt-0 mb-0">Basic Information</SectionTitle>
                   <div className="flex flex-col md:flex-row gap-3 items-start">
                       {/* Left: main image */}
                       <div className="w-full md:w-44 flex-shrink-0">
@@ -644,10 +651,8 @@ export default function ProductModal({
 
                 {!hasSizes && (
                   <div className="rounded-xl border border-border/70 bg-card p-4 space-y-3">
-                    <div className="flex items-center justify-between border-b pb-2">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
-                        Pricing Information
-                      </h3>
+                    <div className="flex items-center justify-between w-full">
+                      <SectionTitle className="col-span-1 mt-0 mb-0 border-b-0 pb-0">Pricing Information</SectionTitle>
                       {showPromotionFields && (
                         <CustomButton
                           type="button"
@@ -672,7 +677,6 @@ export default function ProductModal({
                             control={control}
                             name="price"
                             label="Base Price"
-                            type="number"
                             placeholder="Enter price"
                             required
                             disabled={isProcessing}
@@ -699,18 +703,14 @@ export default function ProductModal({
                         {showPromotionFields && (
                           <>
                             <div>
-                              <TextField
+                              <PromotionValueField
                                 control={control}
                                 name="promotionValue"
                                 label="Promotion Value"
-                                type="number"
-                                placeholder="Enter promotion value"
+                                promotionType={promotionType as any}
                                 disabled={isProcessing}
                                 error={errors.promotionValue as any}
-                                valueAsNumber={true}
-                                min={0}
-                                step="0.01"
-                                allowZero={false}
+                                required
                               />
                             </div>
 
@@ -745,11 +745,9 @@ export default function ProductModal({
                 )}
 
                 <div className="rounded-xl border border-border/70 bg-card p-4 space-y-3">
-                  <div className="flex items-center justify-between border-b pb-2">
+                  <div className="flex items-center justify-between w-full border-b pb-2">
                     <div>
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
-                        Product Images
-                      </h3>
+                      <SectionTitle className="col-span-1 mt-0 mb-0 border-b-0 pb-0">Product Images</SectionTitle>
                       <p className="text-xs text-muted-foreground mt-0.5">
                         {imageFields.length > 0
                           ? `${imageFields.length}/${MAX_PRODUCT_IMAGES} images uploaded`
@@ -757,29 +755,17 @@ export default function ProductModal({
                       </p>
                     </div>
                     {canAddMore && (
-                      <div>
-                        <input
-                          type="file"
-                          id="multiple-image-upload"
-                          multiple
-                          accept="image/*"
-                          onChange={handleMultipleImageUpload}
-                          className="hidden"
-                          disabled={isProcessing}
-                        />
-                        <CustomButton
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            document.getElementById("multiple-image-upload")?.click()
-                          }
-                          disabled={isProcessing}
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          {isProcessingImages ? "Processing..." : "Upload"}
-                        </CustomButton>
-                      </div>
+                      <FileInputButton
+                        variant="outline"
+                        size="sm"
+                        multiple
+                        accept="image/*"
+                        onChange={handleMultipleImageUpload}
+                        disabled={isProcessing}
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        {isProcessingImages ? "Processing..." : "Upload"}
+                      </FileInputButton>
                     )}
                   </div>
                   <div className="pt-1">
@@ -790,10 +776,10 @@ export default function ProductModal({
                         </p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                      <div className="flex flex-wrap gap-3 pt-1">
                         {imageFields.map((field, index) => (
-                          <div key={field.id} className="relative aspect-square group">
-                            <div className="relative w-full h-full rounded-lg overflow-hidden border border-border/50 bg-muted">
+                          <div key={field.id} className="relative w-[72px] h-[72px] group shrink-0">
+                            <div className="relative w-full h-full rounded-xl overflow-hidden border border-border/70 bg-muted shadow-2xs">
                               {watch(`images.${index}.image.sm`) ? (
                                 <SmartImage
                                   src={watch(`images.${index}.image.sm`)}
@@ -802,7 +788,7 @@ export default function ProductModal({
                                   showSkeleton={false}
                                 />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                                <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground font-medium">
                                   No image
                                 </div>
                               )}
@@ -811,7 +797,8 @@ export default function ProductModal({
                               type="button"
                               onClick={() => handleRemoveImage(index)}
                               disabled={isProcessing}
-                              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                              className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-sm hover:bg-destructive/95 transition-colors disabled:opacity-50"
+                              title="Remove image"
                             >
                               <X className="w-3 h-3" />
                             </CustomButton>
@@ -823,10 +810,8 @@ export default function ProductModal({
                 </div>
 
                 <div className="rounded-xl border border-border/70 bg-card p-4 space-y-3">
-                  <div className="flex items-center justify-between border-b pb-2">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
-                      Product Sizes
-                    </h3>
+                  <div className="flex items-center justify-between w-full border-b pb-2">
+                    <SectionTitle className="col-span-1 mt-0 mb-0 border-b-0 pb-0">Product Sizes</SectionTitle>
                     <div className="flex items-center gap-1">
                         {hasSizes && sizeFields.some((_, idx) => {
                           const sizePromotionType = watch(`sizes.${idx}.promotionType`);
@@ -944,7 +929,6 @@ export default function ProductModal({
                                     control={control}
                                     name={`sizes.${index}.price`}
                                     label="Price"
-                                    type="number"
                                     placeholder="Enter price"
                                     disabled={isProcessing}
                                     error={errors.sizes?.[index]?.price as any}
@@ -992,18 +976,14 @@ export default function ProductModal({
                                 {showSizePromotionFields && (
                                   <>
                                     <div>
-                                      <TextField
+                                      <PromotionValueField
                                         control={control}
                                         name={`sizes.${index}.promotionValue`}
                                         label="Promotion Value"
-                                        type="number"
-                                        placeholder="Enter promotion value"
+                                        promotionType={sizePromotionType as any}
                                         disabled={isProcessing}
                                         error={errors.sizes?.[index]?.promotionValue as any}
-                                        valueAsNumber={true}
-                                        min={0}
-                                        step="0.01"
-                                        allowZero={false}
+                                        required
                                       />
                                     </div>
 
@@ -1044,10 +1024,8 @@ export default function ProductModal({
                 </div>
 
                 <div className="rounded-xl border border-border/70 bg-card p-4 space-y-3">
-                  <div className="flex items-center justify-between border-b pb-2">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
-                      Product Customizations
-                    </h3>
+                  <div className="flex items-center justify-between w-full border-b pb-2">
+                    <SectionTitle className="col-span-1 mt-0 mb-0 border-b-0 pb-0">Product Customizations</SectionTitle>
                     <CustomButton
                       type="button"
                       variant="outline"
