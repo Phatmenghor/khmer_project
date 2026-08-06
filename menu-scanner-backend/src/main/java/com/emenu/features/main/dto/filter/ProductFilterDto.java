@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,4 +23,6 @@ public class ProductFilterDto extends BaseFilterRequest {
     private List<StockStatus> stockStatuses;
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
+    private LocalDateTime promotionFromDate;
+    private LocalDateTime promotionToDate;
 }

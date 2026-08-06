@@ -7,6 +7,7 @@ import com.emenu.shared.specification.BaseSpecification;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -76,6 +77,20 @@ public class ProductSpecification extends BaseSpecification {
         return searchByField("name", search);
     }
 
+    public static Specification<Product> byPromotionFromDate(LocalDateTime fromDate) {
+        return (root, query, cb) -> {
+            if (fromDate == null) return cb.conjunction();
+            return cb.greaterThanOrEqualTo(root.get("promotionFromDate"), fromDate);
+        };
+    }
+
+    public static Specification<Product> byPromotionToDate(LocalDateTime toDate) {
+        return (root, query, cb) -> {
+            if (toDate == null) return cb.conjunction();
+            return cb.lessThanOrEqualTo(root.get("promotionToDate"), toDate);
+        };
+    }
+
     public static Specification<Product> filterProducts(
             UUID businessId,
             UUID categoryId,
@@ -86,7 +101,9 @@ public class ProductSpecification extends BaseSpecification {
             List<StockStatus> stockStatuses,
             BigDecimal minPrice,
             BigDecimal maxPrice,
-            String search) {
+            String search,
+            LocalDateTime promotionFromDate,
+            LocalDateTime promotionToDate) {
         return active()
                 .and(byBusinessId(businessId))
                 .and(byCategoryId(categoryId))
@@ -96,6 +113,8 @@ public class ProductSpecification extends BaseSpecification {
                 .and(byHasSize(hasSize))
                 .and(byStockStatus(stockStatuses))
                 .and(byPriceRange(minPrice, maxPrice))
-                .and(searchByName(search));
+                .and(searchByName(search))
+                .and(byPromotionFromDate(promotionFromDate))
+                .and(byPromotionToDate(promotionToDate));
     }
 }

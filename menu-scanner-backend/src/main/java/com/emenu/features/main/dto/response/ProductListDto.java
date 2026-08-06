@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import com.emenu.enums.product.PromotionStatus;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class ProductListDto extends BaseAuditResponse {
@@ -24,7 +26,6 @@ public class ProductListDto extends BaseAuditResponse {
     private BigDecimal promotionValue;
     private LocalDateTime promotionFromDate;
     private LocalDateTime promotionToDate;
-
     private BigDecimal displayPrice;
     private BigDecimal displayOriginPrice;
     private String displayPromotionType;
@@ -33,7 +34,7 @@ public class ProductListDto extends BaseAuditResponse {
     private LocalDateTime displayPromotionToDate;
 
     private Boolean hasSizes;
-    private Boolean hasPromotion;
+    private PromotionStatus hasPromotion;
     private ImageUrls mainImage;
 
     private String barcode;

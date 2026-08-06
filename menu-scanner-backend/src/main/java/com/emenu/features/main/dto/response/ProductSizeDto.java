@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.emenu.enums.product.PromotionStatus;
+
 @Data
 public class ProductSizeDto {
     private UUID id;
@@ -17,7 +19,7 @@ public class ProductSizeDto {
     private LocalDateTime promotionFromDate;
     private LocalDateTime promotionToDate;
     private BigDecimal finalPrice;
-    private Boolean hasPromotion;
+    private PromotionStatus hasPromotion;
     private Integer quantity;
 
     // Stock tracking for this size

@@ -1,5 +1,6 @@
 package com.emenu.features.main.models;
 
+import com.emenu.enums.product.PromotionStatus;
 import com.emenu.enums.product.PromotionType;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -94,22 +95,26 @@ public class ProductSize extends BaseUUIDEntity {
         }
     }
 
-    public boolean isPromotionActive() {
-        if (promotionValue == null || promotionType == null) {
-            return false;
+    public PromotionStatus getPromotionStatus() {
+        if (promotionValue == null || promotionType == null || promotionFromDate == null || promotionToDate == null) {
+            return PromotionStatus.NONE;
         }
 
         LocalDateTime today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
 
-        if (promotionFromDate != null && today.isBefore(promotionFromDate.truncatedTo(ChronoUnit.DAYS))) {
-            return false;
+        if (today.isBefore(promotionFromDate.truncatedTo(ChronoUnit.DAYS))) {
+            return PromotionStatus.FUTURE_PROMOTION;
         }
 
-        if (promotionToDate != null && today.isAfter(promotionToDate.truncatedTo(ChronoUnit.DAYS))) {
-            return false;
+        if (today.isAfter(promotionToDate.truncatedTo(ChronoUnit.DAYS))) {
+            return PromotionStatus.NONE;
         }
 
-        return true;
+        return PromotionStatus.ACTIVE;
+    }
+
+    public boolean isPromotionActive() {
+        return getPromotionStatus() == PromotionStatus.ACTIVE;
     }
 
     public void setPromotion(PromotionType type, BigDecimal value, LocalDateTime fromDate, LocalDateTime toDate) {

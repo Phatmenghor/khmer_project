@@ -118,7 +118,9 @@ public class ProductServiceImpl implements ProductService {
                 (filter.getStockStatuses() != null && !filter.getStockStatuses().isEmpty()) ? filter.getStockStatuses() : null,
                 filter.getMinPrice(),
                 filter.getMaxPrice(),
-                filter.getSearch()
+                filter.getSearch(),
+                filter.getPromotionFromDate(),
+                filter.getPromotionToDate()
         );
         Page<Product> productPage = productRepository.findAll(spec, pageable);
 
@@ -192,7 +194,9 @@ public class ProductServiceImpl implements ProductService {
                 (filter.getStockStatuses() != null && !filter.getStockStatuses().isEmpty()) ? filter.getStockStatuses() : null,
                 filter.getMinPrice(),
                 filter.getMaxPrice(),
-                filter.getSearch()
+                filter.getSearch(),
+                filter.getPromotionFromDate(),
+                filter.getPromotionToDate()
         );
         List<Product> products = productRepository.findAll(spec, sort);
 
@@ -270,7 +274,9 @@ public class ProductServiceImpl implements ProductService {
                 (filter.getStockStatuses() != null && !filter.getStockStatuses().isEmpty()) ? filter.getStockStatuses() : null,
                 filter.getMinPrice(),
                 filter.getMaxPrice(),
-                filter.getSearch()
+                filter.getSearch(),
+                filter.getPromotionFromDate(),
+                filter.getPromotionToDate()
         );
         Page<Product> productPage = productRepository.findAll(spec, pageable);
 
@@ -320,7 +326,9 @@ public class ProductServiceImpl implements ProductService {
                 (filter.getStockStatuses() != null && !filter.getStockStatuses().isEmpty()) ? filter.getStockStatuses() : null,
                 filter.getMinPrice(),
                 filter.getMaxPrice(),
-                filter.getSearch()
+                filter.getSearch(),
+                filter.getPromotionFromDate(),
+                filter.getPromotionToDate()
         );
         Page<Product> productPage = productRepository.findAll(spec, pageable);
 
@@ -371,7 +379,9 @@ public class ProductServiceImpl implements ProductService {
                 (filter.getStockStatuses() != null && !filter.getStockStatuses().isEmpty()) ? filter.getStockStatuses() : null,
                 filter.getMinPrice(),
                 filter.getMaxPrice(),
-                filter.getSearch()
+                filter.getSearch(),
+                filter.getPromotionFromDate(),
+                filter.getPromotionToDate()
         );
         Page<Product> productPage = productRepository.findAll(spec, pageable);
 

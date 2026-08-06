@@ -51,7 +51,7 @@ public interface ProductSizeMapper {
     ProductSize toEntityFromUpdate(ProductSizeUpdateDto dto);
 
     @Mapping(target = "finalPrice", expression = "java(entity.getFinalPrice())")
-    @Mapping(target = "hasPromotion", expression = "java(entity.isPromotionActive())")
+    @Mapping(target = "hasPromotion", expression = "java(entity.getPromotionStatus())")
     @Mapping(source = "promotionType", target = "promotionType", qualifiedByName = "sizePromotionTypeToString")
     ProductSizeDto toDto(ProductSize entity);
 

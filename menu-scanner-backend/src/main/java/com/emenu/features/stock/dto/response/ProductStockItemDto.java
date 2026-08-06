@@ -1,5 +1,6 @@
 package com.emenu.features.stock.dto.response;
 
+import com.emenu.enums.product.PromotionStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import java.math.BigDecimal;
@@ -40,9 +41,9 @@ public class ProductStockItemDto {
     private BigDecimal displayPrice;               // NEW: Final price after discount
     private String displayPromotionType;           // NEW: PERCENTAGE or FIXED_AMOUNT
     private BigDecimal displayPromotionValue;      // NEW: Discount value
-    private LocalDateTime displayPromotionFromDate; // NEW: Promotion start date
-    private LocalDateTime displayPromotionToDate;   // NEW: Promotion end date
-    private Boolean hasPromotion;                  // NEW: Is on promotion flag
+    private LocalDateTime displayPromotionFromDate;
+    private LocalDateTime displayPromotionToDate;
+    private PromotionStatus hasPromotion;
 
     // ========== INVENTORY ==========
     private Long totalStock;

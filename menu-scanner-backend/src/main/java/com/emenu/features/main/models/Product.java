@@ -1,6 +1,7 @@
 package com.emenu.features.main.models;
 
 import com.emenu.enums.product.ProductStatus;
+import com.emenu.enums.product.PromotionStatus;
 import com.emenu.enums.product.PromotionType;
 import com.emenu.enums.product.StockStatus;
 import com.emenu.features.auth.models.Business;
@@ -174,41 +175,41 @@ public class Product extends BaseUUIDEntity {
     public PromotionType getDisplayPromotionType() {
         ProductSize displaySize = getDisplaySize();
 
-        if (displaySize != null && displaySize.isPromotionActive()) {
+        if (displaySize != null) {
             return displaySize.getPromotionType();
         }
 
-        return isPromotionActive() ? this.promotionType : null;
+        return getPromotionStatus() != PromotionStatus.NONE ? this.promotionType : null;
     }
 
     public BigDecimal getDisplayPromotionValue() {
         ProductSize displaySize = getDisplaySize();
 
-        if (displaySize != null && displaySize.isPromotionActive()) {
+        if (displaySize != null) {
             return displaySize.getPromotionValue();
         }
 
-        return isPromotionActive() ? this.promotionValue : null;
+        return getPromotionStatus() != PromotionStatus.NONE ? this.promotionValue : null;
     }
 
     public LocalDateTime getDisplayPromotionFromDate() {
         ProductSize displaySize = getDisplaySize();
 
-        if (displaySize != null && displaySize.isPromotionActive()) {
+        if (displaySize != null) {
             return displaySize.getPromotionFromDate();
         }
 
-        return isPromotionActive() ? this.promotionFromDate : null;
+        return getPromotionStatus() != PromotionStatus.NONE ? this.promotionFromDate : null;
     }
 
     public LocalDateTime getDisplayPromotionToDate() {
         ProductSize displaySize = getDisplaySize();
 
-        if (displaySize != null && displaySize.isPromotionActive()) {
+        if (displaySize != null) {
             return displaySize.getPromotionToDate();
         }
 
-        return isPromotionActive() ? this.promotionToDate : null;
+        return getPromotionStatus() != PromotionStatus.NONE ? this.promotionToDate : null;
     }
 
     public BigDecimal getFinalPrice() {
@@ -234,28 +235,46 @@ public class Product extends BaseUUIDEntity {
         }
     }
 
-    public boolean isPromotionActive() {
-        // For products with sizes, check if any size has an active promotion
+    public PromotionStatus getDisplayPromotionStatus() {
+        ProductSize displaySize = getDisplaySize();
+        if (displaySize != null) {
+            return displaySize.getPromotionStatus();
+        }
+        return getPromotionStatus();
+    }
+
+    public PromotionStatus getPromotionStatus() {
+        // For products with sizes, check size-level promotions
         if (Boolean.TRUE.equals(hasSizes) && sizes != null && !sizes.isEmpty()) {
-            return sizes.stream().anyMatch(ProductSize::isPromotionActive);
+            boolean hasActive = sizes.stream().anyMatch(s -> s.getPromotionStatus() == PromotionStatus.ACTIVE);
+            if (hasActive) return PromotionStatus.ACTIVE;
+
+            boolean hasFuture = sizes.stream().anyMatch(s -> s.getPromotionStatus() == PromotionStatus.FUTURE_PROMOTION);
+            if (hasFuture) return PromotionStatus.FUTURE_PROMOTION;
+
+            return PromotionStatus.NONE;
         }
 
         // For products without sizes, check product-level promotion
-        if (promotionValue == null || promotionType == null) {
-            return false;
+        if (promotionValue == null || promotionType == null || promotionFromDate == null || promotionToDate == null) {
+            return PromotionStatus.NONE;
         }
 
         LocalDateTime today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
 
-        if (promotionFromDate != null && today.isBefore(promotionFromDate.truncatedTo(ChronoUnit.DAYS))) {
-            return false;
+        if (today.isBefore(promotionFromDate.truncatedTo(ChronoUnit.DAYS))) {
+            return PromotionStatus.FUTURE_PROMOTION;
         }
 
-        if (promotionToDate != null && today.isAfter(promotionToDate.truncatedTo(ChronoUnit.DAYS))) {
-            return false;
+        if (today.isAfter(promotionToDate.truncatedTo(ChronoUnit.DAYS))) {
+            return PromotionStatus.NONE;
         }
 
-        return true;
+        return PromotionStatus.ACTIVE;
+    }
+
+    public boolean isPromotionActive() {
+        return getPromotionStatus() == PromotionStatus.ACTIVE;
     }
 
     public void incrementViewCount() {

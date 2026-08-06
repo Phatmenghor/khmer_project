@@ -1,6 +1,9 @@
 package com.emenu.features.stock.service.impl;
 
+import com.emenu.enums.product.PromotionStatus;
 import com.emenu.exception.custom.ValidationException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import com.emenu.features.main.repository.ProductRepository;
 import com.emenu.features.main.repository.ProductSizeRepository;
 import com.emenu.features.stock.dto.request.ProductStockCreateRequest;
@@ -288,7 +291,18 @@ public class ProductStockServiceImpl implements ProductStockService {
         BigDecimal displayPromotionValue = row[14] != null ? (BigDecimal) row[14] : null;
         LocalDateTime displayPromotionFromDate = convertToLocalDateTime(row[15]);
         LocalDateTime displayPromotionToDate = convertToLocalDateTime(row[16]);
-        Boolean hasPromotion = row[17] != null ? (Boolean) row[17] : false;
+        
+        PromotionStatus hasPromotionStatus = PromotionStatus.NONE;
+        if (displayPromotionValue != null && displayPromotionType != null && displayPromotionFromDate != null && displayPromotionToDate != null) {
+            LocalDateTime today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+            if (today.isBefore(displayPromotionFromDate.truncatedTo(ChronoUnit.DAYS))) {
+                hasPromotionStatus = PromotionStatus.FUTURE_PROMOTION;
+            } else if (today.isAfter(displayPromotionToDate.truncatedTo(ChronoUnit.DAYS))) {
+                hasPromotionStatus = PromotionStatus.NONE;
+            } else {
+                hasPromotionStatus = PromotionStatus.ACTIVE;
+            }
+        }
         Long totalStock = ((Number) row[18]).longValue();
         Long quantityAvailable = ((Number) row[19]).longValue();
         Long quantityReserved = ((Number) row[20]).longValue();
@@ -321,7 +335,7 @@ public class ProductStockServiceImpl implements ProductStockService {
                 .displayPromotionValue(displayPromotionValue)
                 .displayPromotionFromDate(displayPromotionFromDate)
                 .displayPromotionToDate(displayPromotionToDate)
-                .hasPromotion(hasPromotion)
+                .hasPromotion(hasPromotionStatus)
                 .totalStock(totalStock)
                 .quantityAvailable(quantityAvailable)
                 .quantityReserved(quantityReserved)
