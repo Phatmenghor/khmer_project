@@ -37,8 +37,7 @@ import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
 import { selecDeliveryOptionsContent, selectSelectedDeliveryOptions } from "@/features/master-data/store/selectors/delivery-options-selector";
-import { useActionRouting } from "@/hooks/use-action-routing";
-import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
+import { useAdminTableUrlState } from "@/hooks/use-admin-table-url-state";
 
 function DeliveryOptionsPageInner() {
   useAdminCleanup(resetState);
@@ -56,7 +55,11 @@ function DeliveryOptionsPageInner() {
     dispatch,
   } = useDeliveryOptionsState();
 
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
+
   const {
+    isHydrated,
     viewId,
     editId,
     deleteId,
@@ -66,12 +69,10 @@ function DeliveryOptionsPageInner() {
     openDelete,
     openCreate,
     closeModal,
-  } = useActionRouting();
-
-  const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
-
-  const isHydrated = useAdminFilterUrlSync({
+    updateUrlWithPage,
+    handlePageChange,
+  } = useAdminTableUrlState({
+    baseRoute: ROUTES.ADMIN.DELIVERY_OPTIONS,
     filters: {
       search: filters.search,
       status: filters.status !== Status.ALL ? filters.status : "",
@@ -84,10 +85,6 @@ function DeliveryOptionsPageInner() {
       if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
       if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
     },
-  });
-
-  const { updateUrlWithPage, handlePageChange } = usePagination({
-    baseRoute: ROUTES.ADMIN.DELIVERY_OPTIONS,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 

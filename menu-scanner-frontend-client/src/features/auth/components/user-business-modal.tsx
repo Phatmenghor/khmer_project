@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2 } from "lucide-react";
@@ -471,16 +471,8 @@ export default function UserBusinessModal({
   const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingProfile || isProcessing;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent
-        className="w-full sm:max-w-7xl max-h-[92vh] p-0 flex flex-col overflow-hidden"
-        onOpenAutoFocus={(e) => {
-          e.preventDefault();
-          (e.currentTarget as HTMLElement)?.focus();
-        }}
-        disableScrollWrapper={true}
-      >
-        <FormHeader
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="7xl">
+      <FormHeader
           title={isCreate ? "Create User" : "Update User"}
           description={
             isCreate
@@ -1352,7 +1344,6 @@ export default function UserBusinessModal({
             </FormFooter>
           </form>
         )}
-      </DialogContent>
-    </Dialog>
+    </CustomModal>
   );
 }

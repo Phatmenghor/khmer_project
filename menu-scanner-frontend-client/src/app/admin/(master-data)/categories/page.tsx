@@ -41,8 +41,7 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
-import { useActionRouting } from "@/hooks/use-action-routing";
-import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
+import { useAdminTableUrlState } from "@/hooks/use-admin-table-url-state";
 
 function CategoriesPageInner() {
   useAdminCleanup(resetState);
@@ -57,7 +56,14 @@ function CategoriesPageInner() {
     dispatch,
   } = useCategoriesState();
 
+  const categoriesWithProductCount = useAppSelector(selectCategoriesWithProductCountContent);
+  const paginationWithProductCount = useAppSelector(selectPaginationWithProductCount);
+
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
+
   const {
+    isHydrated,
     viewId,
     editId,
     deleteId,
@@ -67,15 +73,10 @@ function CategoriesPageInner() {
     openDelete,
     openCreate,
     closeModal,
-  } = useActionRouting();
-
-  const categoriesWithProductCount = useAppSelector(selectCategoriesWithProductCountContent);
-  const paginationWithProductCount = useAppSelector(selectPaginationWithProductCount);
-
-  const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
-
-  const isHydrated = useAdminFilterUrlSync({
+    updateUrlWithPage,
+    handlePageChange,
+  } = useAdminTableUrlState({
+    baseRoute: ROUTES.ADMIN.CATEGORIES,
     filters: {
       search: filters.search,
       status: filters.status !== Status.ALL ? filters.status : "",
@@ -88,10 +89,6 @@ function CategoriesPageInner() {
       if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
       if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
     },
-  });
-
-  const { updateUrlWithPage, handlePageChange } = usePagination({
-    baseRoute: ROUTES.ADMIN.CATEGORIES,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 

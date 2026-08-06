@@ -124,3 +124,18 @@ export const PRODUCT_SIZE_FILTER = [
   { value: "true", label: "Has Sizes" },
   { value: "false", label: "No Sizes" },
 ];
+
+export const SORT_BY_OPTIONS = [
+  { value: "createdAt", label: "Created Date" },
+  { value: "displayPrice", label: "Display Price" },
+  { value: "barcode", label: "Barcode" },
+  { value: "sku", label: "SKU" },
+  { value: "totalStock", label: "Total Stock" },
+  { value: "favoriteCount", label: "Favorite Count" },
+  { value: "viewCount", label: "View Count" },
+];
+
+export const SORT_DIRECTION_OPTIONS = [
+  { value: "DESC", label: "High to Low (DESC)" },
+  { value: "ASC", label: "Low to High (ASC)" },
+];

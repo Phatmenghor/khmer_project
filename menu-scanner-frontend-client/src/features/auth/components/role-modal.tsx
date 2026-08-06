@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -170,12 +170,8 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
   const isSubmitting = isCreate ? isCreating : isUpdating;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent
-        className="w-full max-w-xl max-h-[92vh] p-0 flex flex-col overflow-hidden"
-        disableScrollWrapper={true}
-      >
-        <FormHeader
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="xl">
+      <FormHeader
           title={isCreate ? "Create New Role" : "Edit Role"}
           description={
             isCreate
@@ -253,7 +249,6 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
             </FormFooter>
           </form>
         )}
-      </DialogContent>
-    </Dialog>
+    </CustomModal>
   );
 }

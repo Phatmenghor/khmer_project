@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useState, useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pin, PinOff } from "lucide-react";
 import { PageSizeSelectField } from "@/components/shared/form-field/page-size-select-field";
 import { cn } from "@/lib/utils";
 import { CustomButton } from "@/components/shared/button/custom-button";
@@ -21,6 +21,7 @@ export interface TableColumn<T = any> {
   maxWidth?: string;
   minWidth?: string;
   width?: string;
+  isPinnedRight?: boolean;
 }
 
 interface DataTableWithPaginationProps<T = any> {
@@ -71,6 +72,7 @@ export function DataTableWithPagination<T = any>({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
+  const [isActionPinned, setIsActionPinned] = useState(true);
 
   const checkScroll = () => {
     const container = scrollContainerRef.current;
@@ -228,9 +230,11 @@ export function DataTableWithPagination<T = any>({
     );
   }
 
+  const isScrolledToEnd = !showRightScroll;
+
   return (
     <div className="space-y-3">
-      {/* Top Table Controls: Entries info on left, Scroll buttons on right */}
+      {/* Top Table Controls: Entries info on left, Single Toggle + Scroll buttons on right */}
       {hasControls && (
         <div className="sticky top-[44px] z-20 bg-background/90 backdrop-blur-md pb-2 pt-1.5 flex justify-between items-center h-10 px-2 border-b border-border/60 shadow-2xs transition-all duration-200">
           <div className="text-xs text-muted-foreground font-medium">
@@ -243,28 +247,49 @@ export function DataTableWithPagination<T = any>({
             )}
           </div>
           {(showLeftScroll || showRightScroll) && (
-            <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-[10px] border border-border/60 flex-shrink-0">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              {/* Single toggle button for Action column pinning (default pinned) */}
               <CustomButton
-                variant="unstyled"
-                size="unstyled"
+                variant="outline"
+                size="sm"
                 type="button"
-                onClick={() => handleScroll("left")}
-                className="h-6 w-6 flex items-center justify-center rounded-[8px] border border-primary/30 text-primary hover:bg-primary/10 hover:border-primary transition-all duration-150"
-                icon={<ChevronLeft className="h-3 w-3" />}
-                title="Scroll Left"
-              />
-              <span className="text-[10px] font-semibold text-muted-foreground px-1 select-none">
-                Scroll Table
-              </span>
-              <CustomButton
-                variant="unstyled"
-                size="unstyled"
-                type="button"
-                onClick={() => handleScroll("right")}
-                className="h-6 w-6 flex items-center justify-center rounded-[8px] border border-primary/30 text-primary hover:bg-primary/10 hover:border-primary transition-all duration-150"
-                icon={<ChevronRight className="h-3 w-3" />}
-                title="Scroll Right"
-              />
+                onClick={() => setIsActionPinned((prev) => !prev)}
+                className="h-7 text-xs gap-1.5 border-border/80 font-medium hover:bg-muted select-none"
+                icon={
+                  isActionPinned ? (
+                    <PinOff className="h-3.5 w-3.5 text-amber-500" />
+                  ) : (
+                    <Pin className="h-3.5 w-3.5 text-primary" />
+                  )
+                }
+                title={isActionPinned ? "Unpin Action Column (No Stack)" : "Pin Action Column to Right Edge"}
+              >
+                {isActionPinned ? "Hide Action" : "Pin Action"}
+              </CustomButton>
+
+              <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-[10px] border border-border/60">
+                <CustomButton
+                  variant="unstyled"
+                  size="unstyled"
+                  type="button"
+                  onClick={() => handleScroll("left")}
+                  className="h-6 w-6 flex items-center justify-center rounded-[8px] border border-primary/30 text-primary hover:bg-primary/10 hover:border-primary transition-all duration-150"
+                  icon={<ChevronLeft className="h-3 w-3" />}
+                  title="Scroll Left"
+                />
+                <span className="text-[10px] font-semibold text-muted-foreground px-1 select-none">
+                  Scroll Table
+                </span>
+                <CustomButton
+                  variant="unstyled"
+                  size="unstyled"
+                  type="button"
+                  onClick={() => handleScroll("right")}
+                  className="h-6 w-6 flex items-center justify-center rounded-[8px] border border-primary/30 text-primary hover:bg-primary/10 hover:border-primary transition-all duration-150"
+                  icon={<ChevronRight className="h-3 w-3" />}
+                  title="Scroll Right"
+                />
+              </div>
             </div>
           )}
         </div>
@@ -282,26 +307,40 @@ export function DataTableWithPagination<T = any>({
             width: "auto",
           }}
         >
-          <thead className="bg-muted/40">
+          <thead className="bg-muted/80 text-foreground border-b border-border/80 sticky top-0 z-20 bg-card">
             <tr>
-              {columns.map((column) => (
-                <th
-                  key={column.key}
-                  className={`px-3.5 py-2.5 text-left font-semibold text-xs text-muted-foreground border-b border-border/70 ${
-                    column.className || ""
-                  }`}
-                  style={{
-                    ...(column.width && { width: column.width }),
-                    ...(column.maxWidth && { maxWidth: column.maxWidth }),
-                    ...(column.minWidth && { minWidth: column.minWidth }),
-                  }}
-                >
-                  {column.label}
-                </th>
-              ))}
+              {columns.map((column) => {
+                const isActionCol =
+                  (column.key === "actions" ||
+                    column.key === "action" ||
+                    column.isPinnedRight) &&
+                  isActionPinned;
+
+                const actionStyle = isActionCol
+                  ? isScrolledToEnd
+                    ? "sticky right-0 z-30 bg-muted/95 backdrop-blur-sm border-l border-border/40 shadow-none text-center transition-all duration-200"
+                    : "sticky right-0 z-30 bg-muted/95 backdrop-blur-sm border-l border-border shadow-[-8px_0_12px_-3px_rgba(0,0,0,0.12)] text-center transition-all duration-200"
+                  : column.key === "actions" || column.key === "action"
+                  ? "text-center"
+                  : "";
+
+                return (
+                  <th
+                    key={column.key}
+                    className={`px-3.5 py-3 text-left font-bold text-xs text-foreground bg-muted border-b border-border select-none ${actionStyle} ${column.className || ""}`}
+                    style={{
+                      ...(column.width && { width: column.width }),
+                      ...(column.maxWidth && { maxWidth: column.maxWidth }),
+                      ...(column.minWidth && { minWidth: column.minWidth }),
+                    }}
+                  >
+                    {column.label}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-card">
             {tableData.length === 0 ? (
               <tr>
                 <td
@@ -315,12 +354,24 @@ export function DataTableWithPagination<T = any>({
               tableData.map((item, index) => (
                 <tr
                   key={getRowKey(item, index)}
-                  className={`text-xs transition-all duration-200 hover:bg-primary/5 ${
+                  className={`text-xs transition-all duration-200 hover:bg-muted/60 group ${
                     onRowClick ? "cursor-pointer" : ""
                   }`}
                   onClick={() => onRowClick?.(item)}
                 >
                   {columns.map((column) => {
+                    const isActionCol =
+                      (column.key === "actions" ||
+                        column.key === "action" ||
+                        column.isPinnedRight) &&
+                      isActionPinned;
+
+                    const actionCellStyle = isActionCol
+                      ? isScrolledToEnd
+                        ? "sticky right-0 z-10 bg-card group-hover:bg-muted border-l border-border/40 shadow-none transition-all duration-200"
+                        : "sticky right-0 z-10 bg-card group-hover:bg-muted border-l border-border shadow-[-8px_0_12px_-3px_rgba(0,0,0,0.1)] transition-all duration-200"
+                      : "";
+
                     const cellContent = column.render
                       ? column.render(item, index)
                       : String(item[column.key as keyof T] || "---");
@@ -328,9 +379,7 @@ export function DataTableWithPagination<T = any>({
                     return (
                       <td
                         key={column.key}
-                        className={`px-3 py-2 border-b border-border/50 ${
-                          column.className || ""
-                        }`}
+                        className={`px-3 py-2 border-b border-border/50 ${actionCellStyle} ${column.className || ""}`}
                         style={{
                           ...(column.width && { width: column.width }),
                           ...(column.maxWidth && { maxWidth: column.maxWidth }),

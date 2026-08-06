@@ -9,6 +9,11 @@ import com.emenu.features.main.dto.response.ProductListDto;
 import com.emenu.features.main.dto.response.BulkPromotionResultDto;
 import com.emenu.features.main.dto.update.ProductUpdateDto;
 import com.emenu.shared.dto.BatchImportResponse;
+import com.emenu.shared.dto.PaginationResponse;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public interface ProductService {
     ProductDetailDto createProduct(ProductCreateDto request);

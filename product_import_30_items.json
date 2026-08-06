@@ -1,0 +1,272 @@
+[
+  {
+    "name": "Iced Latte",
+    "description": "Rich espresso with fresh milk and ice",
+    "price": 2.50,
+    "sku": "SKU-DRK-001",
+    "barcode": "885000000001",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Iced Americano",
+    "description": "Double shot espresso with cold water and ice",
+    "price": 2.00,
+    "sku": "SKU-DRK-002",
+    "barcode": "885000000002",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Hot Cappuccino",
+    "description": "Espresso topped with thick milk foam",
+    "price": 2.25,
+    "sku": "SKU-DRK-003",
+    "barcode": "885000000003",
+    "promotionType": "PERCENTAGE",
+    "promotionValue": 10.00
+  },
+  {
+    "name": "Matcha Green Tea Latte",
+    "description": "Premium Japanese matcha with steamed milk",
+    "price": 3.00,
+    "sku": "SKU-DRK-004",
+    "barcode": "885000000004",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Iced Milk Coffee (Cafe Boran)",
+    "description": "Traditional Khmer iced coffee with condensed milk",
+    "price": 1.75,
+    "sku": "SKU-DRK-005",
+    "barcode": "885000000005",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Passion Fruit Milk Foam",
+    "description": "Fresh passion fruit juice topped with salted milk cream",
+    "price": 2.75,
+    "sku": "SKU-DRK-006",
+    "barcode": "885000000006",
+    "promotionType": "FIXED",
+    "promotionValue": 0.50
+  },
+  {
+    "name": "Brown Sugar Milk Tea",
+    "description": "Black tea with tapioca pearls and brown sugar syrup",
+    "price": 3.25,
+    "sku": "SKU-DRK-007",
+    "barcode": "885000000007",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Avocado Smoothie",
+    "description": "Fresh blended avocado with sweet condensed milk",
+    "price": 3.50,
+    "sku": "SKU-DRK-008",
+    "barcode": "885000000008",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Khmer Beef Lok Lak",
+    "description": "Stir-fried marinated beef served with lime pepper sauce and rice",
+    "price": 6.50,
+    "sku": "SKU-FOOD-001",
+    "barcode": "885000000101",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Fish Amok",
+    "description": "Traditional Khmer steamed curry fish in banana leaf",
+    "price": 5.50,
+    "sku": "SKU-FOOD-002",
+    "barcode": "885000000102",
+    "promotionType": "PERCENTAGE",
+    "promotionValue": 15.00
+  },
+  {
+    "name": "Kuy Teav Phnom Penh",
+    "description": "Cambodian rice noodle soup with pork and seafood",
+    "price": 3.50,
+    "sku": "SKU-FOOD-003",
+    "barcode": "885000000103",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Grilled Pork Rice (Bai Sach Chrouk)",
+    "description": "Marinated grilled pork over warm rice with pickled veggies",
+    "price": 2.50,
+    "sku": "SKU-FOOD-004",
+    "barcode": "885000000104",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Chicken Fried Rice",
+    "description": "Wok-fried jasmine rice with tender chicken and veggies",
+    "price": 3.75,
+    "sku": "SKU-FOOD-005",
+    "barcode": "885000000105",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Seafood Tom Yum Soup",
+    "description": "Spicy and sour Thai soup loaded with fresh prawns and squid",
+    "price": 5.75,
+    "sku": "SKU-FOOD-006",
+    "barcode": "885000000106",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Crispy Spring Rolls",
+    "description": "Handmade fried spring rolls filled with pork and vegetables",
+    "price": 3.00,
+    "sku": "SKU-APP-001",
+    "barcode": "885000000201",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Fresh Summer Rolls",
+    "description": "Rice paper rolls with shrimp, pork, rice vermicelli and herbs",
+    "price": 3.50,
+    "sku": "SKU-APP-002",
+    "barcode": "885000000202",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "French Fries",
+    "description": "Crispy golden fries served with ketchup and mayo",
+    "price": 2.00,
+    "sku": "SKU-APP-003",
+    "barcode": "885000000203",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Chicken Wings BBQ",
+    "description": "Deep fried chicken wings tossed in tangy BBQ sauce",
+    "price": 4.50,
+    "sku": "SKU-APP-004",
+    "barcode": "885000000204",
+    "promotionType": "PERCENTAGE",
+    "promotionValue": 10.00
+  },
+  {
+    "name": "Club Sandwich",
+    "description": "Triple decker sandwich with chicken, bacon, lettuce and tomato",
+    "price": 4.00,
+    "sku": "SKU-SNK-001",
+    "barcode": "885000000301",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Beef Burger Supreme",
+    "description": "Grilled beef patty with cheddar cheese, bacon and special sauce",
+    "price": 5.00,
+    "sku": "SKU-SNK-002",
+    "barcode": "885000000302",
+    "promotionType": "FIXED",
+    "promotionValue": 1.00
+  },
+  {
+    "name": "Ham and Cheese Croissant",
+    "description": "Flaky buttery croissant stuffed with smoked ham and melted cheese",
+    "price": 2.75,
+    "sku": "SKU-BAK-001",
+    "barcode": "885000000401",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Chocolate Lava Cake",
+    "description": "Warm chocolate cake with molten chocolate center",
+    "price": 3.50,
+    "sku": "SKU-DES-001",
+    "barcode": "885000000501",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Mango Sticky Rice",
+    "description": "Fresh sweet mango served with warm coconut sticky rice",
+    "price": 3.00,
+    "sku": "SKU-DES-002",
+    "barcode": "885000000502",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Tiramisu Cake Slice",
+    "description": "Classic Italian coffee-flavoured dessert",
+    "price": 3.75,
+    "sku": "SKU-DES-003",
+    "barcode": "885000000503",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "New York Cheesecake",
+    "description": "Rich and creamy cheesecake with berry compote",
+    "price": 4.00,
+    "sku": "SKU-DES-004",
+    "barcode": "885000000504",
+    "promotionType": "PERCENTAGE",
+    "promotionValue": 5.00
+  },
+  {
+    "name": "Iced Lemon Black Tea",
+    "description": "Refreshing black tea infused with fresh lemon juice",
+    "price": 2.00,
+    "sku": "SKU-DRK-009",
+    "barcode": "885000000009",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Mocha Frappuccino",
+    "description": "Blended coffee with dark chocolate syrup and whipped cream",
+    "price": 3.75,
+    "sku": "SKU-DRK-010",
+    "barcode": "885000000010",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Shrimp Pad Thai",
+    "description": "Stir-fried rice noodles with shrimp, tofu, peanuts and bean sprouts",
+    "price": 4.75,
+    "sku": "SKU-FOOD-007",
+    "barcode": "885000000107",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Garlic Bread",
+    "description": "Toasted baguette slices with garlic butter and parsley",
+    "price": 2.25,
+    "sku": "SKU-APP-005",
+    "barcode": "885000000205",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Coconut Ice Cream",
+    "description": "Homemade fresh coconut ice cream served in coconut shell",
+    "price": 2.50,
+    "sku": "SKU-DES-005",
+    "barcode": "885000000505",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  }
+]

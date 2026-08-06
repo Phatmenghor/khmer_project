@@ -37,32 +37,14 @@ import { useRouter } from "next/navigation";
 import ProductModal from "@/features/business/components/product-modal";
 import { ProductDetailModal } from "@/features/business/components/product-detail-modal";
 import { CustomSelect } from "@/components/shared/common/custom-select";
-import { PRODUCT_STATUS_FILTER, PRODUCT_SIZE_FILTER } from "@/constants/status/filter-status";
-import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
-import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
-import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
-import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
+import { useProductTableFilters } from "@/features/business/hooks/use-product-table-filters";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
 import { productPromotionTableColumns } from "@/features/business/table/product-promotion-table";
-
-const SORT_BY_OPTIONS = [
-  { value: "createdAt", label: "Created Date" },
-  { value: "displayPrice", label: "Display Price" },
-  { value: "barcode", label: "Barcode" },
-  { value: "sku", label: "SKU" },
-  { value: "totalStock", label: "Total Stock" },
-  { value: "favoriteCount", label: "Favorite Count" },
-  { value: "viewCount", label: "View Count" },
-];
-
-const SORT_DIRECTION_OPTIONS = [
-  { value: "DESC", label: "High to Low (DESC)" },
-  { value: "ASC", label: "Low to High (ASC)" },
-];
+import { useAdminTableUrlState } from "@/hooks/use-admin-table-url-state";
 
 function ProductPromotionPageInner() {
   const router = useRouter();
@@ -80,26 +62,35 @@ function ProductPromotionPageInner() {
     dispatch,
   } = useProductState();
 
-  useEffect(() => {
-    dispatch(setPageNo(1));
-    dispatch(setSearchFilter(""));
-    dispatch(selectProductStatus(ProductStatus.ALL));
-  }, []);
+  const handleCreatePromotion = () => {
+    router.push(ROUTES.ADMIN.BULK_PROMOTION_CREATION);
+  };
+
+  const {
+    filterConfig,
+    sizeFilter,
+    setSizeFilter,
+    selectedBrand,
+    setSelectedBrand,
+    selectedCategories,
+    setSelectedCategories,
+    sortBy,
+    setSortBy,
+    sortDirection,
+    setSortDirection,
+  } = useProductTableFilters({
+    title: "Product Promotions",
+    subtitle: "Products with active promotional discounts",
+    totalCount: pagination.totalElements,
+    buttonText: "Create Promotion",
+    onButtonClick: handleCreatePromotion,
+  });
 
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
     productId: "",
   });
-
-  const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(
-    null,
-  );
-  const [sizeFilter, setSizeFilter] = useState("ALL");
-  const [sortBy, setSortBy] = useState("");
-  const [sortDirection, setSortDirection] = useState("");
-  const [selectedCategories, setSelectedCategories] =
-    useState<CategoriesResponseModel | null>(null);
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
@@ -126,15 +117,50 @@ function ProductPromotionPageInner() {
   });
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
-
   const debouncedSearch = useDebounce(filters.search, 400);
 
-  const { updateUrlWithPage, handlePageChange } = usePagination({
+  const {
+    isHydrated,
+    viewId,
+    editId,
+    deleteId,
+    createMode,
+    openView,
+    openEdit,
+    openDelete,
+    openCreate,
+    closeModal: closeRouteModal,
+    updateUrlWithPage,
+    handlePageChange,
+  } = useAdminTableUrlState({
     baseRoute: ROUTES.ADMIN.PRODUCTS_PROMOTION,
+    filters: {
+      search: filters.search,
+      status: filters.status && filters.status !== ProductStatus.ALL ? filters.status : "",
+      categoryId: selectedCategories?.id || "",
+      brandId: selectedBrand?.id || "",
+      sizeFilter: sizeFilter !== "ALL" ? sizeFilter : "",
+      sortBy: sortBy || "",
+      sortDirection: sortDirection || "",
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
+    },
+    onInit: (params) => {
+      if (params.search) dispatch(setSearchFilter(params.search));
+      if (params.status) dispatch(selectProductStatus(params.status as ProductStatus));
+      if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
+      if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
+      if (params.sizeFilter) setSizeFilter(params.sizeFilter);
+      if (params.sortBy) setSortBy(params.sortBy);
+      if (params.sortDirection) setSortDirection(params.sortDirection);
+      if (params.categoryId) setSelectedCategories({ id: params.categoryId, name: "" } as any);
+      if (params.brandId) setSelectedBrand({ id: params.brandId, name: "" } as any);
+    },
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
   useEffect(() => {
+    if (!isHydrated) return;
 
     let hasSize: boolean | undefined;
     if (sizeFilter === "true") {
@@ -159,6 +185,7 @@ function ProductPromotionPageInner() {
       }),
     );
   }, [
+    isHydrated,
     dispatch,
     debouncedSearch,
     filters.pageNo,
@@ -171,30 +198,19 @@ function ProductPromotionPageInner() {
     sortDirection,
   ]);
 
-  const handleCreatePromotion = () => {
-    router.push(ROUTES.ADMIN.BULK_PROMOTION_CREATION);
-  };
-
   const handleEditProduct = (product: ProductDetailResponseModel) => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.UPDATE_MODE,
-      productId: product?.id || "",
-    });
+    if (product?.id) openEdit(product.id);
   };
 
   const handleProductViewDetail = (product: ProductDetailResponseModel) => {
-    setDetailModalState({
-      isOpen: true,
-      productId: product.id || "",
-    });
+    if (product?.id) openView(product.id);
   };
 
   const handleDeleteProduct = (product: ProductDetailResponseModel) => {
-    setDeleteState({
-      isOpen: true,
-      product: product,
-    });
+    if (product?.id) {
+      setDeleteState({ isOpen: true, product });
+      openDelete(product.id);
+    }
   };
 
   const handleResetPromotion = (product: ProductDetailResponseModel) => {
@@ -205,7 +221,6 @@ function ProductPromotionPageInner() {
   };
 
   const handleStatusChange = (productId: string, status: string) => {
-
     dispatch(
       updateProductOptimistic({
         id: productId,
@@ -218,58 +233,13 @@ function ProductPromotionPageInner() {
         productId,
         productData: { status },
       })
-    ).then(() => {
-      showToast.success(`Product status updated to ${status}`);
-    }).catch((error: unknown) => {
-      showToast.error((error as { message?: string })?.message || Messages.product.statusUpdateFailed);
-    });
-  };
-
-  const handleResetAllPromotions = () => {
-    setResetAllState({ isOpen: true });
-  };
-
-  const closeResetAllModal = () => {
-    setResetAllState({ isOpen: false });
-  };
-
-  const handleConfirmResetAllPromotions = async () => {
-    dispatch(resetAllPromotionsOptimistic());
-    closeResetAllModal();
-    try {
-      await dispatch(resetAllPromotionsService()).unwrap();
-      showToast.success(Messages.promotions.allReset);
-    } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || Messages.promotions.allResetFailed);
-    }
-  };
-
-  const handleResetTablePromotions = () => {
-    const selectedIds = productContent?.filter((p) => p.isSelected).map((p) => p.id) || [];
-    if (selectedIds.length === 0) {
-      showToast.error(Messages.product.selectAtLeastOneToReset);
-      return;
-    }
-    setResetTableState({
-      isOpen: true,
-      selectedProductIds: selectedIds,
-    });
-  };
-
-  const closeResetTableModal = () => {
-    setResetTableState({ isOpen: false, selectedProductIds: [] });
-  };
-
-  const handleConfirmResetTablePromotions = async () => {
-    const ids = resetTableState.selectedProductIds;
-    dispatch(resetTablePromotionsOptimistic(ids));
-    closeResetTableModal();
-    try {
-      await dispatch(resetBulkPromotionsService(ids as any)).unwrap();
-      showToast.success(`Reset promotions for ${ids.length} products`);
-    } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to reset promotions");
-    }
+    )
+      .then(() => {
+        showToast.success(`Product status updated to ${status}`);
+      })
+      .catch((error: unknown) => {
+        showToast.error((error as { message?: string })?.message || Messages.product.statusUpdateFailed);
+      });
   };
 
   const tableHandlers = useMemo(
@@ -291,10 +261,6 @@ function ProductPromotionPageInner() {
       }),
     [productState, tableHandlers],
   );
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setSearchFilter(e.target.value));
-  };
 
   const handlePageChangeWrapper = (page: number) => {
     dispatch(setPageNo(page));
@@ -328,6 +294,55 @@ function ProductPromotionPageInner() {
     }
   };
 
+  const handleConfirmResetPromotion = async () => {
+    if (!resetPromotionState.product?.id) return;
+
+    dispatch(resetProductPromotionOptimistic(resetPromotionState.product.id));
+
+    closeResetPromotionModal();
+
+    dispatch(resetProductPromotionService(resetPromotionState.product.id))
+      .then(() => {
+        showToast.success(
+          `Promotion reset for product "${resetPromotionState.product?.name ?? ""}"`,
+        );
+      })
+      .catch((error: unknown) => {
+        showToast.error((error as { message?: string })?.message || Messages.promotions.resetFailed);
+      });
+  };
+
+  const handleConfirmResetAllPromotions = async () => {
+    closeResetAllModal();
+
+    dispatch(resetAllPromotionsOptimistic());
+
+    try {
+      await dispatch(resetAllPromotionsService()).unwrap();
+      showToast.success("All promotions reset successfully");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || Messages.promotions.resetFailed);
+    }
+  };
+
+  const handleConfirmResetTablePromotions = async () => {
+    closeResetTableModal();
+
+    dispatch(resetTablePromotionsOptimistic(resetTableState.selectedProductIds));
+
+    try {
+      await dispatch(
+        resetBulkPromotionsService(resetTableState.selectedProductIds),
+      ).unwrap();
+
+      showToast.success(
+        `Promotions reset for ${resetTableState.selectedProductIds.length} selected product(s)`,
+      );
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || Messages.promotions.resetFailed);
+    }
+  };
+
   const closeModal = () => {
     setModalState({
       isOpen: false,
@@ -357,135 +372,18 @@ function ProductPromotionPageInner() {
     });
   };
 
-  const handleConfirmResetPromotion = async () => {
-    if (!resetPromotionState.product?.id) return;
-
-    dispatch(resetProductPromotionOptimistic(resetPromotionState.product.id));
-
-    closeResetPromotionModal();
-
-    try {
-      await dispatch(resetProductPromotionService(resetPromotionState.product.id)).unwrap();
-      showToast.success(
-        `Promotion reset for product "${resetPromotionState.product?.name ?? ""}"`,
-      );
-    } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || Messages.promotions.resetFailed);
-    }
+  const closeResetAllModal = () => {
+    setResetAllState({
+      isOpen: false,
+    });
   };
 
-  const handleProductStatusChange = (status: ProductStatus) => {
-    dispatch(selectProductStatus(status));
+  const closeResetTableModal = () => {
+    setResetTableState({
+      isOpen: false,
+      selectedProductIds: [],
+    });
   };
-
-  const handleBrandChange = (brand: BrandResponseModel | null) => {
-    setSelectedBrand(brand);
-  };
-
-  const handleCategoriesChange = (
-    categories: CategoriesResponseModel | null,
-  ) => {
-    setSelectedCategories(categories);
-  };
-
-  const handleSizeFilterChange = (value: string | number | boolean | null | undefined) => {
-    setSizeFilter(String(value ?? ""));
-  };
-
-  const handleSortByChange = (value: string | number | boolean | null | undefined) => {
-    setSortBy(String(value ?? ""));
-  };
-
-  const handleSortDirectionChange = (value: string | number | boolean | null | undefined) => {
-    setSortDirection(String(value ?? ""));
-  };
-
-  const handleClearAllFilters = () => {
-    dispatch(setSearchFilter(""));
-    dispatch(selectProductStatus(ProductStatus.ALL));
-    setSelectedBrand(null);
-    setSelectedCategories(null);
-    setSizeFilter("ALL");
-    setSortBy("");
-    setSortDirection("");
-  };
-
-  const selectedRowCount = useMemo(
-    () => productContent?.filter((p) => p.isSelected).length ?? 0,
-    [productContent],
-  );
-
-  const extraActions = null;
-
-  const filterConfig = useMemo((): FilterPanelConfig => ({
-    title: "Product Promotions",
-    subtitle: "Products with active promotional discounts",
-    totalCount: pagination.totalElements,
-    searchValue: filters.search,
-    searchPlaceholder: "Search product...",
-    onSearchChange: handleSearchChange,
-    buttonText: "Create Promotion",
-    buttonDisabled: false,
-    onButtonClick: handleCreatePromotion,
-    onClearAll: handleClearAllFilters,
-    extraActions,
-    filters: [
-      {
-        id: "status",
-        type: "select",
-        label: "Product Status",
-        placeholder: "All Status",
-        value: filters.status,
-        onChange: (value) => handleProductStatusChange(value as ProductStatus),
-        options: PRODUCT_STATUS_FILTER,
-      },
-      {
-        id: "size",
-        type: "select",
-        label: "Product Size",
-        placeholder: "All Products",
-        value: sizeFilter,
-        onChange: handleSizeFilterChange,
-        options: PRODUCT_SIZE_FILTER,
-      },
-      {
-        id: "brand",
-        type: "combobox-brand",
-        label: "Brand",
-        placeholder: "All Brand",
-        value: selectedBrand,
-        onChange: handleBrandChange,
-        showAllOption: true,
-      },
-      {
-        id: "category",
-        type: "combobox-categories",
-        label: "Category",
-        placeholder: "All Categories",
-        value: selectedCategories,
-        onChange: handleCategoriesChange,
-        showAllOption: true,
-      },
-      {
-        id: "sortBy",
-        type: "select",
-        label: "Sort By",
-        placeholder: "Default (Created Date)",
-        value: sortBy,
-        onChange: handleSortByChange,
-        options: SORT_BY_OPTIONS,
-      },
-      {
-        id: "sortDirection",
-        type: "select",
-        label: "Order",
-        placeholder: "Default (High to Low)",
-        value: sortDirection,
-        onChange: handleSortDirectionChange,
-        options: SORT_DIRECTION_OPTIONS,
-      },
-    ],
-  }), [filters, selectedBrand, selectedCategories, sizeFilter, sortBy, sortDirection, pagination.totalElements, selectedRowCount, operations.isDeleting]);
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
@@ -516,23 +414,30 @@ function ProductPromotionPageInner() {
 
       {}
       <ProductModal
-        isOpen={modalState.isOpen}
-        onClose={closeModal}
-        productId={modalState.productId}
-        mode={modalState.mode}
+        isOpen={createMode || !!editId || modalState.isOpen}
+        onClose={() => {
+          closeModal();
+          closeRouteModal();
+        }}
+        productId={editId || modalState.productId}
+        mode={editId ? ModalMode.UPDATE_MODE : modalState.mode}
       />
 
-      {}
       <ProductDetailModal
-        productId={detailModalState.productId}
-        isOpen={detailModalState.isOpen}
-        onClose={closeDetailModal}
+        productId={viewId || detailModalState.productId}
+        isOpen={!!viewId || detailModalState.isOpen}
+        onClose={() => {
+          closeDetailModal();
+          closeRouteModal();
+        }}
       />
 
-      {}
       <DeleteConfirmationModal
-        isOpen={deleteState.isOpen}
-        onClose={closeDeleteModal}
+        isOpen={!!deleteId || deleteState.isOpen}
+        onClose={() => {
+          closeDeleteModal();
+          closeRouteModal();
+        }}
         onDelete={handleDelete}
         title="Delete Product"
         description={`Are you sure you want to delete this product ${

@@ -136,7 +136,7 @@ export default function ExchangeRateImportPage() {
   return (
     <GenericExcelImport<ImportExchangeRateRow>
       title="Import Exchange Rates"
-      description="Upload a template spreadsheet to create business exchange rates in batch"
+      description="Upload an Excel file to bulk import exchange rates"
       backRoute={ROUTES.ADMIN.EXCHANGE_RATE}
       entityName="exchange rates"
       downloadTemplate={downloadExchangeRateTemplate}

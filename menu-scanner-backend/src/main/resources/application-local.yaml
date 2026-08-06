@@ -79,7 +79,7 @@ app:
 # projectCode + path. No businessId or X-Project-Code header is needed.
 spaces:
   service-url: "${SPACES_SERVICE_URL:http://localhost:7072}"
-  api-key: "${SPACES_API_KEY:sk_emenu_ZPQQeyFSYqhIvOzKqjjgN495sgF1tSjx}"
+  api-key: "${SPACES_API_KEY:sk_emenu_VuyZm-4mlyyX7v0vIXE_SPkeB-WmyfBZ}"
 
 logging:
   level:

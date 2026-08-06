@@ -2,7 +2,8 @@
 
 import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { DialogTitle } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2, X } from "lucide-react";
@@ -465,14 +466,13 @@ export default function ProductModal({
   const isProcessing = isSubmitting || isUploadingImage || isProcessingImages;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-7xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
-        <DialogTitle className="sr-only">
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="7xl">
+      <DialogTitle className="sr-only">
           {isCreate ? "Create New Product" : `Edit Product - ${productName}`}
         </DialogTitle>
 
         <FormHeader
-          title={isCreate ? "Create New Product" : "Edit Product"}
+          title={isCreate ? "Create Product" : "Update Product"}
           description={
             isCreate
               ? "Fill out the form to create a new product"
@@ -480,6 +480,7 @@ export default function ProductModal({
           }
           avatarName={productName || "Product"}
           isCreate={isCreate}
+          className="m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4"
         />
 
         {!isCreate && isFetchingDetail ? (
@@ -489,24 +490,23 @@ export default function ProductModal({
         ) : (
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col flex-1 overflow-visible"
+            className="flex flex-col flex-1 min-h-0 overflow-hidden"
           >
-            <FormBody>
-              <div className="space-y-2">
+            <FormBody className="px-4 py-3.5 space-y-4">
+              <div className="space-y-4">
                 {reduxError && (
-                  <div className="p-3 bg-destructive/10 border border-destructive rounded">
+                  <div className="p-3 bg-destructive/10 border border-destructive rounded-lg">
                     <p className="text-xs text-destructive font-medium">
                       {reduxError}
                     </p>
                   </div>
                 )}
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Basic Information</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-col md:flex-row gap-3 items-start">
+                <div className="rounded-xl border border-border/70 bg-card p-4 space-y-3">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                    Basic Information
+                  </h3>
+                  <div className="flex flex-col md:flex-row gap-3 items-start">
                       {/* Left: main image */}
                       <div className="w-full md:w-44 flex-shrink-0">
                         <SpacesImageUpload
@@ -640,33 +640,32 @@ export default function ProductModal({
                         </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
 
                 {!hasSizes && (
-                  <Card>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle>Pricing Information</CardTitle>
-                        {showPromotionFields && (
-                          <CustomButton
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setValue("promotionType", "NONE", { shouldDirty: true });
-                              setValue("promotionValue", undefined, { shouldDirty: true });
-                              setValue("promotionFromDate", "", { shouldDirty: true });
-                              setValue("promotionToDate", "", { shouldDirty: true });
-                            }}
-                            disabled={isProcessing}
-                          >
-                            Reset Promotion
-                          </CustomButton>
-                        )}
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
+                  <div className="rounded-xl border border-border/70 bg-card p-4 space-y-3">
+                    <div className="flex items-center justify-between border-b pb-2">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                        Pricing Information
+                      </h3>
+                      {showPromotionFields && (
+                        <CustomButton
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setValue("promotionType", "NONE", { shouldDirty: true });
+                            setValue("promotionValue", undefined, { shouldDirty: true });
+                            setValue("promotionFromDate", "", { shouldDirty: true });
+                            setValue("promotionToDate", "", { shouldDirty: true });
+                          }}
+                          disabled={isProcessing}
+                        >
+                          Reset Promotion
+                        </CustomButton>
+                      )}
+                    </div>
+                    <div className="space-y-3 pt-1">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 auto-rows-max">
                         <div>
                           <TextField
@@ -741,51 +740,51 @@ export default function ProductModal({
                           </>
                         )}
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 )}
 
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle>Product Images</CardTitle>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {imageFields.length > 0
-                            ? `${imageFields.length}/${MAX_PRODUCT_IMAGES} images uploaded`
-                            : `Upload up to ${MAX_PRODUCT_IMAGES} product images`}
-                        </p>
-                      </div>
-                      {canAddMore && (
-                        <div>
-                          <input
-                            type="file"
-                            id="multiple-image-upload"
-                            multiple
-                            accept="image/*"
-                            onChange={handleMultipleImageUpload}
-                            className="hidden"
-                            disabled={isProcessing}
-                          />
-                          <CustomButton
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              document.getElementById("multiple-image-upload")?.click()
-                            }
-                            disabled={isProcessing}
-                          >
-                            <Plus className="h-3 w-3 mr-1" />
-                            {isProcessingImages ? "Processing..." : "Upload"}
-                          </CustomButton>
-                        </div>
-                      )}
+                <div className="rounded-xl border border-border/70 bg-card p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b pb-2">
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                        Product Images
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {imageFields.length > 0
+                          ? `${imageFields.length}/${MAX_PRODUCT_IMAGES} images uploaded`
+                          : `Upload up to ${MAX_PRODUCT_IMAGES} product images`}
+                      </p>
                     </div>
-                  </CardHeader>
-                  <CardContent>
+                    {canAddMore && (
+                      <div>
+                        <input
+                          type="file"
+                          id="multiple-image-upload"
+                          multiple
+                          accept="image/*"
+                          onChange={handleMultipleImageUpload}
+                          className="hidden"
+                          disabled={isProcessing}
+                        />
+                        <CustomButton
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            document.getElementById("multiple-image-upload")?.click()
+                          }
+                          disabled={isProcessing}
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          {isProcessingImages ? "Processing..." : "Upload"}
+                        </CustomButton>
+                      </div>
+                    )}
+                  </div>
+                  <div className="pt-1">
                     {imageFields.length === 0 ? (
-                      <div className="text-center py-5 border-2 border-dashed rounded">
+                      <div className="text-center py-5 border-2 border-dashed rounded-lg">
                         <p className="text-xs text-muted-foreground">
                           No images uploaded yet
                         </p>
@@ -794,7 +793,7 @@ export default function ProductModal({
                       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                         {imageFields.map((field, index) => (
                           <div key={field.id} className="relative aspect-square group">
-                            <div className="relative w-full h-full rounded overflow-hidden border border-border/50 bg-muted">
+                            <div className="relative w-full h-full rounded-lg overflow-hidden border border-border/50 bg-muted">
                               {watch(`images.${index}.image.sm`) ? (
                                 <SmartImage
                                   src={watch(`images.${index}.image.sm`)}
@@ -820,14 +819,15 @@ export default function ProductModal({
                         ))}
                       </div>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>Product Sizes</CardTitle>
-                      <div className="flex items-center gap-1">
+                <div className="rounded-xl border border-border/70 bg-card p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b pb-2">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                      Product Sizes
+                    </h3>
+                    <div className="flex items-center gap-1">
                         {hasSizes && sizeFields.some((_, idx) => {
                           const sizePromotionType = watch(`sizes.${idx}.promotionType`);
                           return sizePromotionType && sizePromotionType !== "NONE";
@@ -871,11 +871,10 @@ export default function ProductModal({
                           Add Size
                         </CustomButton>
                       </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
+                  </div>
+                  <div className="pt-1">
                     {sizeFields.length === 0 ? (
-                      <div className="text-center py-5">
+                      <div className="text-center py-5 border-2 border-dashed rounded-lg">
                         <p className="text-xs text-muted-foreground">
                           {hasSizes
                             ? "No sizes defined."
@@ -892,10 +891,10 @@ export default function ProductModal({
                           return (
                             <div
                               key={field.id}
-                              className="border rounded p-3 space-y-3"
+                              className="border border-border/60 rounded-xl p-3 space-y-3 bg-muted/20"
                             >
                               <div className="flex items-center justify-between gap-1">
-                                <h4 className="font-semibold text-foreground">
+                                <h4 className="font-semibold text-foreground text-xs">
                                   Size {index + 1}
                                 </h4>
                                 <div className="flex items-center gap-1">
@@ -1041,33 +1040,33 @@ export default function ProductModal({
                         })}
                       </div>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>Product Customizations</CardTitle>
-                      <CustomButton
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          appendCustomization({
-                            name: "",
-                            priceAdjustment: 0,
-                          })
-                        }
-                        disabled={isProcessing}
-                      >
-                        <Plus className="h-3 w-3 mr-1" />
-                        Add Customization
-                      </CustomButton>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
+                <div className="rounded-xl border border-border/70 bg-card p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b pb-2">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                      Product Customizations
+                    </h3>
+                    <CustomButton
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        appendCustomization({
+                          name: "",
+                          priceAdjustment: 0,
+                        })
+                      }
+                      disabled={isProcessing}
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Add Customization
+                    </CustomButton>
+                  </div>
+                  <div className="pt-1">
                     {customizationFields.length === 0 ? (
-                      <div className="text-center py-5">
+                      <div className="text-center py-5 border-2 border-dashed rounded-lg">
                         <p className="text-xs text-muted-foreground">
                           No customizations defined
                         </p>
@@ -1077,10 +1076,10 @@ export default function ProductModal({
                         {customizationFields.map((field, index) => (
                           <div
                             key={field.id}
-                            className="border rounded p-3 space-y-3"
+                            className="border border-border/60 rounded-xl p-3 space-y-3 bg-muted/20"
                           >
                             <div className="flex items-center justify-between gap-1">
-                              <h4 className="font-semibold text-foreground">
+                              <h4 className="font-semibold text-foreground text-xs">
                                 Customization {index + 1}
                               </h4>
                               <CustomButton
@@ -1094,26 +1093,23 @@ export default function ProductModal({
                                 Remove
                               </CustomButton>
                             </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 auto-rows-max">
+                            <div className="grid grid-cols-2 gap-2">
                               <div>
                                 <TextField
                                   control={control}
                                   name={`customizations.${index}.name`}
-                                  label="Customization Name"
-                                  placeholder="e.g., Extra cheese, Add sauce"
+                                  label="Name"
+                                  placeholder="Enter name"
                                   required
                                   disabled={isProcessing}
-                                  error={errors.customizations?.[index]?.name as any}
+                                  error={errors.customizations?.[index]?.name}
                                 />
                               </div>
-
                               <div>
                                 <TextField
                                   control={control}
                                   name={`customizations.${index}.priceAdjustment`}
                                   label="Price Adjustment"
-                                  type="number"
                                   placeholder="Enter price adjustment"
                                   disabled={isProcessing}
                                   error={errors.customizations?.[index]?.priceAdjustment as any}
@@ -1128,8 +1124,8 @@ export default function ProductModal({
                         ))}
                       </div>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
               </div>
             </FormBody>
@@ -1144,6 +1140,7 @@ export default function ProductModal({
               updateMessage={
                 isUploadingImage ? "Uploading images..." : "Updating product..."
               }
+              className="m-0 mx-0 mb-0 md:mx-0 md:mb-0 p-4 md:p-4"
             >
               <CancelButton onClick={handleClose} disabled={isProcessing} />
               <SubmitButton
@@ -1162,7 +1159,6 @@ export default function ProductModal({
             </FormFooter>
           </form>
         )}
-      </DialogContent>
-    </Dialog>
+    </CustomModal>
   );
 }

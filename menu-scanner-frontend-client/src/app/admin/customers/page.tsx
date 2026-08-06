@@ -47,8 +47,7 @@ import {
   selectCustomersContent,
   selectSelectedCustomer,
 } from "@/features/auth/store/selectors/customers-selectors";
-import { useActionRouting } from "@/hooks/use-action-routing";
-import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
+import { useAdminTableUrlState } from "@/hooks/use-admin-table-url-state";
 
 function CustomerPageInner() {
   useAdminCleanup(resetState);
@@ -69,7 +68,11 @@ function CustomerPageInner() {
     dispatch,
   } = useCustomersState();
 
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
+
   const {
+    isHydrated,
     viewId,
     editId,
     deleteId,
@@ -81,12 +84,10 @@ function CustomerPageInner() {
     openCreate,
     openResetPassword,
     closeModal,
-  } = useActionRouting();
-
-  const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
-
-  const isHydrated = useAdminFilterUrlSync({
+    updateUrlWithPage,
+    handlePageChange,
+  } = useAdminTableUrlState({
+    baseRoute: ROUTES.ADMIN.CUSTOMERS,
     filters: {
       search: filters.search,
       accountStatus: filters.accountStatus !== AccountStatus.ALL ? filters.accountStatus : "",
@@ -99,6 +100,7 @@ function CustomerPageInner() {
       if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
       if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
     },
+    syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
   // ── Deep-link resolver ────────────────────────────────────────────────────
@@ -128,10 +130,7 @@ function CustomerPageInner() {
     }
   }, [resetPasswordId, hasResetPasswordCustomer, dispatch]);
 
-  const { updateUrlWithPage, handlePageChange } = usePagination({
-    baseRoute: "/admin/customers",
-    syncPageToRedux: (page) => dispatch(setPageNo(page)),
-  });
+
 
   useEffect(() => {
     if (!isHydrated) return;

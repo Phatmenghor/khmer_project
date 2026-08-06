@@ -54,8 +54,7 @@ import {
   selectUsersContent,
   selectSelectedUser,
 } from "@/features/auth/store/selectors/users-selectors";
-import { useActionRouting } from "@/hooks/use-action-routing";
-import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
+import { useAdminTableUrlState } from "@/hooks/use-admin-table-url-state";
 
 function UserBusinessPageInner() {
   useAdminCleanup(resetState);
@@ -75,7 +74,18 @@ function UserBusinessPageInner() {
     dispatch,
   } = useUsersState();
 
+  const router = useRouter();
+
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const debouncedSearch = useDebounce(
+    filters.search,
+    AppDefault.DEFAULT_DEBOUNCE_MS,
+  );
+
+  const rolesContent = useAppSelector(selectRolesList);
+
   const {
+    isHydrated,
     viewId,
     editId,
     deleteId,
@@ -87,19 +97,10 @@ function UserBusinessPageInner() {
     openCreate,
     openResetPassword,
     closeModal,
-  } = useActionRouting();
-
-  const router = useRouter();
-
-  const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const debouncedSearch = useDebounce(
-    filters.search,
-    AppDefault.DEFAULT_DEBOUNCE_MS,
-  );
-
-  const rolesContent = useAppSelector(selectRolesList);
-
-  const isHydrated = useAdminFilterUrlSync({
+    updateUrlWithPage,
+    handlePageChange,
+  } = useAdminTableUrlState({
+    baseRoute: ROUTES.ADMIN.USERS,
     filters: {
       search: filters.search,
       accountStatus:
@@ -118,6 +119,7 @@ function UserBusinessPageInner() {
       if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
       if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
     },
+    syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
   // ── Deep-link resolver ────────────────────────────────────────────────────
@@ -158,10 +160,7 @@ function UserBusinessPageInner() {
     })),
   ];
 
-  const { updateUrlWithPage, handlePageChange } = usePagination({
-    baseRoute: ROUTES.ADMIN.USERS,
-    syncPageToRedux: (page) => dispatch(setPageNo(page)),
-  });
+
 
   useEffect(() => {
     if (!rolesContent || rolesContent.length === 0) {

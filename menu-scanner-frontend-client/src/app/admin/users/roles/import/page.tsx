@@ -108,7 +108,7 @@ export default function RoleImportPage() {
   return (
     <GenericExcelImport<ImportRoleRow>
       title="Import Roles"
-      description="Upload a template spreadsheet to create business roles in batch"
+      description="Upload an Excel file to bulk import roles"
       backRoute="/admin/users/roles"
       entityName="roles"
       downloadTemplate={downloadRoleTemplate}

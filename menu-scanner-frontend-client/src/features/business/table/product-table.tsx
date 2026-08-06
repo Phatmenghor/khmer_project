@@ -199,24 +199,26 @@ export const productTableColumns = ({
     {
       key: "actions",
       label: "Actions",
-      minWidth: "10px",
-      maxWidth: "400px",
-      render: (brand) => (
-        <div className="flex items-center gap-1">
+      width: "110px",
+      minWidth: "110px",
+      maxWidth: "130px",
+      isPinnedRight: true,
+      render: (product) => (
+        <div className="flex items-center justify-center gap-1.5">
           <ActionButton
-            icon={<Eye className="w-3 h-3" />}
+            icon={<Eye className="w-3.5 h-3.5 text-primary" />}
             tooltip="View Details"
-            onClick={() => handleProductViewDetail(brand)}
+            onClick={() => handleProductViewDetail(product)}
           />
           <ActionButton
-            icon={<Edit className="w-3 h-3" />}
+            icon={<Edit className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />}
             tooltip="Edit Product"
-            onClick={() => handleEditProduct(brand)}
+            onClick={() => handleEditProduct(product)}
           />
           <ActionButton
-            icon={<Trash className="w-3 h-3" />}
+            icon={<Trash className="w-3.5 h-3.5" />}
             tooltip="Delete Product"
-            onClick={() => handleDeleteProduct(brand)}
+            onClick={() => handleDeleteProduct(product)}
             variant="destructive"
           />
         </div>

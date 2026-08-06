@@ -1,0 +1,21 @@
+Name,Price,Category,Brand,SKU,Barcode,Description,PromotionType,PromotionValue
+Iced Latte,2.50,Beverages,House Special,SKU-DRK-001,885000000001,Rich espresso with fresh milk and ice,NONE,0.00
+Iced Americano,2.00,Beverages,House Special,SKU-DRK-002,885000000002,Double shot espresso with cold water and ice,NONE,0.00
+Hot Cappuccino,2.25,Beverages,House Special,SKU-DRK-003,885000000003,Espresso topped with thick milk foam,PERCENTAGE,10.00
+Matcha Green Tea Latte,3.00,Beverages,House Special,SKU-DRK-004,885000000004,Premium Japanese matcha with steamed milk,NONE,0.00
+Iced Milk Coffee,1.75,Beverages,House Special,SKU-DRK-005,885000000005,Traditional Khmer iced coffee with condensed milk,NONE,0.00
+Passion Fruit Milk Foam,2.75,Beverages,House Special,SKU-DRK-006,885000000006,Fresh passion fruit juice topped with salted cream,FIXED,0.50
+Brown Sugar Milk Tea,3.25,Beverages,House Special,SKU-DRK-007,885000000007,Black tea with tapioca pearls and brown sugar,NONE,0.00
+Avocado Smoothie,3.50,Beverages,House Special,SKU-DRK-008,885000000008,Fresh blended avocado with sweet condensed milk,NONE,0.00
+Khmer Beef Lok Lak,6.50,Main Course,Khmer Kitchen,SKU-FOOD-001,885000000101,Stir-fried marinated beef served with lime pepper sauce,NONE,0.00
+Fish Amok,5.50,Main Course,Khmer Kitchen,SKU-FOOD-002,885000000102,Traditional Khmer steamed curry fish in banana leaf,PERCENTAGE,15.00
+Kuy Teav Phnom Penh,3.50,Main Course,Khmer Kitchen,SKU-FOOD-003,885000000103,Cambodian rice noodle soup with pork and seafood,NONE,0.00
+Grilled Pork Rice,2.50,Main Course,Khmer Kitchen,SKU-FOOD-004,885000000104,Marinated grilled pork over warm rice with pickled veggies,NONE,0.00
+Chicken Fried Rice,3.75,Main Course,Khmer Kitchen,SKU-FOOD-005,885000000105,Wok-fried jasmine rice with tender chicken and veggies,NONE,0.00
+Seafood Tom Yum Soup,5.75,Main Course,Thai Fusion,SKU-FOOD-006,885000000106,Spicy and sour Thai soup loaded with prawns and squid,NONE,0.00
+Crispy Spring Rolls,3.00,Appetizers,House Special,SKU-APP-001,885000000201,Handmade fried spring rolls filled with pork and veggies,NONE,0.00
+Fresh Summer Rolls,3.50,Appetizers,House Special,SKU-APP-002,885000000202,Rice paper rolls with shrimp, pork, and herbs,NONE,0.00
+French Fries,2.00,Appetizers,House Special,SKU-APP-003,885000000203,Crispy golden fries served with ketchup and mayo,NONE,0.00
+Chicken Wings BBQ,4.50,Appetizers,House Special,SKU-APP-004,885000000204,Deep fried chicken wings tossed in tangy BBQ sauce,PERCENTAGE,10.00
+Club Sandwich,4.00,Snacks,Bakery House,SKU-SNK-001,885000000301,Triple decker sandwich with chicken, bacon, and tomato,NONE,0.00
+Beef Burger Supreme,5.00,Snacks,Bakery House,SKU-SNK-002,885000000302,Grilled beef patty with cheddar cheese and special sauce,FIXED,1.00

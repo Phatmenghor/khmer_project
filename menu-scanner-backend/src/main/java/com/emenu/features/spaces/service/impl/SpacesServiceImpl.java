@@ -41,6 +41,11 @@ public class SpacesServiceImpl implements SpacesService {
             SpacesMultiUploadResponse response = restTemplate.postForObject(url, entity, SpacesMultiUploadResponse.class);
             log.info("Proxy upload succeeded: path=[{}], key=[{}]", path, response != null ? response.getKey() : null);
             return response;
+        } catch (org.springframework.web.client.RestClientResponseException rce) {
+            String body = rce.getResponseBodyAsString();
+            String msg = body != null && !body.isBlank() ? body : rce.getMessage();
+            log.error("Proxy upload failed: path=[{}], status=[{}], error=[{}]", path, rce.getStatusCode(), msg);
+            throw new RuntimeException("Storage service error (" + rce.getStatusCode() + "): " + msg, rce);
         } catch (Exception e) {
             log.error("Proxy upload failed: path=[{}], error=[{}]", path, e.getMessage());
             throw new RuntimeException("Storage service error: " + e.getMessage(), e);

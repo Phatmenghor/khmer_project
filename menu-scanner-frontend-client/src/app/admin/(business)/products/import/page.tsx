@@ -22,7 +22,6 @@ import { CategoriesResponseModel } from "@/features/master-data/store/models/res
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import {
   PROMOTION_TYPE_CREATE_UPDATE,
-  PRODUCT_STOCK_STATUS_CREATE_UPDATE,
 } from "@/constants/status/create-update-status";
 import { CustomDateTimePicker } from "@/components/shared/common/custom-date-picker";
 import { CustomSelect } from "@/components/shared/common/custom-select";
@@ -33,7 +32,8 @@ interface ImportProductRow extends BaseImportRow {
   price: string;
   categoryObj: CategoriesResponseModel | null;
   brandObj: BrandResponseModel | null;
-  stockStatus: string;
+  sku: string;
+  barcode: string;
   description: string;
   promotionType: string;
   promotionValue: string;
@@ -56,7 +56,7 @@ export default function ProductImportPage() {
   const [existingBrands, setExistingBrands] = useState<BrandResponseModel[]>([]);
 
   useEffect(() => {
-    dispatch(fetchAllCategoriesService({ pageNo: 1, pageSize: 1000, search: "" }))
+    dispatch(fetchAllCategoriesService({ pageNo: 1, pageSize: 100, search: "" }))
       .unwrap()
       .then((res: any) => {
         const list = res?.content || res?.data || (Array.isArray(res) ? res : []);
@@ -64,7 +64,7 @@ export default function ProductImportPage() {
       })
       .catch((err) => console.error("Failed to pre-fetch categories for import", err));
 
-    dispatch(fetchAllBrandService({ pageNo: 1, pageSize: 1000, search: "" }))
+    dispatch(fetchAllBrandService({ pageNo: 1, pageSize: 100, search: "" }))
       .unwrap()
       .then((res: any) => {
         const list = res?.content || res?.data || (Array.isArray(res) ? res : []);
@@ -81,7 +81,7 @@ export default function ProductImportPage() {
 
     if (catList.length === 0) {
       try {
-        const res: any = await dispatch(fetchAllCategoriesService({ pageNo: 1, pageSize: 1000, search: "" })).unwrap();
+        const res: any = await dispatch(fetchAllCategoriesService({ pageNo: 1, pageSize: 100, search: "" })).unwrap();
         catList = res?.content || res?.data || (Array.isArray(res) ? res : []);
         setExistingCategories(catList);
       } catch (e) {}
@@ -89,7 +89,7 @@ export default function ProductImportPage() {
 
     if (brandList.length === 0) {
       try {
-        const res: any = await dispatch(fetchAllBrandService({ pageNo: 1, pageSize: 1000, search: "" })).unwrap();
+        const res: any = await dispatch(fetchAllBrandService({ pageNo: 1, pageSize: 100, search: "" })).unwrap();
         brandList = res?.content || res?.data || (Array.isArray(res) ? res : []);
         setExistingBrands(brandList);
       } catch (e) {}
@@ -107,7 +107,8 @@ export default function ProductImportPage() {
       const price = get(["price"]);
       const categoryName = get(["category name", "category"]);
       const brandName = get(["brand name", "brand"]);
-      const stockStatus = get(["stock status", "stockstatus", "status"]);
+      const sku = get(["sku", "product sku"]);
+      const barcode = get(["barcode", "bar code"]);
       const description = get(["description"]);
       const promotionType = get(["promotion type"]);
       const promotionValue = get(["promotion value"]);
@@ -129,7 +130,8 @@ export default function ProductImportPage() {
         price,
         categoryObj: matchedCat,
         brandObj: matchedBrand,
-        stockStatus: stockStatus || "ENABLED",
+        sku,
+        barcode,
         description,
         promotionType: promotionType || "NONE",
         promotionValue,
@@ -148,12 +150,21 @@ export default function ProductImportPage() {
     const isNameValid = !!row.name;
     const isPriceValid = !!row.price && !isNaN(Number(row.price));
     const isCategoryValid = Boolean(row.categoryObj?.id || row.categoryObj?.name);
-    const isValid = isNameValid && isPriceValid && isCategoryValid;
+
+    const hasPromotion = Boolean(row.promotionType && row.promotionType !== "NONE");
+    const isPromoValValid = !hasPromotion || (Boolean(row.promotionValue) && !isNaN(Number(row.promotionValue)) && Number(row.promotionValue) > 0);
+    const isPromoFromValid = !hasPromotion || Boolean(row.promotionFromDate);
+    const isPromoToValid = !hasPromotion || Boolean(row.promotionToDate);
+
+    const isValid = isNameValid && isPriceValid && isCategoryValid && isPromoValValid && isPromoFromValid && isPromoToValid;
 
     let error: string | undefined;
     if (!isNameValid) error = "Product Name is required.";
     else if (!isPriceValid) error = "Price must be a valid number.";
     else if (!isCategoryValid) error = "Category is required.";
+    else if (!isPromoValValid) error = "Promotion Value is required when promotion is enabled.";
+    else if (!isPromoFromValid) error = "Promotion From Date is required when promotion is enabled.";
+    else if (!isPromoToValid) error = "Promotion To Date is required when promotion is enabled.";
 
     return {
       isValid,
@@ -162,6 +173,9 @@ export default function ProductImportPage() {
         __nameError: !isNameValid,
         __priceError: !isPriceValid,
         __categoryError: !isCategoryValid,
+        __promotionValueError: !isPromoValValid,
+        __promotionFromDateError: !isPromoFromValid,
+        __promotionToDateError: !isPromoToValid,
       },
     };
   };
@@ -181,18 +195,46 @@ export default function ProductImportPage() {
     };
   };
 
-  const onImportBatch = async (rowsToProcess: ImportProductRow[], importId?: string) => {
+  const formatIsoDate = (val?: string, isEnd = false) => {
+    if (!val) return undefined;
+    if (val.includes("T")) return val;
+    return isEnd ? `${val}T23:59:59` : `${val}T00:00:00`;
+  };
+
+  const onImportBatch = async (
+    rowsToProcess: ImportProductRow[],
+    importId?: string,
+    onProgress?: (stepText: string, percent: number) => void
+  ) => {
+    // Count total images to upload
+    let totalImages = 0;
+    rowsToProcess.forEach((r) => {
+      if (r.__mainImageFile) totalImages++;
+      if (r.__coverImageFiles?.length) totalImages += r.__coverImageFiles.length;
+    });
+
+    let uploadedCount = 0;
     const payloads = [];
-    for (const row of rowsToProcess) {
+
+    for (let i = 0; i < rowsToProcess.length; i++) {
+      const row = rowsToProcess[i];
       const imagesPayload: any[] = [];
       let displayOrderCounter = 1;
+      let mainImgUrls: any = undefined;
 
       // 1. Upload Main Image (isPrimary: true)
       if (row.__mainImageFile) {
+        uploadedCount++;
+        if (onProgress && totalImages > 0) {
+          const pct = Math.round((uploadedCount / totalImages) * 45);
+          onProgress(`Uploading image ${uploadedCount}/${totalImages} (${row.name})...`, pct);
+        }
         try {
           const result = await uploadMultiSize(row.__mainImageFile, AppDefault.BUSINESS_ID);
+          mainImgUrls = { sm: result.sm.url, md: result.md.url, o: result.o.url };
           imagesPayload.push({
-            imageUrl: { sm: result.sm.url, md: result.md.url, o: result.o.url },
+            image: mainImgUrls,
+            imageUrl: mainImgUrls,
             isPrimary: true,
             displayOrder: displayOrderCounter++,
           });
@@ -204,11 +246,21 @@ export default function ProductImportPage() {
       // 2. Upload Cover/Gallery Images (isPrimary: false)
       const coverFiles = row.__coverImageFiles || [];
       for (const coverFile of coverFiles) {
+        uploadedCount++;
+        if (onProgress && totalImages > 0) {
+          const pct = Math.round((uploadedCount / totalImages) * 45);
+          onProgress(`Uploading image ${uploadedCount}/${totalImages} (${row.name})...`, pct);
+        }
         try {
           const result = await uploadMultiSize(coverFile, AppDefault.BUSINESS_ID);
+          const imgUrls = { sm: result.sm.url, md: result.md.url, o: result.o.url };
+          if (!mainImgUrls) {
+            mainImgUrls = imgUrls;
+          }
           imagesPayload.push({
-            imageUrl: { sm: result.sm.url, md: result.md.url, o: result.o.url },
-            isPrimary: imagesPayload.length === 0, // Fallback to primary if main image was omitted
+            image: imgUrls,
+            imageUrl: imgUrls,
+            isPrimary: imagesPayload.length === 0,
             displayOrder: displayOrderCounter++,
           });
         } catch (uploadErr) {
@@ -223,15 +275,21 @@ export default function ProductImportPage() {
         price: Number(row.price) || 0,
         categoryId: row.categoryObj?.id || undefined,
         brandId: row.brandObj?.id || undefined,
-        stockStatus: row.stockStatus || "ENABLED",
+        sku: row.sku || undefined,
+        barcode: row.barcode || undefined,
         description: row.description || undefined,
         hasSizes: false,
+        mainImage: mainImgUrls,
         images: imagesPayload,
         promotionType: hasPromotion ? row.promotionType : undefined,
         promotionValue: hasPromotion && row.promotionValue ? Number(row.promotionValue) : undefined,
-        promotionFromDate: hasPromotion && row.promotionFromDate ? row.promotionFromDate : undefined,
-        promotionToDate: hasPromotion && row.promotionToDate ? row.promotionToDate : undefined,
+        promotionFromDate: hasPromotion ? formatIsoDate(row.promotionFromDate) : undefined,
+        promotionToDate: hasPromotion ? formatIsoDate(row.promotionToDate, true) : undefined,
       });
+    }
+
+    if (onProgress) {
+      onProgress(`Creating products on server...`, totalImages > 0 ? 50 : 10);
     }
 
     return await dispatch(importProductsBatchService({ requests: payloads, importId })).unwrap();
@@ -346,21 +404,34 @@ export default function ProductImportPage() {
       ),
     },
     {
-      key: "stockStatus",
-      label: "Stock",
+      key: "sku",
+      label: "SKU",
       type: "custom",
-      fieldKey: "stockStatus",
-      width: "130px",
+      fieldKey: "sku",
+      width: "140px",
       minWidth: "110px",
       renderCustom: (row, rowIdx, isDisabled, onChange) => (
-        <CustomSelect
-          size="md"
-          options={PRODUCT_STOCK_STATUS_CREATE_UPDATE}
-          value={row.stockStatus || "ENABLED"}
-          placeholder="Stock"
-          onValueChange={(val) => onChange(val)}
+        <CustomInputCell
+          value={row.sku}
+          onChange={onChange}
           disabled={isDisabled}
-          className="h-8 text-xs"
+          placeholder="SKU"
+        />
+      ),
+    },
+    {
+      key: "barcode",
+      label: "Barcode",
+      type: "custom",
+      fieldKey: "barcode",
+      width: "140px",
+      minWidth: "110px",
+      renderCustom: (row, rowIdx, isDisabled, onChange) => (
+        <CustomInputCell
+          value={row.barcode}
+          onChange={onChange}
+          disabled={isDisabled}
+          placeholder="Barcode"
         />
       ),
     },
@@ -441,6 +512,7 @@ export default function ProductImportPage() {
             disabled={isDisabled}
             mode="date"
             placeholder="Start date"
+            error={Boolean(row.__promotionFromDateError)}
           />
         );
       },
@@ -464,6 +536,7 @@ export default function ProductImportPage() {
             disabled={isDisabled}
             mode="date"
             placeholder="End date"
+            error={Boolean(row.__promotionToDateError)}
           />
         );
       },
@@ -472,8 +545,8 @@ export default function ProductImportPage() {
 
   return (
     <GenericExcelImport<ImportProductRow>
-      title="Import Products (No Sizes)"
-      description="Upload an Excel spreadsheet to bulk create standard products with Categories, Brands, Main & Cover Gallery Images, Stock Status & Promotions"
+      title="Import Products"
+      description="Upload an Excel file to bulk import products"
       backRoute={ROUTES.ADMIN.PRODUCTS}
       entityName="products"
       downloadTemplate={downloadProductTemplate}

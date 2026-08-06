@@ -43,7 +43,9 @@ import com.emenu.security.SecurityUtils;
 import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.shared.dto.BatchImportResponse;
 import com.emenu.shared.dto.PaginationResponse;
-import com.emenu.shared.service.RequestCancellationRegistry;
+import com.emenu.shared.cancellation.RequestCancellationRegistry;
+import com.emenu.shared.mapper.PaginationMapper;
+import com.emenu.shared.pagination.PaginationUtils;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -887,6 +889,19 @@ public class ProductServiceImpl implements ProductService {
 
         if (!images.isEmpty()) {
             productImageRepository.saveAll(images);
+
+            if (product.getMainImage() == null || product.getMainImage().getMd() == null) {
+                ProductImageCreateDto primaryDto = imageDtos.stream()
+                        .filter(dto -> dto.getImage() != null)
+                        .filter(dto -> Boolean.TRUE.equals(dto.getIsPrimary()))
+                        .findFirst()
+                        .orElseGet(() -> imageDtos.stream().filter(dto -> dto.getImage() != null).findFirst().orElse(null));
+
+                if (primaryDto != null) {
+                    product.setMainImage(primaryDto.getImage());
+                    productRepository.save(product);
+                }
+            }
         }
     }
 

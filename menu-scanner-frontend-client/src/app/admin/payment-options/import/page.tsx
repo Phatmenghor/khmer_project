@@ -181,7 +181,7 @@ export default function PaymentOptionImportPage() {
   return (
     <GenericExcelImport<ImportPaymentOptionRow>
       title="Import Payment Options"
-      description="Upload a template spreadsheet to create payment options in batch"
+      description="Upload an Excel file to bulk import payment options"
       backRoute={ROUTES.ADMIN.PAYMENT_OPTIONS}
       entityName="payment options"
       downloadTemplate={downloadPaymentOptionTemplate}

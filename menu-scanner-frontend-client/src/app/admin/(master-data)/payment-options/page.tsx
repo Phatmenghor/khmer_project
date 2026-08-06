@@ -40,8 +40,7 @@ import {
   selectPaymentOptionsContent,
   selectSelectedPaymentOption,
 } from "@/features/master-data/store/selectors/payment-options-selectors";
-import { useActionRouting } from "@/hooks/use-action-routing";
-import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
+import { useAdminTableUrlState } from "@/hooks/use-admin-table-url-state";
 
 function PaymentOptionsPageInner() {
   useAdminCleanup(resetState);
@@ -59,7 +58,11 @@ function PaymentOptionsPageInner() {
     dispatch,
   } = usePaymentOptionsState();
 
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
+
   const {
+    isHydrated,
     viewId,
     editId,
     deleteId,
@@ -69,12 +72,10 @@ function PaymentOptionsPageInner() {
     openDelete,
     openCreate,
     closeModal,
-  } = useActionRouting();
-
-  const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
-
-  const isHydrated = useAdminFilterUrlSync({
+    updateUrlWithPage,
+    handlePageChange,
+  } = useAdminTableUrlState({
+    baseRoute: ROUTES.ADMIN.PAYMENT_OPTIONS,
     filters: {
       search: filters.search,
       status: filters.status !== Status.ALL ? filters.status : "",
@@ -87,10 +88,6 @@ function PaymentOptionsPageInner() {
       if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
       if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
     },
-  });
-
-  const { updateUrlWithPage, handlePageChange } = usePagination({
-    baseRoute: ROUTES.ADMIN.PAYMENT_OPTIONS,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 

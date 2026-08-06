@@ -1,0 +1,95 @@
+name: khmer-platform
+
+services:
+  # =========================================================================
+  # 1. PostgreSQL Database Service
+  # =========================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: khmer-postgres
+    restart: always
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Hour1819}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      - khmer-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # =========================================================================
+  # 2. pgAdmin (PostgreSQL Web Management UI)
+  # =========================================================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: khmer-pgadmin
+    restart: always
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - khmer-network
+
+  # =========================================================================
+  # 3. Resource Storage Service
+  # =========================================================================
+  resource-storage-service:
+    build:
+      context: ../resource-storage-service
+      dockerfile: Dockerfile
+    image: resource-storage-service:latest
+    container_name: khmer-resource-storage-service
+    restart: always
+    ports:
+      - "${RESOURCE_STORAGE_PORT:-7072}:7072"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-local}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: resource_storage_service
+      DB_USERNAME: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-Hour1819}
+      STORE_ON_DATABASE: ${STORE_ON_DATABASE:-true}
+      LOCAL_BASE_URL: ${LOCAL_BASE_URL:-http://localhost:7072}
+      SERVER_PORT: 7072
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - khmer-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:7072/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 45s
+      retries: 5
+
+networks:
+  khmer-network:
+    driver: bridge
+    name: khmer-network
+
+volumes:
+  postgres_data:
+    name: khmer_postgres_data
+  pgadmin_data:
+    name: khmer_pgadmin_data

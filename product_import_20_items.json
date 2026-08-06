@@ -1,0 +1,222 @@
+[
+  {
+    "name": "Iced Latte",
+    "price": 2.50,
+    "category": "Beverages",
+    "brand": "House Special",
+    "sku": "SKU-DRK-001",
+    "barcode": "885000000001",
+    "description": "Rich espresso with fresh milk and ice",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Iced Americano",
+    "price": 2.00,
+    "category": "Beverages",
+    "brand": "House Special",
+    "sku": "SKU-DRK-002",
+    "barcode": "885000000002",
+    "description": "Double shot espresso with cold water and ice",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Hot Cappuccino",
+    "price": 2.25,
+    "category": "Beverages",
+    "brand": "House Special",
+    "sku": "SKU-DRK-003",
+    "barcode": "885000000003",
+    "description": "Espresso topped with thick milk foam",
+    "promotionType": "PERCENTAGE",
+    "promotionValue": 10.00
+  },
+  {
+    "name": "Matcha Green Tea Latte",
+    "price": 3.00,
+    "category": "Beverages",
+    "brand": "House Special",
+    "sku": "SKU-DRK-004",
+    "barcode": "885000000004",
+    "description": "Premium Japanese matcha with steamed milk",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Iced Milk Coffee",
+    "price": 1.75,
+    "category": "Beverages",
+    "brand": "House Special",
+    "sku": "SKU-DRK-005",
+    "barcode": "885000000005",
+    "description": "Traditional Khmer iced coffee with condensed milk",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Passion Fruit Milk Foam",
+    "price": 2.75,
+    "category": "Beverages",
+    "brand": "House Special",
+    "sku": "SKU-DRK-006",
+    "barcode": "885000000006",
+    "description": "Fresh passion fruit juice topped with salted cream",
+    "promotionType": "FIXED",
+    "promotionValue": 0.50
+  },
+  {
+    "name": "Brown Sugar Milk Tea",
+    "price": 3.25,
+    "category": "Beverages",
+    "brand": "House Special",
+    "sku": "SKU-DRK-007",
+    "barcode": "885000000007",
+    "description": "Black tea with tapioca pearls and brown sugar",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Avocado Smoothie",
+    "price": 3.50,
+    "category": "Beverages",
+    "brand": "House Special",
+    "sku": "SKU-DRK-008",
+    "barcode": "885000000008",
+    "description": "Fresh blended avocado with sweet condensed milk",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Khmer Beef Lok Lak",
+    "price": 6.50,
+    "category": "Main Course",
+    "brand": "Khmer Kitchen",
+    "sku": "SKU-FOOD-001",
+    "barcode": "885000000101",
+    "description": "Stir-fried marinated beef served with lime pepper sauce",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Fish Amok",
+    "price": 5.50,
+    "category": "Main Course",
+    "brand": "Khmer Kitchen",
+    "sku": "SKU-FOOD-002",
+    "barcode": "885000000102",
+    "description": "Traditional Khmer steamed curry fish in banana leaf",
+    "promotionType": "PERCENTAGE",
+    "promotionValue": 15.00
+  },
+  {
+    "name": "Kuy Teav Phnom Penh",
+    "price": 3.50,
+    "category": "Main Course",
+    "brand": "Khmer Kitchen",
+    "sku": "SKU-FOOD-003",
+    "barcode": "885000000103",
+    "description": "Cambodian rice noodle soup with pork and seafood",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Grilled Pork Rice",
+    "price": 2.50,
+    "category": "Main Course",
+    "brand": "Khmer Kitchen",
+    "sku": "SKU-FOOD-004",
+    "barcode": "885000000104",
+    "description": "Marinated grilled pork over warm rice with pickled veggies",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Chicken Fried Rice",
+    "price": 3.75,
+    "category": "Main Course",
+    "brand": "Khmer Kitchen",
+    "sku": "SKU-FOOD-005",
+    "barcode": "885000000105",
+    "description": "Wok-fried jasmine rice with tender chicken and veggies",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Seafood Tom Yum Soup",
+    "price": 5.75,
+    "category": "Main Course",
+    "brand": "Thai Fusion",
+    "sku": "SKU-FOOD-006",
+    "barcode": "885000000106",
+    "description": "Spicy and sour Thai soup loaded with prawns and squid",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Crispy Spring Rolls",
+    "price": 3.00,
+    "category": "Appetizers",
+    "brand": "House Special",
+    "sku": "SKU-APP-001",
+    "barcode": "885000000201",
+    "description": "Handmade fried spring rolls filled with pork and veggies",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Fresh Summer Rolls",
+    "price": 3.50,
+    "category": "Appetizers",
+    "brand": "House Special",
+    "sku": "SKU-APP-002",
+    "barcode": "885000000202",
+    "description": "Rice paper rolls with shrimp, pork, and herbs",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "French Fries",
+    "price": 2.00,
+    "category": "Appetizers",
+    "brand": "House Special",
+    "sku": "SKU-APP-003",
+    "barcode": "885000000203",
+    "description": "Crispy golden fries served with ketchup and mayo",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Chicken Wings BBQ",
+    "price": 4.50,
+    "category": "Appetizers",
+    "brand": "House Special",
+    "sku": "SKU-APP-004",
+    "barcode": "885000000204",
+    "description": "Deep fried chicken wings tossed in tangy BBQ sauce",
+    "promotionType": "PERCENTAGE",
+    "promotionValue": 10.00
+  },
+  {
+    "name": "Club Sandwich",
+    "price": 4.00,
+    "category": "Snacks",
+    "brand": "Bakery House",
+    "sku": "SKU-SNK-001",
+    "barcode": "885000000301",
+    "description": "Triple decker sandwich with chicken, bacon, and tomato",
+    "promotionType": "NONE",
+    "promotionValue": 0.00
+  },
+  {
+    "name": "Beef Burger Supreme",
+    "price": 5.00,
+    "category": "Snacks",
+    "brand": "Bakery House",
+    "sku": "SKU-SNK-002",
+    "barcode": "885000000302",
+    "description": "Grilled beef patty with cheddar cheese and special sauce",
+    "promotionType": "FIXED",
+    "promotionValue": 1.00
+  }
+]

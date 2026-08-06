@@ -1,0 +1,31 @@
+Name,Description,Category,Brand,Price,SKU,Barcode,PromotionType,PromotionValue
+Iced Latte,Rich espresso with fresh milk and ice,Beverages,House Special,2.50,SKU-DRK-001,885000000001,NONE,0.00
+Iced Americano,Double shot espresso with cold water and ice,Beverages,House Special,2.00,SKU-DRK-002,885000000002,NONE,0.00
+Hot Cappuccino,Espresso topped with thick milk foam,Beverages,House Special,2.25,SKU-DRK-003,885000000003,PERCENTAGE,10.00
+Matcha Green Tea Latte,Premium Japanese matcha with steamed milk,Beverages,House Special,3.00,SKU-DRK-004,885000000004,NONE,0.00
+Iced Milk Coffee (Cafe Boran),Traditional Khmer iced coffee with condensed milk,Beverages,House Special,1.75,SKU-DRK-005,885000000005,NONE,0.00
+Passion Fruit Milk Foam,Fresh passion fruit juice topped with salted milk cream,Beverages,House Special,2.75,SKU-DRK-006,885000000006,FIXED,0.50
+Brown Sugar Milk Tea,Black tea with tapioca pearls and brown sugar syrup,Beverages,House Special,3.25,SKU-DRK-007,885000000007,NONE,0.00
+Avocado Smoothie,Fresh blended avocado with sweet condensed milk,Beverages,House Special,3.50,SKU-DRK-008,885000000008,NONE,0.00
+Khmer Beef Lok Lak,Stir-fried marinated beef served with lime pepper sauce and rice,Main Course,Khmer Kitchen,6.50,SKU-FOOD-001,885000000101,NONE,0.00
+Fish Amok,Traditional Khmer steamed curry fish in banana leaf,Main Course,Khmer Kitchen,5.50,SKU-FOOD-002,885000000102,PERCENTAGE,15.00
+Kuy Teav Phnom Penh,Cambodian rice noodle soup with pork and seafood,Main Course,Khmer Kitchen,3.50,SKU-FOOD-003,885000000103,NONE,0.00
+Grilled Pork Rice (Bai Sach Chrouk),Marinated grilled pork over warm rice with pickled veggies,Main Course,Khmer Kitchen,2.50,SKU-FOOD-004,885000000104,NONE,0.00
+Chicken Fried Rice,Wok-fried jasmine rice with tender chicken and veggies,Main Course,Khmer Kitchen,3.75,SKU-FOOD-005,885000000105,NONE,0.00
+Seafood Tom Yum Soup,Spicy and sour Thai soup loaded with fresh prawns and squid,Main Course,Thai Fusion,5.75,SKU-FOOD-006,885000000106,NONE,0.00
+Crispy Spring Rolls,Handmade fried spring rolls filled with pork and vegetables,Appetizers,House Special,3.00,SKU-APP-001,885000000201,NONE,0.00
+Fresh Summer Rolls,Rice paper rolls with shrimp, pork, rice vermicelli and herbs,Appetizers,House Special,3.50,SKU-APP-002,885000000202,NONE,0.00
+French Fries,Crispy golden fries served with ketchup and mayo,Appetizers,House Special,2.00,SKU-APP-003,885000000203,NONE,0.00
+Chicken Wings BBQ,Deep fried chicken wings tossed in tangy BBQ sauce,Appetizers,House Special,4.50,SKU-APP-004,885000000204,PERCENTAGE,10.00
+Club Sandwich,Triple decker sandwich with chicken, bacon, lettuce and tomato,Snacks,Bakery House,4.00,SKU-SNK-001,885000000301,NONE,0.00
+Beef Burger Supreme,Grilled beef patty with cheddar cheese, bacon and special sauce,Snacks,Bakery House,5.00,SKU-SNK-002,885000000302,FIXED,1.00
+Ham and Cheese Croissant,Flaky buttery croissant stuffed with smoked ham and melted cheese,Bakery,Bakery House,2.75,SKU-BAK-001,885000000401,NONE,0.00
+Chocolate Lava Cake,Warm chocolate cake with molten chocolate center,Desserts,Bakery House,3.50,SKU-DES-001,885000000501,NONE,0.00
+Mango Sticky Rice,Fresh sweet mango served with warm coconut sticky rice,Desserts,Khmer Kitchen,3.00,SKU-DES-002,885000000502,NONE,0.00
+Tiramisu Cake Slice,Classic Italian coffee-flavoured dessert,Desserts,Bakery House,3.75,SKU-DES-003,885000000503,NONE,0.00
+New York Cheesecake,Rich and creamy cheesecake with berry compote,Desserts,Bakery House,4.00,SKU-DES-004,885000000504,PERCENTAGE,5.00
+Iced Lemon Black Tea,Refreshing black tea infused with fresh lemon juice,Beverages,House Special,2.00,SKU-DRK-009,885000000009,NONE,0.00
+Mocha Frappuccino,Blended coffee with dark chocolate syrup and whipped cream,Beverages,House Special,3.75,SKU-DRK-010,885000000010,NONE,0.00
+Shrimp Pad Thai,Stir-fried rice noodles with shrimp, tofu, peanuts and bean sprouts,Main Course,Thai Fusion,4.75,SKU-FOOD-007,885000000107,NONE,0.00
+Garlic Bread,Toasted baguette slices with garlic butter and parsley,Appetizers,Bakery House,2.25,SKU-APP-005,885000000205,NONE,0.00
+Coconut Ice Cream,Homemade fresh coconut ice cream served in coconut shell,Desserts,Khmer Kitchen,2.50,SKU-DES-005,885000000505,NONE,0.00

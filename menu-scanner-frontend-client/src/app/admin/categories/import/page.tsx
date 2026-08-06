@@ -130,7 +130,7 @@ export default function CategoryImportPage() {
   return (
     <GenericExcelImport<ImportCategoryRow>
       title="Import Categories"
-      description="Upload a template spreadsheet to create item categories in batch"
+      description="Upload an Excel file to bulk import categories"
       backRoute={ROUTES.ADMIN.CATEGORIES}
       entityName="categories"
       downloadTemplate={downloadCategoryTemplate}

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,9 +27,11 @@ public class BulkPromotionCreateDto {
     private BigDecimal promotionValue;
 
     @NotNull(message = "Promotion from date is required")
+    @JsonFormat(pattern = "yyyy-MM-dd['T'HH:mm[:ss]]")
     private LocalDateTime promotionFromDate;
 
     @NotNull(message = "Promotion to date is required")
+    @JsonFormat(pattern = "yyyy-MM-dd['T'HH:mm[:ss]]")
     private LocalDateTime promotionToDate;
 
     // Optional: Map of productId -> List of sizeIds for per-size promotions

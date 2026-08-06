@@ -10,13 +10,13 @@ import {
 import { fetchProductByIdService } from "../store/thunks/product-thunks";
 import { clearSelectedProduct } from "../store/slice/product-slice";
 import { formatCurrency } from "@/utils/common/currency-format";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Loading } from "@/components/shared/common/loading";
+import { DetailModal } from "@/components/shared/modal/detail-modal";
 import { cn } from "@/lib/utils";
 import { Package, Eye, Heart, Box } from "lucide-react";
 import { SmartImage } from "@/components/shared/image/smart-image";
 
 import { SectionTitle, InfoRow } from "@/components/shared/modal/detail-section";
+import { CancelButton } from "@/components/shared/button/custom-button";
 
 interface ProductDetailModalProps {
   productId?: string;
@@ -43,29 +43,19 @@ export function ProductDetailModal({
     onClose();
   };
 
-  if (isFetchingDetail) {
-    return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogTitle className="sr-only">Product Details Loading</DialogTitle>
-        <DialogContent className="w-full sm:max-w-5xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-center h-64">
-            <Loading />
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   if (!productData) {
     return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogTitle className="sr-only">Product Details</DialogTitle>
-        <DialogContent className="w-full sm:max-w-5xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-center h-64">
-            <p className="text-sm text-muted-foreground">No product data available</p>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <DetailModal
+        isOpen={isOpen}
+        onClose={handleClose}
+        isLoading={isFetchingDetail}
+        isEmpty={!isFetchingDetail}
+        emptyMessage="No product data available"
+        title="Product Details"
+        size="5xl"
+      >
+        <div />
+      </DetailModal>
     );
   }
 
@@ -81,35 +71,18 @@ export function ProductDetailModal({
     : null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogTitle className="sr-only">
-        Product Details - {productData.name}
-      </DialogTitle>
-
-      <DialogContent className="w-full sm:max-w-5xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
-
-        {/* ── Header ── */}
-        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
-          <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
-            {(productData.mainImage?.md || productData.mainImage?.sm) ? (
-              <SmartImage
-                src={productData.mainImage?.md || productData.mainImage?.sm}
-                alt={productData.name || "Product"}
-                fill
-                showSkeleton={false}
-              />
-            ) : (
-              <Package className="h-5 w-5 text-muted-foreground" />
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-foreground">Product</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Manage products for your business</p>
-          </div>
-        </div>
-
-        {/* ── Body ── */}
-        <div className="flex-1 overflow-y-auto">
+    <DetailModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      isLoading={isFetchingDetail}
+      isEmpty={false}
+      title={productData.name || "Product Details"}
+      description="Manage products for your business"
+      avatarUrl={productData.mainImage?.md || productData.mainImage?.sm}
+      avatarName={productData.name || "Product"}
+      size="5xl"
+    >
+      <div className="flex-1 overflow-y-auto">
           <div className="p-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
 
             {/* ── Left column ── */}
@@ -437,7 +410,6 @@ export function ProductDetailModal({
             </div>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+    </DetailModal>
   );
 }

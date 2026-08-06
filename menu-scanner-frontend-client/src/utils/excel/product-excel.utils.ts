@@ -13,7 +13,8 @@ export const PRODUCT_TEMPLATE_COLUMNS = [
   { key: "price",              label: "Price ($) *",        required: true },
   { key: "category",           label: "Category Name *",     required: true },
   { key: "brand",              label: "Brand Name",          required: false },
-  { key: "stockStatus",        label: "Stock Status",        required: false },
+  { key: "sku",                label: "SKU",                 required: false },
+  { key: "barcode",            label: "Barcode",             required: false },
   { key: "description",        label: "Description",         required: false },
   { key: "promotionType",      label: "Promotion Type",      required: false },
   { key: "promotionValue",     label: "Promotion Value",     required: false },
@@ -72,26 +73,27 @@ function buildInstructionSheet(wb: XLSX.WorkBook) {
   data[5] = ["Price ($) *", "YES", "Numeric (e.g., 2.50, 15.00)", "Base unit price of the product."];
   data[6] = ["Category Name *", "YES", "Existing Category Name", "Associated category name (e.g., Coffee, Drinks, Food)."];
   data[7] = ["Brand Name", "NO", "Existing Brand Name", "Associated brand name (e.g., Starbucks, Nestlé)."];
-  data[8] = ["Stock Status", "NO", "ENABLED, DISABLED, OUT_OF_STOCK, IN_STOCK", "Product inventory availability status (Default: ENABLED)."];
-  data[9] = ["Description", "NO", "Text explanation", "Optional short explanation of ingredients or product details."];
-  data[10] = ["Promotion Type", "NO", "NONE, PERCENTAGE, FIXED_AMOUNT", "Discount type (Default: NONE)."];
-  data[11] = ["Promotion Value", "NO", "Numeric (e.g., 20 for 20%, 2 for $2)", "Discount value."];
-  data[12] = ["Promotion From Date", "NO", "YYYY-MM-DD (e.g., 2026-08-01)", "Start date of the promotion."];
-  data[13] = ["Promotion To Date", "NO", "YYYY-MM-DD (e.g., 2026-08-31)", "End date of the promotion."];
+  data[8] = ["SKU", "NO", "Text (e.g., SKU-DRK-001)", "Stock Keeping Unit code."];
+  data[9] = ["Barcode", "NO", "Text / Digits (e.g., 885000000001)", "Product barcode number."];
+  data[10] = ["Description", "NO", "Text explanation", "Optional short explanation of ingredients or product details."];
+  data[11] = ["Promotion Type", "NO", "NONE, PERCENTAGE, FIXED_AMOUNT", "Discount type (Default: NONE)."];
+  data[12] = ["Promotion Value", "NO", "Numeric (e.g., 20 for 20%, 2 for $2)", "Discount value."];
+  data[13] = ["Promotion From Date", "NO", "YYYY-MM-DD (e.g., 2026-08-01)", "Start date of the promotion."];
+  data[14] = ["Promotion To Date", "NO", "YYYY-MM-DD (e.g., 2026-08-31)", "End date of the promotion."];
 
-  data[14] = ["", "", "", ""];
+  data[15] = ["", "", "", ""];
 
-  data[15] = ["VALID SPREADSHEET ROW EXAMPLES", "", "", "", "", "", "", "", "", ""];
-  data[16] = [
-    "Product Name *", "Price ($) *", "Category Name *", "Brand Name", "Stock Status",
+  data[16] = ["VALID SPREADSHEET ROW EXAMPLES", "", "", "", "", "", "", "", "", "", ""];
+  data[17] = [
+    "Product Name *", "Price ($) *", "Category Name *", "Brand Name", "SKU", "Barcode",
     "Description", "Promotion Type", "Promotion Value", "Promotion From Date", "Promotion To Date"
   ];
-  data[17] = [
-    "Iced Americano", "2.50", "Coffee", "House Blend", "ENABLED",
+  data[18] = [
+    "Iced Americano", "2.50", "Coffee", "House Blend", "SKU-DRK-001", "885000000001",
     "Freshly brewed espresso over ice", "PERCENTAGE", "20", "2026-08-01", "2026-08-31"
   ];
-  data[18] = [
-    "Matcha Latte", "3.75", "Tea", "Uji", "ENABLED",
+  data[19] = [
+    "Matcha Latte", "3.75", "Tea", "Uji", "SKU-DRK-002", "885000000002",
     "Premium Japanese green tea with milk", "NONE", "", "", ""
   ];
 

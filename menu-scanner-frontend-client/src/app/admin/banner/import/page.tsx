@@ -149,7 +149,7 @@ export default function BannerImportPage() {
   return (
     <GenericExcelImport<ImportBannerRow>
       title="Import Banners"
-      description="Upload a template spreadsheet to create banners in batch"
+      description="Upload an Excel file to bulk import banners"
       backRoute={ROUTES.ADMIN.BANNER}
       entityName="banners"
       downloadTemplate={downloadBannerTemplate}

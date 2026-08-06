@@ -16,6 +16,7 @@ export const SIZE_CLASSES = {
   "4xl": "sm:max-w-4xl",
   "5xl": "sm:max-w-5xl",
   "6xl": "sm:max-w-6xl",
+  "7xl": "sm:max-w-7xl",
   full: "sm:max-w-[95vw]",
 };
 
@@ -38,13 +39,21 @@ export function CustomModal({
   size = "default",
   className,
   hideCloseButton = false,
-  disableScrollWrapper = false,
+  disableScrollWrapper = true,
 }: CustomModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className={cn("w-full max-h-[92vh] p-0 flex flex-col", SIZE_CLASSES[size], className)}
+        className={cn(
+          "w-full max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden",
+          SIZE_CLASSES[size],
+          className
+        )}
         closeButtonClassName={hideCloseButton ? "hidden" : ""}
+        onOpenAutoFocus={(e) => {
+          e.preventDefault();
+          (e.currentTarget as HTMLElement)?.focus();
+        }}
         disableScrollWrapper={disableScrollWrapper}
       >
         {children}

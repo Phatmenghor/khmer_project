@@ -33,7 +33,7 @@ import {
 import { productTableColumns } from "@/features/business/table/product-table";
 import ProductModal from "@/features/business/components/product-modal";
 import { ProductDetailModal } from "@/features/business/components/product-detail-modal";
-import { PRODUCT_STATUS_FILTER, PRODUCT_SIZE_FILTER } from "@/constants/status/filter-status";
+import { useProductTableFilters } from "@/features/business/hooks/use-product-table-filters";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
@@ -41,22 +41,8 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
-import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
-
-const SORT_BY_OPTIONS = [
-  { value: "createdAt", label: "Created Date" },
-  { value: "displayPrice", label: "Display Price" },
-  { value: "barcode", label: "Barcode" },
-  { value: "sku", label: "SKU" },
-  { value: "totalStock", label: "Total Stock" },
-  { value: "favoriteCount", label: "Favorite Count" },
-  { value: "viewCount", label: "View Count" },
-];
-
-const SORT_DIRECTION_OPTIONS = [
-  { value: "DESC", label: "High to Low (DESC)" },
-  { value: "ASC", label: "Low to High (ASC)" },
-];
+import { CollapsibleFilterPanel } from "@/components/shared/common/collapsible-filter-panel";
+import { useAdminTableUrlState } from "@/hooks/use-admin-table-url-state";
 
 function ProductPageInner() {
   const router = useRouter();
@@ -74,26 +60,41 @@ function ProductPageInner() {
     dispatch,
   } = useProductState();
 
-  useEffect(() => {
-    dispatch(setPageNo(1));
-    dispatch(setSearchFilter(""));
-    dispatch(selectProductStatus(ProductStatus.ALL));
-  }, []);
+  const handleCreateProduct = () => {
+    openCreate();
+  };
+
+  const {
+    filterConfig,
+    sizeFilter,
+    setSizeFilter,
+    selectedBrand,
+    setSelectedBrand,
+    selectedCategories,
+    setSelectedCategories,
+    sortBy,
+    setSortBy,
+    sortDirection,
+    setSortDirection,
+  } = useProductTableFilters({
+    title: "Products",
+    subtitle: "Manage your catalog, brands, categories, and pricing",
+    totalCount: pagination.totalElements,
+    buttonText: "New Product",
+    onButtonClick: handleCreateProduct,
+    extraActions: (
+      <div className="flex items-center gap-1">
+        <DownloadTemplateButton onDownload={downloadProductTemplate} />
+        <ImportSpreadsheetButton onClick={() => router.push(ROUTES.ADMIN.PRODUCTS_IMPORT)} title="Import products from Excel" />
+      </div>
+    ),
+  });
 
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
     productId: "",
   });
-
-  const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(
-    null,
-  );
-  const [sizeFilter, setSizeFilter] = useState("ALL");
-  const [sortBy, setSortBy] = useState("");
-  const [sortDirection, setSortDirection] = useState("");
-  const [selectedCategories, setSelectedCategories] =
-    useState<CategoriesResponseModel | null>(null);
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
@@ -111,15 +112,50 @@ function ProductPageInner() {
   });
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
-
   const debouncedSearch = useDebounce(filters.search, 400);
 
-  const { updateUrlWithPage, handlePageChange } = usePagination({
+  const {
+    isHydrated,
+    viewId,
+    editId,
+    deleteId,
+    createMode,
+    openView,
+    openEdit,
+    openDelete,
+    openCreate,
+    closeModal: closeRouteModal,
+    updateUrlWithPage,
+    handlePageChange,
+  } = useAdminTableUrlState({
     baseRoute: ROUTES.ADMIN.PRODUCTS,
+    filters: {
+      search: filters.search,
+      status: filters.status && filters.status !== ProductStatus.ALL ? filters.status : "",
+      categoryId: selectedCategories?.id || "",
+      brandId: selectedBrand?.id || "",
+      sizeFilter: sizeFilter !== "ALL" ? sizeFilter : "",
+      sortBy: sortBy || "",
+      sortDirection: sortDirection || "",
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
+    },
+    onInit: (params) => {
+      if (params.search) dispatch(setSearchFilter(params.search));
+      if (params.status) dispatch(selectProductStatus(params.status as ProductStatus));
+      if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
+      if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
+      if (params.sizeFilter) setSizeFilter(params.sizeFilter);
+      if (params.sortBy) setSortBy(params.sortBy);
+      if (params.sortDirection) setSortDirection(params.sortDirection);
+      if (params.categoryId) setSelectedCategories({ id: params.categoryId, name: "" } as any);
+      if (params.brandId) setSelectedBrand({ id: params.brandId, name: "" } as any);
+    },
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
   useEffect(() => {
+    if (!isHydrated) return;
 
     let hasSize: boolean | undefined;
     if (sizeFilter === "true") {
@@ -143,6 +179,7 @@ function ProductPageInner() {
       }),
     );
   }, [
+    isHydrated,
     dispatch,
     debouncedSearch,
     filters.pageNo,
@@ -155,34 +192,19 @@ function ProductPageInner() {
     sortDirection,
   ]);
 
-  const handleCreateBrand = () => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.CREATE_MODE,
-      productId: "",
-    });
-  };
-
   const handleEditProduct = (product: ProductDetailResponseModel) => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.UPDATE_MODE,
-      productId: product?.id || "",
-    });
+    if (product?.id) openEdit(product.id);
   };
 
   const handleProductViewDetail = (product: ProductDetailResponseModel) => {
-    setDetailModalState({
-      isOpen: true,
-      productId: product.id || "",
-    });
+    if (product?.id) openView(product.id);
   };
 
   const handleDeleteProduct = (product: ProductDetailResponseModel) => {
-    setDeleteState({
-      isOpen: true,
-      product: product,
-    });
+    if (product?.id) {
+      setDeleteState({ isOpen: true, product });
+      openDelete(product.id);
+    }
   };
 
   const handleResetPromotion = (product: ProductDetailResponseModel) => {
@@ -232,10 +254,6 @@ function ProductPageInner() {
       }),
     [productState, tableHandlers],
   );
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setSearchFilter(e.target.value));
-  };
 
   const handlePageChangeWrapper = (page: number) => {
     dispatch(setPageNo(page));
@@ -316,117 +334,6 @@ function ProductPageInner() {
     });
   };
 
-  const handleProductStatusChange = (status: ProductStatus) => {
-    dispatch(selectProductStatus(status));
-  };
-
-  const handleSizeFilterChange = (value: string | number | boolean | null | undefined) => {
-    setSizeFilter(String(value ?? ""));
-  };
-
-  const handleBrandChange = (brand: BrandResponseModel | null) => {
-    setSelectedBrand(brand);
-  };
-
-  const handleCategoriesChange = (
-    categories: CategoriesResponseModel | null,
-  ) => {
-    setSelectedCategories(categories);
-  };
-
-  const handleSortByChange = (value: string | number | boolean | null | undefined) => {
-    setSortBy(String(value ?? ""));
-  };
-
-  const handleSortDirectionChange = (value: string | number | boolean | null | undefined) => {
-    setSortDirection(String(value ?? ""));
-  };
-
-  const handleClearAllFilters = () => {
-    dispatch(setSearchFilter(""));
-    dispatch(selectProductStatus(ProductStatus.ALL));
-    setSelectedBrand(null);
-    setSelectedCategories(null);
-    setSizeFilter("ALL");
-    setSortBy("");
-    setSortDirection("");
-  };
-
-  const filterConfig = useMemo((): FilterPanelConfig => ({
-    title: "Products",
-    subtitle: "Manage your catalog, brands, categories, and pricing",
-    totalCount: pagination.totalElements,
-    searchValue: filters.search,
-    searchPlaceholder: "Search product...",
-    onSearchChange: handleSearchChange,
-    buttonText: "New Product",
-    buttonDisabled: false,
-    onButtonClick: handleCreateBrand,
-    extraActions: (
-      <div className="flex items-center gap-1">
-        <DownloadTemplateButton onDownload={downloadProductTemplate} />
-        <ImportSpreadsheetButton onClick={() => router.push(ROUTES.ADMIN.PRODUCTS_IMPORT)} title="Import products from Excel" />
-      </div>
-    ),
-    onClearAll: handleClearAllFilters,
-    filters: [
-      {
-        id: "status",
-        type: "select",
-        label: "Product Status",
-        placeholder: "All Status",
-        value: filters.status,
-        onChange: (value) => handleProductStatusChange(value as ProductStatus),
-        options: PRODUCT_STATUS_FILTER,
-      },
-      {
-        id: "size",
-        type: "select",
-        label: "Product Size",
-        placeholder: "All Products",
-        value: sizeFilter,
-        onChange: handleSizeFilterChange,
-        options: PRODUCT_SIZE_FILTER,
-      },
-      {
-        id: "brand",
-        type: "combobox-brand",
-        label: "Brand",
-        placeholder: "All Brand",
-        value: selectedBrand,
-        onChange: handleBrandChange,
-        showAllOption: true,
-      },
-      {
-        id: "category",
-        type: "combobox-categories",
-        label: "Category",
-        placeholder: "All Categories",
-        value: selectedCategories,
-        onChange: handleCategoriesChange,
-        showAllOption: true,
-      },
-      {
-        id: "sortBy",
-        type: "select",
-        label: "Sort By",
-        placeholder: "Default (Created Date)",
-        value: sortBy,
-        onChange: handleSortByChange,
-        options: SORT_BY_OPTIONS,
-      },
-      {
-        id: "sortDirection",
-        type: "select",
-        label: "Order",
-        placeholder: "Default (High to Low)",
-        value: sortDirection,
-        onChange: handleSortDirectionChange,
-        options: SORT_DIRECTION_OPTIONS,
-      }
-    ],
-  }), [filters, selectedBrand, selectedCategories, sizeFilter, sortBy, sortDirection, pagination.totalElements]);
-
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
@@ -436,8 +343,7 @@ function ProductPageInner() {
         />
 
         {}
-        <div className="overflow-x-auto max-w-full rounded border">
-          <DataTableWithPagination
+        <DataTableWithPagination
           data={productContent}
           columns={columns}
           loading={isLoading}
@@ -451,28 +357,34 @@ function ProductPageInner() {
           onPageSizeChange={handlePageSizeChange}
           pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
-        </div>
       </div>
 
       {}
       <ProductModal
-        isOpen={modalState.isOpen}
-        onClose={closeModal}
-        productId={modalState.productId}
-        mode={modalState.mode}
+        isOpen={createMode || !!editId || modalState.isOpen}
+        onClose={() => {
+          closeModal();
+          closeRouteModal();
+        }}
+        productId={editId || modalState.productId}
+        mode={editId ? ModalMode.UPDATE_MODE : modalState.mode}
       />
 
-      {}
       <ProductDetailModal
-        productId={detailModalState.productId}
-        isOpen={detailModalState.isOpen}
-        onClose={closeDetailModal}
+        productId={viewId || detailModalState.productId}
+        isOpen={!!viewId || detailModalState.isOpen}
+        onClose={() => {
+          closeDetailModal();
+          closeRouteModal();
+        }}
       />
 
-      {}
       <DeleteConfirmationModal
-        isOpen={deleteState.isOpen}
-        onClose={closeDeleteModal}
+        isOpen={!!deleteId || deleteState.isOpen}
+        onClose={() => {
+          closeDeleteModal();
+          closeRouteModal();
+        }}
         onDelete={handleDelete}
         title="Delete Product"
         description={`Are you sure you want to delete this product ${

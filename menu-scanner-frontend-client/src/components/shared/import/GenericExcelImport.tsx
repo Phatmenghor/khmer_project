@@ -116,7 +116,11 @@ interface GenericExcelImportProps<T extends BaseImportRow> {
   entityName: string;
   downloadTemplate: () => void;
   parseFile: (file: File) => Promise<{ rows: T[]; errors: string[] }>;
-  onImportBatch: (rows: T[], importId?: string) => Promise<BatchImportResponse>;
+  onImportBatch: (
+    rows: T[],
+    importId?: string,
+    onProgress?: (stepText: string, percent: number) => void
+  ) => Promise<BatchImportResponse>;
   onValidateRow?: (row: T) => {
     isValid: boolean;
     error?: string;
@@ -158,6 +162,7 @@ export function GenericExcelImport<T extends BaseImportRow>({
   const [processedCount, setProcessedCount] = useState(0);
   const [totalToProcess, setTotalToProcess] = useState(0);
   const [importProgress, setImportProgress] = useState(0);
+  const [importStatusText, setImportStatusText] = useState<string>("");
 
   // Initialize react-hook-form
   const { control, reset, setValue } = useForm();
@@ -319,31 +324,29 @@ export function GenericExcelImport<T extends BaseImportRow>({
 
   const handleCellChange = (rowIdx: number, field: keyof T, value: any) => {
     const updated = [...rows];
-    const fieldErrKey = `__${String(field)}Error`;
+    const fieldStr = String(field);
+    const fieldErrKey = `__${fieldStr}Error`;
+    const baseField = fieldStr.replace(/(Obj|Id|Files|File)$/i, "");
+    const altFieldErrKey = `__${baseField}Error`;
 
     updated[rowIdx] = {
       ...updated[rowIdx],
       [field]: value,
-      ...(updated[rowIdx].__status === "error"
-        ? { __status: "pending", __error: undefined }
-        : {}),
-      ...(fieldErrKey in (updated[rowIdx] as any) ? { [fieldErrKey]: false } : {}),
+      [fieldErrKey]: false,
+      [altFieldErrKey]: false,
+      __status: "pending",
+      __error: undefined,
     };
     setRows(updated);
-    setValue(`${entityName}.${rowIdx}.${String(field)}`, value);
+    setValue(`${entityName}.${rowIdx}.${fieldStr}`, value);
   };
 
   const handleImport = async () => {
     const rowsToProcess = rows.filter((r) => r.__status !== "success");
-    if (!rowsToProcess.length || hasValidationErrors) return;
+    if (!rowsToProcess.length) return;
 
     setIsImporting(true);
     setImportDone(false);
-
-    // Scroll to top so the user can monitor import
-    setTimeout(() => {
-      topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
 
     const updated = [...rows];
     let clientValidationErrorCount = 0;
@@ -370,7 +373,11 @@ export function GenericExcelImport<T extends BaseImportRow>({
     if (clientValidationErrorCount > 0) {
       setRows(updated);
       setIsImporting(false);
-      showToast.error(`Please fix validation errors on ${clientValidationErrorCount} rows first.`);
+      setImportDone(true);
+      showToast.error(`${clientValidationErrorCount} row(s) failed validation. Please fix highlighted fields below.`);
+      setTimeout(() => {
+        topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
       return;
     }
 
@@ -423,6 +430,7 @@ export function GenericExcelImport<T extends BaseImportRow>({
               setProcessedCount(processed);
               setImportProgress(progress);
               setTotalToProcess(total);
+              setImportStatusText(`Creating ${entityName} on server (${processed}/${total})...`);
 
               if (lastResult && typeof lastResult.index === "number" && lastResult.index < rowsToProcessWithIndex.length) {
                 setRows((prevRows) => {
@@ -462,8 +470,16 @@ export function GenericExcelImport<T extends BaseImportRow>({
     stompClient.activate();
 
     try {
-      // Call batch API endpoint
-      const batchResult: BatchImportResponse = await onImportBatch(rowsToProcess, importId);
+      setImportStatusText(`Preparing ${entityName} import...`);
+      // Call batch API endpoint with real-time progress callback
+      const batchResult: BatchImportResponse = await onImportBatch(
+        rowsToProcess,
+        importId,
+        (stepText, percent) => {
+          setImportStatusText(stepText);
+          setImportProgress(percent);
+        }
+      );
 
       setRows((prevRows) => {
         const finalRows = [...prevRows];
@@ -579,7 +595,6 @@ export function GenericExcelImport<T extends BaseImportRow>({
 
   const isImportDisabled =
     isImporting ||
-    hasValidationErrors ||
     rows.length === 0 ||
     rows.every((r) => r.__status === "success");
 
@@ -845,9 +860,9 @@ export function GenericExcelImport<T extends BaseImportRow>({
             {isImporting && (
               <div ref={progressRef} className="mx-4 mt-3 p-4 rounded-xl border border-primary/20 bg-primary/5 flex flex-col gap-2 shadow-sm">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-semibold text-foreground flex items-center gap-1.5">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-                    Importing {entityName}...
+                  <span className="font-semibold text-foreground flex items-center gap-1.5 truncate max-w-[80%]">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-primary shrink-0" />
+                    {importStatusText || `Importing ${entityName}...`}
                   </span>
                   <span className="font-bold text-primary">{importProgress}%</span>
                 </div>
@@ -952,11 +967,32 @@ export function GenericExcelImport<T extends BaseImportRow>({
                           </td>
 
                           {columns.map((col) => {
-                            const errKey = `__${String(col.fieldKey)}Error`;
-                            const hasFieldErr = (row as any)[errKey] || (col.hasError ? col.hasError(row) : false);
+                            const fieldStr = String(col.fieldKey);
+                            const errKey = `__${fieldStr}Error`;
+                            const baseFieldKey = fieldStr.replace(/(Obj|Id|Files|File)$/i, "");
+                            const altErrKey = `__${baseFieldKey}Error`;
 
-                            return (
-                              <td key={col.key} className="p-1 align-middle">
+                            const hasFieldErr = Boolean(
+                              (row as any)[errKey] ||
+                              (row as any)[altErrKey] ||
+                              (col.hasError ? col.hasError(row) : false)
+                            );
+
+                            let inlineErrMsg: string | undefined;
+                            if (hasFieldErr) {
+                              const cleanLabel = col.label.replace(/\s*\*+\s*$/, "");
+                              const val = row[col.fieldKey];
+                              if (col.required && (!val || (typeof val === "object" && !val.id && !val.name))) {
+                                inlineErrMsg = `${cleanLabel} is required`;
+                              } else if (row.__error) {
+                                inlineErrMsg = row.__error;
+                              } else {
+                                inlineErrMsg = `Invalid ${cleanLabel}`;
+                              }
+                            }
+
+                            const cellContent = (
+                              <>
                                 {col.type === "text" && (
                                   <CustomInputCell
                                     value={row[col.fieldKey] as string}
@@ -964,6 +1000,7 @@ export function GenericExcelImport<T extends BaseImportRow>({
                                     disabled={isImporting || row.__status === "success"}
                                     placeholder={col.placeholder || col.label}
                                     hasError={hasFieldErr}
+                                    errorMessage={inlineErrMsg}
                                   />
                                 )}
 
@@ -996,6 +1033,21 @@ export function GenericExcelImport<T extends BaseImportRow>({
                                     disabled={isImporting || row.__status === "success"}
                                     isWide={col.isWide}
                                   />
+                                )}
+                              </>
+                            );
+
+                            return (
+                              <td key={col.key} className="p-1 align-middle">
+                                {inlineErrMsg && col.type !== "text" ? (
+                                  <div className="flex flex-col w-full">
+                                    {cellContent}
+                                    <span className="text-[10px] font-semibold text-red-500 mt-0.5 px-0.5 leading-tight truncate animate-fadeIn">
+                                      {inlineErrMsg}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  cellContent
                                 )}
                               </td>
                             );

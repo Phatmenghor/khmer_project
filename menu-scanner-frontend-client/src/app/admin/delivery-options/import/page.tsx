@@ -171,7 +171,7 @@ export default function DeliveryOptionImportPage() {
   return (
     <GenericExcelImport<ImportDeliveryOptionRow>
       title="Import Delivery Options"
-      description="Upload a template spreadsheet to create delivery options in batch"
+      description="Upload an Excel file to bulk import delivery options"
       backRoute={ROUTES.ADMIN.DELIVERY_OPTIONS}
       entityName="delivery options"
       downloadTemplate={downloadDeliveryOptionTemplate}

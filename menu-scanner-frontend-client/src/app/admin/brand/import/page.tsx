@@ -130,7 +130,7 @@ export default function BrandImportPage() {
   return (
     <GenericExcelImport<ImportBrandRow>
       title="Import Brands"
-      description="Upload a template spreadsheet to create item brands in batch"
+      description="Upload an Excel file to bulk import brands"
       backRoute={ROUTES.ADMIN.BRAND}
       entityName="brands"
       downloadTemplate={downloadBrandTemplate}

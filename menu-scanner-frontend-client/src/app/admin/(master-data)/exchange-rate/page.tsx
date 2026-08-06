@@ -38,8 +38,7 @@ import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
 import { selectExchangeRateContent, selectSelectedExchangeRate } from "@/features/master-data/store/selectors/exchange-rate-selector";
-import { useActionRouting } from "@/hooks/use-action-routing";
-import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
+import { useAdminTableUrlState } from "@/hooks/use-admin-table-url-state";
 
 function ExchangeRatePageInner() {
   useAdminCleanup(resetState);
@@ -57,7 +56,11 @@ function ExchangeRatePageInner() {
     dispatch,
   } = useExchangeRateState();
 
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
+
   const {
+    isHydrated,
     viewId,
     editId,
     deleteId,
@@ -67,12 +70,10 @@ function ExchangeRatePageInner() {
     openDelete,
     openCreate,
     closeModal,
-  } = useActionRouting();
-
-  const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
-
-  const isHydrated = useAdminFilterUrlSync({
+    updateUrlWithPage,
+    handlePageChange,
+  } = useAdminTableUrlState({
+    baseRoute: ROUTES.ADMIN.EXCHANGE_RATE,
     filters: {
       search: filters.search,
       status: filters.isActive !== ExchangeRateStatus.ALL ? filters.isActive : "",
@@ -85,10 +86,6 @@ function ExchangeRatePageInner() {
       if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
       if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
     },
-  });
-
-  const { updateUrlWithPage, handlePageChange } = usePagination({
-    baseRoute: ROUTES.ADMIN.EXCHANGE_RATE,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 

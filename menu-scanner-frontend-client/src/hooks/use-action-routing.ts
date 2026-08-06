@@ -1,17 +1,15 @@
 "use client";
 
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useState, useEffect } from "react";
 
 const ACTION_PARAMS = ["view", "edit", "delete", "create", "resetPassword"] as const;
 
 /**
- * Manages action-based modals via URL query parameters.
- * Uses local React state to open modals instantly (avoiding Next.js router transition lag),
- * and updates URL query parameters asynchronously to preserve deep-linking capability.
+ * Manages action-based modals via URL query parameters smoothly.
+ * Uses client-side window.history updates to prevent Next.js server re-fetching and rerender loops.
  */
 export function useActionRouting() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
@@ -21,19 +19,41 @@ export function useActionRouting() {
   const [createMode, setCreateMode] = useState<boolean>(false);
   const [resetPasswordId, setResetPasswordId] = useState<string | null>(null);
 
-  // Sync from URL params initially and when query parameters change (e.g. browser back/forward or deep link)
+  // Sync state from current URL query parameters on mount & popstate
+  const syncFromUrl = useCallback(() => {
+    if (typeof window === "undefined") return;
+    const currentParams = new URLSearchParams(window.location.search);
+    setViewId(currentParams.get("view"));
+    setEditId(currentParams.get("edit"));
+    setDeleteId(currentParams.get("delete"));
+    setCreateMode(currentParams.get("create") === "true");
+    setResetPasswordId(currentParams.get("resetPassword"));
+  }, []);
+
   useEffect(() => {
-    setViewId(searchParams.get("view"));
-    setEditId(searchParams.get("edit"));
-    setDeleteId(searchParams.get("delete"));
-    setCreateMode(searchParams.get("create") === "true");
-    setResetPasswordId(searchParams.get("resetPassword"));
-  }, [searchParams]);
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+    return () => window.removeEventListener("popstate", syncFromUrl);
+  }, [syncFromUrl]);
+
+  /** Helper to update URL in address bar silently in 0ms without server GET requests */
+  const updateUrlSilently = useCallback((newUrl: string, isPush = false) => {
+    if (typeof window === "undefined") return;
+    const currentUrl = `${window.location.pathname}${window.location.search}`;
+    if (currentUrl !== newUrl) {
+      if (isPush) {
+        window.history.pushState(null, "", newUrl);
+      } else {
+        window.history.replaceState(null, "", newUrl);
+      }
+    }
+  }, []);
 
   /** Build a params object with all action params cleared, then set the given key. */
   const buildParams = useCallback(
     (key: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const currentSearch = typeof window !== "undefined" ? window.location.search : searchParams.toString();
+      const params = new URLSearchParams(currentSearch);
       ACTION_PARAMS.forEach((p) => params.delete(p));
       params.set(key, value);
       return params;
@@ -44,38 +64,43 @@ export function useActionRouting() {
   const openView = useCallback(
     (id: string) => {
       setViewId(id);
-      router.push(`${pathname}?${buildParams("view", id).toString()}`);
+      const query = buildParams("view", id).toString();
+      updateUrlSilently(`${pathname}?${query}`, true);
     },
-    [buildParams, pathname, router],
+    [buildParams, pathname, updateUrlSilently],
   );
 
   const openEdit = useCallback(
     (id: string) => {
       setEditId(id);
-      router.push(`${pathname}?${buildParams("edit", id).toString()}`);
+      const query = buildParams("edit", id).toString();
+      updateUrlSilently(`${pathname}?${query}`, true);
     },
-    [buildParams, pathname, router],
+    [buildParams, pathname, updateUrlSilently],
   );
 
   const openDelete = useCallback(
     (id: string) => {
       setDeleteId(id);
-      router.push(`${pathname}?${buildParams("delete", id).toString()}`);
+      const query = buildParams("delete", id).toString();
+      updateUrlSilently(`${pathname}?${query}`, true);
     },
-    [buildParams, pathname, router],
+    [buildParams, pathname, updateUrlSilently],
   );
 
   const openCreate = useCallback(() => {
     setCreateMode(true);
-    router.push(`${pathname}?${buildParams("create", "true").toString()}`);
-  }, [buildParams, pathname, router]);
+    const query = buildParams("create", "true").toString();
+    updateUrlSilently(`${pathname}?${query}`, true);
+  }, [buildParams, pathname, updateUrlSilently]);
 
   const openResetPassword = useCallback(
     (id: string) => {
       setResetPasswordId(id);
-      router.push(`${pathname}?${buildParams("resetPassword", id).toString()}`);
+      const query = buildParams("resetPassword", id).toString();
+      updateUrlSilently(`${pathname}?${query}`, true);
     },
-    [buildParams, pathname, router],
+    [buildParams, pathname, updateUrlSilently],
   );
 
   const closeModal = useCallback(() => {
@@ -85,11 +110,13 @@ export function useActionRouting() {
     setCreateMode(false);
     setResetPasswordId(null);
 
-    const params = new URLSearchParams(searchParams.toString());
+    const currentSearch = typeof window !== "undefined" ? window.location.search : searchParams.toString();
+    const params = new URLSearchParams(currentSearch);
     ACTION_PARAMS.forEach((p) => params.delete(p));
     const queryStr = params.toString();
-    router.replace(queryStr ? `${pathname}?${queryStr}` : pathname);
-  }, [searchParams, pathname, router]);
+    const newUrl = queryStr ? `${pathname}?${queryStr}` : pathname;
+    updateUrlSilently(newUrl, false);
+  }, [pathname, searchParams, updateUrlSilently]);
 
   return {
     viewId,

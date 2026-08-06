@@ -36,6 +36,7 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
+import { useAdminTableUrlState } from "@/hooks/use-admin-table-url-state";
 
 function BrandPageInner() {
   useAdminCleanup(resetState);
@@ -72,12 +73,39 @@ function BrandPageInner() {
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
 
-  const { currentPage, updateUrlWithPage, handlePageChange } = usePagination({
+  const {
+    isHydrated,
+    viewId,
+    editId,
+    deleteId,
+    createMode,
+    openView,
+    openEdit,
+    openDelete,
+    openCreate,
+    closeModal: closeRouteModal,
+    updateUrlWithPage,
+    handlePageChange,
+  } = useAdminTableUrlState({
     baseRoute: ROUTES.ADMIN.BRAND,
+    filters: {
+      search: filters.search,
+      status: filters.status !== Status.ALL ? filters.status : "",
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
+    },
+    onInit: (params) => {
+      if (params.search) dispatch(setSearchFilter(params.search));
+      if (params.status) dispatch(setStatusFilter(params.status as Status));
+      if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
+      if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
+    },
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
   useEffect(() => {
+    if (!isHydrated) return;
+
     if (isInitialMount.current) {
       isInitialMount.current = false;
       if (brandContent && brandContent.length > 0) {
@@ -88,7 +116,7 @@ function BrandPageInner() {
     const promise = dispatch(
       fetchAllBrandWithProductCountService({
         search: debouncedSearch,
-        pageNo: currentPage,
+        pageNo: filters.pageNo,
         pageSize: globalPageSize,
         status: filters.status == Status.ALL ? undefined : filters.status,
       }),
@@ -101,7 +129,7 @@ function BrandPageInner() {
     dispatch,
     debouncedSearch,
     filters.status,
-    currentPage,
+    filters.pageNo,
     globalPageSize,
   ]);
 

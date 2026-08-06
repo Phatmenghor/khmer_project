@@ -294,7 +294,7 @@ export default function UserImportPage() {
   return (
     <GenericExcelImport<ImportRow>
       title="Import Users"
-      description="Upload a template spreadsheet to create business users in batch"
+      description="Upload an Excel file to bulk import users"
       backRoute={ROUTES.ADMIN.USERS}
       entityName="users"
       downloadTemplate={downloadUserTemplate}

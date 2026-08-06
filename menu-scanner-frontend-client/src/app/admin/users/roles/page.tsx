@@ -37,8 +37,7 @@ import {
   selectRoleContent,
   selectSelectedRole,
 } from "@/features/auth/store/selectors/role-selectors";
-import { useActionRouting } from "@/hooks/use-action-routing";
-import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
+import { useAdminTableUrlState } from "@/hooks/use-admin-table-url-state";
 
 function RolesPageInner() {
   useAdminCleanup(resetState);
@@ -58,7 +57,11 @@ function RolesPageInner() {
 
   const allRolesContent = useAppSelector(selectRoleContent);
 
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
+
   const {
+    isHydrated,
     viewId,
     editId,
     deleteId,
@@ -68,12 +71,10 @@ function RolesPageInner() {
     openDelete,
     openCreate,
     closeModal,
-  } = useActionRouting();
-
-  const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
-
-  const isHydrated = useAdminFilterUrlSync({
+    updateUrlWithPage,
+    handlePageChange,
+  } = useAdminTableUrlState({
+    baseRoute: ROUTES.ADMIN.ROLES,
     filters: {
       search: filters.search,
       pageNo: filters.pageNo,
@@ -84,10 +85,6 @@ function RolesPageInner() {
       if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
       if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
     },
-  });
-
-  const { updateUrlWithPage, handlePageChange } = usePagination({
-    baseRoute: ROUTES.ADMIN.ROLES,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
