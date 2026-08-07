@@ -1,6 +1,7 @@
 package com.emenu.features.order.dto.response;
 
 import lombok.Data;
+import com.emenu.shared.dto.ImageUrls;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ public class CartItemResponse {
     // Product information (flattened for frontend)
     private UUID productId;
     private String productName;
-    private String productImageUrl;
+    private ImageUrls productImageUrl;
     private UUID productSizeId;        // null for products without sizes
     private String sizeName;           // "Standard" for products without sizes
     private String status;             // ProductStatus: ACTIVE, INACTIVE, OUT_OF_STOCK

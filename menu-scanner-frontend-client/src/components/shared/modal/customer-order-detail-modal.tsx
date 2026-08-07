@@ -11,44 +11,16 @@ import { fetchOrderDetailsService } from "@/features/main/store/thunks/my-orders
 import { Loading } from "@/components/shared/common/loading";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { formatCurrency } from "@/utils/common/currency-format";
-import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { getOrderStatusLabel } from "@/enums/order-status.enum";
+import { formatAddress, getProductImageUrl } from "@/utils/common/common";
+import { getPromotionLabel } from "@/utils/common/promotion-format";
+import { dateTimeFormat, dateFormatLocal, formatDayMonth } from "@/utils/date/date-time-format";
+import { getOrderStatusLabel, ORDER_STATUS_BADGE_CONFIG } from "@/enums/order-status.enum";
 
 import { cn } from "@/lib/utils";
 import { Copy, MapPin, Package, Check, XCircle } from "lucide-react";
 import { showToast } from "@/components/shared/common/show-toast";
 import { Messages } from "@/constants/messages";
 import { SectionTitle, InfoRow } from "./detail-section";
-
-const STATUS_CONFIG: Record<
-  string,
-  { bg: string; text: string; border: string; badgeBg: string }
-> = {
-  PENDING: {
-    bg: "bg-amber-50",
-    text: "text-amber-700",
-    border: "border-amber-200",
-    badgeBg: "bg-amber-100 text-amber-700",
-  },
-  CONFIRMED: {
-    bg: "bg-blue-50",
-    text: "text-blue-700",
-    border: "border-blue-200",
-    badgeBg: "bg-blue-100 text-blue-700",
-  },
-  COMPLETED: {
-    bg: "bg-green-50",
-    text: "text-green-700",
-    border: "border-green-200",
-    badgeBg: "bg-green-100 text-green-700",
-  },
-  CANCELLED: {
-    bg: "bg-red-50",
-    text: "text-red-700",
-    border: "border-red-200",
-    badgeBg: "bg-red-100 text-red-700",
-  },
-};
 
 const ORDER_STEPS = ["PENDING", "CONFIRMED", "COMPLETED"];
 const STEP_ORDER: Record<string, number> = {
@@ -137,22 +109,11 @@ export function CustomerOrderDetailModal({
   }
 
   const order = state.order;
-  const statusCfg = STATUS_CONFIG[order.orderStatus] || STATUS_CONFIG.PENDING;
+  const statusCfg = ORDER_STATUS_BADGE_CONFIG[order.orderStatus] || ORDER_STATUS_BADGE_CONFIG.PENDING;
   const currentStep = STEP_ORDER[order.orderStatus] ?? -1;
   const isCancelled = order.orderStatus === "CANCELLED";
 
-  const formattedAddress = [
-    order.deliveryAddress?.houseNumber,
-    order.deliveryAddress?.streetNumber
-      ? `St. ${order.deliveryAddress.streetNumber}`
-      : null,
-    order.deliveryAddress?.village,
-    order.deliveryAddress?.commune,
-    order.deliveryAddress?.district,
-    order.deliveryAddress?.province,
-  ]
-    .filter(Boolean)
-    .join(", ");
+  const formattedAddress = formatAddress(order.deliveryAddress);
 
   return (
     <CustomModal isOpen={isOpen} onClose={handleClose} size="5xl" className="max-h-[92vh] gap-0 -col">
@@ -209,8 +170,9 @@ export function CustomerOrderDetailModal({
                 ) : (
                   <div className="flex items-start overflow-x-auto px-2 py-2">
                     {ORDER_STEPS.map((step, idx) => {
-                      const isDone = currentStep >= STEP_ORDER[step];
+                      const isDone = currentStep > STEP_ORDER[step];
                       const isCurrent = currentStep === STEP_ORDER[step];
+                      const isStepCompleted = isDone || (step === "COMPLETED" && isCurrent);
                       const history = order.statusHistory?.find(
                         (h) => h.statusName === step
                       );
@@ -220,24 +182,21 @@ export function CustomerOrderDetailModal({
                             <div
                               className={cn(
                                 "w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ring-2 ring-offset-1 transition-all",
-                                isDone
-                                  ? "bg-green-100 text-green-700 ring-green-200"
+                                isStepCompleted
+                                  ? "bg-emerald-500 text-white ring-emerald-500/30"
                                   : isCurrent
-                                    ? "bg-primary text-primary-foreground ring-primary/40"
+                                    ? "bg-emerald-500 text-white ring-emerald-500/30"
                                     : "bg-muted text-muted-foreground ring-muted"
                               )}
                             >
-                              {isDone ? <Check className="h-3 w-3" /> : idx + 1}
+                              <span>{idx + 1}</span>
                             </div>
                             <span className="text-xs font-semibold text-foreground text-center mt-1.5 w-full">
                               {getOrderStatusLabel(step)}
                             </span>
                             {history ? (
                               <span className="text-xs text-muted-foreground text-center block mt-0.5">
-                                {new Date(history.changedAt).toLocaleDateString(
-                                  [],
-                                  { month: "short", day: "numeric" }
-                                )}
+                                {formatDayMonth(history.changedAt)}
                               </span>
                             ) : (
                               <span className="text-xs text-muted-foreground/40 text-center block mt-0.5">
@@ -249,8 +208,8 @@ export function CustomerOrderDetailModal({
                             <div
                               className={cn(
                                 "flex-shrink-0 mt-4 w-8 h-0.5 transition-colors",
-                                currentStep > STEP_ORDER[step]
-                                  ? "bg-green-300"
+                                isDone
+                                  ? "bg-emerald-500"
                                   : "bg-muted"
                               )}
                             />
@@ -301,13 +260,11 @@ export function CustomerOrderDetailModal({
                       const sizeName =
                         item.product?.sizeName || item.sizeName;
                       const sku = item.product?.sku;
-                      const promotionLabel = item.hasPromotion
-                        ? item.promotionType === "PERCENTAGE"
-                          ? `${item.promotionValue}% OFF`
-                          : item.promotionType === "FIXED"
-                            ? `${formatCurrency(item.promotionValue ?? 0)} OFF`
-                            : "Sale"
-                        : null;
+                      const promotionLabel = getPromotionLabel(
+                        item.hasPromotion,
+                        item.promotionType,
+                        item.promotionValue
+                      );
 
                       return (
                         <div
@@ -315,7 +272,7 @@ export function CustomerOrderDetailModal({
                           className="flex gap-2.5 p-2 rounded border border-border/50 bg-muted/20"
                         >
                           <CustomImagePreview
-                            src={item.product?.imageUrl}
+                            src={getProductImageUrl(item.product?.imageUrl)}
                             alt={name}
                             fallbackText={name}
                             className="h-10 w-10 rounded-[8px]"
@@ -463,7 +420,7 @@ export function CustomerOrderDetailModal({
                 <div className="grid grid-cols-2 gap-x-3 gap-y-2">
                   <InfoRow
                     label="Date"
-                    value={new Date(order.createdAt).toLocaleDateString()}
+                    value={dateFormatLocal(order.createdAt)}
                   />
                   <InfoRow
                     label="Time"

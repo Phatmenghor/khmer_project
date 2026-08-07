@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
+import { getPromotionBadgeText } from "@/utils/common/promotion-format";
 import { CustomButton } from "../button/custom-button";
 import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
 import { PromotionType, PromotionStatus } from "@/constants/status/status";
@@ -84,8 +85,8 @@ function POSProductCardComponent({
         isOutOfStock && "opacity-60 pointer-events-none"
       )}
     >
-      {/* Product Image Container - Scaled height ~15% smaller */}
-      <div className="relative aspect-[16/13.5] w-full overflow-hidden bg-muted/30 shrink-0">
+      {/* Product Image Container */}
+      <div className="relative aspect-square w-full overflow-hidden bg-muted/30 shrink-0">
         {imageUrl ? (
           <SmartImage
             src={imageUrl}
@@ -111,31 +112,30 @@ function POSProductCardComponent({
         {hasPromotion && (
           <div className="absolute top-1.5 left-1.5 z-10">
             <Badge variant="destructive" className="text-[10px] font-black px-2 py-0.5 shadow-sm bg-red-600 text-white border-0 uppercase">
-              {product.displayPromotionType === PromotionType.PERCENTAGE
-                ? `-${product.displayPromotionValue}%`
-                : `-${formatCurrency(product.displayPromotionValue)}`}
+              {getPromotionBadgeText(
+                hasPromotion,
+                product.displayPromotionType,
+                product.displayPromotionValue
+              )}
             </Badge>
           </div>
         )}
 
         {/* Has Sizes or Add-ons Badge */}
-        {(product.hasSizes || (product.customizations && product.customizations.length > 0)) && (
-          <div className="absolute bottom-1.5 left-1.5 z-10">
+        <div className="absolute bottom-1.5 left-1.5 z-10 flex flex-wrap gap-1">
+          {product.hasSizes && (
             <Badge variant="secondary" className="text-[10px] font-bold px-2 py-0.5 shadow-2xs bg-background/90 backdrop-blur-sm gap-1 border-border/60">
-              {product.hasSizes ? (
-                <>
-                  <Ruler className="h-3 w-3 text-primary" />
-                  Options
-                </>
-              ) : (
-                <>
-                  <Package className="h-3 w-3 text-emerald-500" />
-                  Add-ons
-                </>
-              )}
+              <Ruler className="h-3 w-3 text-primary" />
+              Options
             </Badge>
-          </div>
-        )}
+          )}
+          {product.customizations && product.customizations.length > 0 && (
+            <Badge variant="secondary" className="text-[10px] font-bold px-2 py-0.5 shadow-2xs bg-background/90 backdrop-blur-sm gap-1 border-border/60">
+              <Package className="h-3 w-3 text-emerald-500" />
+              Add-ons
+            </Badge>
+          )}
+        </div>
       </div>
 
       {/* Content Body - Scaled +5% larger */}
@@ -164,26 +164,26 @@ function POSProductCardComponent({
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground rounded-[6px]"
+                className="h-[28px] w-[28px] shrink-0 hover:bg-destructive hover:text-destructive-foreground rounded-[6px]"
                 onClick={handleDecrement}
               >
-                <Minus className="h-3.5 w-3.5" />
+                <Minus className="h-3 w-3" />
               </CustomButton>
-              <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-black text-xs rounded-[6px] border border-primary/20 flex items-center justify-center">
+              <div className="flex-1 text-center h-[28px] bg-primary/10 text-primary font-bold text-xs rounded-[6px] border border-primary/20 flex items-center justify-center">
                 {quantity}
               </div>
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground rounded-[6px]"
+                className="h-[28px] w-[28px] shrink-0 hover:bg-primary hover:text-primary-foreground rounded-[6px]"
                 onClick={handleIncrement}
               >
-                <Plus className="h-3.5 w-3.5" />
+                <Plus className="h-3 w-3" />
               </CustomButton>
             </div>
           ) : (
             <CustomButton
-              className="w-full gap-1.5 h-8 text-xs font-black bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xs rounded-[6px]"
+              className="w-full gap-1.5 h-[28px] text-[11px] font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-3xs rounded-[6px]"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -192,7 +192,7 @@ function POSProductCardComponent({
               disabled={isOutOfStock}
               size="sm"
             >
-              <ShoppingCart className="h-3.5 w-3.5" />
+              <ShoppingCart className="h-3 w-3" />
               Add to Cart
             </CustomButton>
           )}

@@ -40,31 +40,48 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   }
 
   return (
-    <div className="flex flex-nowrap gap-1 overflow-x-auto pb-1">
+    <div className="flex flex-nowrap gap-1.5 overflow-x-auto pb-1 max-w-[320px]">
       {sizes.map((size) => {
         const isActive = isPromotionActive(size.hasPromotion);
         const isScheduled = isPromotionScheduled(size.hasPromotion);
         const hasPromoValue = size.promotionValue != null && Number(size.promotionValue) > 0;
-        const promoText = size.promotionType === "FIXED_AMOUNT" || size.promotionType === "FIXED"
+        
+        const originalPrice = size.price != null ? Number(size.price) : Number(size.finalPrice ?? 0);
+        const displayFinalPrice = Number(size.finalPrice ?? 0);
+        const isDiff = Boolean(isActive && originalPrice !== displayFinalPrice);
+
+        const promoText = size.promotionType === "FIXED_AMOUNT"
           ? `-$${size.promotionValue}`
           : `-${size.promotionValue}%`;
 
         return (
           <div
             key={size.id}
-            className="px-1 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap border-[0.5px] border-primary flex items-center gap-1"
+            className="px-2.5 py-1.5 rounded-lg bg-muted/40 text-xs text-foreground whitespace-nowrap border border-border flex flex-col items-start gap-1 shadow-sm min-w-[80px] hover:border-primary/20 transition-all duration-200"
           >
-            <span>{size.name} ${parseFloat((size.finalPrice ?? 0).toString()).toFixed(2)}</span>
-            {isActive && hasPromoValue && (
-              <span className="text-red-600 font-semibold">
-                {promoText} (Active)
+            <div className="flex items-center gap-1.5 w-full justify-between">
+              <span className="font-bold text-[9px] text-muted-foreground/90 uppercase tracking-wider">{size.name}</span>
+              {isActive && hasPromoValue && (
+                <span className="text-[8px] text-red-600 font-bold bg-red-50/60 dark:bg-red-950/30 px-1 rounded-full border border-red-200">
+                  {promoText} Active
+                </span>
+              )}
+              {isScheduled && hasPromoValue && (
+                <span className="text-[8px] text-amber-600 font-bold bg-amber-50/60 dark:bg-amber-950/30 px-1 rounded-full border border-amber-200">
+                  {promoText} Future
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5">
+              {isDiff && (
+                <span className="text-[10px] text-muted-foreground line-through font-normal">
+                  ${originalPrice.toFixed(2)}
+                </span>
+              )}
+              <span className={`text-[10px] font-bold ${isDiff ? (isScheduled ? "text-amber-600 font-extrabold" : "text-red-600 font-extrabold") : "text-foreground"}`}>
+                ${displayFinalPrice.toFixed(2)}
               </span>
-            )}
-            {isScheduled && hasPromoValue && (
-              <span className="text-yellow-600 font-semibold">
-                {promoText} (Future)
-              </span>
-            )}
+            </div>
           </div>
         );
       })}

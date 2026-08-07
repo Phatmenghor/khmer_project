@@ -72,7 +72,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.getWriter().write(
-                    "{\"status\":\"error\",\"message\":\"Too many requests. Please slow down and try again.\",\"timestamp\":\"" + Instant.now() + "\"}");
+                    "{\"status\":\"error\",\"message\":\"Too many requests. Please slow down and try again.\",\"timestamp\":\"" + java.time.ZonedDateTime.now(java.time.ZoneId.of("Asia/Phnom_Penh")).format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME) + "\"}");
         }
     }
 

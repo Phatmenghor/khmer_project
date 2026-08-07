@@ -50,6 +50,7 @@ import { BusinessSettingsResponse } from "@/features/business/store/services/bus
 import {
   cacheThemeColors,
 } from "@/utils/common/theme-cache";
+import { ReceiptSize } from "@/enums/receipt-size.enum";
 
 function convertResponseToFormData(
   response: BusinessSettingsResponse,
@@ -72,11 +73,14 @@ function convertResponseToFormData(
       openingTime: hour.openingTime || "",
       closingTime: hour.closingTime || "",
     })),
-    useBrands: response.useBrands ?? false,
+    useBrands: response.useBrands ?? true,
     lowStockThreshold:
       response.lowStockThreshold ??
       BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
     telegramGroupChatId: response.telegramGroupChatId ?? "",
+    receiptSize: response.receiptSize || ReceiptSize.SIZE_58MM,
+    wifiName: response.wifiName ?? "",
+    wifiPassword: response.wifiPassword ?? "",
   };
 }
 
@@ -141,9 +145,12 @@ export default function BusinessSettingsPage() {
       contactPhone: "",
       contactEmail: "",
       businessHours: [],
-      useBrands: false,
+      useBrands: true,
       lowStockThreshold: BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
       telegramGroupChatId: "",
+      receiptSize: ReceiptSize.SIZE_58MM,
+      wifiName: "",
+      wifiPassword: "",
     },
   });
 
@@ -290,6 +297,9 @@ export default function BusinessSettingsPage() {
           data.lowStockThreshold ??
           BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
         telegramGroupChatId: data.telegramGroupChatId || null,
+        receiptSize: data.receiptSize,
+        wifiName: data.wifiName || null,
+        wifiPassword: data.wifiPassword || null,
       };
 
       const action = await dispatch(updateBusinessSettingsThunk(payload));
@@ -381,125 +391,140 @@ export default function BusinessSettingsPage() {
         )}
         className="space-y-5"
       >
-        {/* Basic Information */}
-        <Card>
-          <CardHeader>
+        {/* Business Profile & Branding */}
+        <Card className="border border-border/60 shadow-xs overflow-hidden transition-all duration-300 hover:shadow-sm bg-card">
+          <CardHeader className="border-b border-border/40 bg-muted/10 pb-4">
             <SectionTitle
               icon={Building2}
-              title="Basic Information"
-              subtitle="The core identity of your business"
+              title="Business Profile & Branding"
+              subtitle="The core identity, logo, and contact details of your storefront"
             />
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <TextField<BusinessSettingsFormData>
-                control={form.control}
-                name="businessName"
-                label="Business Name"
-                placeholder="Your business name"
-              />
-              <TextField<BusinessSettingsFormData>
-                control={form.control}
-                name="taxPercentage"
-                label="Tax Percentage"
-                type="number"
-                min={0}
-                max={100}
-                step={0.01}
-                placeholder="0.00"
-              />
-              <SelectField<BusinessSettingsFormData>
-                control={form.control}
-                name="enableStock"
-                label="Stock Management"
-                options={[
-                  { label: "Enabled", value: "ENABLED" },
-                  { label: "Disabled", value: "DISABLED" },
-                ]}
-              />
-              <TextField<BusinessSettingsFormData>
-                control={form.control}
-                name="lowStockThreshold"
-                label="Low Stock Threshold"
-                type="number"
-                min={1}
-                step={1}
-                valueAsNumber
-                disabled={isSaving || form.watch("enableStock") === "DISABLED"}
-                placeholder={String(BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD)}
-                error={form.formState.errors.lowStockThreshold}
-              />
-            </div>
-          </CardContent>
-        </Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
+              {/* Left Column: Logo Uploder */}
+              <div className="w-full lg:w-[240px] shrink-0 flex flex-col items-center lg:items-start justify-start space-y-4">
+                <div className="w-full max-w-full">
+                  <SpacesImageUpload
+                    businessId={AppDefault.BUSINESS_ID}
+                    label="Business Logo"
+                    value={watchLogoBusiness?.o || watchLogoBusiness?.md || watchLogoBusiness?.sm || ""}
+                    multiSize
+                    deferred
+                    onFileSelected={handleLogoFileSelected}
+                    disabled={isSaving}
+                    aspectRatio="square"
+                    placeholder="Click to upload logo"
+                    helperText="Square (1:1) recommended — PNG, JPG"
+                    maxSizeMb={5}
+                  />
+                </div>
+              </div>
 
-        {/* Branding Image */}
-        <Card>
-          <CardHeader>
-            <SectionTitle
-              icon={ImageIcon}
-              title="Branding Image"
-              subtitle="Logo shown across your storefront"
-            />
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <SpacesImageUpload
-                businessId={AppDefault.BUSINESS_ID}
-                label="Business Logo"
-                value={watchLogoBusiness?.o || watchLogoBusiness?.md || watchLogoBusiness?.sm || ""}
-                multiSize
-                deferred
-                onFileSelected={handleLogoFileSelected}
-                disabled={isSaving}
-                aspectRatio="square"
-                placeholder="Click to upload logo"
-                helperText="Square (1:1) image recommended — PNG, JPG"
-                maxSizeMb={5}
-              />
-              <div />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Contact Information */}
-        <Card>
-          <CardHeader>
-            <SectionTitle
-              icon={Phone}
-              title="Contact Information"
-              subtitle="How customers can reach you"
-            />
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <TextareaField<BusinessSettingsFormData>
-              control={form.control}
-              name="contactAddress"
-              label="Contact Address"
-              placeholder="123 Street Name, Phnom Penh, Cambodia"
-              rows={3}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <TextField<BusinessSettingsFormData>
-                control={form.control}
-                name="contactPhone"
-                label="Contact Phone"
-                placeholder="+855 12 345 678"
-              />
-              <TextField<BusinessSettingsFormData>
-                control={form.control}
-                name="contactEmail"
-                label="Contact Email"
-                type="email"
-                placeholder="support@example.com"
-              />
+              {/* Right Column: Information Fields */}
+              <div className="flex-1 space-y-6">
+                {/* Subsection: Basic Identity */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground border-b border-border/40 pb-1.5 flex items-center gap-1.5">
+                    <span className="w-1 h-3 rounded-full bg-primary shrink-0" />
+                    Store Details
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <TextField<BusinessSettingsFormData>
+                      control={form.control}
+                      name="businessName"
+                      label="Business Name"
+                      placeholder="Enter your business name"
+                      disabled={isSaving}
+                    />
+                    <TextField<BusinessSettingsFormData>
+                      control={form.control}
+                      name="taxPercentage"
+                      label="Tax Percentage"
+                      pattern="[0-9.]"
+                      placeholder="Enter your tax percentage"
+                      disabled={isSaving}
+                    />
+                    <SelectField<BusinessSettingsFormData>
+                      control={form.control}
+                      name="enableStock"
+                      label="Stock Management"
+                      options={[
+                        { label: "Enabled", value: "ENABLED" },
+                        { label: "Disabled", value: "DISABLED" },
+                      ]}
+                      disabled={isSaving}
+                    />
+                    <TextField<BusinessSettingsFormData>
+                      control={form.control}
+                      name="lowStockThreshold"
+                      label="Low Stock Threshold"
+                      valueAsNumber
+                      allowZero={false}
+                      disabled={isSaving}
+                      placeholder="Enter low stock threshold"
+                      error={form.formState.errors.lowStockThreshold}
+                    />
+                    <SelectField<BusinessSettingsFormData>
+                      control={form.control}
+                      name="receiptSize"
+                      label="Default Receipt Size"
+                      options={[
+                        { label: "Small receipt (58mm)", value: "SIZE_58MM" },
+                        { label: "Standard receipt (80mm)", value: "SIZE_80MM" },
+                        { label: "Large receipt (112mm)", value: "SIZE_112MM" },
+                      ]}
+                      disabled={isSaving}
+                    />
+                    <TextField<BusinessSettingsFormData>
+                      control={form.control}
+                      name="contactPhone"
+                      label="Contact Phone"
+                      placeholder="Enter your contact phone number"
+                      disabled={isSaving}
+                    />
+                    <TextField<BusinessSettingsFormData>
+                      control={form.control}
+                      name="contactEmail"
+                      label="Contact Email"
+                      type="email"
+                      placeholder="Enter your contact email address"
+                      disabled={isSaving}
+                    />
+                    <TextField<BusinessSettingsFormData>
+                      control={form.control}
+                      name="wifiName"
+                      label="Wi-Fi Name (SSID)"
+                      placeholder="Enter Wi-Fi Network Name"
+                      disabled={isSaving}
+                    />
+                    <TextField<BusinessSettingsFormData>
+                      control={form.control}
+                      name="wifiPassword"
+                      label="Wi-Fi Password"
+                      placeholder="Enter Wi-Fi Password"
+                      disabled={isSaving}
+                    />
+                    <div className="sm:col-span-2">
+                      <TextareaField<BusinessSettingsFormData>
+                        control={form.control}
+                        name="contactAddress"
+                        label="Contact Address"
+                        placeholder="Enter your contact address"
+                        rows={2}
+                        disabled={isSaving}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Business Hours */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-2">
+        <Card className="border border-border/60 shadow-xs overflow-hidden transition-all duration-300 hover:shadow-sm bg-card">
+          <CardHeader className="flex flex-row items-center justify-between gap-2 border-b border-border/40 bg-muted/10 pb-4">
             <SectionTitle
               icon={Clock}
               title="Business Hours"
@@ -525,15 +550,16 @@ export default function BusinessSettingsPage() {
                 );
               }}
               disabled={isSaving}
+              className="hover:bg-primary/5 hover:text-primary transition-colors duration-200"
             >
               <Plus className="w-3.5 h-3.5 mr-1" /> Add Day
             </CustomButton>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             {businessHours.length === 0 ? (
               <EmptyState message="No business hours configured" />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 {businessHours.map((_, index) => {
                   const hourErrors = (
                     form.formState.errors.businessHours as any
@@ -542,40 +568,22 @@ export default function BusinessSettingsPage() {
                   return (
                     <div
                       key={index}
-                      className={`border rounded-md p-4 relative hover:shadow-sm transition-shadow ${
+                      className={`border border-border/60 rounded-xl p-4 sm:p-5 relative hover:shadow-xs hover:border-primary/30 transition-all duration-300 bg-muted/5 flex flex-col md:flex-row md:items-end gap-4 ${
                         hasError
-                          ? "border-red-500 bg-red-50 dark:bg-red-950/20"
+                          ? "border-red-300 bg-red-50/30 dark:bg-red-950/10"
                           : ""
                       }`}
                     >
-                      <CustomButton
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
-                        onClick={() => {
-                          const currentHours =
-                            form.getValues("businessHours") || [];
-                          form.setValue(
-                            "businessHours",
-                            currentHours.filter((_, i) => i !== index),
-                            { shouldDirty: true },
-                          );
-                        }}
-                        disabled={isSaving}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </CustomButton>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pr-10">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-1">
                         <TextField<BusinessSettingsFormData>
                           control={form.control}
                           name={`businessHours.${index}.day`}
                           label="Day"
-                          placeholder="e.g., Monday"
+                          placeholder="Enter day (e.g., Monday)"
                           disabled={isSaving}
                         />
-                        <div className="flex flex-col gap-1 w-full">
-                          <Label className="text-xs font-medium text-foreground">
+                        <div className="flex flex-col gap-1.5 w-full">
+                          <Label className="text-xs font-semibold text-foreground">
                             Opening Time
                           </Label>
                           <Controller
@@ -591,8 +599,8 @@ export default function BusinessSettingsPage() {
                             )}
                           />
                         </div>
-                        <div className="flex flex-col gap-1 w-full">
-                          <Label className="text-xs font-medium text-foreground">
+                        <div className="flex flex-col gap-1.5 w-full">
+                          <Label className="text-xs font-semibold text-foreground">
                             Closing Time
                           </Label>
                           <Controller
@@ -609,8 +617,29 @@ export default function BusinessSettingsPage() {
                           />
                         </div>
                       </div>
+                      
+                      <div className="flex justify-end md:pb-1 shrink-0">
+                        <CustomButton
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg h-9 w-9 p-0"
+                          onClick={() => {
+                            const currentHours =
+                              form.getValues("businessHours") || [];
+                            form.setValue(
+                              "businessHours",
+                              currentHours.filter((_, i) => i !== index),
+                              { shouldDirty: true },
+                            );
+                          }}
+                          disabled={isSaving}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </CustomButton>
+                      </div>
                       {hasError && !hourErrors?.day && hourErrors?.message && (
-                        <p className="mt-2 text-xs text-red-600">
+                        <p className="mt-2 text-xs text-red-600 font-medium">
                           {hourErrors.message}
                         </p>
                       )}
@@ -623,8 +652,8 @@ export default function BusinessSettingsPage() {
         </Card>
 
         {/* Social Media */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-2">
+        <Card className="border border-border/60 shadow-xs overflow-hidden transition-all duration-300 hover:shadow-sm bg-card">
+          <CardHeader className="flex flex-row items-center justify-between gap-2 border-b border-border/40 bg-muted/10 pb-4">
             <SectionTitle
               icon={Share2}
               title="Social Media"
@@ -649,18 +678,19 @@ export default function BusinessSettingsPage() {
                 setSocialBlobUrls((prev) => [...prev, ""]);
               }}
               disabled={isSaving}
+              className="hover:bg-primary/5 hover:text-primary transition-colors duration-200"
             >
               <Plus className="w-3.5 h-3.5 mr-1" /> Add Account
             </CustomButton>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             {socialMedia.length === 0 ? (
               <EmptyState
                 message="No social media accounts added"
                 hint='Click "Add Account" to connect a platform'
               />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {socialMedia.map((_, index) => {
                   const socialErrors = (
                     form.formState.errors.socialMedia as any
@@ -670,63 +700,78 @@ export default function BusinessSettingsPage() {
                   return (
                     <div
                       key={index}
-                      className={`border rounded-md p-4 relative hover:shadow-sm transition-shadow ${
+                      className={`border border-border/60 rounded-xl p-5 hover:shadow-xs hover:border-primary/30 transition-all duration-300 bg-muted/5 space-y-4 ${
                         hasError
-                          ? "border-red-500 bg-red-50 dark:bg-red-950/20"
+                          ? "border-red-300 bg-red-50/30 dark:bg-red-950/10"
                           : ""
                       }`}
                     >
-                      <CustomButton
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
-                        onClick={() => {
-                          const current = form.getValues("socialMedia") || [];
-                          form.setValue(
-                            "socialMedia",
-                            current.filter((_, i) => i !== index),
-                            { shouldDirty: true },
-                          );
-                          if (socialBlobUrls[index]) URL.revokeObjectURL(socialBlobUrls[index]);
-                          setPendingSocialFiles((prev) => prev.filter((_, i) => i !== index));
-                          setSocialBlobUrls((prev) => prev.filter((_, i) => i !== index));
-                        }}
-                        disabled={isSaving}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </CustomButton>
-                      <div className="space-y-4 pr-10">
-                        <SpacesImageUpload
-                businessId={AppDefault.BUSINESS_ID}
-                          label="Platform Icon"
-                          value={watchImage?.o || watchImage?.md || watchImage?.sm || ""}
-                          multiSize
-                          deferred
-                          onFileSelected={(file) => handleSocialFileSelected(index, file)}
+                      {/* Platform header */}
+                      <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                        <span className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                          Platform #{index + 1}
+                        </span>
+                        <CustomButton
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg h-8 w-8 p-0"
+                          onClick={() => {
+                            const current = form.getValues("socialMedia") || [];
+                            form.setValue(
+                              "socialMedia",
+                              current.filter((_, i) => i !== index),
+                              { shouldDirty: true },
+                            );
+                            if (socialBlobUrls[index]) URL.revokeObjectURL(socialBlobUrls[index]);
+                            setPendingSocialFiles((prev) => prev.filter((_, i) => i !== index));
+                            setSocialBlobUrls((prev) => prev.filter((_, i) => i !== index));
+                          }}
                           disabled={isSaving}
-                          aspectRatio="square"
-                          placeholder="Click to upload icon"
-                          maxSizeMb={5}
-                          helperText="Square (1:1) icon recommended — PNG, JPG"
-                        />
-                        <TextField<BusinessSettingsFormData>
-                          control={form.control}
-                          name={`socialMedia.${index}.name`}
-                          label="Platform Name"
-                          placeholder="e.g., Facebook, Instagram, TikTok"
-                          disabled={isSaving}
-                        />
-                        <TextField<BusinessSettingsFormData>
-                          control={form.control}
-                          name={`socialMedia.${index}.linkUrl`}
-                          label="Profile Link"
-                          placeholder="https://facebook.com/yourprofile"
-                          disabled={isSaving}
-                        />
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </CustomButton>
+                      </div>
+
+                      {/* Content */}
+                      <div className="grid grid-cols-1 sm:grid-cols-12 gap-5">
+                        {/* Social Icon Uploder */}
+                        <div className="sm:col-span-4 flex flex-col justify-start">
+                          <SpacesImageUpload
+                            businessId={AppDefault.BUSINESS_ID}
+                            label="Platform Icon"
+                            value={watchImage?.o || watchImage?.md || watchImage?.sm || ""}
+                            multiSize
+                            deferred
+                            onFileSelected={(file) => handleSocialFileSelected(index, file)}
+                            disabled={isSaving}
+                            aspectRatio="square"
+                            placeholder="Click icon"
+                            maxSizeMb={5}
+                            helperText="1:1 (PNG, JPG)"
+                          />
+                        </div>
+                        {/* Social Input Fields */}
+                        <div className="sm:col-span-8 space-y-3">
+                          <TextField<BusinessSettingsFormData>
+                            control={form.control}
+                            name={`socialMedia.${index}.name`}
+                            label="Platform Name"
+                            placeholder="Enter platform name (e.g., Facebook)"
+                            disabled={isSaving}
+                          />
+                          <TextField<BusinessSettingsFormData>
+                            control={form.control}
+                            name={`socialMedia.${index}.linkUrl`}
+                            label="Profile Link"
+                            placeholder="Enter profile link (e.g., https://...)"
+                            disabled={isSaving}
+                          />
+                        </div>
                       </div>
                       {hasError && socialErrors?.message && (
-                        <p className="mt-2 text-xs text-red-600">
+                        <p className="mt-1.5 text-xs text-red-600 font-medium">
                           {socialErrors.message}
                         </p>
                       )}
@@ -739,85 +784,85 @@ export default function BusinessSettingsPage() {
         </Card>
 
         {/* Telegram Monitoring */}
-        <Card>
-          <CardHeader>
+        <Card className="border border-border/60 shadow-xs overflow-hidden transition-all duration-300 hover:shadow-sm bg-card">
+          <CardHeader className="border-b border-border/40 bg-muted/10 pb-4">
             <SectionTitle
               icon={Send}
               title="Telegram Monitoring"
               subtitle="Receive order alerts and staff notifications in your Telegram group"
             />
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="rounded-md border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20 p-3 space-y-2">
-              <p className="text-xs font-semibold text-sky-800 dark:text-sky-300">
-                How to set up (3 steps)
+          <CardContent className="pt-6 space-y-5">
+            <div className="rounded-xl border border-border/80 bg-gradient-to-br from-sky-500/[0.03] to-indigo-500/[0.03] dark:from-sky-400/[0.02] dark:to-indigo-400/[0.02] p-5 space-y-4 shadow-2xs relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 dark:bg-sky-400/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+              <p className="text-xs font-bold text-sky-800 dark:text-sky-300 uppercase tracking-wider flex items-center gap-2">
+                <span className="flex h-2 w-2 rounded-full bg-sky-500 shrink-0 shadow-sm animate-pulse" />
+                Quick Setup Guide
               </p>
-              <ol className="space-y-2 text-xs text-sky-700 dark:text-sky-400">
-                <li className="flex gap-2">
-                  <span className="font-bold shrink-0 w-3">1.</span>
-                  <span>
-                    Add{" "}
-                    <span className="font-semibold text-foreground">
-                      @CambodiaEMenuBot
-                    </span>{" "}
-                    to your Telegram group.
-                  </span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="font-bold shrink-0 w-3">2.</span>
-                  <span>
-                    <span className="font-semibold text-foreground">
-                      Promote the bot to Admin
-                    </span>{" "}
-                    — required so it can send messages to the group.
-                    <br />
-                    <span className="text-xs text-sky-600 dark:text-sky-500">
-                      Group Info → Administrators → Add Admin → search
-                      @CambodiaEMenuBot → Save.
-                    </span>
-                  </span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="font-bold shrink-0 w-3">3.</span>
-                  <span>
-                    Type this command in the group — the bot will link
-                    automatically:
-                    <br />
-                    <code className="mt-1 inline-block bg-white dark:bg-sky-900 px-1 py-1 rounded text-xs font-mono border border-sky-200 dark:border-sky-700 select-all">
-                      /link{" "}
-                      {reduxBusinessSettings?.businessId ?? "YOUR_BUSINESS_ID"}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Step 1 */}
+                <div className="flex flex-col gap-3 p-4 bg-card/60 dark:bg-muted/5 border border-border/80 rounded-xl hover:border-sky-300/40 dark:hover:border-sky-700/40 hover:shadow-2xs transition-all duration-300 relative overflow-hidden">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-sky-500 text-white text-[11px] font-extrabold shrink-0 shadow-xs">1</span>
+                    <span className="text-xs font-bold text-foreground">Add Bot</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed animate-in fade-in slide-in-from-bottom-1 duration-300">
+                    Add <span className="px-1.5 py-0.5 rounded-md bg-sky-50/50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 font-semibold text-[11px] border border-sky-100/50 dark:border-sky-900/50">@CambodiaEMenuBot</span> to your Telegram group.
+                  </p>
+                </div>
+                
+                {/* Step 2 */}
+                <div className="flex flex-col gap-3 p-4 bg-card/60 dark:bg-muted/5 border border-border/80 rounded-xl hover:border-sky-300/40 dark:hover:border-sky-700/40 hover:shadow-2xs transition-all duration-300 relative overflow-hidden">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-sky-500 text-white text-[11px] font-extrabold shrink-0 shadow-xs">2</span>
+                    <span className="text-xs font-bold text-foreground">Make Admin</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed animate-in fade-in slide-in-from-bottom-1 duration-300 delay-75">
+                    Promote the bot to <span className="font-semibold text-foreground">Admin</span> in group settings to enable alert messaging.
+                  </p>
+                </div>
+
+                {/* Step 3 */}
+                <div className="flex flex-col gap-3 p-4 bg-card/60 dark:bg-muted/5 border border-border/80 rounded-xl hover:border-sky-300/40 dark:hover:border-sky-700/40 hover:shadow-2xs transition-all duration-300 relative overflow-hidden">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-sky-500 text-white text-[11px] font-extrabold shrink-0 shadow-xs">3</span>
+                    <span className="text-xs font-bold text-foreground">Link Chat</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground leading-relaxed space-y-2 animate-in fade-in slide-in-from-bottom-1 duration-300 delay-150">
+                    <span>Send command in your group:</span>
+                    <code className="block w-full text-center bg-sky-50/50 dark:bg-sky-950/20 px-2 py-1 rounded text-[10px] font-mono border border-sky-100/60 dark:border-sky-900/40 select-all font-semibold text-sky-700 dark:text-sky-400 shadow-3xs hover:bg-sky-100/50 dark:hover:bg-sky-900/30 transition-all duration-200 cursor-pointer">
+                      /link {reduxBusinessSettings?.businessId || AppDefault.BUSINESS_ID}
                     </code>
-                  </span>
-                </li>
-              </ol>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-1">
               <TextField<BusinessSettingsFormData>
                 control={form.control}
                 name="telegramGroupChatId"
                 label="Telegram Group Chat ID"
-                placeholder="e.g., -1002784141362"
+                placeholder="Enter Telegram group chat ID"
                 disabled={isSaving}
               />
             </div>
 
             {form.watch("telegramGroupChatId") ? (
-              <div className="flex items-center gap-2 p-2 bg-emerald-50 dark:bg-emerald-950/20 rounded-md border border-emerald-200 dark:border-emerald-800">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                <p className="text-xs text-emerald-700 dark:text-emerald-400">
+              <div className="flex items-center gap-2.5 p-3 bg-emerald-50/50 dark:bg-emerald-950/10 rounded-lg border border-emerald-100 dark:border-emerald-900/50 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
                   Monitoring group linked — chat ID{" "}
-                  <span className="font-mono font-medium">
+                  <span className="font-mono font-bold bg-emerald-100 dark:bg-emerald-900 px-1 py-0.5 rounded text-[11px]">
                     {form.watch("telegramGroupChatId")}
                   </span>
                 </p>
               </div>
             ) : (
-              <div className="flex items-center gap-2 p-2 bg-muted/40 rounded-md border border-border">
-                <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 shrink-0" />
-                <p className="text-xs text-muted-foreground">
-                  No group linked yet. Follow the steps above to connect a
-                  Telegram group.
+              <div className="flex items-center gap-2.5 p-3 bg-muted/40 rounded-lg border border-border/60 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-muted-foreground/30 shrink-0" />
+                <p className="text-xs text-muted-foreground font-medium">
+                  No group linked yet. Follow the steps above to connect a Telegram group.
                 </p>
               </div>
             )}
@@ -838,7 +883,7 @@ export default function BusinessSettingsPage() {
             updateText="Save Changes"
             submittingUpdateText="Saving..."
             icon={<Save className="h-4 w-4" />}
-            className="min-w-[140px] bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80"
+            className="min-w-[140px] bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 transition-all duration-300 shadow-xs hover:shadow-sm"
           />
         </div>
       </form>

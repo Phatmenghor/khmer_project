@@ -11,9 +11,9 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import * as SelectPrimitive from "@radix-ui/react-select";
 import { Clock, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -181,9 +181,9 @@ export function CustomTimePicker({
             <div className="flex flex-col gap-1 w-[60px]">
               <span className="text-[10px] font-bold text-muted-foreground uppercase text-center tracking-wider">Hour</span>
               <Select value={selectedHour} onValueChange={setSelectedHour}>
-                <SelectTrigger className="h-[36px] w-full text-base md:text-sm font-semibold border-input">
+                <SelectPrimitive.Trigger className="flex h-[36px] w-full items-center justify-center text-center whitespace-nowrap rounded-md border border-border/80 bg-muted/30 px-1 text-base md:text-sm font-semibold text-foreground shadow-2xs transition-all duration-200 hover:bg-muted/50 hover:border-border focus:outline-none focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50">
                   <SelectValue />
-                </SelectTrigger>
+                </SelectPrimitive.Trigger>
                 <SelectContent className="max-h-48">
                   {hours.map((hour) => (
                     <SelectItem key={hour} value={hour} className="text-center font-medium">
@@ -201,9 +201,9 @@ export function CustomTimePicker({
             <div className="flex flex-col gap-1 w-[60px]">
               <span className="text-[10px] font-bold text-muted-foreground uppercase text-center tracking-wider">Min</span>
               <Select value={selectedMinute} onValueChange={setSelectedMinute}>
-                <SelectTrigger className="h-[36px] w-full text-base md:text-sm font-semibold border-input">
+                <SelectPrimitive.Trigger className="flex h-[36px] w-full items-center justify-center text-center whitespace-nowrap rounded-md border border-border/80 bg-muted/30 px-1 text-base md:text-sm font-semibold text-foreground shadow-2xs transition-all duration-200 hover:bg-muted/50 hover:border-border focus:outline-none focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50">
                   <SelectValue />
-                </SelectTrigger>
+                </SelectPrimitive.Trigger>
                 <SelectContent className="max-h-48">
                   {minutes.map((minute) => (
                     <SelectItem key={minute} value={minute} className="text-center font-medium">
@@ -237,13 +237,6 @@ export function CustomTimePicker({
             </div>
           </div>
 
-          {/* Selected Time Display */}
-          <div className="py-2 px-3 bg-primary/5 border border-primary/10 rounded-md text-center space-y-0.5">
-            <span className="text-[10px] text-muted-foreground block uppercase tracking-wider font-semibold">Selected Time</span>
-            <div className="text-base font-bold text-primary">
-              {formatTimeDisplay(selectedHour, selectedMinute, selectedPeriod)}
-            </div>
-          </div>
         </div>
 
         {/* Footer Actions */}

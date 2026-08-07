@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ReceiptSize } from "@/enums/receipt-size.enum";
 
 const imageUrlsSchema = z.object({
   sm: z.string().optional(),
@@ -59,6 +60,9 @@ export const businessSettingsSchema = z.object({
   useBrands: z.boolean().optional(),
   lowStockThreshold: z.number().int().min(1, "Must be at least 1").optional(),
   telegramGroupChatId: z.string().optional(),
+  receiptSize: z.nativeEnum(ReceiptSize).optional(),
+  wifiName: z.string().optional(),
+  wifiPassword: z.string().optional(),
 });
 
 export type BusinessSettingsFormData = z.infer<typeof businessSettingsSchema>;

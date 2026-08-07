@@ -3,7 +3,10 @@ package com.emenu.features.order.models;
 import com.emenu.features.main.models.Product;
 import com.emenu.features.main.models.ProductSize;
 import com.emenu.shared.domain.BaseUUIDEntity;
+import com.emenu.shared.dto.ImageUrls;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -54,8 +57,9 @@ public class OrderItem extends BaseUUIDEntity {
     @Column(name = "product_name", nullable = false)
     private String productName;
 
-    @Column(name = "product_image_url")
-    private String productImageUrl;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "product_image_url", columnDefinition = "jsonb")
+    private ImageUrls productImageUrl;
 
     @Column(name = "size_name")
     private String sizeName; // "Standard" if no size

@@ -5,7 +5,7 @@ import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/custom-button";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { AllOrderResponseModel } from "../store/models/response/order-admin-response";
-import { getOrderStatusLabel } from "@/enums/order-status.enum";
+import { getOrderStatusLabel, ORDER_STATUS_BADGE_CONFIG } from "@/enums/order-status.enum";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { Badge } from "@/components/ui/badge";
 
@@ -138,23 +138,9 @@ export const orderAdminTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (order) => {
-        const getStatusColor = (status: string) => {
-          switch (status) {
-            case "COMPLETED":
-            case "READY":
-              return "text-green-600 font-medium";
-            case "CANCELLED":
-            case "FAILED":
-              return "text-red-600 font-medium";
-            case "PENDING":
-            case "PREPARING":
-              return "text-blue-600 font-medium";
-            default:
-              return "text-gray-600 font-medium";
-          }
-        };
+        const textClass = ORDER_STATUS_BADGE_CONFIG[order?.orderStatus]?.text || "text-gray-600";
         return (
-          <span className={`text-xs ${getStatusColor(order?.orderStatus)}`}>
+          <span className={`text-xs ${textClass} font-medium`}>
             {getOrderStatusLabel(order?.orderStatus)}
           </span>
         );
@@ -229,7 +215,7 @@ export const orderAdminTableColumns = ({
             tooltip="Download Receipt"
             onClick={() => handleDownloadReceipt(order)}
             disabled={downloadingOrderId === order.id}
-            {...(downloadingOrderId === order.id && { loading: true })}
+            loading={downloadingOrderId === order.id}
           />
           <ActionButton
             icon={<Edit className="w-3 h-3" />}

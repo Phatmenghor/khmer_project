@@ -1,6 +1,7 @@
 package com.emenu.features.auth.dto.response;
 
 import com.emenu.enums.common.StockStatus;
+import com.emenu.enums.common.ReceiptSize;
 import com.emenu.shared.dto.BaseAuditResponse;
 import com.emenu.shared.dto.ImageUrls;
 import lombok.Data;
@@ -26,4 +27,7 @@ public class BusinessSettingResponse extends BaseAuditResponse {
     private Boolean useBrands;
     private Integer lowStockThreshold;
     private String telegramGroupChatId;
+    private ReceiptSize receiptSize;
+    private String wifiName;
+    private String wifiPassword;
 }

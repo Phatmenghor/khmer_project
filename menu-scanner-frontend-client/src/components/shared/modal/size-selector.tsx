@@ -38,21 +38,21 @@ function SizeSelectorComponent({
           const badgeQty = getTotalQuantityForSize ? getTotalQuantityForSize(size.id) : getDisplayQuantity(size.id);
 
           return (
-            <CustomButton variant="unstyled" size="unstyled"
+             <CustomButton variant="unstyled" size="unstyled"
               key={size.id}
               onClick={() => onSizeSelect(size)}
               className={cn(
-                "relative border-2 rounded px-2.5 py-1 transition-all duration-200 cursor-pointer text-left min-w-[72px]",
+                "relative border rounded-lg px-3 py-2 transition-all duration-200 cursor-pointer text-left min-w-[80px] shadow-2xs hover:shadow-xs hover:scale-[1.02]",
                 isActive
-                  ? "border-primary bg-primary/8 shadow-md ring-2 ring-primary/20"
-                  : "border-border hover:border-primary/50 hover:bg-muted/40 hover:shadow-sm",
-                isModified && !isActive && "ring-2 ring-amber-400/50",
+                  ? "border-primary bg-primary/5 text-primary shadow-xs ring-1 ring-primary/30"
+                  : "border-border/80 bg-card hover:border-primary/40 hover:bg-muted/10",
+                isModified && !isActive && "ring-1.5 ring-amber-400/50 border-amber-300",
               )}
             >
               {/* Selected checkmark */}
               {isActive && (
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full flex items-center justify-center shadow-sm z-10">
-                  <Check className="h-2 w-2 text-white" />
+                <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center shadow-xs z-10">
+                  <Check className="h-2 w-2 text-white stroke-[3px]" />
                 </div>
               )}
 
@@ -60,7 +60,7 @@ function SizeSelectorComponent({
               {badgeQty > 0 && (
                 <div
                   className={cn(
-                    "absolute -top-1 -left-1 min-w-[20px] h-3 rounded-full flex items-center justify-center text-white text-[10px] font-bold px-1 shadow-sm z-10",
+                    "absolute -top-1 -left-1 min-w-[18px] h-4 rounded-full flex items-center justify-center text-white text-[9px] font-extrabold px-1 shadow-xs z-10 leading-none",
                     isModified ? "bg-amber-500" : "bg-emerald-500",
                   )}
                 >

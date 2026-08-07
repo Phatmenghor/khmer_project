@@ -1,6 +1,7 @@
 package com.emenu.features.order.dto.response;
 
 import lombok.Data;
+import com.emenu.shared.dto.ImageUrls;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -35,7 +36,7 @@ public class OrderItemResponse {
     public static class OrderItemProductInfo {
         private UUID id;
         private String name;
-        private String imageUrl;
+        private ImageUrls imageUrl;
         private String sku;
         private String barcode;
         private UUID sizeId;

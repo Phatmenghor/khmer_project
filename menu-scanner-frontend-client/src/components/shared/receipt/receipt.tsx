@@ -44,6 +44,23 @@ export interface ReceiptProps {
   orderStatus?: string;
   customerName?: string;
   customerPhone?: string;
+
+  businessLogo?: string;
+  businessAddress?: string;
+  businessPhone?: string;
+  businessEmail?: string;
+
+  deliveryOption?: {
+    name: string;
+    price: number;
+  };
+
+  source?: string;
+  customerNote?: string;
+  businessNote?: string;
+
+  wifiName?: string;
+  wifiPassword?: string;
 }
 
 const FONT = "'Courier New', 'Courier', monospace";
@@ -66,6 +83,16 @@ export function Receipt({
   orderStatus,
   customerName,
   customerPhone,
+  businessLogo,
+  businessAddress,
+  businessPhone,
+  businessEmail,
+  deliveryOption,
+  source,
+  customerNote,
+  businessNote,
+  wifiName,
+  wifiPassword,
 }: ReceiptProps) {
   const dt = date ? new Date(date) : new Date();
   const dateStr = dt.toLocaleDateString("en-US", {
@@ -81,6 +108,8 @@ export function Receipt({
     })
     .replace(/\b(am|pm)\b/i, (m) => m.toUpperCase());
 
+  const shortOrderNumber = orderNumber ? orderNumber.split("-").pop() : "";
+
   const s: React.CSSProperties = {
     fontFamily: FONT,
     fontSize: "8px",
@@ -92,7 +121,7 @@ export function Receipt({
       style={{
         ...s,
         width: "100%",
-        maxWidth: "380px",
+        maxWidth: "none",
         margin: "0 auto",
         background: "#fff",
         padding: "16px 10px",
@@ -102,36 +131,75 @@ export function Receipt({
       <style>{`@media print { body { margin:0 } }`}</style>
 
       {/* Header */}
-      <div style={{ textAlign: "center", marginBottom: "8px" }}>
+      <div style={{ textAlign: "center", marginBottom: "6px" }}>
+        {businessLogo && (
+          <img
+            src={businessLogo}
+            alt={businessName}
+            style={{
+              width: "48px",
+              height: "48px",
+              objectFit: "contain",
+              borderRadius: "50%",
+              border: "1px solid #eee",
+              marginBottom: "8px",
+              display: "inline-block",
+            }}
+          />
+        )}
         <div
           style={{
-            fontWeight: 700,
-            fontSize: "11px",
-            letterSpacing: "2px",
+            fontWeight: 800,
+            fontSize: "14px",
+            letterSpacing: "1px",
             marginBottom: "2px",
+            color: "#000",
           }}
         >
           {businessName.toUpperCase()}
         </div>
-        <div style={{ fontSize: "8px", color: "#555" }}>POS Receipt</div>
+        
+        {/* Extra Store Info */}
+        {(businessAddress || businessPhone || businessEmail) && (
+          <div style={{ fontSize: "8px", color: "#555", marginTop: "4px", lineHeight: "1.3" }}>
+            {businessAddress && <div style={{ wordBreak: "break-word" }}>{businessAddress}</div>}
+            {(businessPhone || businessEmail) && (
+              <div>
+                {businessPhone && <span>Tel: {businessPhone}</span>}
+                {businessPhone && businessEmail && <span style={{ margin: "0 4px" }}>|</span>}
+                {businessEmail && <span>Email: {businessEmail}</span>}
+              </div>
+            )}
+          </div>
+        )}
+        
+        {shortOrderNumber && (
+          <div style={{ fontSize: "28px", fontWeight: 800, color: "#000", margin: "2px 0 0 0", lineHeight: "1.1", letterSpacing: "1px" }}>
+            {shortOrderNumber}
+          </div>
+        )}
+        <div style={{ fontSize: "9px", fontWeight: 700, color: "#111", marginTop: "2px" }}>
+          POS RECEIPT
+        </div>
       </div>
 
       {/* Order info */}
       <div
         style={{
-          borderTop: "2px solid #111",
-          borderBottom: "1px dashed #999",
-          padding: "4px 0",
-          marginBottom: "6px",
-          fontSize: "8px",
+          borderTop: "2px solid #000",
+          borderBottom: "1px dashed #000",
+          padding: "6px 0",
+          marginBottom: "10px",
+          fontSize: "9px",
+          lineHeight: "1.4",
         }}
       >
-        <InfoRow label="Order#" value={orderNumber} bold />
-        <InfoRow label="Date" value={dateStr} />
-        <InfoRow label="Time" value={timeStr} />
-        {customerName && <InfoRow label="Customer" value={customerName} />}
-        {customerPhone && <InfoRow label="Phone" value={customerPhone} />}
-        {orderStatus && <InfoRow label="Status" value={orderStatus} bold />}
+        <InfoRow label="TRANS ID" value={orderNumber} bold />
+        <InfoRow label="DATE/TIME" value={`${dateStr} ${timeStr}`} />
+        {customerName && <InfoRow label="CUSTOMER" value={customerName} />}
+        {customerPhone && <InfoRow label="CONTACT" value={customerPhone} />}
+        {source && <InfoRow label="SOURCE" value={source.replace("_", " ").toUpperCase()} />}
+        {orderStatus && <InfoRow label="STATUS" value={orderStatus.toUpperCase()} bold />}
       </div>
 
       {/* Column headers + Items in one table for perfect column alignment */}
@@ -146,10 +214,10 @@ export function Receipt({
       >
         <colgroup>
           <col style={{ width: "auto" }} />
-          <col style={{ width: "24px" }} />
-          <col style={{ width: "52px" }} />
-          <col style={{ width: "40px" }} />
-          <col style={{ width: "52px" }} />
+          <col style={{ width: "10%" }} />
+          <col style={{ width: "20%" }} />
+          <col style={{ width: "15%" }} />
+          <col style={{ width: "20%" }} />
         </colgroup>
         <thead>
           <tr style={{ borderBottom: "1px solid #111", fontWeight: 700 }}>
@@ -246,19 +314,20 @@ export function Receipt({
             color="#dc2626"
           />
         )}
-        {(pricing.taxAmount ?? 0) > 0 && (
+        {pricing.taxPercentage !== undefined && pricing.taxPercentage !== null && (
           <SummaryRow
-            label={`Tax (${pricing.taxPercentage ?? 0}%)`}
-            value={`+${formatCurrency(pricing.taxAmount!)}`}
+            label={`Tax (${pricing.taxPercentage}%)`}
+            value={`+${formatCurrency(pricing.taxAmount ?? 0)}`}
           />
         )}
-        {(pricing.deliveryFee ?? 0) > 0 && (
+        {(deliveryOption || (pricing.deliveryFee ?? 0) > 0) && (
           <SummaryRow
-            label="Delivery"
-            value={`+${formatCurrency(pricing.deliveryFee!)}`}
+            label={deliveryOption?.name ? `Delivery (${deliveryOption.name})` : "Delivery"}
+            value={`+${formatCurrency(pricing.deliveryFee ?? deliveryOption?.price ?? 0)}`}
           />
         )}
-        {paymentMethod && <SummaryRow label="Payment" value={paymentMethod} />}
+        {paymentMethod && <SummaryRow label="Payment Mode" value={paymentMethod} />}
+        {paymentStatus && <SummaryRow label="Payment Status" value={paymentStatus.toUpperCase()} />}
       </div>
 
       {/* Total */}
@@ -278,6 +347,43 @@ export function Receipt({
         <span>{formatCurrency(pricing.finalTotal)}</span>
       </div>
 
+      {/* Notes */}
+      {(customerNote || businessNote) && (
+        <div
+          style={{
+            fontSize: "8px",
+            color: "#444",
+            borderTop: "1px dashed #ddd",
+            marginTop: "6px",
+            paddingTop: "6px",
+            lineHeight: "1.4",
+            textAlign: "left",
+          }}
+        >
+          {customerNote && <div><span style={{ fontWeight: 700 }}>Note:</span> {customerNote}</div>}
+          {businessNote && <div><span style={{ fontWeight: 700 }}>Remarks:</span> {businessNote}</div>}
+        </div>
+      )}
+
+      {/* WiFi Info */}
+      {(wifiName || wifiPassword) && (
+        <div
+          style={{
+            borderTop: "1px dashed #ddd",
+            marginTop: "6px",
+            paddingTop: "6px",
+            textAlign: "center",
+            fontSize: "8px",
+            color: "#444",
+            lineHeight: "1.4",
+          }}
+        >
+          <div style={{ fontWeight: 700, fontSize: "9px", letterSpacing: "0.5px", color: "#111" }}>WI-FI DETAILS</div>
+          {wifiName && <div>SSID: <span style={{ fontWeight: 600 }}>{wifiName}</span></div>}
+          {wifiPassword && <div>Password: <span style={{ fontWeight: 600 }}>{wifiPassword}</span></div>}
+        </div>
+      )}
+
       {/* Footer */}
       <div
         style={{
@@ -289,9 +395,6 @@ export function Receipt({
       >
         <div>Thank you for your order!</div>
         <div>Please visit again</div>
-        <div style={{ marginTop: "4px" }}>
-          {dateStr} {timeStr}
-        </div>
       </div>
     </div>
   );
@@ -304,8 +407,25 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
     item.hasPromotion && item.promotionType
       ? item.promotionType === "PERCENTAGE"
         ? `${item.promotionValue}%`
-        : `$${formatAmount(item.promotionValue ?? 0)}`
-      : "0%";
+        : formatCurrency(item.promotionValue ?? 0)
+      : "-";
+
+  const sizeDisplay =
+    item.sizeName &&
+    item.sizeName !== "undefined" &&
+    item.sizeName !== "null"
+      ? item.sizeName
+      : "";
+
+  let originalPrice = item.finalPrice;
+  if (item.hasPromotion && item.promotionType && item.promotionValue) {
+    if (item.promotionType === "PERCENTAGE" && item.promotionValue < 100) {
+      originalPrice = item.finalPrice / (1 - item.promotionValue / 100);
+    } else if (item.promotionType === "FIXED_AMOUNT") {
+      originalPrice = item.finalPrice + item.promotionValue;
+    }
+  }
+  const showOriginalPrice = item.hasPromotion && originalPrice > item.finalPrice;
 
   return (
     <>
@@ -320,11 +440,11 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
             fontSize: "11px",
           }}
         >
-          {`${index + 1}.${item.name} (${item.sizeName})`}
+          {`${index + 1}.${item.name}${sizeDisplay ? ` (${sizeDisplay})` : ""}`}
         </td>
         <td
           style={{
-            textAlign: "left",
+            textAlign: "right",
             whiteSpace: "nowrap",
             padding: "2px 0",
             paddingLeft: "4px",
@@ -336,7 +456,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
         </td>
         <td
           style={{
-            textAlign: "left",
+            textAlign: "right",
             whiteSpace: "nowrap",
             padding: "2px 0",
             paddingLeft: "4px",
@@ -344,11 +464,11 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
             fontSize: "11px",
           }}
         >
-          {formatAmount(item.finalPrice)}
+          {formatCurrency(originalPrice)}
         </td>
         <td
           style={{
-            textAlign: "left",
+            textAlign: "right",
             whiteSpace: "nowrap",
             padding: "2px 0",
             paddingLeft: "4px",
@@ -369,7 +489,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
             fontSize: "11px",
           }}
         >
-          {formatAmount(item.totalPrice)}
+          {formatCurrency(item.totalPrice)}
         </td>
       </tr>
 
@@ -442,7 +562,7 @@ function SummaryRow({
       style={{
         display: "flex",
         justifyContent: "space-between",
-        fontSize: "12px",
+        fontSize: "10px",
         marginBottom: "2px",
       }}
     >
@@ -493,5 +613,12 @@ export function orderResponseToReceiptProps(
     orderStatus: order.orderStatus,
     customerName: order.customerName,
     customerPhone: order.customerPhone,
+    deliveryOption: order.deliveryOption ? {
+      name: order.deliveryOption.name,
+      price: order.deliveryOption.price,
+    } : undefined,
+    source: order.source || undefined,
+    customerNote: order.customerNote || undefined,
+    businessNote: order.businessNote || undefined,
   };
 }

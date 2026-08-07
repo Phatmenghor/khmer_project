@@ -1,12 +1,14 @@
 package com.emenu.shared.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
 
 /**
  * Standard API response envelope used by all endpoints.
@@ -28,7 +30,8 @@ public class ApiResponse<T> {
     private T data;
 
     @Builder.Default
-    private Instant timestamp = Instant.now();
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "Asia/Phnom_Penh")
+    private ZonedDateTime timestamp = ZonedDateTime.now(ZoneId.of("Asia/Phnom_Penh"));
 
     // ─── Success factories ───────────────────────────────────────────────────
 
@@ -37,7 +40,7 @@ public class ApiResponse<T> {
                 .success(true)
                 .message(message)
                 .data(data)
-                .timestamp(Instant.now())
+                .timestamp(ZonedDateTime.now(ZoneId.of("Asia/Phnom_Penh")))
                 .build();
     }
 
@@ -51,7 +54,7 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder()
                 .success(false)
                 .message(message)
-                .timestamp(Instant.now())
+                .timestamp(ZonedDateTime.now(ZoneId.of("Asia/Phnom_Penh")))
                 .build();
     }
 
@@ -60,7 +63,7 @@ public class ApiResponse<T> {
                 .success(false)
                 .message(message)
                 .data(details)
-                .timestamp(Instant.now())
+                .timestamp(ZonedDateTime.now(ZoneId.of("Asia/Phnom_Penh")))
                 .build();
     }
 

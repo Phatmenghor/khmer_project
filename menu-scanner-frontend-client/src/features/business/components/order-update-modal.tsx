@@ -105,7 +105,7 @@ export function OrderUpdateModal({
       setPreviousOrderStatus(currentStatus);
       reset({
         orderStatus: currentStatus,
-        businessNote: orderData.businessNote || "",
+        businessNote: "",
         paymentMethod: orderData.payment?.paymentMethod || "CASH",
         paymentStatus: orderData.payment?.paymentStatus || "UNPAID",
       });

@@ -9,6 +9,7 @@ import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -117,10 +118,10 @@ public class User extends BaseUUIDEntity {
     private List<UserEducation> educations = new ArrayList<>();
 
     @Column(name = "last_login_at")
-    private java.time.LocalDateTime lastLoginAt;
+    private LocalDateTime lastLoginAt;
 
     @Column(name = "last_active_at")
-    private java.time.LocalDateTime lastActiveAt;
+    private LocalDateTime lastActiveAt;
 
     @Column(name = "active_sessions_count")
     private Integer activeSessionsCount = 0;
@@ -149,7 +150,7 @@ public class User extends BaseUUIDEntity {
         this.telegram.setTelegramFirstName(firstName);
         this.telegram.setTelegramLastName(lastName);
         this.telegram.setTelegramPhotoUrl(photoUrl);
-        this.telegram.setTelegramSyncedAt(java.time.LocalDateTime.now());
+        this.telegram.setTelegramSyncedAt(LocalDateTime.now());
     }
 
     public void unsyncTelegram() {

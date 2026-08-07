@@ -81,7 +81,6 @@ public class ProductStock extends BaseUUIDEntity {
         return (int) java.time.temporal.ChronoUnit.DAYS.between(LocalDateTime.now(), expiryDate);
     }
 
-    @PrePersist
     @Override
     public void prePersist() {
         super.prePersist();
@@ -94,7 +93,6 @@ public class ProductStock extends BaseUUIDEntity {
         checkExpiry();
     }
 
-    @PreUpdate
     @Override
     public void preUpdate() {
         super.preUpdate();

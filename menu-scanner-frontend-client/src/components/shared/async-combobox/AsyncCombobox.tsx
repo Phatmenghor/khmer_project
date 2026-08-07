@@ -21,9 +21,9 @@ import { cn } from "@/lib/utils";
 import type { AsyncComboboxProps, ComboboxSize } from "./types";
 
 const SIZE_CLASSES = {
-  sm: "h-8 text-xs rounded-[10px] bg-muted/30 border border-border/80 px-3 hover:bg-muted/50 hover:border-border transition-all",
-  md: "h-[36px] text-base md:text-sm rounded-[12px] bg-muted/30 border border-border/80 px-3.5 hover:bg-muted/50 hover:border-border focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25 transition-all duration-200",
-  lg: "h-10 text-base md:text-sm rounded-[12px] bg-muted/30 border border-border/80 px-3.5 hover:bg-muted/50 hover:border-border focus:bg-background transition-all",
+  sm: "h-8 text-xs rounded-[10px] bg-muted/50 border border-border px-3 hover:bg-muted/65 hover:border-border transition-all",
+  md: "h-[36px] text-base md:text-sm rounded-[12px] bg-muted/50 border border-border px-3.5 hover:bg-muted/65 hover:border-border focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25 transition-all duration-200",
+  lg: "h-10 text-base md:text-sm rounded-[12px] bg-muted/50 border border-border px-3.5 hover:bg-muted/65 hover:border-border focus:bg-background transition-all",
 };
 
 export function AsyncCombobox<T>({

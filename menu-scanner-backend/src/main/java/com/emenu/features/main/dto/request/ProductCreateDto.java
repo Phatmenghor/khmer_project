@@ -34,6 +34,7 @@ public class ProductCreateDto {
 
     private String barcode;
     private String sku;
+    private Boolean hasSizes;
 
     private PromotionType promotionType;
     private BigDecimal promotionValue;

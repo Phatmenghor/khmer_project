@@ -1,5 +1,7 @@
 package com.emenu.features.order.dto.response;
 
+import com.emenu.enums.payment.PaymentMethod;
+import com.emenu.enums.payment.PaymentStatus;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,4 +25,6 @@ public class OrderStatusHistoryResponse {
     private OrderStatusHistoryUserInfo changedBy;
 
     private LocalDateTime changedAt;
+    private PaymentMethod paymentMethod;
+    private PaymentStatus paymentStatus;
 }

@@ -68,3 +68,15 @@ export function dateFormatLocal(timestamp: string | null | undefined): string {
     year: "numeric",
   });
 }
+
+export function formatDayMonth(timestamp: string | null | undefined): string {
+  if (!timestamp) return "—";
+
+  const date = new Date(timestamp);
+
+  return date.toLocaleDateString("en-US", {
+    timeZone: "Asia/Phnom_Penh",
+    month: "short",
+    day: "numeric",
+  });
+}

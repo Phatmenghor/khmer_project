@@ -3,7 +3,10 @@
 import { Badge } from "@/components/ui/badge";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import { formatCurrency } from "@/utils/common/currency-format";
+import { getPromotionBadgeText } from "@/utils/common/promotion-format";
 import { OrderItemResponse } from "@/features/main/store/models/response/order-response";
+
+import { getProductImageUrl } from "@/utils/common/common";
 
 interface OrderItemCardProps {
   item: OrderItemResponse;
@@ -16,16 +19,18 @@ export function OrderItemCard({ item }: OrderItemCardProps) {
         {/* Image */}
         <div className="relative w-[80px] h-[80px] rounded overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm">
           <SmartImage
-            src={item.product?.imageUrl}
+            src={getProductImageUrl(item.product?.imageUrl)}
             alt={item.product?.name || "Product"}
             fill
           />
           {item.hasPromotion && (
             <div className="absolute top-1 left-1 z-10 pointer-events-none">
               <Badge variant="destructive" className="text-[9px] font-bold px-1 py-0.5 shadow-md">
-                {item.promotionType === "PERCENTAGE"
-                  ? `-${item.promotionValue}%`
-                  : `-${formatCurrency(item.promotionValue ?? 0)}`}
+                {getPromotionBadgeText(
+                  item.hasPromotion,
+                  item.promotionType,
+                  item.promotionValue
+                )}
               </Badge>
             </div>
           )}

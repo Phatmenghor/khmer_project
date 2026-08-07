@@ -50,6 +50,7 @@ import {
   Check,
   Minus,
   Plus,
+  Package,
 } from "lucide-react";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { sanitizeImageUrl } from "@/utils/common/common";
@@ -826,21 +827,21 @@ export default function ProductDetailPage() {
                         key={size.id}
                         onClick={() => handleSizeButtonClick(size)}
                         className={cn(
-                          "relative border-2 rounded px-2.5 py-1 text-left transition-all duration-200 cursor-pointer min-w-[72px]",
+                          "relative border rounded-lg px-3 py-2 transition-all duration-200 cursor-pointer text-left min-w-[80px] shadow-2xs hover:shadow-xs hover:scale-[1.02]",
                           isSelected
-                            ? "border-primary bg-primary/8 shadow-md ring-2 ring-primary/20"
-                            : "border-border hover:border-primary/50 hover:bg-muted/40 hover:shadow-sm",
-                          isModified && !isSelected && "ring-2 ring-amber-400/50",
+                            ? "border-primary bg-primary/5 text-primary shadow-xs ring-1 ring-primary/30"
+                            : "border-border/80 bg-card hover:border-primary/40 hover:bg-muted/10",
+                          isModified && !isSelected && "ring-1.5 ring-amber-400/50 border-amber-300",
                         )}
                       >
                         {isSelected && (
-                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full flex items-center justify-center shadow-sm z-10">
-                            <Check className="h-2 w-2 text-white" />
+                          <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center shadow-xs z-10">
+                            <Check className="h-2 w-2 text-white stroke-[3px]" />
                           </div>
                         )}
                         {totalQty > 0 && (
                           <div className={cn(
-                            "absolute -top-1 -left-1 min-w-[20px] h-3 rounded-full flex items-center justify-center text-white text-[10px] font-bold px-1 shadow-sm z-10",
+                            "absolute -top-1 -left-1 min-w-[18px] h-4 rounded-full flex items-center justify-center text-white text-[9px] font-extrabold px-1 shadow-xs z-10 leading-none",
                             badgeAmber ? "bg-amber-500" : "bg-emerald-500",
                           )}>
                             {totalQty}
@@ -965,11 +966,11 @@ export default function ProductDetailPage() {
                     </span>
                   )}
                 </div>
-                <div className="border rounded overflow-hidden">
+                <div className="space-y-1.5">
                   {(showAllCustomizations
                     ? product.customizations
                     : product.customizations.slice(0, CUSTOMIZATION_LIMIT)
-                  ).map((c, idx, arr) => {
+                  ).map((c) => {
                     const isSelected = selectedSizeCustoms.has(c.id);
                     return (
                       <CustomButton variant="unstyled" size="unstyled"
@@ -977,35 +978,50 @@ export default function ProductDetailPage() {
                         type="button"
                         onClick={() => toggleCustomization(c.id)}
                         className={cn(
-                          "w-full flex items-center gap-2 px-3 py-1 text-xs text-left transition-colors",
-                          idx < arr.length - 1 && "border-b",
-                          isSelected ? "bg-primary/5" : "hover:bg-muted/40",
+                          "w-full flex items-center justify-between rounded-lg px-3 py-2 transition-all duration-200 cursor-pointer text-left border shadow-2xs hover:shadow-xs hover:scale-[1.005]",
+                          isSelected
+                            ? "bg-primary/5 border-primary shadow-xs ring-0.5 ring-primary/20"
+                            : "border-border/80 bg-card hover:border-primary/40 hover:bg-muted/10",
                         )}
                       >
-                        <div
-                          className={cn(
-                            "w-3 h-3 rounded border-2 flex items-center justify-center shrink-0 transition-colors",
-                            isSelected
-                              ? "border-primary bg-primary"
-                              : "border-border bg-background",
-                          )}
-                        >
-                          {isSelected && <Check className="h-1 w-1 text-primary-foreground" />}
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <div
+                            className={cn(
+                              "w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all duration-200 shadow-3xs",
+                              isSelected
+                                ? "border-primary bg-primary text-white"
+                                : "border-border bg-background",
+                            )}
+                          >
+                            {isSelected && <Check className="h-2.5 w-2.5 stroke-[3px] text-white" />}
+                          </div>
+                          <Package className={cn("h-3.5 w-3.5 shrink-0 transition-colors duration-200", isSelected ? "text-primary" : "text-muted-foreground/60")} />
+                          <span className="font-semibold text-xs text-foreground truncate">
+                            {c.name}
+                          </span>
                         </div>
-                        <span className="flex-1 text-foreground/90">{c.name}</span>
                         {c.priceAdjustment !== 0 ? (
                           <span
                             className={cn(
-                              "font-semibold text-xs px-1 py-0.5 rounded-full shrink-0",
+                              "text-[10px] font-bold shrink-0 ml-2 px-2 py-0.5 rounded-full border transition-all duration-200",
                               isSelected
-                                ? "text-primary bg-primary/10"
-                                : "text-muted-foreground bg-muted/60",
+                                ? "text-primary bg-primary/10 border-primary/20"
+                                : "text-muted-foreground bg-muted/40 border-border/40",
                             )}
                           >
                             +{formatCurrency(c.priceAdjustment)}
                           </span>
                         ) : (
-                          <span className="text-xs text-muted-foreground shrink-0">Free</span>
+                          <span
+                            className={cn(
+                              "text-[10px] font-bold shrink-0 ml-2 px-2 py-0.5 rounded-full border transition-all duration-200",
+                              isSelected
+                                ? "text-primary bg-primary/10 border-primary/20"
+                                : "text-muted-foreground bg-muted/40 border-border/40",
+                            )}
+                          >
+                            Free
+                          </span>
                         )}
                       </CustomButton>
                     );

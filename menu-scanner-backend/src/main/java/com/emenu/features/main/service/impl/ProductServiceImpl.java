@@ -854,7 +854,10 @@ public class ProductServiceImpl implements ProductService {
             boolean sizesChanged = updateProductSizes(updatedProduct, request.getSizes());
             if (sizesChanged) {
                 List<ProductSize> sizes = productSizeRepository.findByProductId(updatedProduct.getId());
-                updatedProduct.setSizes(sizes);
+                updatedProduct.getSizes().clear();
+                if (sizes != null) {
+                    updatedProduct.getSizes().addAll(sizes);
+                }
                 updatedProduct = productRepository.save(updatedProduct);
             }
 

@@ -1,6 +1,7 @@
 package com.emenu.features.auth.mapper;
 
 import com.emenu.enums.common.StockStatus;
+import com.emenu.enums.common.ReceiptSize;
 import com.emenu.shared.constants.BusinessConstants;
 import com.emenu.features.auth.dto.request.BusinessSettingCreateRequest;
 import com.emenu.features.auth.dto.response.BusinessSettingResponse;
@@ -24,6 +25,9 @@ public interface BusinessSettingMapper {
 
         if (response.getLowStockThreshold() == null) {
             response.setLowStockThreshold(BusinessConstants.DEFAULT_LOW_STOCK_THRESHOLD);
+        }
+        if (response.getReceiptSize() == null) {
+            response.setReceiptSize(ReceiptSize.SIZE_58MM);
         }
     }
 
@@ -56,6 +60,9 @@ public interface BusinessSettingMapper {
         }
         if (businessSetting.getUseBrands() == null) {
             businessSetting.setUseBrands(true);
+        }
+        if (businessSetting.getReceiptSize() == null) {
+            businessSetting.setReceiptSize(ReceiptSize.SIZE_58MM);
         }
     }
 

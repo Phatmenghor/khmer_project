@@ -16,7 +16,8 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 import { formatCurrency } from "@/utils/common/currency-format";
-import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
+import { formatAddress, getProductImageUrl } from "@/utils/common/common";
+import { dateTimeFormat, formatDate, dateFormatLocal, formatDayMonth } from "@/utils/date/date-time-format";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { cn } from "@/lib/utils";
 import { PageState } from "@/components/shared/page-state";
@@ -217,18 +218,7 @@ export default function OrderDetailPage() {
     order.orderStatus || null
   );
 
-  const formattedDeliveryAddress = [
-    order.deliveryAddress?.houseNumber,
-    order.deliveryAddress?.streetNumber
-      ? `St. ${order.deliveryAddress.streetNumber}`
-      : null,
-    order.deliveryAddress?.village,
-    order.deliveryAddress?.commune,
-    order.deliveryAddress?.district,
-    order.deliveryAddress?.province,
-  ]
-    .filter(Boolean)
-    .join(", ");
+  const formattedDeliveryAddress = formatAddress(order.deliveryAddress);
 
   return (
     <PageContainer className="min-h-screen flex flex-col py-4 sm:py-5">
@@ -289,7 +279,7 @@ export default function OrderDetailPage() {
                     Date
                   </p>
                   <p className="text-xs text-foreground">
-                    {new Date(order.createdAt).toLocaleDateString()}
+                    {dateFormatLocal(order.createdAt)}
                   </p>
                 </div>
                 <div>
@@ -360,42 +350,35 @@ export default function OrderDetailPage() {
                 <div className="flex items-flex-start gap-1 min-w-max px-1">
                   {state.statusTimeline.map((status, index) => {
                     const statusOrder = status.order || 0;
-                    const isCompleted = currentStatusPosition >= statusOrder;
+                    const isDone = currentStatusPosition > statusOrder;
                     const isCurrent = currentStatusPosition === statusOrder;
+                    const isStepCompleted = isDone || (index === state.statusTimeline.length - 1 && isCurrent);
                     const statusHistory = order.statusHistory?.find(
                       (h) => h.statusName === status.name
                     );
 
                     return (
                       <div key={status.id} className="flex flex-col items-center flex-shrink-0">
-                        {}
+                        {/* Circle */}
                         <div className="flex gap-1 items-center">
                           <div
                             className={cn(
                               "w-10 h-10 rounded-full flex items-center justify-center font-semibold text-xs transition-all ring-2 ring-offset-2 dark:ring-offset-slate-950 flex-shrink-0",
-                              isCompleted
-                                ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-green-200"
-                                : isCurrent
-                                  ? "bg-primary text-primary-foreground ring-primary/50 shadow-lg shadow-primary/20 animate-pulse"
-                                  : "bg-muted text-muted-foreground ring-muted"
+                              isStepCompleted || isCurrent
+                                ? "bg-emerald-500 text-white ring-emerald-500/30"
+                                : "bg-muted text-muted-foreground ring-muted"
                             )}
                           >
-                            {isCompleted ? (
-                              <Check className="h-3 w-3" />
-                            ) : isCurrent ? (
-                              <Zap className="h-3 w-3" />
-                            ) : (
-                              status.order
-                            )}
+                            <span>{status.order}</span>
                           </div>
 
-                          {}
+                          {/* Connector */}
                           {index < state.statusTimeline.length - 1 && (
                             <div
                               className={cn(
                                 "w-4 h-1 transition-colors flex-shrink-0",
-                                isCompleted
-                                  ? "bg-gradient-to-r from-green-200 to-green-200 dark:from-green-900/50 dark:to-green-900/50"
+                                isDone
+                                  ? "bg-emerald-500"
                                   : "bg-muted"
                               )}
                             />
@@ -409,7 +392,7 @@ export default function OrderDetailPage() {
                           </span>
                           {statusHistory && (
                             <span className="text-xs text-muted-foreground block mt-0.5">
-                              {new Date(statusHistory.changedAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                              {formatDayMonth(statusHistory.changedAt)}
                             </span>
                           )}
                           {!statusHistory && (
@@ -445,9 +428,9 @@ export default function OrderDetailPage() {
                   >
                     {}
                     <div className="relative flex-shrink-0 w-14 h-14 rounded overflow-hidden bg-muted border border-border/50">
-                      {item.product?.imageUrl ? (
+                      {getProductImageUrl(item.product?.imageUrl) ? (
                         <SmartImage
-                          src={item.product.imageUrl}
+                          src={getProductImageUrl(item.product.imageUrl)}
                           alt={item.product.name}
                           fill
                           showSkeleton={false}

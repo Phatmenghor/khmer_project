@@ -38,7 +38,7 @@ public interface CartMapper {
         response.setSizeName(cartItem.getSizeName());
         if (cartItem.getProduct() != null) {
             response.setProductName(cartItem.getProduct().getName());
-            response.setProductImageUrl(cartItem.getProduct().getMainImage() != null ? cartItem.getProduct().getMainImage().getSm() : null);
+            response.setProductImageUrl(cartItem.getProduct().getMainImage());
             response.setStatus(cartItem.getProduct().getStatus() != null
                     ? cartItem.getProduct().getStatus().name() : null);
             // Set SKU and barcode from product master data

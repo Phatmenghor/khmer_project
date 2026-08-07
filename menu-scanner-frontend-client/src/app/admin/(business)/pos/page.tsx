@@ -35,8 +35,6 @@ function PosPageInner() {
     searchTerm,
     selectedCategory,
     selectedBrand,
-    categories,
-    brands,
     hasMoreProducts,
     cartItems,
     showCart,
@@ -46,8 +44,6 @@ function PosPageInner() {
     editingCartItemId,
     successOrder,
     showOrderDetailsModal,
-    brandOpen,
-    categoryOpen,
     promotionFilter,
     promotionOpen,
     minPrice,
@@ -87,10 +83,6 @@ function PosPageInner() {
             searchTerm={searchTerm}
             selectedBrand={selectedBrand}
             selectedCategory={selectedCategory}
-            categories={categories}
-            brands={brands}
-            brandOpen={brandOpen}
-            categoryOpen={categoryOpen}
             promotionOpen={promotionOpen}
             promotionFilter={promotionFilter}
             minPrice={minPrice}

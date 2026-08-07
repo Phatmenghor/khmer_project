@@ -92,23 +92,20 @@ function ProductImageComponent({
       </div>
 
       {/* Sizes/Add-ons Badge */}
-      {(product.hasSizes || (product.customizations && product.customizations.length > 0)) && (
-        <div className="absolute bottom-1 left-1 z-10 pointer-events-none">
+      <div className="absolute bottom-1 left-1 z-10 pointer-events-none flex flex-wrap gap-1">
+        {product.hasSizes && (
           <Badge variant="secondary" className="text-xs font-medium px-1 py-0.5 shadow-sm bg-background/90 backdrop-blur-sm gap-1">
-            {product.hasSizes ? (
-              <>
-                <Ruler className="h-2 w-2" />
-                Sizes
-              </>
-            ) : (
-              <>
-                <Package className="h-2 w-2" />
-                Add-ons
-              </>
-            )}
+            <Ruler className="h-2 w-2" />
+            Sizes
           </Badge>
-        </div>
-      )}
+        )}
+        {product.customizations && product.customizations.length > 0 && (
+          <Badge variant="secondary" className="text-xs font-medium px-1 py-0.5 shadow-sm bg-background/90 backdrop-blur-sm gap-1">
+            <Package className="h-2 w-2" />
+            Add-ons
+          </Badge>
+        )}
+      </div>
     </div>
   );
 }

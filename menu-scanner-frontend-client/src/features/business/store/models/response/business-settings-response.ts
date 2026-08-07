@@ -1,5 +1,6 @@
 
 import { ImageUrls } from "@/features/auth/store/models/request/users-request";
+import { ReceiptSize } from "@/enums/receipt-size.enum";
 
 export type StockStatus = "ENABLED" | "DISABLED";
 
@@ -39,4 +40,7 @@ export interface BusinessSettingsResponse {
   useBrands?: boolean;
   lowStockThreshold?: number;
   telegramGroupChatId?: string;
+  receiptSize?: ReceiptSize;
+  wifiName?: string;
+  wifiPassword?: string;
 }

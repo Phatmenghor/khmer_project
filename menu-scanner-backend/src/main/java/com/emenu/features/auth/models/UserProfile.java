@@ -53,7 +53,7 @@ public class UserProfile extends BaseUUIDEntity {
     private String nickname;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender")
+    @Column(name = "gender", columnDefinition = "varchar(255)")
     private Gender gender;
 
     @Column(name = "date_of_birth")

@@ -21,7 +21,9 @@ import com.emenu.features.order.dto.request.CartSummaryRequest;
 import com.emenu.features.order.dto.request.CartItemRequest;
 import com.emenu.features.order.dto.response.OrderResponse;
 import com.emenu.features.order.dto.response.POSCheckoutResponse;
+import com.emenu.features.order.dto.response.CartSummaryResponse;
 import com.emenu.features.order.dto.update.OrderUpdateRequest;
+import com.emenu.features.location.models.Location;
 import com.emenu.enums.payment.PaymentMethod;
 import com.emenu.features.order.models.DeliveryOption;
 import com.emenu.features.order.repository.DeliveryOptionRepository;
@@ -51,6 +53,7 @@ import com.emenu.features.notification.websocket.service.WebSocketNotificationSe
 import com.emenu.features.order.service.OrderService;
 import com.emenu.features.stock.service.impl.StockServiceImpl;
 import com.emenu.security.SecurityUtils;
+import com.emenu.shared.dto.ImageUrls;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.generate.ReferenceNumberGenerator;
 import com.emenu.shared.generate.OrderNumberGenerator;
@@ -108,7 +111,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse createOrderFromCart(OrderCreateRequest request) {
-        log.info("[CHECKOUT START] Creating order from cart - Business: {}", request.getBusinessId());
+        log.info("Starting order creation from cart for business: {}", request.getBusinessId());
 
         User currentUser = securityUtils.getCurrentUser();
 
@@ -120,7 +123,7 @@ public class OrderServiceImpl implements OrderService {
             order.setOrderStatus(status);
 
             Order savedOrder = orderRepository.save(order);
-            log.info("[ORDER CREATED] Order #{} saved with ID: {}", savedOrder.getOrderNumber(), savedOrder.getId());
+            log.info("Saved new order #{} with ID: {}", savedOrder.getOrderNumber(), savedOrder.getId());
 
             // Create delivery address snapshot from addressId
             OrderDeliveryAddress deliveryAddress = createDeliveryAddressSnapshot(savedOrder.getId(), request.getAddressId());
@@ -156,7 +159,7 @@ public class OrderServiceImpl implements OrderService {
             }
 
             // Create initial order status history to track when order was created
-            createInitialOrderStatusHistory(savedOrder, currentUser.getId());
+            createInitialOrderStatusHistory(savedOrder, currentUser.getId(), currentUser.getFullName());
 
             // Create order items from cart summary with customizations
             if (request.getCart() != null && request.getCart().getItems() != null && !request.getCart().getItems().isEmpty()) {
@@ -174,9 +177,9 @@ public class OrderServiceImpl implements OrderService {
 
             clearCartAfterOrder(currentUser.getId(), request.getBusinessId());
 
-            log.info("[CHECKOUT SUCCESS] Order created successfully: {} - Fetching full response...", savedOrder.getOrderNumber());
+            log.info("Order created successfully: {} - Fetching full response details...", savedOrder.getOrderNumber());
             OrderResponse response = getOrderById(savedOrder.getId());
-            log.info("[CHECKOUT COMPLETE] Order #{} - Total: {}, Items: {}",
+            log.info("Completed order checkout for #{} - Total: {}, Items: {}",
                 response.getOrderNumber(),
                 response.getPricing() != null ? response.getPricing().getFinalTotal() : "N/A",
                 response.getItems().size());
@@ -186,11 +189,11 @@ public class OrderServiceImpl implements OrderService {
                 telegramNotificationService.notifyNewCustomerOrder(orderForNotification);
                 webSocketNotificationService.notifyNewOrder(orderForNotification);
             } catch (Exception e) {
-                log.warn("[TELEGRAM] Failed to send new order notification: {}", e.getMessage());
+                log.warn("Failed to send Telegram notification for new order: {}", e.getMessage());
             }
 
             return response;        } catch (Exception e) {
-            log.error("[CHECKOUT ERROR] Failed to create order: {}", e.getMessage(), e);
+            log.error("Failed to create order during checkout: {}", e.getMessage(), e);
             throw e;
         }
     }
@@ -198,11 +201,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<OrderResponse> getCustomerOrderHistory(OrderFilterRequest filter) {
-        long startTime = System.currentTimeMillis();
         User currentUser = securityUtils.getCurrentUser();
         filter.setBusinessId(null);  // Clear any business filter for customer orders
 
-        log.info("[CUSTOMER ORDER HISTORY] Fetching orders for customer: {} | Page: {}, Size: {}",
+        log.info("Fetching order history for customer: {} | Page: {}, Size: {}",
                 currentUser.getId(), filter.getPageNo(), filter.getPageSize());
 
         Pageable pageable = PaginationUtils.createPageable(
@@ -222,9 +224,8 @@ public class OrderServiceImpl implements OrderService {
 
         PaginationResponse<OrderResponse> response = paginationMapper.toPaginationResponse(page, orderMapper.toResponseList(page.getContent()));
 
-        long duration = System.currentTimeMillis() - startTime;
-        log.info("[CUSTOMER ORDER HISTORY COMPLETE] Retrieved {} orders in {} ms | Total: {} | Page: {}/{}",
-                page.getNumberOfElements(), duration, page.getTotalElements(),
+        log.info("Successfully retrieved {} order history records | Total: {} | Page: {}/{}",
+                page.getNumberOfElements(), page.getTotalElements(),
                 page.getNumber() + 1, page.getTotalPages());
 
         return response;
@@ -247,10 +248,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<OrderResponse> getAllOrders(OrderFilterRequest filter) {
-        long startTime = System.currentTimeMillis();
         User currentUser = securityUtils.getCurrentUser();
 
-        log.info("[GET ALL ORDERS] Starting retrieval | User: {}",
+        log.info("Starting orders retrieval for user: {}",
                 currentUser.getId());
 
         // If user is a business user and no businessId filter is provided, restrict to their business
@@ -263,7 +263,6 @@ public class OrderServiceImpl implements OrderService {
         );
 
         // Apply filters: businessId, orderStatus, paymentStatus, date range, search by order number
-        long queryStartTime = System.currentTimeMillis();
         LocalDateTime startDate = null;
         if (filter.getStartDate() != null && !filter.getStartDate().isBlank()) {
             try {
@@ -291,18 +290,16 @@ public class OrderServiceImpl implements OrderService {
                 filter.getSearch());
 
         Page<Order> page = orderRepository.findAll(spec, pageable);
-        long queryDuration = System.currentTimeMillis() - queryStartTime;
-        log.info("[DB QUERY COMPLETE] Retrieved {} orders (query took {} ms) | Total: {} | Pages: {}",
-                page.getNumberOfElements(), queryDuration, page.getTotalElements(), page.getTotalPages());
+        log.info("Retrieved {} orders from database | Total: {} | Pages: {}",
+                page.getNumberOfElements(), page.getTotalElements(), page.getTotalPages());
 
         // Batch-fetch status histories in one query (avoids N+1)
         batchLoadStatusHistories(page.getContent());
 
         PaginationResponse<OrderResponse> response = paginationMapper.toPaginationResponse(page, orderMapper.toResponseList(page.getContent()));
 
-        long totalDuration = System.currentTimeMillis() - startTime;
-        log.info("[GET ALL ORDERS COMPLETE] Total time: {} ms | Orders: {} | Total records: {} | Pages: {}/{}",
-                totalDuration, page.getNumberOfElements(), page.getTotalElements(),
+        log.info("Completed orders retrieval | Orders: {} | Total records: {} | Pages: {}/{}",
+                page.getNumberOfElements(), page.getTotalElements(),
                 page.getNumber() + 1, page.getTotalPages());
 
         return response;
@@ -333,53 +330,48 @@ public class OrderServiceImpl implements OrderService {
         // Update delivery address snapshot if provided
         if (request.getDeliveryAddress() != null) {
             OrderDeliveryAddress deliveryAddress = orderDeliveryAddressRepository.findByOrderId(orderId)
-                    .orElse(new OrderDeliveryAddress());
-            deliveryAddress.setOrderId(orderId);
-            deliveryAddress.setVillage(request.getDeliveryAddress().getVillage());
-            deliveryAddress.setCommune(request.getDeliveryAddress().getCommune());
-            deliveryAddress.setDistrict(request.getDeliveryAddress().getDistrict());
-            deliveryAddress.setProvince(request.getDeliveryAddress().getProvince());
-            deliveryAddress.setStreetNumber(request.getDeliveryAddress().getStreetNumber());
-            deliveryAddress.setHouseNumber(request.getDeliveryAddress().getHouseNumber());
-            deliveryAddress.setNote(request.getDeliveryAddress().getNote());
-            deliveryAddress.setLatitude(request.getDeliveryAddress().getLatitude());
-            deliveryAddress.setLongitude(request.getDeliveryAddress().getLongitude());
+                    .orElseGet(() -> {
+                        OrderDeliveryAddress address = new OrderDeliveryAddress();
+                        address.setOrderId(orderId);
+                        return address;
+                    });
+            orderMapper.updateDeliveryAddress(request.getDeliveryAddress(), deliveryAddress);
             orderDeliveryAddressRepository.save(deliveryAddress);
         }
 
         // Update delivery option snapshot if provided
         if (request.getDeliveryOption() != null) {
             OrderDeliveryOption deliveryOption = orderDeliveryOptionRepository.findByOrderId(orderId)
-                    .orElse(new OrderDeliveryOption());
-            deliveryOption.setOrderId(orderId);
-            deliveryOption.setName(request.getDeliveryOption().getName());
-            deliveryOption.setDescription(request.getDeliveryOption().getDescription());
-            deliveryOption.setImageUrl(request.getDeliveryOption().getImageUrl());
-            deliveryOption.setPrice(request.getDeliveryOption().getPrice());
+                    .orElseGet(() -> {
+                        OrderDeliveryOption option = new OrderDeliveryOption();
+                        option.setOrderId(orderId);
+                        return option;
+                    });
+            orderMapper.updateDeliveryOption(request.getDeliveryOption(), deliveryOption);
             orderDeliveryOptionRepository.save(deliveryOption);
 
             order.setDeliveryFee(request.getDeliveryOption().getPrice());
-
-            // Recalculate total with new delivery fee
             order.setTotalAmount(order.getSubtotal().add(request.getDeliveryOption().getPrice()));
         }
 
+        // Update payment details
         if (request.getPayment() != null) {
             if (request.getPayment().getPaymentMethod() != null) {
                 try {
                     order.setPaymentMethod(PaymentMethod.valueOf(request.getPayment().getPaymentMethod()));
                 } catch (IllegalArgumentException e) {
-                    log.warn("Invalid payment method: {}", request.getPayment().getPaymentMethod());
+                    log.warn("Invalid payment method value: {}", request.getPayment().getPaymentMethod());
                 }
             }
             if (request.getPayment().getPaymentStatus() != null) {
                 try {
                     order.setPaymentStatus(PaymentStatus.valueOf(request.getPayment().getPaymentStatus()));
                 } catch (IllegalArgumentException e) {
-                    log.warn("Invalid payment status: {}", request.getPayment().getPaymentStatus());
+                    log.warn("Invalid payment status value: {}", request.getPayment().getPaymentStatus());
                 }
             }
         }
+
         if (request.getCustomerNote() != null) {
             order.setCustomerNote(request.getCustomerNote());
         }
@@ -389,48 +381,33 @@ public class OrderServiceImpl implements OrderService {
 
         // Update order items if provided
         if (request.getItems() != null && !request.getItems().isEmpty()) {
-            log.info("Updating order items for order: {}", orderId);
-            // Clear existing items - cascade delete will handle cleanup
+            log.info("Updating items for order ID: {} | New items count: {}", orderId, request.getItems().size());
             order.getItems().clear();
 
-            // Create new items from the request
-            for (com.emenu.features.order.dto.request.OrderItemUpdateRequest itemRequest : request.getItems()) {
-                OrderItem item = new OrderItem();
+            for (var itemRequest : request.getItems()) {
+                OrderItem item = orderMapper.toOrderItem(itemRequest);
                 item.setOrderId(orderId);
-                item.setProductId(itemRequest.getProductId());
-                item.setProductSizeId(itemRequest.getProductSizeId());
-                item.setProductName(itemRequest.getProductName());
-                item.setProductImageUrl(itemRequest.getProductImageUrl());
-                item.setSizeName(itemRequest.getSizeName());
-
-                // Set SKU and barcode: prefer product master data, fallback to request data
-                Product product = productRepository.findById(itemRequest.getProductId()).orElse(null);
-                item.setSku(product != null && product.getSku() != null ? product.getSku() : itemRequest.getSku());
-                item.setBarcode(product != null && product.getBarcode() != null ? product.getBarcode() : itemRequest.getBarcode());
-
-                item.setCurrentPrice(itemRequest.getCurrentPrice());
-                item.setFinalPrice(itemRequest.getFinalPrice());
-                item.setUnitPrice(itemRequest.getUnitPrice());
-                item.setQuantity(itemRequest.getQuantity());
-                item.setTotalPrice(itemRequest.getFinalPrice().multiply(new BigDecimal(itemRequest.getQuantity())));
-                item.setHasPromotion(itemRequest.getHasPromotion());
-                item.setPromotionType(itemRequest.getPromotionType());
-                item.setPromotionValue(itemRequest.getPromotionValue());
-                item.setPromotionFromDate(itemRequest.getPromotionFromDate());
-                item.setPromotionToDate(itemRequest.getPromotionToDate());
                 item.setOrder(order);
+
+                // Set SKU and barcode fallback from product master data
+                Product product = productRepository.findById(itemRequest.getProductId()).orElse(null);
+                if (item.getSku() == null && product != null) item.setSku(product.getSku());
+                if (item.getBarcode() == null && product != null) item.setBarcode(product.getBarcode());
+
+                // Set UnitPrice and TotalPrice snapshots
+                item.setUnitPrice(itemRequest.getFinalPrice());
+                item.setTotalPrice(itemRequest.getFinalPrice().multiply(new BigDecimal(itemRequest.getQuantity())));
 
                 order.getItems().add(item);
             }
 
-            // Recalculate subtotal from items
             BigDecimal newSubtotal = order.getItems().stream()
                     .map(OrderItem::getTotalPrice)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
             order.setSubtotal(newSubtotal);
         }
 
-        // Full update fields (from pricing info if available)
+        // Pricing information updates
         if (request.getPricing() != null) {
             if (request.getPricing().getDiscountAmount() != null) {
                 order.setDiscountAmount(request.getPricing().getDiscountAmount());
@@ -439,18 +416,36 @@ public class OrderServiceImpl implements OrderService {
                 order.setTotalAmount(request.getPricing().getFinalTotal());
             }
             if (request.getPricing().getDeliveryFee() != null && request.getDeliveryOption() == null) {
-                // Only update delivery fee directly if delivery option is not provided
                 order.setDeliveryFee(request.getPricing().getDeliveryFee());
             }
         }
 
-        // Recalculate total amount if any pricing fields are updated or items changed
+        // Recalculate totals
         if (request.getItems() != null || request.getPricing() != null) {
             BigDecimal subtotal = order.getSubtotal() != null ? order.getSubtotal() : BigDecimal.ZERO;
             BigDecimal discount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
             BigDecimal delivery = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
             BigDecimal tax = order.getTaxAmount() != null ? order.getTaxAmount() : BigDecimal.ZERO;
             order.setTotalAmount(subtotal.subtract(discount).add(delivery).add(tax));
+        }
+
+        // Create and save status history if status changed
+        if (request.getOrderStatus() != null && request.getOrderStatus() != previousStatus) {
+            try {
+                OrderStatusHistory history = new OrderStatusHistory();
+                history.setOrderId(order.getId());
+                history.setOrderStatus(request.getOrderStatus());
+                history.setChangedByUserId(currentUser != null ? currentUser.getId() : null);
+                history.setChangedByName(currentUser != null ? currentUser.getFullName() : "System");
+                history.setNote(request.getBusinessNote() != null && !request.getBusinessNote().trim().isEmpty() ? request.getBusinessNote() : "Order status updated");
+                history.setOrder(order);
+                history.setPaymentMethod(order.getPaymentMethod());
+                history.setPaymentStatus(order.getPaymentStatus());
+                OrderStatusHistory savedHistory = orderStatusHistoryRepository.save(history);
+                order.getStatusHistory().add(savedHistory);
+            } catch (Exception e) {
+                log.warn("Failed to save status history snapshot during update: {}", e.getMessage());
+            }
         }
 
         Order updatedOrder = orderRepository.save(order);
@@ -540,20 +535,19 @@ public class OrderServiceImpl implements OrderService {
     private void createOrderItemsFromCartSummary(UUID orderId, Object cartSummary,
                                                   POSCheckoutRequest.PricingInfo pricingInfo) {
         // Handle both CartSummaryResponse and POSCheckoutRequest.CartSummary
-        if (!(cartSummary instanceof com.emenu.features.order.dto.response.CartSummaryResponse)) {
+        if (!(cartSummary instanceof CartSummaryResponse)) {
             log.warn("Invalid cart summary type: {}", cartSummary.getClass().getName());
             return;
         }
 
-        com.emenu.features.order.dto.response.CartSummaryResponse cartResponse =
-                (com.emenu.features.order.dto.response.CartSummaryResponse) cartSummary;
+        CartSummaryResponse cartResponse = (CartSummaryResponse) cartSummary;
 
         BigDecimal subtotal = cartResponse.getSubtotal() != null ? cartResponse.getSubtotal() : BigDecimal.ZERO;
         BigDecimal discountAmount = cartResponse.getTotalDiscount() != null ? cartResponse.getTotalDiscount() : BigDecimal.ZERO;
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> {
-                    log.error("[ERROR] Order not found: {}", orderId);
+                    log.error("Order not found with ID: {}", orderId);
                     return new NotFoundException("Order not found: " + orderId);
                 });
 
@@ -610,11 +604,11 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        log.info("[SAVING ORDER] Order ID: {}, Items: {}, Total: {} (Subtotal: {}, Discount: {}, Delivery: {}, Tax: {})",
+        log.info("Saving order ID: {}, Items: {}, Total: {} (Subtotal: {}, Discount: {}, Delivery: {}, Tax: {})",
             orderId, order.getItems().size(), totalAmount, subtotal, discountAmount, deliveryFee, taxAmount);
 
         orderRepository.save(order);
-        log.info("[ORDER ITEMS SAVED] Successfully saved {} items for order: {}", order.getItems().size(), orderId);
+        log.info("Successfully saved {} order items for order ID: {}", order.getItems().size(), orderId);
     }
 
     private void createOrderItemsFromCartSummaryWithCustomizations(UUID orderId, CartSummaryRequest cartSummary) {
@@ -638,7 +632,9 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setProductId(item.getProductId());
             orderItem.setProductSizeId(item.getProductSizeId());
             orderItem.setProductName(item.getProductName() != null ? item.getProductName() : product.getName());
-            orderItem.setProductImageUrl(item.getProductImageUrl() != null ? item.getProductImageUrl() : (product.getMainImage() != null ? product.getMainImage().getSm() : null));
+            ImageUrls originalImgUrl = product.getMainImage();
+            orderItem.setProductImageUrl(originalImgUrl != null ? originalImgUrl : 
+                    orderMapper.toImageUrls(item.getProductImageUrl()));
             orderItem.setSizeName(item.getSizeName());
 
             // Set SKU and barcode: prefer from request, fallback to product master data
@@ -833,22 +829,20 @@ public class OrderServiceImpl implements OrderService {
                 });
     }
 
-    private void createInitialOrderStatusHistory(Order order, UUID userId) {
+    private void createInitialOrderStatusHistory(Order order, UUID userId, String changedByName) {
         try {
-            // Create initial status history entry to track order creation
-            User user = securityUtils.getCurrentUser();
-            String changedByName = user != null ? user.getFullName() : "System";
-
             OrderStatusHistory history = new OrderStatusHistory();
             history.setOrderId(order.getId());
             history.setOrderStatus(order.getOrderStatus());
             history.setChangedByUserId(userId);
-            history.setChangedByName(changedByName);  // Snapshot of user's name at time of change
+            history.setChangedByName(changedByName != null ? changedByName : "System");
             history.setNote("Order created from checkout");
+            history.setPaymentMethod(order.getPaymentMethod());
+            history.setPaymentStatus(order.getPaymentStatus());
 
             orderStatusHistoryRepository.save(history);
         } catch (Exception e) {
-            log.warn("[STATUS HISTORY] Failed to create initial status history: {}", e.getMessage());
+            log.warn("Failed to save initial status history snapshot: {}", e.getMessage());
             // Don't throw exception - order creation should not fail if history creation fails
         }
     }
@@ -862,77 +856,25 @@ public class OrderServiceImpl implements OrderService {
         User currentUser = securityUtils.getCurrentUser();
 
         try {
-            Order order = new Order();
-            order.setBusinessId(request.getBusinessId());
-            order.setCustomerId(request.getCustomerId());
+            Order order = orderMapper.fromPOSCheckoutRequest(request);
             order.setOrderNumber(orderNumberGenerator.generateOrderNumber(request.getBusinessId()));
-            order.setOrderStatus(OrderStatus.COMPLETED);  // POS orders always completed
-            order.setSource("POS");
-            order.setOrderFrom(com.emenu.features.order.enums.OrderFromEnum.BUSINESS);
-            order.setPaymentMethod(PaymentMethod.CASH);
-            order.setPaymentStatus(PaymentStatus.PAID);
-            order.setCustomerNote(request.getCustomerNote());
-            order.setBusinessNote(request.getBusinessNote());
-
-            // Set customer details
-            if (request.getCustomerName() != null) {
-                order.setCustomerName(request.getCustomerName());
-            }
-            if (request.getCustomerPhone() != null) {
-                order.setCustomerPhone(request.getCustomerPhone());
-            }
-            if (request.getCustomerEmail() != null) {
-                order.setCustomerEmail(request.getCustomerEmail());
-            }
-            if (request.getCustomerAddress() != null) {
-                order.setCustomerAddress(request.getCustomerAddress());
-            }
-
-            // Apply pricing information BEFORE saving (required for NOT NULL constraints)
-            if (request.getPricing() != null) {
-                if (request.getPricing().getSubtotal() != null) {
-                    order.setSubtotal(request.getPricing().getSubtotal());
-                }
-                if (request.getPricing().getDeliveryFee() != null) {
-                    order.setDeliveryFee(request.getPricing().getDeliveryFee());
-                }
-                if (request.getPricing().getTaxPercentage() != null) {
-                    order.setTaxPercentage(request.getPricing().getTaxPercentage());
-                }
-                if (request.getPricing().getTaxAmount() != null) {
-                    order.setTaxAmount(request.getPricing().getTaxAmount());
-                }
-                if (request.getPricing().getDiscountAmount() != null) {
-                    order.setDiscountAmount(request.getPricing().getDiscountAmount());
-                }
-                if (request.getPricing().getDiscountType() != null) {
-                    order.setDiscountType(request.getPricing().getDiscountType());
-                }
-                if (request.getPricing().getDiscountReason() != null) {
-                    order.setDiscountReason(request.getPricing().getDiscountReason());
-                }
-                if (request.getPricing().getFinalTotal() != null) {
-                    order.setTotalAmount(request.getPricing().getFinalTotal());
-                }
-            }
 
             Order savedOrder = orderRepository.save(order);
 
             // Create delivery option snapshot
             if (request.getDeliveryOption() != null) {
                 OrderDeliveryOption deliveryOption = new OrderDeliveryOption();
+                orderMapper.updateDeliveryOption(request.getDeliveryOption(), deliveryOption);
                 deliveryOption.setOrderId(savedOrder.getId());
-                deliveryOption.setName(request.getDeliveryOption().getName());
-                deliveryOption.setDescription(request.getDeliveryOption().getDescription());
-                deliveryOption.setImageUrl(request.getDeliveryOption().getImageUrl());
-                deliveryOption.setPrice(request.getDeliveryOption().getPrice());
                 orderDeliveryOptionRepository.save(deliveryOption);
 
                 savedOrder.setDeliveryFee(request.getDeliveryOption().getPrice());
             }
 
             // Create initial order status history
-            createInitialOrderStatusHistory(savedOrder, currentUser != null ? currentUser.getId() : UUID.randomUUID());
+            createInitialOrderStatusHistory(savedOrder, 
+                    currentUser != null ? currentUser.getId() : null,
+                    currentUser != null ? currentUser.getFullName() : "Walk-in Cashier");
 
             // Create order items with customizations
             if (request.getCart() != null && request.getCart().getItems() != null && !request.getCart().getItems().isEmpty()) {
@@ -956,7 +898,7 @@ public class OrderServiceImpl implements OrderService {
                 businessRepository.findById(request.getBusinessId())
                     .ifPresent(b -> response.setBusinessName(b.getName()));
             }
-            log.info("[POS CHECKOUT] Order #{} created - Items: {}, Total: ${}",
+            log.info("POS checkout order #{} created successfully - Items: {}, Total: ${}",
                 savedOrder.getOrderNumber(),
                 response.getItems() != null ? response.getItems().size() : 0,
                 response.getPricing() != null ? response.getPricing().getFinalTotal() : 0);
@@ -967,7 +909,7 @@ public class OrderServiceImpl implements OrderService {
             return response;
 
         } catch (Exception e) {
-            log.error("[POS CHECKOUT ERROR] Failed to create POS order: {}", e.getMessage(), e);
+            log.error("Failed to create POS checkout order: {}", e.getMessage(), e);
             throw new ValidationException("Failed to create POS order: " + e.getMessage());
         }
     }
@@ -1029,7 +971,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderDeliveryAddress createDeliveryAddressSnapshot(UUID orderId, UUID addressId) {
         try {
             // Fetch location from database
-            com.emenu.features.location.models.Location location = locationRepository.findById(addressId)
+            Location location = locationRepository.findById(addressId)
                     .orElseThrow(() -> new NotFoundException("Address not found: " + addressId));
 
             // Create snapshot with all location details
@@ -1051,18 +993,18 @@ public class OrderServiceImpl implements OrderService {
             // Snapshot location images at time of order
             // If location images are updated later, orders preserve the images from checkout
             if (location.getLocationImages() != null && !location.getLocationImages().isEmpty()) {
-                java.util.List<String> imageUrls = location.getLocationImages().stream()
+                List<String> imageUrls = location.getLocationImages().stream()
                         .map(img -> img.getImageUrl())
-                        .collect(java.util.stream.Collectors.toList());
+                        .collect(Collectors.toList());
                 deliveryAddress.setLocationImages(imageUrls);
             }
 
             return deliveryAddress;
         } catch (NotFoundException e) {
-            log.error("[ADDRESS ERROR] Failed to fetch address: {}", e.getMessage());
+            log.error("Failed to fetch address details for snapshot: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            log.error("[ADDRESS ERROR] Error creating delivery address snapshot: {}", e.getMessage(), e);
+            log.error("Error creating delivery address snapshot: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to create delivery address snapshot", e);
         }
     }

@@ -1,6 +1,7 @@
 package com.emenu.features.auth.models;
 
 import com.emenu.enums.common.StockStatus;
+import com.emenu.enums.common.ReceiptSize;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import com.emenu.shared.dto.ImageUrls;
 import jakarta.persistence.*;
@@ -64,4 +65,14 @@ public class BusinessSetting extends BaseUUIDEntity {
 
     @Column(name = "telegram_group_chat_id", length = 50)
     private String telegramGroupChatId;
+
+    @Column(name = "receipt_size")
+    @Enumerated(EnumType.STRING)
+    private ReceiptSize receiptSize = ReceiptSize.SIZE_58MM;
+
+    @Column(name = "wifi_name")
+    private String wifiName;
+
+    @Column(name = "wifi_password")
+    private String wifiPassword;
 }

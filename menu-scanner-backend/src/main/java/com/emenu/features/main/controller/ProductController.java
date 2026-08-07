@@ -9,7 +9,6 @@ import com.emenu.features.main.dto.response.ProductListDto;
 import com.emenu.features.main.dto.response.BulkPromotionResultDto;
 import com.emenu.features.main.dto.update.ProductUpdateDto;
 import com.emenu.features.main.service.ProductService;
-import com.emenu.features.main.service.ProductConditionalService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.BatchImportResponse;
@@ -31,26 +30,13 @@ import java.util.UUID;
 public class ProductController {
 
     private final ProductService productService;
-    private final ProductConditionalService productConditionalService;
     private final SecurityUtils securityUtils;
 
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductListDto>>> getAllProducts(
             @Valid @RequestBody ProductFilterDto filter) {
         log.info("Endpoint: search-products - products retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
-
-        UUID businessId = filter.getBusinessId();
-
-        if (businessId != null && filter.getBrandId() != null && !productConditionalService.businessUsesBrands(businessId)) {
-            PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
-            emptyResponse.setContent(new java.util.ArrayList<>());
-            emptyResponse.setTotalElements(0L);
-            emptyResponse.setTotalPages(0);
-            return ResponseEntity.ok(ApiResponse.success("Brands are not enabled for this business", emptyResponse));
-        }
-
         PaginationResponse<ProductListDto> products = productService.getAllProducts(filter);
-
         return ResponseEntity.ok(ApiResponse.success(
             String.format("Found %d products", products.getTotalElements()),
             products

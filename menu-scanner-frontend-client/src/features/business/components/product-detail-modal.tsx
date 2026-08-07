@@ -63,11 +63,12 @@ export function ProductDetailModal({
 
   const isActive = productData.status === "ACTIVE";
   const hasPromo = hasAnyPromotion(productData.hasPromotion);
+  const hasSizesList = Boolean(productData.sizes && productData.sizes.length > 0);
 
   const promoLabel = hasPromo
     ? productData.displayPromotionType === "PERCENTAGE"
       ? `${productData.displayPromotionValue}% OFF`
-      : productData.displayPromotionType === "FIXED"
+      : productData.displayPromotionType === "FIXED_AMOUNT"
         ? `${formatCurrency(productData.displayPromotionValue || 0)} OFF`
         : "On Sale"
     : null;
@@ -98,89 +99,80 @@ export function ProductDetailModal({
                   <InfoRow label="Description" value={productData.description} fullWidth />
                   <InfoRow label="Category" value={productData.categoryName || "-"} />
                   <InfoRow label="Brand" value={productData.brandName || "-"} />
-                  <InfoRow label="SKU" value={productData.sku || "-"} />
-                  <InfoRow label="Barcode" value={productData.barcode || "-"} />
-                  <InfoRow label="Has Sizes" value={productData.hasSizes ? "Yes" : "No"} />
-                  <InfoRow
-                    label="Items"
-                    value={
-                      productData.sizes && productData.sizes.length > 0
-                        ? `${productData.sizes.length} size${productData.sizes.length > 1 ? "s" : ""}`
-                        : "No sizes"
-                    }
-                  />
+                   {!hasSizesList && <InfoRow label="SKU" value={productData.sku || "-"} />}
+                  {!hasSizesList && <InfoRow label="Barcode" value={productData.barcode || "-"} />}
                 </div>
               </div>
 
               {/* Pricing */}
-              <div className="rounded border border-border/50 bg-card p-3">
-                <SectionTitle>Pricing</SectionTitle>
-                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-                  <InfoRow
-                    label="Base Price"
-                    value={
-                      productData.price
-                        ? formatCurrency(parseFloat(productData.price) || 0)
-                        : "-"
-                    }
-                  />
-                  <InfoRow
-                    label="Display Price"
-                    value={
-                      <span className="font-semibold text-foreground">
-                        {formatCurrency(productData.displayPrice)}
-                      </span>
-                    }
-                  />
-                  {productData.displayOriginPrice !== productData.displayPrice && (
+              {!hasSizesList && (
+                <div className="rounded border border-border/50 bg-card p-3">
+                  <SectionTitle>Pricing</SectionTitle>
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-2">
                     <InfoRow
-                      label="Original Price"
+                      label="Base Price"
                       value={
-                        <span className="line-through text-muted-foreground">
-                          {formatCurrency(productData.displayOriginPrice)}
+                        productData.price
+                          ? formatCurrency(parseFloat(productData.price) || 0)
+                          : "-"
+                      }
+                    />
+                    <InfoRow
+                      label="Display Price"
+                      value={
+                        <span className="font-semibold text-foreground">
+                          {formatCurrency(productData.displayPrice)}
                         </span>
                       }
                     />
-                  )}
-                  {hasPromo && (
-                    <>
+                    {productData.displayOriginPrice !== productData.displayPrice && (
                       <InfoRow
-                        label="Promotion"
+                        label="Original Price"
                         value={
-                          isPromotionActive(productData.hasPromotion) ? (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-bold">
-                              {promoLabel} (Active)
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-bold">
-                              {promoLabel} (Future)
-                            </span>
-                          )
+                          <span className="line-through text-muted-foreground">
+                            {formatCurrency(productData.displayOriginPrice)}
+                          </span>
                         }
                       />
-                      <InfoRow
-                        label="Promo Type"
-                        value={productData.displayPromotionType || "-"}
-                      />
-                      <InfoRow
-                        label="Promo Period"
-                        value={
-                          productData.displayPromotionFromDate &&
-                          productData.displayPromotionToDate
-                            ? `${dateFormatLocal(productData.displayPromotionFromDate)} – ${dateFormatLocal(productData.displayPromotionToDate)}`
-                            : "-"
-                        }
-                        fullWidth
-                      />
-                    </>
-                  )}
+                    )}
+                    {hasPromo && (
+                      <>
+                        <InfoRow
+                          label="Promotion"
+                          value={
+                            isPromotionActive(productData.hasPromotion) ? (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-bold">
+                                {promoLabel} (Active)
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-bold">
+                                {promoLabel} (Future)
+                              </span>
+                            )
+                          }
+                        />
+                        <InfoRow
+                          label="Promo Type"
+                          value={productData.displayPromotionType || "-"}
+                        />
+                        <InfoRow
+                          label="Promo Period"
+                          value={
+                            productData.displayPromotionFromDate &&
+                            productData.displayPromotionToDate
+                              ? `${dateFormatLocal(productData.displayPromotionFromDate)} – ${dateFormatLocal(productData.displayPromotionToDate)}`
+                              : "-"
+                          }
+                          fullWidth
+                        />
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Sizes */}
-              {productData.hasSizes &&
-                productData.sizes &&
-                productData.sizes.length > 0 && (
+              {hasSizesList && (
                   <div className="rounded border border-border/50 bg-card p-3">
                     <SectionTitle>
                       Sizes ({productData.sizes.length})
@@ -219,7 +211,7 @@ export function ProductDetailModal({
 
                             {/* Pricing row */}
                             <div className="flex items-center gap-2 text-xs">
-                              {size.hasPromotion ? (
+                              {isSizePromoActive ? (
                                 <>
                                   <span className="line-through text-muted-foreground">
                                     {formatCurrency(size.price)}
@@ -233,7 +225,7 @@ export function ProductDetailModal({
                                   {formatCurrency(size.price)}
                                 </span>
                               )}
-                              {size.hasPromotion &&
+                              {(isSizePromoActive || isSizePromoScheduled) &&
                                 size.promotionFromDate &&
                                 size.promotionToDate && (
                                   <span className="text-muted-foreground ml-auto">
@@ -243,9 +235,10 @@ export function ProductDetailModal({
                                 )}
                             </div>
 
-                            {/* SKU / Stock row */}
-                            <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                            {/* SKU / Barcode / Stock row */}
+                            <div className="grid grid-cols-3 gap-x-2 gap-y-1">
                               <InfoRow label="SKU" value={size.sku || "-"} />
+                              <InfoRow label="Barcode" value={size.barcode || "-"} />
                               <InfoRow
                                 label="Stock"
                                 value={
@@ -330,11 +323,9 @@ export function ProductDetailModal({
                           className="flex items-center justify-between px-2 py-1.5 bg-blue-50 border border-blue-100 rounded text-xs"
                         >
                           <span className="font-medium text-blue-700">{c.name}</span>
-                          {(c.priceAdjustment ?? 0) > 0 && (
-                            <span className="font-bold text-blue-700">
-                              +{formatCurrency(c.priceAdjustment)}
-                            </span>
-                          )}
+                          <span className="font-bold text-blue-700">
+                            +{formatCurrency(c.priceAdjustment ?? 0)}
+                          </span>
                         </div>
                       ))}
                     </div>

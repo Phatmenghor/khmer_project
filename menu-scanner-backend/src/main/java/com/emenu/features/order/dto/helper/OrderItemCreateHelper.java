@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.emenu.shared.dto.ImageUrls;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -18,7 +19,7 @@ public class OrderItemCreateHelper {
     private UUID productId;
     private UUID productSizeId;
     private String productName;
-    private String productImageUrl;
+    private ImageUrls productImageUrl;
     private String sizeName;
 
     // Pricing snapshot

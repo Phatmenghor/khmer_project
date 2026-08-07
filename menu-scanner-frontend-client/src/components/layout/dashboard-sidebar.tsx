@@ -235,13 +235,13 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               href="/"
               className="relative flex items-center gap-2 group transition-all duration-300 hover:scale-[1.02]"
             >
-              <div className="relative w-11 h-11 shrink-0 translate-y-[2px]">
+              <div className="relative w-10 h-10 shrink-0 rounded-lg overflow-hidden border border-border/40 shadow-3xs bg-card flex items-center justify-center">
                 <SmartImage
                   src={logoUrl}
                   fallbackSrc={appImages.scanmekhLogo}
                   alt={businessName || "Logo"}
                   fill
-                  objectFit="contain"
+                  objectFit="cover"
                   showSkeleton={false}
                 />
               </div>

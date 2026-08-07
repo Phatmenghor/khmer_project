@@ -2,6 +2,8 @@ package com.emenu.features.order.mapper;
 
 import com.emenu.features.order.dto.response.OrderItemResponse;
 import com.emenu.features.order.models.OrderItem;
+import com.emenu.features.main.models.Product;
+import com.emenu.shared.dto.ImageUrls;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -33,7 +35,8 @@ public abstract class OrderItemMapper {
         // Use denormalized snapshot fields — product join may be null if product was deleted
         info.setId(orderItem.getProductId());
         info.setName(orderItem.getProductName());
-        info.setImageUrl(orderItem.getProductImageUrl());
+        info.setImageUrl(orderItem.getProductImageUrl() != null ? orderItem.getProductImageUrl() : 
+                (orderItem.getProduct() != null ? orderItem.getProduct().getMainImage() : null));
         info.setSku(orderItem.getSku());
         info.setBarcode(orderItem.getBarcode());
         info.setSizeId(orderItem.getProductSizeId());

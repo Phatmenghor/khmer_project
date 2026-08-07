@@ -14,7 +14,16 @@ import com.emenu.shared.mapper.PaginationMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.data.domain.Page;
+import com.emenu.shared.dto.ImageUrls;
+import com.emenu.features.order.dto.request.POSCheckoutRequest;
+import com.emenu.features.order.dto.request.DeliveryAddressRequest;
+import com.emenu.features.order.dto.request.DeliveryOptionRequest;
+import com.emenu.features.order.models.OrderDeliveryAddress;
+import com.emenu.features.order.models.OrderDeliveryOption;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -43,11 +52,79 @@ public interface OrderMapper {
     @Mapping(target = "payment", expression = "java(mapPaymentInfo(order))")
     OrderResponse toResponse(Order order);
 
-    List<OrderResponse> toResponseList(List<Order> orders);
+    default List<OrderResponse> toResponseList(List<Order> orders) {
+        if (orders == null) {
+            return null;
+        }
+        List<OrderResponse> list = new java.util.ArrayList<>(orders.size());
+        for (Order order : orders) {
+            OrderResponse response = toResponse(order);
+            if (response != null) {
+                response.setStatusHistory(null);
+            }
+            list.add(response);
+        }
+        return list;
+    }
 
     Order createFromHelper(OrderCreateHelper helper);
 
     OrderItem createOrderItemFromHelper(OrderItemCreateHelper helper);
+
+    default ImageUrls toImageUrls(String singleUrl) {
+        if (singleUrl == null || singleUrl.isBlank()) {
+            return null;
+        }
+        String sm = singleUrl;
+        String md = singleUrl;
+        String o = singleUrl;
+        if (singleUrl.contains("-sm.")) {
+            md = singleUrl.replace("-sm.", "-md.");
+            o = singleUrl.replace("-sm.", "-o.");
+        } else if (singleUrl.contains("-md.")) {
+            sm = singleUrl.replace("-md.", "-sm.");
+            o = singleUrl.replace("-md.", "-o.");
+        } else if (singleUrl.contains("-o.")) {
+            sm = singleUrl.replace("-o.", "-sm.");
+            md = singleUrl.replace("-o.", "-md.");
+        }
+        return ImageUrls.builder()
+                .sm(sm)
+                .md(md)
+                .o(o)
+                .build();
+    }
+
+    OrderItem toOrderItem(com.emenu.features.order.dto.request.OrderItemUpdateRequest request);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "orderNumber", ignore = true)
+    @Mapping(target = "deliveryOption", ignore = true)
+    @Mapping(target = "deliveryAddress", ignore = true)
+    @Mapping(target = "orderStatus", expression = "java(com.emenu.enums.order.OrderStatus.COMPLETED)")
+    @Mapping(target = "source", constant = "POS")
+    @Mapping(target = "orderFrom", expression = "java(com.emenu.features.order.enums.OrderFromEnum.BUSINESS)")
+    @Mapping(target = "paymentMethod", expression = "java(com.emenu.enums.payment.PaymentMethod.CASH)")
+    @Mapping(target = "paymentStatus", expression = "java(com.emenu.enums.payment.PaymentStatus.PAID)")
+    @Mapping(target = "subtotal", source = "pricing.subtotal")
+    @Mapping(target = "deliveryFee", source = "pricing.deliveryFee")
+    @Mapping(target = "taxPercentage", source = "pricing.taxPercentage")
+    @Mapping(target = "taxAmount", source = "pricing.taxAmount")
+    @Mapping(target = "discountAmount", source = "pricing.discountAmount")
+    @Mapping(target = "discountType", source = "pricing.discountType")
+    @Mapping(target = "discountReason", source = "pricing.discountReason")
+    @Mapping(target = "totalAmount", source = "pricing.finalTotal")
+    Order fromPOSCheckoutRequest(POSCheckoutRequest request);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "orderId", ignore = true)
+    void updateDeliveryAddress(DeliveryAddressRequest request, @MappingTarget OrderDeliveryAddress target);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "orderId", ignore = true)
+    void updateDeliveryOption(DeliveryOptionRequest request, @MappingTarget OrderDeliveryOption target);
 
     default OrderCreateHelper buildOrderHelper(OrderCreateRequest request, UUID customerId, String orderNumber) {
         var builder = OrderCreateHelper.builder()
@@ -98,7 +175,7 @@ public interface OrderMapper {
                 .productId(cartItem.getProductId())
                 .productSizeId(cartItem.getProductSizeId())
                 .productName(cartItem.getProduct().getName())
-                .productImageUrl(cartItem.getProduct().getMainImage() != null ? cartItem.getProduct().getMainImage().getSm() : null)
+                .productImageUrl(cartItem.getProduct().getMainImage())
                 .sizeName(cartItem.getSizeName())
                 // Pricing snapshot
                 .currentPrice(cartItem.getCurrentPrice())
@@ -190,6 +267,8 @@ public interface OrderMapper {
                         .note(history.getNote())
                         .changedBy(mapStatusHistoryUserInfo(history))
                         .changedAt(history.getCreatedAt())
+                        .paymentMethod(history.getPaymentMethod())
+                        .paymentStatus(history.getPaymentStatus())
                         .build())
                 .collect(Collectors.toList());
     }

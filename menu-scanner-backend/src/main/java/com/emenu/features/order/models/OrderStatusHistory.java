@@ -1,6 +1,8 @@
 package com.emenu.features.order.models;
 
 import com.emenu.enums.order.OrderStatus;
+import com.emenu.enums.payment.PaymentMethod;
+import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.features.auth.models.User;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
@@ -49,11 +51,29 @@ public class OrderStatusHistory extends BaseUUIDEntity {
     @Column(name = "changed_by_name")
     private String changedByName; // Full name for backward compatibility
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method")
+    private PaymentMethod paymentMethod;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status")
+    private PaymentStatus paymentStatus;
+
     public OrderStatusHistory(UUID orderId, OrderStatus orderStatus, String note, UUID changedByUserId, String changedByName) {
         this.orderId = orderId;
         this.orderStatus = orderStatus;
         this.note = note;
         this.changedByUserId = changedByUserId;
         this.changedByName = changedByName;
+    }
+
+    public OrderStatusHistory(UUID orderId, OrderStatus orderStatus, String note, UUID changedByUserId, String changedByName, PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
+        this.orderId = orderId;
+        this.orderStatus = orderStatus;
+        this.note = note;
+        this.changedByUserId = changedByUserId;
+        this.changedByName = changedByName;
+        this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
     }
 }

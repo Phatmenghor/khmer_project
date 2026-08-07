@@ -16,10 +16,10 @@ export const imageSchema = z.object({
 export const customizationSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, "Customization name is required"),
-  priceAdjustment: z
-    .number()
-    .min(0, "Price adjustment must be zero or positive")
-    .optional(),
+  priceAdjustment: z.preprocess(
+    (val) => (val === "" || val === null || val === undefined ? undefined : Number(val)),
+    z.number({ invalid_type_error: "Price adjustment must be a number" }).min(0, "Price adjustment must be zero or positive").optional()
+  ),
 });
 
 
@@ -27,16 +27,19 @@ export const sizeSchema = z
   .object({
     id: z.string().optional(),
     name: z.string().min(1, "Size name is required"),
-    barcode: z.string().optional(),
-    sku: z.string().optional(),
-    price: z.number().min(0, "Price must be positive"),
-    promotionType: z.string().optional(),
-    promotionValue: z
-      .number()
-      .min(0, "Promotion value must be positive")
-      .optional(),
-    promotionFromDate: z.string().optional(),
-    promotionToDate: z.string().optional(),
+    barcode: z.string().nullable().optional(),
+    sku: z.string().nullable().optional(),
+    price: z.preprocess(
+      (val) => (val === "" || val === null || val === undefined ? undefined : Number(val)),
+      z.number({ invalid_type_error: "Price must be a number" }).min(0, "Price must be positive")
+    ),
+    promotionType: z.string().nullable().optional(),
+    promotionValue: z.preprocess(
+      (val) => (val === "" || val === null || val === undefined ? undefined : Number(val)),
+      z.number({ invalid_type_error: "Promotion value must be a number" }).min(0, "Promotion value must be positive").optional()
+    ),
+    promotionFromDate: z.string().nullable().optional(),
+    promotionToDate: z.string().nullable().optional(),
   })
   .refine(
     (data) => {
@@ -99,20 +102,24 @@ const baseProductSchema = z.object({
   name: z.string().min(1, "Product name is required"),
   description: z.string().min(1, "Description is required"),
   categoryId: z.string().min(1, "Category is required"),
-  brandId: z.string().optional(),
-  sku: z.string().optional(),
-  barcode: z.string().optional(),
-  mainImage: imageUrlsSchema.optional(),
+  brandId: z.string().nullable().optional(),
+  sku: z.string().nullable().optional(),
+  barcode: z.string().nullable().optional(),
+  mainImage: imageUrlsSchema.nullable().optional(),
+  hasSizes: z.boolean().optional(),
 
 
-  price: z.number().min(0, "Price must be positive").optional(),
-  promotionType: z.string().optional(),
-  promotionValue: z
-    .number()
-    .min(0, "Promotion value must be positive")
-    .optional(),
-  promotionFromDate: z.string().optional(),
-  promotionToDate: z.string().optional(),
+  price: z.preprocess(
+    (val) => (val === "" || val === null || val === undefined ? undefined : Number(val)),
+    z.number({ invalid_type_error: "Price must be a number" }).min(0, "Price must be positive").optional()
+  ),
+  promotionType: z.string().nullable().optional(),
+  promotionValue: z.preprocess(
+    (val) => (val === "" || val === null || val === undefined ? undefined : Number(val)),
+    z.number({ invalid_type_error: "Promotion value must be a number" }).min(0, "Promotion value must be positive").optional()
+  ),
+  promotionFromDate: z.string().nullable().optional(),
+  promotionToDate: z.string().nullable().optional(),
 
   images: z.array(imageSchema).optional().default([]),
   sizes: z.array(sizeSchema).optional().default([]),

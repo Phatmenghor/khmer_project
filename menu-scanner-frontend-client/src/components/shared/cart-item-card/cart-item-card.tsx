@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import { formatCurrency } from "@/utils/common/currency-format";
+import { getPromotionBadgeText } from "@/utils/common/promotion-format";
 
 export interface CartItemCustomization {
   id: string;
@@ -82,9 +83,11 @@ export function CartItemCard({
           {hasPromotion && (
             <div className="absolute top-1 left-1 z-10 pointer-events-none">
               <Badge variant="destructive" className="text-[9px] font-bold px-1 py-0.5 shadow-md">
-                {promotionType === "PERCENTAGE"
-                  ? `-${promotionValue}%`
-                  : `-${formatCurrency(promotionValue || 0)}`}
+                {getPromotionBadgeText(
+                  hasPromotion,
+                  promotionType,
+                  promotionValue
+                )}
               </Badge>
             </div>
           )}

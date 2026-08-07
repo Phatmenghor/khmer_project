@@ -3,6 +3,7 @@
 
 import { OrderStatus } from '@/enums/order-status.enum';
 import { OrderSource } from '@/enums/order-source.enum';
+import { ImageUrls } from '@/features/auth/store/models/request/users-request';
 
 export interface OrderStatusHistoryUserInfo {
   userId: string;
@@ -62,7 +63,7 @@ export interface OrderPaymentInfo {
 export interface OrderItemProductInfo {
   id: string;
   name: string;
-  imageUrl: string;
+  imageUrl: ImageUrls;
   sizeId: string | null;
   sizeName: string;
   status: "ACTIVE" | "INACTIVE";
@@ -82,6 +83,7 @@ export interface OrderItemResponse {
   quantity: number;
   finalPrice: number;
   totalPrice: number;
+  currentPrice?: number;
   customizations?: CustomizationDetail[];
   customizationTotal?: number;
   productName?: string;

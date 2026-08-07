@@ -27,6 +27,7 @@ public class ProductUpdateDto {
 
     private String barcode;
     private String sku;
+    private Boolean hasSizes;
 
     private String promotionType;
     private BigDecimal promotionValue;

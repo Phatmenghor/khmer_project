@@ -3,6 +3,7 @@ package com.emenu.features.auth.dto.update;
 import com.emenu.features.auth.dto.request.SocialMediaRequest;
 import com.emenu.features.auth.dto.request.BusinessHoursRequest;
 import com.emenu.enums.common.StockStatus;
+import com.emenu.enums.common.ReceiptSize;
 import com.emenu.shared.dto.ImageUrls;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -40,4 +41,8 @@ public class BusinessSettingUpdateRequest {
     private String telegramGroupChatId;
 
     private Boolean useBrands;
+
+    private ReceiptSize receiptSize;
+    private String wifiName;
+    private String wifiPassword;
 }

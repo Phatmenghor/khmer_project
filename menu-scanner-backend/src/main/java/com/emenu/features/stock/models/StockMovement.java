@@ -80,7 +80,6 @@ public class StockMovement extends BaseUUIDEntity {
         };
     }
 
-    @PrePersist
     @Override
     public void prePersist() {
         super.prePersist();

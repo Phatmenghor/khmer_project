@@ -112,7 +112,7 @@ export default function ProductModal({
       brandId: "",
       sku: "",
       barcode: "",
-      price: 0,
+      price: "" as any,
       mainImage: { sm: "", md: "", o: "" },
       promotionType: "NONE",
       promotionValue: undefined,
@@ -254,7 +254,7 @@ export default function ProductModal({
             brandId: data.brandId || "",
             sku: data.sku || "",
             barcode: data.barcode || "",
-            price: data.price || 0,
+            price: data.price ?? "",
             mainImage: {
               sm: data.mainImage?.sm || "",
               md: data.mainImage?.md || "",
@@ -294,7 +294,7 @@ export default function ProductModal({
         brandId: "",
         sku: "",
         barcode: "",
-        price: 0,
+        price: "" as any,
         mainImage: { sm: "", md: "", o: "" },
         promotionType: "NONE",
         promotionValue: undefined,
@@ -388,6 +388,8 @@ export default function ProductModal({
         id: size.id,
         name: size.name,
         price: size.price,
+        sku: size.sku || undefined,
+        barcode: size.barcode || undefined,
         ...cleanPromotionData(
           size.promotionType,
           size.promotionValue,
@@ -414,11 +416,14 @@ export default function ProductModal({
         sizes: cleanedSizes.length > 0 ? cleanedSizes : undefined,
         customizations: cleanedCustomizations.length > 0 ? cleanedCustomizations : undefined,
         status: data.status,
+        hasSizes: hasSizes,
       };
 
       const payload = hasSizes
         ? {
             ...basePayload,
+            sku: null,
+            barcode: null,
             price: null,
             promotionType: null,
             promotionValue: null,
@@ -611,27 +616,31 @@ export default function ProductModal({
                           />
                         </div>
 
-                        <div>
-                          <TextField
-                            control={control}
-                            name="sku"
-                            label="SKU"
-                            placeholder="Enter SKU"
-                            disabled={isProcessing}
-                            error={errors.sku}
-                          />
-                        </div>
+                        {!hasSizes && (
+                          <>
+                            <div>
+                              <TextField
+                                control={control}
+                                name="sku"
+                                label="SKU"
+                                placeholder="Enter SKU"
+                                disabled={isProcessing}
+                                error={errors.sku}
+                              />
+                            </div>
 
-                        <div>
-                          <TextField
-                            control={control}
-                            name="barcode"
-                            label="Barcode"
-                            placeholder="Enter barcode"
-                            disabled={isProcessing}
-                            error={errors.barcode}
-                          />
-                        </div>
+                            <div>
+                              <TextField
+                                control={control}
+                                name="barcode"
+                                label="Barcode"
+                                placeholder="Enter barcode"
+                                disabled={isProcessing}
+                                error={errors.barcode}
+                              />
+                            </div>
+                          </>
+                        )}
 
                         <div className="col-span-1 sm:col-span-2">
                           <TextareaField
@@ -681,7 +690,6 @@ export default function ProductModal({
                             required
                             disabled={isProcessing}
                             error={errors.price}
-                            valueAsNumber={true}
                             min={0}
                             step="0.01"
                             allowZero={true}
@@ -843,7 +851,7 @@ export default function ProductModal({
                               name: "",
                               barcode: "",
                               sku: "",
-                              price: 0,
+                              price: "" as any,
                               promotionType: "NONE",
                               promotionValue: undefined,
                               promotionFromDate: "",
@@ -918,7 +926,7 @@ export default function ProductModal({
                                     control={control}
                                     name={`sizes.${index}.name`}
                                     label="Size Name"
-                                    placeholder="e.g., Small, Medium, Large"
+                                    placeholder="Enter size name"
                                     disabled={isProcessing}
                                     error={errors.sizes?.[index]?.name as any}
                                   />
@@ -932,7 +940,6 @@ export default function ProductModal({
                                     placeholder="Enter price"
                                     disabled={isProcessing}
                                     error={errors.sizes?.[index]?.price as any}
-                                    valueAsNumber={true}
                                     min={0}
                                     step="0.01"
                                     allowZero={true}
@@ -1033,7 +1040,7 @@ export default function ProductModal({
                       onClick={() =>
                         appendCustomization({
                           name: "",
-                          priceAdjustment: 0,
+                          priceAdjustment: "" as any,
                         })
                       }
                       disabled={isProcessing}
@@ -1091,7 +1098,6 @@ export default function ProductModal({
                                   placeholder="Enter price adjustment"
                                   disabled={isProcessing}
                                   error={errors.customizations?.[index]?.priceAdjustment as any}
-                                  valueAsNumber={true}
                                   min={0}
                                   step="0.01"
                                   allowZero={true}

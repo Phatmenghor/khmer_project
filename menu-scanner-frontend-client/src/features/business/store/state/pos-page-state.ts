@@ -9,10 +9,6 @@ import {
   selectSearchTerm,
   selectSelectedCategory,
   selectSelectedBrand,
-  selectCategories,
-  selectBrands,
-  selectCategoriesLoading,
-  selectBrandsLoading,
   selectProductPage,
   selectHasMoreProducts,
   selectCartItems,
@@ -25,8 +21,6 @@ import {
   selectLastSelectedCustomizations,
   selectSuccessOrder,
   selectShowOrderDetailsModal,
-  selectBrandOpen,
-  selectCategoryOpen,
   selectPromotionFilter,
   selectPromotionOpen,
   selectMinPrice,
@@ -45,10 +39,6 @@ export const usePOSPageState = () => {
   const searchTerm = useAppSelector(selectSearchTerm);
   const selectedCategory = useAppSelector(selectSelectedCategory);
   const selectedBrand = useAppSelector(selectSelectedBrand);
-  const categories = useAppSelector(selectCategories);
-  const brands = useAppSelector(selectBrands);
-  const categoriesLoading = useAppSelector(selectCategoriesLoading);
-  const brandsLoading = useAppSelector(selectBrandsLoading);
   const productPage = useAppSelector(selectProductPage);
   const hasMoreProducts = useAppSelector(selectHasMoreProducts);
   const cartItems = useAppSelector(selectCartItems);
@@ -61,8 +51,6 @@ export const usePOSPageState = () => {
   const lastSelectedCustomizations = useAppSelector(selectLastSelectedCustomizations);
   const successOrder = useAppSelector(selectSuccessOrder);
   const showOrderDetailsModal = useAppSelector(selectShowOrderDetailsModal);
-  const brandOpen = useAppSelector(selectBrandOpen);
-  const categoryOpen = useAppSelector(selectCategoryOpen);
   const promotionFilter = useAppSelector(selectPromotionFilter);
   const promotionOpen = useAppSelector(selectPromotionOpen);
   const minPrice = useAppSelector(selectMinPrice);
@@ -79,10 +67,6 @@ export const usePOSPageState = () => {
     searchTerm,
     selectedCategory,
     selectedBrand,
-    categories,
-    brands,
-    categoriesLoading,
-    brandsLoading,
     productPage,
     hasMoreProducts,
     cartItems,
@@ -95,8 +79,6 @@ export const usePOSPageState = () => {
     lastSelectedCustomizations,
     successOrder,
     showOrderDetailsModal,
-    brandOpen,
-    categoryOpen,
     promotionFilter,
     promotionOpen,
     minPrice,

@@ -7,7 +7,6 @@ import com.emenu.features.main.dto.response.BrandResponse;
 import com.emenu.features.main.dto.response.BrandWithProductCountResponse;
 import com.emenu.features.main.dto.update.BrandUpdateRequest;
 import com.emenu.features.main.service.BrandService;
-import com.emenu.features.main.service.ProductConditionalService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
@@ -20,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.UUID;
 
 @RestController
@@ -30,7 +28,6 @@ import java.util.UUID;
 public class BrandController {
 
     private final BrandService brandService;
-    private final ProductConditionalService productConditionalService;
     private final SecurityUtils securityUtils;
 
     @PostMapping
@@ -53,15 +50,6 @@ public class BrandController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BrandResponse>>> getAllBrands(@Valid @RequestBody BrandFilterRequest filter) {
         log.info("Endpoint: search-brands - brands retrieval: page={}, size={}, business_id={}", filter.getPageNo(), filter.getPageSize(), filter.getBusinessId());
-
-        if (filter.getBusinessId() != null && !productConditionalService.businessUsesBrands(filter.getBusinessId())) {
-            PaginationResponse<BrandResponse> emptyResponse = new PaginationResponse<>();
-            emptyResponse.setContent(Collections.emptyList());
-            emptyResponse.setTotalElements(0L);
-            emptyResponse.setTotalPages(0);
-            return ResponseEntity.ok(ApiResponse.success("Brands are not enabled for this business", emptyResponse));
-        }
-
         PaginationResponse<BrandResponse> brands = brandService.getAllBrands(filter);
         return ResponseEntity.ok(ApiResponse.success("Brands retrieved successfully", brands));
     }
@@ -71,15 +59,6 @@ public class BrandController {
         log.info("Endpoint: search-my-brands - my brands retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         User currentUser = securityUtils.getCurrentUser();
         filter.setBusinessId(currentUser.getBusinessId());
-
-        if (!productConditionalService.businessUsesBrands(currentUser.getBusinessId())) {
-            PaginationResponse<BrandResponse> emptyResponse = new PaginationResponse<>();
-            emptyResponse.setContent(Collections.emptyList());
-            emptyResponse.setTotalElements(0L);
-            emptyResponse.setTotalPages(0);
-            return ResponseEntity.ok(ApiResponse.success("Brands are not enabled for this business", emptyResponse));
-        }
-
         PaginationResponse<BrandResponse> brands = brandService.getAllBrands(filter);
         return ResponseEntity.ok(ApiResponse.success("Business brands retrieved successfully", brands));
     }

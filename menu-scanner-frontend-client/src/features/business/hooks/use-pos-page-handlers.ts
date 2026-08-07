@@ -46,16 +46,11 @@ import {
   setPromotionFilter,
 } from "@/features/business/store/slice/pos-page-slice";
 import {
-  fetchPOSPageCategoriesService,
-  fetchPOSPageBrandsService,
   fetchPOSPageProductsService,
   createPOSCheckoutOrderService,
 } from "@/features/business/store/thunks/pos-page-thunks";
-import { fetchAllDeliveryOptionsService } from "@/features/master-data/store/thunks/delivery-options-thunks";
-import { fetchAllPaymentOptionsService } from "@/features/master-data/store/thunks/payment-options-thunks";
 import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
-import { fetchBusinessSettingsThunk } from "@/features/business/store/thunks/business-settings-thunks";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 
 export type CartItemEditData = {
@@ -153,8 +148,6 @@ export function usePOSPageHandlers() {
     searchTerm,
     selectedCategory,
     selectedBrand,
-    categories,
-    brands,
     productPage,
     hasMoreProducts,
     cartItems,
@@ -165,8 +158,6 @@ export function usePOSPageHandlers() {
     editingCartItemId,
     successOrder,
     showOrderDetailsModal,
-    brandOpen,
-    categoryOpen,
     promotionFilter,
     promotionOpen,
     minPrice,
@@ -196,91 +187,73 @@ export function usePOSPageHandlers() {
   const debouncedMinPrice = useDebounce(minPrice || "", 400);
   const debouncedMaxPrice = useDebounce(maxPrice || "", 400);
 
+  const lastFetchedParamsRef = useRef<string>("");
   const [editingItemForPrice, setEditingItemForPrice] = useState<PosPageCartItem | null>(null);
   const [orderDiscount, setOrderDiscount] = useState<OrderDiscountType>(null);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
 
-  // Initial thunk effects
+
+  // Read delivery default from combobox cache once it loads (avoids duplicate fetch)
+  const deliveryCache = useAppSelector(
+    (state: any) => state.comboboxCache.caches[`deliveryOptions-${AppDefault.BUSINESS_ID}`]
+  );
+  const paymentCache = useAppSelector(
+    (state: any) => state.comboboxCache.caches["paymentOptions"]
+  );
+
+  // Set default delivery option (Pickup) once the combobox cache is populated
   useEffect(() => {
-    dispatch(fetchPOSPageCategoriesService());
-    dispatch(fetchPOSPageBrandsService());
-    dispatch(fetchBusinessSettingsThunk());
-  }, [dispatch]);
+    if (!selectedDeliveryOption && deliveryCache?.content?.length) {
+      const pickupOption = deliveryCache.content.find(
+        (o: any) => o.name === "Pickup" && o.price === 0
+      ) ?? deliveryCache.content[0];
+      dispatch(setSelectedDeliveryOption(pickupOption ?? {
+        id: "pickup-default",
+        name: "Pickup",
+        description: "Pickup from store",
+        price: 0,
+        imageUrl: "",
+      }));
+    }
+  }, [deliveryCache, selectedDeliveryOption, dispatch]);
 
-  // Initial defaults for delivery & payment
+  // Set default payment option (Cash) once the combobox cache is populated
   useEffect(() => {
-    const initializeDefaults = async () => {
-      try {
-        const deliveryResult = await dispatch(
-          fetchAllDeliveryOptionsService({
-            pageNo: 1,
-            pageSize: 100,
-            businessId: AppDefault.BUSINESS_ID,
-            statuses: ["ACTIVE"],
-          })
-        ).unwrap();
-
-        const pickupOption = deliveryResult?.content?.find(
-          (option: any) => option.name === "Pickup" && option.price === 0
-        );
-        if (pickupOption) {
-          dispatch(setSelectedDeliveryOption(pickupOption as any));
-        } else {
-          dispatch(setSelectedDeliveryOption({
-            id: "pickup-default",
-            name: "Pickup",
-            description: "Pickup from store",
-            price: 0,
-            imageUrl: ""
-          } as any));
-        }
-
-        const paymentResult = await dispatch(
-          fetchAllPaymentOptionsService({
-            pageNo: 1,
-            pageSize: 100,
-            statuses: ["ACTIVE"],
-          })
-        ).unwrap();
-
-        const cashOption = paymentResult?.content?.find(
-          (option: any) => option.paymentOptionType === "CASH"
-        );
-        if (cashOption) {
-          dispatch(setSelectedPaymentOption(cashOption));
-        } else {
-          dispatch(setSelectedPaymentOption({
-            id: "cash-default",
-            name: "Cash",
-            paymentOptionType: "CASH"
-          }));
-        }
-      } catch (error) {
-        dispatch(setSelectedDeliveryOption({
-          id: "pickup-default",
-          name: "Pickup",
-          description: "Pickup from store",
-          price: 0,
-          imageUrl: ""
-        } as any));
-        dispatch(setSelectedPaymentOption({
-          id: "cash-default",
-          name: "Cash",
-          paymentOptionType: "CASH"
-        }));
-      }
-    };
-
-    initializeDefaults();
-  }, [dispatch]);
+    if (!selectedPaymentOption && paymentCache?.content?.length) {
+      const cashOption = paymentCache.content.find(
+        (o: any) => o.paymentOptionType === "CASH"
+      ) ?? paymentCache.content[0];
+      dispatch(setSelectedPaymentOption(cashOption ?? {
+        id: "cash-default",
+        name: "Cash",
+        paymentOptionType: "CASH",
+      }));
+    }
+  }, [paymentCache, selectedPaymentOption, dispatch]);
 
   // Fetch products on filter change
   useEffect(() => {
+    const parsedMin = debouncedMinPrice ? parseFloat(debouncedMinPrice) : undefined;
+    const parsedMax = debouncedMaxPrice ? parseFloat(debouncedMaxPrice) : undefined;
+
+    const paramsKey = JSON.stringify({
+      search: debouncedSearch,
+      categoryId: selectedCategory?.id,
+      brandId: selectedBrand?.id,
+      hasPromotion: promotionFilter,
+      minPrice: parsedMin,
+      maxPrice: parsedMax,
+    });
+
+    if (lastFetchedParamsRef.current === paramsKey) {
+      return;
+    }
+    lastFetchedParamsRef.current = paramsKey;
+
     dispatch(setProductPage(1));
     dispatch(setProducts([]));
     dispatch(setProductsLoading(true));
-    const parsedMin = debouncedMinPrice ? parseFloat(debouncedMinPrice) : undefined;
-    const parsedMax = debouncedMaxPrice ? parseFloat(debouncedMaxPrice) : undefined;
+
     dispatch(
       fetchPOSPageProductsService({
         page: 1,
@@ -602,7 +575,7 @@ export function usePOSPageHandlers() {
           totalPrice: item.totalPrice,
           sku: item.sku || "",
           barcode: item.barcode || "",
-          hasPromotion: item.hasPromotion || null,
+          hasPromotion: Boolean(item.hasPromotion === "ACTIVE" || item.hasPromotion === "FUTURE_PROMOTION" || item.hasPromotion === true),
           promotionType: item.promotionType || null,
           promotionValue: item.promotionValue || null,
           promotionFromDate: item.promotionFromDate || null,
@@ -674,8 +647,6 @@ export function usePOSPageHandlers() {
     searchTerm,
     selectedCategory,
     selectedBrand,
-    categories,
-    brands,
     hasMoreProducts,
     cartItems,
     showCart,
@@ -685,8 +656,6 @@ export function usePOSPageHandlers() {
     editingCartItemId,
     successOrder,
     showOrderDetailsModal,
-    brandOpen,
-    categoryOpen,
     promotionFilter,
     promotionOpen,
     minPrice,

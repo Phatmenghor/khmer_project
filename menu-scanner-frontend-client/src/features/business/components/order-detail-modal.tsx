@@ -1,9 +1,10 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect } from "react";
-import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useEffect, Fragment } from "react";
+import { dateTimeFormat, dateFormatLocal, formatDayMonth } from "@/utils/date/date-time-format";
+import { DialogTitle } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
   selectOrderAdminIsFetchingDetail,
@@ -13,7 +14,10 @@ import {
 import { fetchOrderByIdAdminService } from "../store/thunks/order-admin-thunks";
 import { clearSelectedOrder } from "../store/slice/order-admin-slice";
 import { formatCurrency } from "@/utils/common/currency-format";
-import { getOrderStatusLabel } from "@/enums/order-status.enum";
+import { formatAddress, getProductImageUrl } from "@/utils/common/common";
+import { getPromotionLabel } from "@/utils/common/promotion-format";
+import { getOrderStatusLabel, ORDER_STATUS_BADGE_CONFIG } from "@/enums/order-status.enum";
+import { useDownloadReceipt } from "@/hooks/use-download-receipt";
 import { Loading } from "@/components/shared/common/loading";
 import { showToast } from "@/components/shared/common/show-toast";
 import { CustomButton } from "@/components/shared/button/custom-button";
@@ -29,36 +33,6 @@ import {
 import { cn } from "@/lib/utils";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import { CustomImagePreview } from "@/components/shared/image/custom-image-preview";
-
-const STATUS_CONFIG: Record<
-  string,
-  { bg: string; text: string; border: string; badgeBg: string }
-> = {
-  PENDING: {
-    bg: "bg-amber-50",
-    text: "text-amber-700",
-    border: "border-amber-200",
-    badgeBg: "bg-amber-100 text-amber-700",
-  },
-  CONFIRMED: {
-    bg: "bg-blue-50",
-    text: "text-blue-700",
-    border: "border-blue-200",
-    badgeBg: "bg-blue-100 text-blue-700",
-  },
-  COMPLETED: {
-    bg: "bg-green-50",
-    text: "text-green-700",
-    border: "border-green-200",
-    badgeBg: "bg-green-100 text-green-700",
-  },
-  CANCELLED: {
-    bg: "bg-red-50",
-    text: "text-red-700",
-    border: "border-red-200",
-    badgeBg: "bg-red-100 text-red-700",
-  },
-};
 
 const ORDER_STEPS = ["PENDING", "CONFIRMED", "COMPLETED"];
 
@@ -88,6 +62,8 @@ export function OrderDetailModal({
   const orderData = useAppSelector(selectSelectedOrder);
   const detailError = useAppSelector(selectOrderAdminDetailError);
 
+  const { handleDownloadReceipt, downloadingOrderId } = useDownloadReceipt();
+
   useEffect(() => {
     if (!orderId || !isOpen) return;
     dispatch(fetchOrderByIdAdminService(orderId));
@@ -98,178 +74,49 @@ export function OrderDetailModal({
     onClose();
   };
 
-  const handleDownloadReceipt = async () => {
-    if (!orderData?.id || !orderData?.items) return;
-    try {
-      const element = document.createElement("div");
-      element.style.position = "absolute";
-      element.style.left = "-9999px";
-      element.style.width = "80mm";
-      element.style.height = "auto";
-      element.style.fontFamily = "monospace";
-      element.style.fontSize = "11px";
-      element.style.backgroundColor = "#fff";
-      element.style.padding = "4mm";
-
-      const date = new Date(orderData.createdAt);
-      const formattedDate = date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      });
-      const formattedTime = date
-        .toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        })
-        .replace(/\b(am|pm)\b/i, (m) => m.toUpperCase());
-
-      const subtotal = orderData.pricing?.subtotal || 0;
-      const discount = orderData.pricing?.discountAmount || 0;
-      const subtotalAfterDiscount = subtotal - discount;
-      const tax = orderData.pricing?.taxAmount || 0;
-      const delivery = orderData.pricing?.deliveryFee || 0;
-      const total = orderData.pricing?.finalTotal || 0;
-
-      const itemsHTML = orderData.items
-        .map((item) => {
-          const itemTotal = (item.finalPrice || 0) * item.quantity;
-          return `
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px;">
-            <span style="flex:1;">${item.productName || item.product?.name}</span>
-            <span style="width:16px;text-align:center;">${item.quantity}</span>
-            <span style="width:50px;text-align:right;">$${itemTotal.toFixed(2)}</span>
-          </div>
-        `;
-        })
-        .join("");
-
-      element.innerHTML = `
-        <div style="width:80mm;background:white;">
-          <div style="text-align:center;border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:6px;">
-            <div style="font-weight:bold;font-size:13px;letter-spacing:1px;">RECEIPT</div>
-          </div>
-          <div style="text-align:center;font-size:10px;margin-bottom:6px;border-bottom:1px solid #666;padding-bottom:4px;">
-            <div>Order #: ${orderData.orderNumber}</div>
-            <div>Date: ${formattedDate} • ${formattedTime}</div>
-            <div style="font-weight:bold;">${orderData.businessName || "Restaurant"}</div>
-          </div>
-          <div style="margin-bottom:6px;border-bottom:1px solid #666;padding-bottom:4px;">
-            <div style="text-align:center;font-weight:bold;font-size:10px;border-bottom:1px solid #666;padding-bottom:2px;margin-bottom:4px;">ITEMS</div>
-            <div style="display:flex;justify-content:space-between;font-weight:bold;font-size:10px;margin-bottom:2px;">
-              <span style="flex:1;">NAME</span>
-              <span style="width:16px;text-align:center;">QTY</span>
-              <span style="width:50px;text-align:right;">TOTAL</span>
-            </div>
-            <div style="border-bottom:1px solid #ccc;margin-bottom:2px;"></div>
-            ${itemsHTML}
-          </div>
-          <div style="margin-bottom:6px;border-bottom:2px solid #000;padding-bottom:6px;">
-            <div style="font-size:10px;line-height:1.6;">
-              <div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span style="font-weight:bold;">$${subtotal.toFixed(2)}</span></div>
-              ${discount > 0 ? `<div style="display:flex;justify-content:space-between;color:#d32f2f;"><span>Discount</span><span style="font-weight:bold;">-$${discount.toFixed(2)}</span></div><div style="display:flex;justify-content:space-between;"><span>After Discount</span><span style="font-weight:bold;">$${subtotalAfterDiscount.toFixed(2)}</span></div>` : ""}
-              <div style="display:flex;justify-content:space-between;"><span>Tax</span><span style="font-weight:bold;">+$${tax.toFixed(2)}</span></div>
-              <div style="display:flex;justify-content:space-between;"><span>Delivery</span><span style="font-weight:bold;">${delivery > 0 ? `+$${delivery.toFixed(2)}` : "Free"}</span></div>
-              <div style="border-top:1px solid #666;padding-top:3px;margin-top:3px;display:flex;justify-content:space-between;font-weight:bold;font-size:11px;"><span>TOTAL</span><span>$${total.toFixed(2)}</span></div>
-            </div>
-          </div>
-          <div style="text-align:center;font-size:10px;padding-top:4px;">
-            <div>Thank you for your order!</div>
-          </div>
-        </div>
-      `;
-
-      document.body.appendChild(element);
-
-      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all(
-        [import("html2canvas"), import("jspdf")]
-      );
-
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-      });
-
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: [80, 250],
-      });
-
-      const imgData = canvas.toDataURL("image/png");
-      const imgHeight = (canvas.height * 80) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, 80, imgHeight);
-      pdf.save(`receipt-${orderData.orderNumber}.pdf`);
-      document.body.removeChild(element);
-      showToast.success("Receipt downloaded successfully");
-    } catch {
-      showToast.error("Failed to generate receipt");
-    }
-  };
-
   if (isFetchingDetail) {
     return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
+      <CustomModal isOpen={isOpen} onClose={handleClose} size="5xl">
         <DialogTitle className="sr-only">Order Details Loading</DialogTitle>
-        <DialogContent className="w-full sm:max-w-5xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-center h-64">
-            <Loading />
-          </div>
-        </DialogContent>
-      </Dialog>
+        <div className="flex items-center justify-center h-64">
+          <Loading />
+        </div>
+      </CustomModal>
     );
   }
 
   if (!orderData) {
     return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
+      <CustomModal isOpen={isOpen} onClose={handleClose} size="5xl">
         <DialogTitle className="sr-only">Order Details</DialogTitle>
-        <DialogContent className="w-full sm:max-w-5xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-center h-64 flex-col gap-2">
-            <p className="text-sm font-medium text-muted-foreground">
-              {detailError ? `Error: ${detailError}` : "No order data available"}
+        <div className="flex items-center justify-center h-64 flex-col gap-2">
+          <p className="text-sm font-medium text-muted-foreground">
+            {detailError ? `Error: ${detailError}` : "No order data available"}
+          </p>
+          {detailError && (
+            <p className="text-xs text-muted-foreground">
+              The order may have been deleted or you may not have permission.
             </p>
-            {detailError && (
-              <p className="text-xs text-muted-foreground">
-                The order may have been deleted or you may not have permission.
-              </p>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+          )}
+        </div>
+      </CustomModal>
     );
   }
 
   const statusCfg =
-    STATUS_CONFIG[orderData.orderStatus] || STATUS_CONFIG.PENDING;
+    ORDER_STATUS_BADGE_CONFIG[orderData.orderStatus] || ORDER_STATUS_BADGE_CONFIG.PENDING;
   const currentStep = STEP_ORDER[orderData.orderStatus] ?? -1;
   const isCancelled = orderData.orderStatus === "CANCELLED";
 
-  const formattedAddress = [
-    orderData.deliveryAddress?.houseNumber,
-    orderData.deliveryAddress?.streetNumber
-      ? `St. ${orderData.deliveryAddress.streetNumber}`
-      : null,
-    orderData.deliveryAddress?.village,
-    orderData.deliveryAddress?.commune,
-    orderData.deliveryAddress?.district,
-    orderData.deliveryAddress?.province,
-  ]
-    .filter(Boolean)
-    .join(", ");
+  const formattedAddress = formatAddress(orderData.deliveryAddress);
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="5xl">
       <DialogTitle className="sr-only">
         Order Details - {orderData.orderNumber}
       </DialogTitle>
-
-      <DialogContent className="w-full sm:max-w-5xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* ── Header ── */}
-        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center justify-between gap-3">
+        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center justify-between gap-3 pr-12">
           <div className="flex items-center gap-3 min-w-0">
             <div className="min-w-0">
               <div className="flex items-center gap-2">
@@ -315,60 +162,64 @@ export function OrderDetailModal({
                     </span>
                   </div>
                 ) : (
-                  <div className="flex items-start overflow-x-auto px-2 py-2">
-                    {ORDER_STEPS.map((step, idx) => {
-                      const isDone = currentStep >= STEP_ORDER[step];
-                      const isCurrent = currentStep === STEP_ORDER[step];
-                      const history = orderData.statusHistory?.find(
-                        (h) => h.statusName === step
-                      );
-                      return (
-                        <div key={step} className="flex items-start flex-shrink-0">
-                          {/* Step column */}
-                          <div className="flex flex-col items-center w-20">
-                            <div
-                              className={cn(
-                                "w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ring-2 ring-offset-1 transition-all",
-                                isDone
-                                  ? "bg-green-100 text-green-700 ring-green-200"
-                                  : isCurrent
-                                    ? "bg-primary text-primary-foreground ring-primary/40"
-                                    : "bg-muted text-muted-foreground ring-muted"
-                              )}
-                            >
-                              {isDone ? <Check className="h-3 w-3" /> : idx + 1}
+                  <div className="py-4 overflow-x-auto pb-10">
+                    <div className="flex items-center justify-between w-full max-w-xl mx-auto px-4 py-2">
+                      {ORDER_STEPS.map((step, idx) => {
+                        const isDone = currentStep > STEP_ORDER[step];
+                        const isCurrent = currentStep === STEP_ORDER[step];
+                        const history = orderData.statusHistory?.find(
+                          (h) => h.statusName === step
+                        );
+                        const isStepCompleted = isDone || (step === "COMPLETED" && isCurrent);
+                        return (
+                          <Fragment key={step}>
+                            {/* Step column */}
+                            <div className="flex flex-col items-center relative z-10">
+                              <div
+                                className={cn(
+                                  "w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold",
+                                  isStepCompleted
+                                    ? "bg-emerald-500 text-white shadow-xs ring-4 ring-emerald-500/10 dark:ring-emerald-500/20"
+                                    : isCurrent
+                                      ? "bg-emerald-500 text-white shadow-sm ring-4 ring-emerald-500/20"
+                                      : "bg-muted text-muted-foreground/60 border border-border/70"
+                                )}
+                              >
+                                <span>{idx + 1}</span>
+                              </div>
+                              <div className="text-center mt-2 w-28 absolute top-9 left-1/2 -translate-x-1/2">
+                                <span className="text-[11px] font-black text-foreground block leading-tight">
+                                  {getOrderStatusLabel(step)}
+                                </span>
+                                {history ? (
+                                  <span className="text-[10px] text-muted-foreground font-semibold block mt-0.5">
+                                    {formatDayMonth(history.changedAt)}
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] text-muted-foreground/40 font-semibold block mt-0.5">
+                                    —
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                            <span className="text-xs font-semibold text-foreground text-center mt-1.5 w-full">
-                              {getOrderStatusLabel(step)}
-                            </span>
-                            {history ? (
-                              <span className="text-xs text-muted-foreground text-center block mt-0.5">
-                                {new Date(history.changedAt).toLocaleDateString([], {
-                                  month: "short",
-                                  day: "numeric",
-                                })}
-                              </span>
-                            ) : (
-                              <span className="text-xs text-muted-foreground/40 text-center block mt-0.5">
-                                —
-                              </span>
-                            )}
-                          </div>
 
-                          {/* Connector between steps */}
-                          {idx < ORDER_STEPS.length - 1 && (
-                            <div
-                              className={cn(
-                                "flex-shrink-0 mt-4 w-8 h-0.5 transition-colors",
-                                currentStep > STEP_ORDER[step]
-                                  ? "bg-green-300"
-                                  : "bg-muted"
-                              )}
-                            />
-                          )}
-                        </div>
-                      );
-                    })}
+                            {/* Connector line */}
+                            {idx < ORDER_STEPS.length - 1 && (
+                              <div className="flex-1 h-[3px] mx-2 -translate-y-4 rounded-full overflow-hidden bg-muted">
+                                <div
+                                  className={cn(
+                                    "h-full",
+                                    isDone
+                                      ? "bg-emerald-500 w-full"
+                                      : "w-0"
+                                  )}
+                                />
+                              </div>
+                            )}
+                          </Fragment>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
 
@@ -420,13 +271,13 @@ export function OrderDetailModal({
                       const sizeName =
                         item.product?.sizeName || item.sizeName;
                       const sku = item.product?.sku;
-                      const promotionLabel = item.hasPromotion
-                        ? item.promotionType === "PERCENTAGE"
-                          ? `${item.promotionValue}% OFF`
-                          : item.promotionType === "FIXED"
-                            ? `${formatCurrency(item.promotionValue ?? 0)} OFF`
-                            : "Sale"
-                        : null;
+                      const promotionLabel = getPromotionLabel(
+                        item.hasPromotion,
+                        item.promotionType,
+                        item.promotionValue
+                      );
+
+                      const barcode = item.product?.barcode;
 
                       return (
                         <div
@@ -435,7 +286,7 @@ export function OrderDetailModal({
                         >
                           {/* Image */}
                           <CustomImagePreview
-                            src={item.product?.imageUrl}
+                            src={getProductImageUrl(item.product?.imageUrl)}
                             alt={name}
                             fallbackText={name}
                             className="h-10 w-10 rounded-[8px]"
@@ -445,9 +296,16 @@ export function OrderDetailModal({
                           <div className="flex-1 min-w-0">
                             {/* Name + promotion badge */}
                             <div className="flex items-start justify-between gap-1 mb-0.5">
-                              <p className="text-xs font-semibold text-foreground leading-tight truncate">
-                                {name}
-                              </p>
+                              <div className="flex items-center gap-2 min-w-0">
+                                <p className="text-xs font-semibold text-foreground leading-tight truncate">
+                                  {name}
+                                </p>
+                                {item.quantity > 1 && (
+                                  <span className="flex-shrink-0 px-2 py-0.5 bg-amber-500 text-white dark:bg-amber-600 rounded-full text-[10px] font-black">
+                                    Qty: {item.quantity}
+                                  </span>
+                                )}
+                              </div>
                               {promotionLabel && (
                                 <span className="flex-shrink-0 px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-bold leading-none">
                                   {promotionLabel}
@@ -455,8 +313,8 @@ export function OrderDetailModal({
                               )}
                             </div>
 
-                            {/* Size / SKU chips */}
-                            {(sizeName || sku) && (
+                            {/* Size / SKU / Barcode chips */}
+                            {(sizeName || sku || barcode) && (
                               <div className="flex flex-wrap gap-1 mb-1">
                                 {sizeName && (
                                   <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
@@ -464,8 +322,13 @@ export function OrderDetailModal({
                                   </span>
                                 )}
                                 {sku && (
-                                  <span className="text-xs text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded">
-                                    {sku}
+                                  <span className="text-xs text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded" title="SKU">
+                                    SKU: {sku}
+                                  </span>
+                                )}
+                                {barcode && (
+                                  <span className="text-xs text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded" title="Barcode">
+                                    Barcode: {barcode}
                                   </span>
                                 )}
                               </div>
@@ -492,12 +355,29 @@ export function OrderDetailModal({
                               )}
 
                             {/* Price × qty → total */}
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-muted-foreground">
-                                {formatCurrency(item.finalPrice)} ×{" "}
-                                {item.quantity}
-                              </span>
-                              <span className="font-bold text-foreground">
+                            <div className="flex items-center justify-between text-xs mt-1 pt-1 border-t border-border/40">
+                              <div className="flex flex-col gap-0.5">
+                                <span className="text-muted-foreground font-semibold">
+                                  {formatCurrency(item.finalPrice)} ×{" "}
+                                  <span className={cn(
+                                    "font-bold",
+                                    item.quantity > 1 ? "text-amber-600 dark:text-amber-400 font-extrabold text-[13px]" : "text-foreground"
+                                  )}>
+                                    {item.quantity}
+                                  </span>
+                                </span>
+                                {item.hasPromotion && item.currentPrice && item.currentPrice > item.finalPrice && (
+                                  <div className="flex items-center gap-1.5 text-[10px] mt-0.5">
+                                    <span className="text-muted-foreground line-through">
+                                      {formatCurrency(item.currentPrice)}
+                                    </span>
+                                    <span className="text-red-500 font-bold">
+                                      Saved {formatCurrency((item.currentPrice - item.finalPrice) * item.quantity)}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                              <span className="font-extrabold text-foreground">
                                 {formatCurrency(item.totalPrice)}
                               </span>
                             </div>
@@ -596,7 +476,7 @@ export function OrderDetailModal({
                   Order Info
                 </SectionTitle>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-                  <InfoRow label="Date" value={new Date(orderData.createdAt).toLocaleDateString()} />
+                  <InfoRow label="Date" value={dateFormatLocal(orderData.createdAt)} />
                   <InfoRow
                     label="Time"
                     value={new Date(orderData.createdAt).toLocaleTimeString([], {
@@ -615,6 +495,14 @@ export function OrderDetailModal({
                   <InfoRow
                     label="Business"
                     value={orderData.businessName || "-"}
+                  />
+                  <InfoRow
+                    label="Order Status"
+                    value={
+                      <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 border", statusCfg.badgeBg, statusCfg.border)}>
+                        {getOrderStatusLabel(orderData.orderStatus)}
+                      </span>
+                    }
                   />
                   <InfoRow
                     label="Payment Method"
@@ -787,11 +675,13 @@ export function OrderDetailModal({
           <CustomButton
             variant="outline"
             size="sm"
-            onClick={handleDownloadReceipt}
-            className="gap-1.5 h-8"
+            onClick={() => handleDownloadReceipt(orderData)}
+            disabled={downloadingOrderId === orderData.id}
+            isLoading={downloadingOrderId === orderData.id}
+            icon={<Download className="h-3 w-3" />}
+            className="h-8"
           >
-            <Download className="h-3 w-3" />
-            Download Receipt
+            {downloadingOrderId === orderData.id ? "Downloading..." : "Download Receipt"}
           </CustomButton>
 
           {onUpdateOrder && (
@@ -806,7 +696,6 @@ export function OrderDetailModal({
             </CustomButton>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </CustomModal>
   );
 }

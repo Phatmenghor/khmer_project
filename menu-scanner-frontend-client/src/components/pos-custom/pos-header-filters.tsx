@@ -33,10 +33,6 @@ interface POSHeaderFiltersProps {
   searchTerm: string;
   selectedBrand: BrandResponseModel | null;
   selectedCategory: CategoriesResponseModel | null;
-  categories: CategoriesResponseModel[];
-  brands: BrandResponseModel[];
-  brandOpen: boolean;
-  categoryOpen: boolean;
   promotionOpen: boolean;
   promotionFilter?: boolean;
   minPrice?: string;
@@ -48,10 +44,6 @@ export function POSHeaderFilters({
   searchTerm,
   selectedBrand,
   selectedCategory,
-  categories,
-  brands,
-  brandOpen,
-  categoryOpen,
   promotionOpen,
   promotionFilter,
   minPrice = "",
@@ -79,7 +71,7 @@ export function POSHeaderFilters({
             rightIcon={searchTerm ? <X className="h-3.5 w-3.5" /> : undefined}
             onRightIconClick={() => dispatch(setSearchTerm(""))}
             size="md"
-            className="h-[36px] rounded-[8px]"
+            className="h-[36px] rounded-[12px]"
           />
         </div>
 
@@ -122,7 +114,7 @@ export function POSHeaderFilters({
         </div>
 
         {/* Price Range CustomInput Group - Explicit h-[36px] */}
-        <div className="flex items-center gap-1.5 bg-muted/30 px-2.5 rounded-[8px] border border-border/70 h-[36px]">
+        <div className="flex items-center gap-1.5 bg-muted/30 px-2.5 rounded-[12px] border border-border/70 h-[36px]">
           <span className="text-xs text-muted-foreground font-extrabold flex items-center gap-0.5 whitespace-nowrap">
             <DollarSign className="w-3.5 h-3.5 text-primary shrink-0" />
             Price
@@ -137,7 +129,7 @@ export function POSHeaderFilters({
               dispatch(setMinPrice(val));
             }}
             size="sm"
-            className="h-[26px] w-[70px] sm:w-[80px] text-[11px] sm:text-xs px-2 bg-background border-border/60 rounded-[6px] font-semibold"
+            className="h-[26px] w-[70px] sm:w-[80px] text-[11px] sm:text-xs px-2 bg-background border-border/60 rounded-[8px] font-semibold"
           />
           <span className="text-muted-foreground text-xs font-extrabold">-</span>
           <CustomInput
@@ -150,7 +142,7 @@ export function POSHeaderFilters({
               dispatch(setMaxPrice(val));
             }}
             size="sm"
-            className="h-[26px] w-[70px] sm:w-[80px] text-[11px] sm:text-xs px-2 bg-background border-border/60 rounded-[6px] font-semibold"
+            className="h-[26px] w-[70px] sm:w-[80px] text-[11px] sm:text-xs px-2 bg-background border-border/60 rounded-[8px] font-semibold"
           />
         </div>
 

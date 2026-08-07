@@ -1,5 +1,7 @@
 package com.emenu.features.auth.service.impl;
 
+import com.emenu.enums.common.StockStatus;
+import com.emenu.enums.common.ReceiptSize;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.dto.request.BusinessSettingCreateRequest;
 import com.emenu.features.auth.dto.response.BusinessSettingResponse;
@@ -32,6 +34,22 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
     private final SecurityUtils securityUtils;
     private final TelegramMessageLogRepository telegramMessageLogRepository;
 
+    private BusinessSetting getOrCreateBusinessSetting(UUID businessId) {
+        return businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
+                .orElseGet(() -> {
+                    log.info("Business setting not found, creating a default one for businessId={}", businessId);
+                    
+                    BusinessSetting newSetting = new BusinessSetting();
+                    newSetting.setBusinessId(businessId);
+                    newSetting.setTaxPercentage(0.0);
+                    newSetting.setLowStockThreshold(5);
+                    newSetting.setEnableStock(StockStatus.DISABLED);
+                    newSetting.setUseBrands(true);
+                    newSetting.setReceiptSize(ReceiptSize.SIZE_58MM);
+                    return businessSettingRepository.save(newSetting);
+                });
+    }
+
     @Override
     public BusinessSettingResponse createBusinessSetting(BusinessSettingCreateRequest request) {
         log.info("Business setting creation initiated: business_id={}", request.getBusinessId());
@@ -51,19 +69,16 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public BusinessSettingResponse getBusinessSettingByBusinessId(UUID businessId) {
-        return businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
-                .map(businessSettingMapper::toResponse)
-                .orElse(null);
+        BusinessSetting businessSetting = getOrCreateBusinessSetting(businessId);
+        return businessSettingMapper.toResponse(businessSetting);
     }
 
     @Override
     public BusinessSettingResponse updateBusinessSetting(UUID businessId, BusinessSettingUpdateRequest request) {
         log.info("Business setting update initiated: business_id={}", businessId);
 
-        BusinessSetting businessSetting = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
-                .orElseThrow(() -> new ValidationException("Business setting not found"));
+        BusinessSetting businessSetting = getOrCreateBusinessSetting(businessId);
 
         Business business = businessRepository.findByIdAndIsDeletedFalse(businessId)
                 .orElseThrow(() -> new ValidationException("Business not found"));
@@ -72,6 +87,10 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
 
         // Explicitly set telegramGroupChatId to support updating and clearing it
         businessSetting.setTelegramGroupChatId(request.getTelegramGroupChatId());
+
+        // Explicitly set wifiName and wifiPassword to support updating and clearing
+        businessSetting.setWifiName(request.getWifiName());
+        businessSetting.setWifiPassword(request.getWifiPassword());
 
         // Update Business entity with contact information if provided
         if (request.getBusinessName() != null) {
@@ -105,7 +124,6 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public BusinessSettingResponse getCurrentBusinessSetting() {
         User currentUser = securityUtils.getCurrentUser();
 

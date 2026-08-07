@@ -77,7 +77,7 @@ public class UserSession extends BaseUUIDEntity {
     @Column(name = "logout_reason", length = 500)
     private String logoutReason;
 
-    @PrePersist
+    @Override
     public void prePersist() {
         super.prePersist();
         if (loginAt == null) loginAt = LocalDateTime.now();

@@ -1,5 +1,6 @@
 import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 import { axiosClient, axiosClientWithAuth } from "@/utils/axios";
+import { ReceiptSize } from "@/enums/receipt-size.enum";
 
 export interface SocialMedia {
   name: string;
@@ -33,6 +34,9 @@ export interface BusinessSettingsResponse {
   useBrands?: boolean;
   lowStockThreshold?: number;
   telegramGroupChatId?: string;
+  receiptSize?: ReceiptSize;
+  wifiName?: string;
+  wifiPassword?: string;
 }
 
 export interface UpdateBusinessSettingsRequest {
@@ -49,6 +53,9 @@ export interface UpdateBusinessSettingsRequest {
   useBrands?: boolean;
   lowStockThreshold?: number;
   telegramGroupChatId?: string | null;
+  receiptSize?: ReceiptSize;
+  wifiName?: string | null;
+  wifiPassword?: string | null;
 }
 
 const API_BASE_URL = "/api/v1/business-settings";

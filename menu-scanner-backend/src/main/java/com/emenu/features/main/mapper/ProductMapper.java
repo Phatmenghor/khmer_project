@@ -26,6 +26,7 @@ public interface ProductMapper {
     @Mapping(target = "favoriteCount", constant = "0L")
     @Mapping(target = "images", ignore = true)
     @Mapping(target = "sizes", ignore = true)
+    @Mapping(target = "customizations", ignore = true)
     @Mapping(source = "promotionType", target = "promotionType", qualifiedByName = "stringToPromotionType")
     Product toEntity(ProductCreateDto dto);
 
@@ -74,6 +75,7 @@ public interface ProductMapper {
     @Mapping(target = "favoriteCount", ignore = true)
     @Mapping(target = "images", ignore = true)
     @Mapping(target = "sizes", ignore = true)
+    @Mapping(target = "customizations", ignore = true)
     @Mapping(source = "promotionType", target = "promotionType", qualifiedByName = "stringToPromotionType")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(ProductUpdateDto dto, @MappingTarget Product entity);

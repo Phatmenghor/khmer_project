@@ -140,9 +140,19 @@ public class ProductSize extends BaseUUIDEntity {
         }
     }
 
-    @PrePersist
-    @PreUpdate
-    public void truncatePromotionDates() {
+    @Override
+    protected void prePersist() {
+        super.prePersist();
+        truncatePromotionDates();
+    }
+
+    @Override
+    protected void preUpdate() {
+        super.preUpdate();
+        truncatePromotionDates();
+    }
+
+    private void truncatePromotionDates() {
         if (promotionFromDate != null) {
             promotionFromDate = promotionFromDate.truncatedTo(ChronoUnit.DAYS);
         }

@@ -5,7 +5,6 @@ import com.emenu.features.main.dto.response.FavoriteRemoveAllDto;
 import com.emenu.features.main.dto.response.FavoriteToggleDto;
 import com.emenu.features.main.dto.response.ProductListDto;
 import com.emenu.features.main.service.ProductFavoriteService;
-import com.emenu.features.main.service.ProductConditionalService;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
@@ -14,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 @RestController
@@ -24,7 +22,6 @@ import java.util.UUID;
 public class ProductFavoriteController {
 
     private final ProductFavoriteService favoriteService;
-    private final ProductConditionalService productConditionalService;
 
     @PostMapping("/{productId}/toggle")
     public ResponseEntity<ApiResponse<FavoriteToggleDto>> toggleFavorite(@PathVariable UUID productId) {
@@ -37,17 +34,6 @@ public class ProductFavoriteController {
     public ResponseEntity<ApiResponse<PaginationResponse<ProductListDto>>> getUserFavorites(
             @Valid @RequestBody ProductFilterDto filter) {
         log.info("Endpoint: search-favorites - user favorites retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
-
-        UUID businessId = filter.getBusinessId();
-
-        if (businessId != null && filter.getBrandId() != null && !productConditionalService.businessUsesBrands(businessId)) {
-            PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
-            emptyResponse.setContent(new ArrayList<>());
-            emptyResponse.setTotalElements(0L);
-            emptyResponse.setTotalPages(0);
-            return ResponseEntity.ok(ApiResponse.success("Brands are not enabled for this business", emptyResponse));
-        }
-
         PaginationResponse<ProductListDto> favorites = favoriteService.getUserFavorites(filter);
         return ResponseEntity.ok(ApiResponse.success("Favorite products retrieved successfully", favorites));
     }

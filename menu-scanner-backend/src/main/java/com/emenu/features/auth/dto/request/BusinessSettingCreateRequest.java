@@ -1,6 +1,7 @@
 package com.emenu.features.auth.dto.request;
 
 import com.emenu.enums.common.StockStatus;
+import com.emenu.enums.common.ReceiptSize;
 import com.emenu.shared.dto.ImageUrls;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -33,4 +34,8 @@ public class BusinessSettingCreateRequest {
     private Integer lowStockThreshold;
 
     private String telegramGroupChatId;
+
+    private ReceiptSize receiptSize;
+    private String wifiName;
+    private String wifiPassword;
 }

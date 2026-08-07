@@ -109,7 +109,7 @@ function PendingOrdersAdminPageInner() {
       search: debouncedSearch,
       pageNo: filters.pageNo,
       pageSize: globalPageSize,
-      orderStatus: filters.orderStatus || "PENDING",
+      orderStatus: "PENDING",
     };
 
     if (filters.paymentStatus && filters.paymentStatus !== "ALL") {
@@ -130,7 +130,6 @@ function PendingOrdersAdminPageInner() {
     dispatch,
     debouncedSearch,
     filters.pageNo,
-    filters.orderStatus,
     filters.paymentStatus,
     filters.startDate,
     filters.endDate,
