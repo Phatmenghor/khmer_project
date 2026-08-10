@@ -23,6 +23,12 @@ interface PaymentOptionsTableOptions {
   handlers: PaymentOptionsTableHandlers;
 }
 
+const isCashOption = (name?: string, type?: string) => {
+  if (type === "CASH") return true;
+  if (!name) return false;
+  return name.trim().toLowerCase() === "cash";
+};
+
 export const paymentOptionsTableColumns = ({
   data,
   handlers,
@@ -63,11 +69,21 @@ export const paymentOptionsTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
-      render: (option) => (
-        <span className="text-xs text-muted-foreground">
-          {option?.name || "---"}
-        </span>
-      ),
+      render: (option) => {
+        const isCash = isCashOption(option?.name, option?.paymentOptionType);
+        return (
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-foreground">
+              {option?.name || "---"}
+            </span>
+            {isCash && (
+              <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-primary/10 text-primary border border-primary/20">
+                Default
+              </span>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "paymentOptionType",
@@ -92,17 +108,22 @@ export const paymentOptionsTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
-      render: (option) => (
-        <div className="flex items-center gap-1">
-          <Switch
-            checked={option?.status === "ACTIVE"}
-            onCheckedChange={() => handleTogglePaymentOptionStatus(option)}
-          />
-          <span className="text-xs text-muted-foreground">
-            {option?.status ? formatEnumValue(option.status) : "---"}
-          </span>
-        </div>
-      ),
+      render: (option) => {
+        const isCash = isCashOption(option?.name, option?.paymentOptionType);
+        return (
+          <div className="flex items-center gap-1.5">
+            {!isCash && (
+              <Switch
+                checked={option?.status === "ACTIVE"}
+                onCheckedChange={() => handleTogglePaymentOptionStatus(option)}
+              />
+            )}
+            <span className="text-xs font-medium text-muted-foreground">
+              {option?.status ? formatEnumValue(option.status) : "---"}
+            </span>
+          </div>
+        );
+      },
     },
     {
       key: "createdAt",
@@ -120,26 +141,31 @@ export const paymentOptionsTableColumns = ({
       label: "Actions",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (option) => (
-        <div className="flex items-center gap-1">
-          <ActionButton
-            icon={<Eye className="w-3 h-3" />}
-            tooltip="View Details"
-            onClick={() => handleViewPaymentOption(option)}
-          />
-          <ActionButton
-            icon={<Edit className="w-3 h-3" />}
-            tooltip="Edit Payment Option"
-            onClick={() => handleEditPaymentOption(option)}
-          />
-          <ActionButton
-            icon={<Trash className="w-3 h-3" />}
-            tooltip="Delete Payment Option"
-            onClick={() => handleDeletePaymentOption(option)}
-            variant="destructive"
-          />
-        </div>
-      ),
+      render: (option) => {
+        const isCash = isCashOption(option?.name, option?.paymentOptionType);
+        return (
+          <div className="flex items-center gap-1">
+            <ActionButton
+              icon={<Eye className="w-3 h-3" />}
+              tooltip="View Details"
+              onClick={() => handleViewPaymentOption(option)}
+            />
+            <ActionButton
+              icon={<Edit className="w-3 h-3" />}
+              tooltip="Edit Payment Option"
+              onClick={() => handleEditPaymentOption(option)}
+            />
+            {!isCash && (
+              <ActionButton
+                icon={<Trash className="w-3 h-3" />}
+                tooltip="Delete Payment Option"
+                onClick={() => handleDeletePaymentOption(option)}
+                variant="destructive"
+              />
+            )}
+          </div>
+        );
+      },
     },
   ];
 };

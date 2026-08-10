@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { TextField } from "@/components/shared/form-field/text-field";
+import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
@@ -94,7 +95,8 @@ export default function PaymentOptionsModal({
     ),
     defaultValues: {
       name: "",
-      paymentOptionType: "",
+      description: "",
+      paymentOptionType: "BANK",
       status: Status.ACTIVE,
       image: { sm: "", md: "", o: "" },
     },
@@ -107,7 +109,8 @@ export default function PaymentOptionsModal({
     if (isCreate) {
       reset({
         name: "",
-        paymentOptionType: "",
+        description: "",
+        paymentOptionType: "BANK",
         status: Status.ACTIVE,
         image: { sm: "", md: "", o: "" },
       });
@@ -116,6 +119,7 @@ export default function PaymentOptionsModal({
     } else if (paymentOption) {
       reset({
         name: paymentOption.name || "",
+        description: paymentOption.description || "",
         paymentOptionType: paymentOption.paymentOptionType || "",
         status: (paymentOption.status || Status.ACTIVE) as "ACTIVE" | "INACTIVE",
         image: {
@@ -242,6 +246,18 @@ export default function PaymentOptionsModal({
             )}
 
             <div className="space-y-4">
+              {!isCreate && (paymentOption?.paymentOptionType === "CASH" || paymentOption?.name?.toLowerCase() === "cash") && (
+                <div className="p-3 rounded-md bg-primary/10 border border-primary/20 flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-extrabold text-primary block">System Default Option: Cash</span>
+                    <span className="text-muted-foreground text-[11px]">Payment Method Name and Status are managed by system. You can update QR code / Image.</span>
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-primary text-primary-foreground">
+                    Default
+                  </span>
+                </div>
+              )}
+
               <SpacesImageUpload
                 multiSize
                 deferred
@@ -274,39 +290,54 @@ export default function PaymentOptionsModal({
                 helperText="Square image works best — e.g. bank QR code (500×500)"
               />
 
-              <div className="grid grid-cols-2 gap-4">
-                <TextField
+              {!isCreate && (paymentOption?.paymentOptionType === "CASH" || paymentOption?.name?.toLowerCase() === "cash") ? (
+                /* Cash Edit Mode: Show description field */
+                <TextareaField
                   control={control}
-                  name="name"
-                  label="Payment Method Name"
-                  placeholder="e.g. ABA Bank, Cash, Wing"
-                  required
+                  name="description"
+                  label="Description"
+                  placeholder="Enter description (optional)"
+                  rows={3}
                   disabled={isSubmitting}
-                  error={errors.name}
+                  error={errors.description}
                 />
+              ) : (
+                /* Bank Option Create / Edit Mode */
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <TextField
+                      control={control}
+                      name="name"
+                      label="Payment Method Name"
+                      placeholder="Enter payment method name"
+                      required
+                      disabled={isSubmitting}
+                      error={errors.name}
+                    />
 
-                <SelectField
-                  control={control}
-                  name="paymentOptionType"
-                  label="Payment Type"
-                  placeholder="Select type"
-                  options={PAYMENT_OPTION_TYPE_OPTIONS}
-                  required
-                  disabled={isSubmitting}
-                  error={errors.paymentOptionType}
-                />
+                    <SelectField
+                      control={control}
+                      name="status"
+                      label="Status"
+                      placeholder="Select status"
+                      options={STATUS_OPTIONS}
+                      required
+                      disabled={isSubmitting}
+                      error={errors.status}
+                    />
+                  </div>
 
-                <SelectField
-                  control={control}
-                  name="status"
-                  label="Status"
-                  placeholder="Select status"
-                  options={STATUS_OPTIONS}
-                  required
-                  disabled={isSubmitting}
-                  error={errors.status}
-                />
-              </div>
+                  <TextareaField
+                    control={control}
+                    name="description"
+                    label="Description"
+                    placeholder="Enter description (optional)"
+                    rows={3}
+                    disabled={isSubmitting}
+                    error={errors.description}
+                  />
+                </div>
+              )}
             </div>
           </FormBody>
 

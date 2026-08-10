@@ -12,6 +12,7 @@ export interface PaymentOptionResponse {
   id: string;
   businessId: string;
   name: string;
+  description?: string;
   paymentOptionType: PaymentOptionType;
   status: Status;
   image?: ImageUrls;

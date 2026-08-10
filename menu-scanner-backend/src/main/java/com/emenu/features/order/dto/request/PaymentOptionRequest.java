@@ -25,5 +25,7 @@ public class PaymentOptionRequest {
     @NotNull(message = "Status is required")
     private Status status;
 
+    private String description;
+
     private ImageUrls image;
 }

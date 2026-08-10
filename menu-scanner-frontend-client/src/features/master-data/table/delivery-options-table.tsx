@@ -25,6 +25,12 @@ interface DeliveryOptionsTableOptions {
   handlers: DeliveryOptionsTableHandlers;
 }
 
+const isStorePickup = (name?: string) => {
+  if (!name) return false;
+  const n = name.trim().toLowerCase();
+  return n === "store pickup" || n === "pickup";
+};
+
 export const deliveryOptionsTableColumns = ({
   data,
   handlers,
@@ -70,11 +76,21 @@ export const deliveryOptionsTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
-      render: (deliveryOptions) => (
-        <span className="text-xs text-muted-foreground">
-          {deliveryOptions?.name || "---"}
-        </span>
-      ),
+      render: (deliveryOptions) => {
+        const isPickup = isStorePickup(deliveryOptions?.name);
+        return (
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-foreground">
+              {deliveryOptions?.name || "---"}
+            </span>
+            {isPickup && (
+              <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-primary/10 text-primary border border-primary/20">
+                Default
+              </span>
+            )}
+          </div>
+        );
+      },
     },
 
     {
@@ -96,17 +112,22 @@ export const deliveryOptionsTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
-      render: (deliveryOptions) => (
-        <div className="flex items-center gap-1">
-          <Switch
-            checked={deliveryOptions?.status === "ACTIVE"}
-            onCheckedChange={() => handleToggleDeliveryOptionsStatus(deliveryOptions)}
-          />
-          <span className="text-xs text-muted-foreground">
-            {deliveryOptions?.status ? formatEnumValue(deliveryOptions.status) : "---"}
-          </span>
-        </div>
-      ),
+      render: (deliveryOptions) => {
+        const isPickup = isStorePickup(deliveryOptions?.name);
+        return (
+          <div className="flex items-center gap-1.5">
+            {!isPickup && (
+              <Switch
+                checked={deliveryOptions?.status === "ACTIVE"}
+                onCheckedChange={() => handleToggleDeliveryOptionsStatus(deliveryOptions)}
+              />
+            )}
+            <span className="text-xs font-medium text-muted-foreground">
+              {deliveryOptions?.status ? formatEnumValue(deliveryOptions.status) : "---"}
+            </span>
+          </div>
+        );
+      },
     },
 
     {
@@ -126,26 +147,31 @@ export const deliveryOptionsTableColumns = ({
       label: "Actions",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (deliveryOptions) => (
-        <div className="flex items-center gap-1">
-          <ActionButton
-            icon={<Eye className="w-3 h-3" />}
-            tooltip="View Details"
-            onClick={() => handleDeliveryOptionsViewDetail(deliveryOptions)}
-          />
-          <ActionButton
-            icon={<Edit className="w-3 h-3" />}
-            tooltip="Edit Delivery Options"
-            onClick={() => handleEditDeliveryOptions(deliveryOptions)}
-          />
-          <ActionButton
-            icon={<Trash className="w-3 h-3" />}
-            tooltip="Delete Delivery Options"
-            onClick={() => handleDeleteDeliveryOptions(deliveryOptions)}
-            variant="destructive"
-          />
-        </div>
-      ),
+      render: (deliveryOptions) => {
+        const isPickup = isStorePickup(deliveryOptions?.name);
+        return (
+          <div className="flex items-center gap-1">
+            <ActionButton
+              icon={<Eye className="w-3 h-3" />}
+              tooltip="View Details"
+              onClick={() => handleDeliveryOptionsViewDetail(deliveryOptions)}
+            />
+            <ActionButton
+              icon={<Edit className="w-3 h-3" />}
+              tooltip="Edit Delivery Options"
+              onClick={() => handleEditDeliveryOptions(deliveryOptions)}
+            />
+            {!isPickup && (
+              <ActionButton
+                icon={<Trash className="w-3 h-3" />}
+                tooltip="Delete Delivery Options"
+                onClick={() => handleDeleteDeliveryOptions(deliveryOptions)}
+                variant="destructive"
+              />
+            )}
+          </div>
+        );
+      },
     },
   ];
 };

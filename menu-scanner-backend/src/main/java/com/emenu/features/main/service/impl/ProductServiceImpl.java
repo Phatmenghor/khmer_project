@@ -284,10 +284,9 @@ public class ProductServiceImpl implements ProductService {
             return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
         }
 
-        // Batch initialize sizes, images, and customizations to avoid lazy-loading
+        // Batch initialize sizes and customizations to avoid lazy-loading
         productPage.getContent().forEach(p -> {
             Hibernate.initialize(p.getSizes());
-            Hibernate.initialize(p.getImages());
             Hibernate.initialize(p.getCustomizations());
         });
 
@@ -336,10 +335,9 @@ public class ProductServiceImpl implements ProductService {
             return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
         }
 
-        // Batch initialize sizes, images, and customizations to avoid lazy-loading
+        // Batch initialize sizes and customizations to avoid lazy-loading
         productPage.getContent().forEach(p -> {
             Hibernate.initialize(p.getSizes());
-            Hibernate.initialize(p.getImages());
             Hibernate.initialize(p.getCustomizations());
         });
 

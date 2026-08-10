@@ -1,5 +1,7 @@
 package com.emenu.features.order.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import com.emenu.enums.order.OrderStatus;
 import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.exception.custom.NotFoundException;
@@ -435,7 +437,22 @@ public class OrderServiceImpl implements OrderService {
                 history.setOrderStatus(request.getOrderStatus());
                 history.setChangedByUserId(currentUser != null ? currentUser.getId() : null);
                 history.setChangedByName(currentUser != null ? currentUser.getFullName() : "System");
-                history.setNote(request.getBusinessNote() != null && !request.getBusinessNote().trim().isEmpty() ? request.getBusinessNote() : "Order status updated");
+                
+                String noteToSave = request.getBusinessNote();
+                if (noteToSave != null && !noteToSave.trim().isEmpty()) {
+                    String[] parts = noteToSave.split("\\|");
+                    List<String> uniqueParts = new ArrayList<>();
+                    for (String p : parts) {
+                        String t = p.trim();
+                        if (!t.isEmpty() && !uniqueParts.contains(t)) {
+                            uniqueParts.add(t);
+                        }
+                    }
+                    noteToSave = String.join(" | ", uniqueParts);
+                } else {
+                    noteToSave = "Order status updated";
+                }
+                history.setNote(noteToSave);
                 history.setOrder(order);
                 history.setPaymentMethod(order.getPaymentMethod());
                 history.setPaymentStatus(order.getPaymentStatus());
@@ -830,7 +847,7 @@ public class OrderServiceImpl implements OrderService {
                 .taxAmount(taxAmount)
                 .totalAmount(order.getTotalAmount())
                 .paymentMethod(order.getPaymentMethod())
-                .customerPaymentMethod(null)
+                .customerPaymentMethod(order.getCustomerPaymentMethod())
                 .build();
         OrderPayment payment = paymentMapper.createFromHelper(helper);
         paymentRepository.save(payment);

@@ -96,6 +96,9 @@ export function PaymentOptionDetailModal({
             label="Type"
             value={paymentOption.paymentOptionType ? formatEnumValue(paymentOption.paymentOptionType) : "-"}
           />
+          {paymentOption.description && (
+            <InfoRow label="Description" value={paymentOption.description} className="col-span-2" />
+          )}
 
           <SectionTitle>System Information</SectionTitle>
           <InfoRow label="Created At" value={dateTimeFormat(paymentOption.createdAt ?? "")} />

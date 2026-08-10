@@ -167,12 +167,8 @@ export const SIDEBAR_MENU: MenuItem[] = [
         href: ROUTES.MANAGE_STOCK.STOCK_ITEMS,
       },
       {
-        title: "Products Stock",
+        title: "Product Stock",
         href: ROUTES.MANAGE_STOCK.PRODUCTS_STOCK,
-      },
-      {
-        title: "Size Stock",
-        href: ROUTES.MANAGE_STOCK.SIZE_STOCK,
       },
     ],
   },

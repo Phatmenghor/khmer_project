@@ -7,8 +7,15 @@ const imageUrlsSchema = z.object({
 });
 
 export const createPaymentOptionSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  paymentOptionType: z.string().min(1, "Type is required"),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .refine(
+      (val) => val.trim().toLowerCase() !== "cash",
+      { message: "Cash is a default payment option and cannot be created again" }
+    ),
+  description: z.string().optional().or(z.literal("")),
+  paymentOptionType: z.string().default("BANK"),
   status: z.enum(["ACTIVE", "INACTIVE"], {
     errorMap: () => ({ message: "Status is required" }),
   }),
@@ -17,7 +24,8 @@ export const createPaymentOptionSchema = z.object({
 
 export const updatePaymentOptionSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  paymentOptionType: z.string().min(1, "Type is required"),
+  description: z.string().optional().or(z.literal("")),
+  paymentOptionType: z.string().default("BANK"),
   status: z.enum(["ACTIVE", "INACTIVE"], {
     errorMap: () => ({ message: "Status is required" }),
   }),

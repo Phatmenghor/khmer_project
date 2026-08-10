@@ -73,6 +73,7 @@ export interface PricingInfo {
 
 export interface PaymentInfo {
   paymentMethod: string;
+  customerPaymentMethod?: string;
   paymentStatus?: string;
 }
 

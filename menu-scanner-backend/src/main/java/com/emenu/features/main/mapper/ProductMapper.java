@@ -97,7 +97,7 @@ public interface ProductMapper {
     @Mapping(target = "displayPromotionToDate", expression = "java(product.getDisplayPromotionToDate())")
     @Mapping(target = "hasPromotion", expression = "java(product.getDisplayPromotionStatus())")
     @Mapping(target = "isFavorited", constant = "false")
-    @Mapping(target = "images", source = "images")
+    @Mapping(target = "images", ignore = true)
     @Mapping(target = "sizes", source = "sizes")
     @Mapping(target = "customizations", source = "customizations")
     ProductListDto toListDto(Product product);
@@ -116,7 +116,7 @@ public interface ProductMapper {
     @Mapping(target = "displayPromotionToDate", expression = "java(product.getDisplayPromotionToDate())")
     @Mapping(target = "hasPromotion", expression = "java(product.getDisplayPromotionStatus())")
     @Mapping(target = "isFavorited", constant = "false")
-    @Mapping(target = "images", source = "images")
+    @Mapping(target = "images", ignore = true)
     @Mapping(target = "sizes", source = "sizes")
     @Mapping(target = "customizations", source = "customizations")
     ProductDetailDto toDetailDto(Product product);

@@ -129,6 +129,7 @@ export type POSCheckoutPayload = {
   };
   payment: {
     paymentMethod: string;
+    customerPaymentMethod?: string;
     paymentStatus: string;
   };
   customerNote: string;
@@ -537,37 +538,16 @@ export function usePOSPageHandlers() {
     setEditingItemForPrice(null);
   }, [dispatch, editingItemForPrice]);
 
+  const [showBankQrModal, setShowBankQrModal] = useState<boolean>(false);
+
   const handleDiscountApply = useCallback((discount: Exclude<OrderDiscountType, null>) => {
     setOrderDiscount(discount);
   }, []);
 
-  const handleSubmitOrder = async () => {
-    if (cartItems.length === 0) {
-      showToast.error(Messages.cart.emptyCart);
-      return;
-    }
-
-    if (!selectedDeliveryOption) {
-      showToast.error(Messages.delivery.selectOption);
-      return;
-    }
-
-    const itemReasons = cartItems
-      .map((item) => (item.editReason ? `${item.productName}: ${item.editReason}` : null))
-      .filter(Boolean);
-
+  const executeOrderCheckout = async (selectedPaymentStatus: "PAID" | "UNPAID" = "PAID") => {
     const remarksParts: string[] = ["Created via POS System"];
     if (customerNote && customerNote.trim()) {
       remarksParts.push(customerNote.trim());
-    }
-    if (itemReasons.length > 0) {
-      remarksParts.push(itemReasons.join("; "));
-    }
-    if (orderDiscount && orderDiscount.discountAmount > 0) {
-      const discountLabel = orderDiscount.type === "percentage"
-        ? `Discount Applied: ${orderDiscount.value}% (-${formatCurrency(orderDiscount.discountAmount)})`
-        : `Discount Applied: Fixed -${formatCurrency(orderDiscount.discountAmount)}`;
-      remarksParts.push(discountLabel);
     }
 
     const finalBusinessNote = remarksParts.join(" | ");
@@ -579,10 +559,10 @@ export function usePOSPageHandlers() {
       customerEmail: "",
       customerAddress: "",
       deliveryOption: {
-        name: selectedDeliveryOption.name || "Delivery",
-        description: selectedDeliveryOption.description || "POS Order",
-        imageUrl: selectedDeliveryOption.image?.sm || selectedDeliveryOption.image?.md || "",
-        price: selectedDeliveryOption.price || 0,
+        name: selectedDeliveryOption?.name || "Delivery",
+        description: selectedDeliveryOption?.description || "POS Order",
+        imageUrl: selectedDeliveryOption?.image?.sm || selectedDeliveryOption?.image?.md || "",
+        price: selectedDeliveryOption?.price || 0,
       },
       cart: {
         businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
@@ -623,8 +603,9 @@ export function usePOSPageHandlers() {
         finalTotal: cartSummary.finalTotal,
       },
       payment: {
-        paymentMethod: "CASH",
-        paymentStatus: "PAID",
+        paymentMethod: (selectedPaymentOption?.paymentOptionType || selectedPaymentOption?.name || "CASH").toUpperCase(),
+        customerPaymentMethod: selectedPaymentOption?.name || "Cash",
+        paymentStatus: selectedPaymentStatus,
       },
       customerNote: "",
       businessNote: finalBusinessNote,
@@ -640,6 +621,7 @@ export function usePOSPageHandlers() {
         dispatch(setCartPricing(null));
         dispatch(setCustomerNote(""));
         setOrderDiscount(null);
+        setShowBankQrModal(false);
         showToast.success(Messages.orders.created);
       }
     } catch (error: unknown) {
@@ -647,6 +629,27 @@ export function usePOSPageHandlers() {
     } finally {
       dispatch(setIsSubmitting(false));
     }
+  };
+
+  const handleSubmitOrder = async () => {
+    if (cartItems.length === 0) {
+      showToast.error(Messages.cart.emptyCart);
+      return;
+    }
+
+    if (!selectedDeliveryOption) {
+      showToast.error(Messages.delivery.selectOption);
+      return;
+    }
+
+    const isBankPayment = selectedPaymentOption?.paymentOptionType === "BANK";
+
+    if (isBankPayment) {
+      setShowBankQrModal(true);
+      return;
+    }
+
+    await executeOrderCheckout();
   };
 
   const scrollProductsToTop = useCallback(() => {
@@ -688,6 +691,9 @@ export function usePOSPageHandlers() {
     setEditingItemForPrice,
     showScrollToTop,
     cartSummary,
+    showBankQrModal,
+    setShowBankQrModal,
+    executeOrderCheckout,
     // Refs
     searchInputRef,
     productGridRef,

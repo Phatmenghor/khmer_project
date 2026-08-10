@@ -9,6 +9,7 @@ import com.emenu.features.order.models.OrderItemCustomization;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +33,7 @@ public final class TelegramMessageBuilder {
 
     public static String newStaff(String name, String position, String phone,
                                    String email, List<String> roles) {
-        final int w = 36;
+        final int w = 42;
         StringBuilder sb = new StringBuilder();
         sb.append("<pre>\n");
         sb.append("NEW STAFF ADDED\n");
@@ -50,7 +51,7 @@ public final class TelegramMessageBuilder {
 
     public static String businessOwnerRegistered(String ownerName, String businessName,
                                                   String planName, String expiryDate) {
-        final int w = 36;
+        final int w = 42;
         return "<pre>\n" +
             "NEW BUSINESS OWNER REGISTERED\n" +
             solidLine(w) + "\n" +
@@ -62,7 +63,7 @@ public final class TelegramMessageBuilder {
     }
 
     public static String subscriptionExpiringSoon(String businessName, long daysRemaining, String expiryDate) {
-        final int w = 36;
+        final int w = 42;
         return "<pre>\n" +
             "SUBSCRIPTION EXPIRING SOON\n" +
             solidLine(w) + "\n" +
@@ -73,7 +74,7 @@ public final class TelegramMessageBuilder {
     }
 
     public static String subscriptionRenewed(String businessName, String planName, String newExpiryDate) {
-        final int w = 36;
+        final int w = 42;
         return "<pre>\n" +
             "SUBSCRIPTION RENEWED\n" +
             solidLine(w) + "\n" +
@@ -84,7 +85,7 @@ public final class TelegramMessageBuilder {
     }
 
     public static String subscriptionCancelled(String businessName) {
-        final int w = 36;
+        final int w = 42;
         return "<pre>\n" +
             "SUBSCRIPTION CANCELLED\n" +
             solidLine(w) + "\n" +
@@ -94,7 +95,7 @@ public final class TelegramMessageBuilder {
 
     public static String subscriptionPlanChanged(String businessName, String oldPlanName,
                                                   String newPlanName, String newExpiryDate) {
-        final int w = 36;
+        final int w = 42;
         return "<pre>\n" +
             "SUBSCRIPTION PLAN CHANGED\n" +
             solidLine(w) + "\n" +
@@ -106,7 +107,7 @@ public final class TelegramMessageBuilder {
     }
 
     public static String testMessage() {
-        final int w = 36;
+        final int w = 42;
         return "<pre>\n" +
             "TEST MESSAGE\n" +
             solidLine(w) + "\n" +
@@ -116,7 +117,7 @@ public final class TelegramMessageBuilder {
     }
 
     public static String groupLinked(String businessName) {
-        final int w = 36;
+        final int w = 42;
         return "<pre>\n" +
             "GROUP LINKED\n" +
             solidLine(w) + "\n" +
@@ -127,11 +128,11 @@ public final class TelegramMessageBuilder {
     // ── Dynamic Width Monospaced Receipt ──────────────────────────────────────
 
     public static String buildCleanReceiptMessage(Order order) {
-        int dynamicW = 36;
+        int dynamicW = 42;
         if (order.getItems() != null) {
             for (OrderItem item : order.getItems()) {
                 if (item.getProductName() != null) {
-                    dynamicW = Math.max(dynamicW, Math.min(item.getProductName().length() + 20, 52));
+                    dynamicW = Math.max(dynamicW, Math.min(item.getProductName().length() + 22, 48));
                 }
             }
         }
@@ -140,7 +141,7 @@ public final class TelegramMessageBuilder {
         final int priceColW = 7;
         final int discColW = 6;
         final int totalColW = 7;
-        final int itemColW = Math.max(10, lineW - (qtyColW + priceColW + discColW + totalColW));
+        final int itemColW = Math.max(12, lineW - (qtyColW + priceColW + discColW + totalColW));
 
         StringBuilder sb = new StringBuilder();
         sb.append("<pre>\n");
@@ -254,8 +255,11 @@ public final class TelegramMessageBuilder {
             String taxLabel = "Tax (" + (order.getTaxPercentage() != null ? fmt(order.getTaxPercentage()) : "0") + "%)";
             sb.append(alignRow(taxLabel, "+$" + fmt(order.getTaxAmount() != null ? order.getTaxAmount() : BigDecimal.ZERO), lineW)).append("\n");
         }
-        if (order.getPaymentMethod() != null) {
-            sb.append(alignRow("Payment Mode", order.getPaymentMethod().name(), lineW)).append("\n");
+        String paymentMode = hasText(order.getCustomerPaymentMethod())
+                ? order.getCustomerPaymentMethod()
+                : (order.getPaymentMethod() != null ? order.getPaymentMethod().name() : null);
+        if (paymentMode != null) {
+            sb.append(alignRow("Payment Mode", paymentMode, lineW)).append("\n");
         }
         if (order.getPaymentStatus() != null) {
             sb.append(alignRow("Payment Status", order.getPaymentStatus().name(), lineW)).append("\n");
@@ -274,10 +278,23 @@ public final class TelegramMessageBuilder {
         }
         sb.append(thickSolidLine(lineW)).append("\n");
 
-        // Notes & Remarks (businessNote contains everything including user note)
+        // Notes & Remarks (Deduplicated)
         if (hasText(order.getBusinessNote())) {
-            sb.append("Remarks: ").append(order.getBusinessNote()).append("\n");
-            sb.append(dashedLine(lineW)).append("\n");
+            String[] parts = order.getBusinessNote().split("\\|");
+            Set<String> cleanParts = new LinkedHashSet<>();
+            for (String p : parts) {
+                String t = p.trim();
+                if (hasText(t) && !t.startsWith("Discount Applied:")) {
+                    cleanParts.add(t);
+                }
+            }
+            if (!cleanParts.isEmpty()) {
+                sb.append("Remarks:\n");
+                for (String cp : cleanParts) {
+                    sb.append("  • ").append(cp).append("\n");
+                }
+                sb.append(dashedLine(lineW)).append("\n");
+            }
         }
 
         sb.append("</pre>");
@@ -315,12 +332,27 @@ public final class TelegramMessageBuilder {
             result.add("");
             return result;
         }
-        while (text.length() > width) {
-            result.add(text.substring(0, width));
-            text = text.substring(width);
+
+        String[] words = text.split("\\s+");
+        StringBuilder currentLine = new StringBuilder();
+
+        for (String word : words) {
+            if (currentLine.length() == 0) {
+                if (word.length() <= width) {
+                    currentLine.append(word);
+                } else {
+                    result.add(word.substring(0, width));
+                    currentLine.append(word.substring(width));
+                }
+            } else if (currentLine.length() + 1 + word.length() <= width) {
+                currentLine.append(" ").append(word);
+            } else {
+                result.add(currentLine.toString());
+                currentLine = new StringBuilder(word);
+            }
         }
-        if (!text.isEmpty()) {
-            result.add(text);
+        if (currentLine.length() > 0) {
+            result.add(currentLine.toString());
         }
         return result;
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useRef, useCallback, Suspense } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
@@ -19,8 +20,10 @@ import {
   revertStockStatusOptimistic,
 } from "@/features/business/store/slice/stock-slice";
 import { stockTableColumns } from "@/features/business/table/product-stock-table";
+import { sizeStockTableColumns } from "@/features/business/table/product-size-stock-table";
 import { ProductDetailModal } from "@/features/business/components/product-detail-modal";
 import { StockManagementModal } from "@/features/business/components/product-stock-management-modal";
+import { SizeStockManagementModal } from "@/features/business/components/size-stock-management-modal";
 import { updateStockStatusService } from "@/features/business/store/thunks/stock-thunks";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
@@ -38,8 +41,24 @@ const STOCK_STATUS_FILTER = [
   { value: "DISABLED", label: "Stock Disabled" },
 ];
 
-function ProductsStockPageInner() {
+type StockTab = "product" | "size";
+
+function StockPageInner() {
   useAdminCleanup(resetState);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const activeTab: StockTab = searchParams.get("tab") === "size" ? "size" : "product";
+
+  const handleTabChange = (tab: StockTab) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    // Reset page when switching tabs
+    params.delete("pageNo");
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   const {
     stockState,
@@ -67,7 +86,6 @@ function ProductsStockPageInner() {
   const [stockStatusFilter, setStockStatusFilter] = useState("ALL");
 
   const stockStatusDebounceRefs = useRef<{ [key: string]: NodeJS.Timeout }>({});
-
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const stockManagementSuccessMessage = useAppSelector(
@@ -83,7 +101,6 @@ function ProductsStockPageInner() {
     openView,
     openEdit,
     closeModal: closeRouteModal,
-    updateUrlWithPage,
     handlePageChange,
   } = useAdminTableUrlState({
     baseRoute: ROUTES.MANAGE_STOCK.PRODUCTS_STOCK,
@@ -108,7 +125,17 @@ function ProductsStockPageInner() {
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
+  // Reset page to 1 when switching tabs
   useEffect(() => {
+    dispatch(setPageNo(1));
+    dispatch(setSearchFilter(""));
+    dispatch(selectProductStatus(ProductStatus.ALL));
+    setSelectedBrand(null);
+    setSelectedCategories(null);
+    setStockStatusFilter("ALL");
+  }, [activeTab]);
+
+  const fetchStock = useCallback(() => {
     if (!isHydrated) return;
 
     let stockStatuses: string[] | undefined;
@@ -130,6 +157,7 @@ function ProductsStockPageInner() {
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         stockStatuses,
+        hasSize: activeTab === "size" ? true : undefined,
       }),
     );
   }, [
@@ -142,41 +170,21 @@ function ProductsStockPageInner() {
     selectedBrand,
     selectedCategories,
     stockStatusFilter,
+    activeTab,
   ]);
 
   useEffect(() => {
-    if (!isHydrated) return;
+    fetchStock();
+  }, [fetchStock]);
 
-    if (stockManagementSuccessMessage) {
-      let stockStatuses: string[] | undefined;
-      if (stockStatusFilter === "ENABLED" || stockStatusFilter === "DISABLED") {
-        stockStatuses = [stockStatusFilter];
-      }
-
-      let statuses: string[] | undefined;
-      if (filters.status !== ProductStatus.ALL && filters.status) {
-        statuses = [filters.status];
-      }
-
-      dispatch(
-        fetchAllProductStockAdminService({
-          search: debouncedSearch,
-          pageNo: filters.pageNo,
-          pageSize: globalPageSize,
-          statuses,
-          brandId: selectedBrand?.id,
-          categoryId: selectedCategories?.id,
-          stockStatuses,
-        }),
-      );
+  useEffect(() => {
+    if (isHydrated && stockManagementSuccessMessage) {
+      fetchStock();
     }
   }, [isHydrated, stockManagementSuccessMessage]);
 
   const handleCreateStock = (product: ProductDetailResponseModel) => {
-    setStockManagementState({
-      isOpen: true,
-      product,
-    });
+    setStockManagementState({ isOpen: true, product });
     openEdit(product.id || "");
   };
 
@@ -241,12 +249,13 @@ function ProductsStockPageInner() {
     [handleToggleStockStatus, openView, openEdit]
   );
 
-  const columns = useMemo(
-    () =>
-      stockTableColumns({
-        data: stockData,
-        handlers: tableHandlers,
-      }),
+  const productColumns = useMemo(
+    () => stockTableColumns({ data: stockData, handlers: tableHandlers }),
+    [stockState, tableHandlers]
+  );
+
+  const sizeColumns = useMemo(
+    () => sizeStockTableColumns({ data: stockData, handlers: tableHandlers }),
     [stockState, tableHandlers]
   );
 
@@ -264,32 +273,12 @@ function ProductsStockPageInner() {
     dispatch(setPageNo(1));
   };
 
-  const closeDetailModal = () => {
-    setDetailModalState({
-      isOpen: false,
-      productId: "",
-    });
-  };
-
-  const closeStockManagementModal = () => {
-    setStockManagementState({
-      isOpen: false,
-      product: null,
-    });
-  };
-
   const handleProductStatusChange = (status: ProductStatus) => {
     dispatch(selectProductStatus(status));
   };
 
-  const handleBrandChange = (brand: BrandResponseModel | null) => {
-    setSelectedBrand(brand);
-  };
-
-  const handleCategoriesChange = (categories: CategoriesResponseModel | null) => {
-    setSelectedCategories(categories);
-  };
-
+  const handleBrandChange = (brand: BrandResponseModel | null) => setSelectedBrand(brand);
+  const handleCategoriesChange = (categories: CategoriesResponseModel | null) => setSelectedCategories(categories);
   const handleStockStatusChange = (value: string | number | boolean | null | undefined) => {
     setStockStatusFilter(String(value ?? ""));
   };
@@ -304,14 +293,12 @@ function ProductsStockPageInner() {
 
   const stockProduct = useMemo(() => {
     if (stockManagementState.product) return stockManagementState.product;
-    if (editId) {
-      return stockContent.find((p) => p.id === editId) || null;
-    }
+    if (editId) return stockContent.find((p) => p.id === editId) || null;
     return null;
   }, [stockManagementState.product, editId, stockContent]);
 
   const filterConfig = useMemo((): FilterPanelConfig => ({
-    title: "Product Stock Information",
+    title: activeTab === "product" ? "Product Stock" : "Size Stock",
     searchValue: filters.search,
     searchPlaceholder: "Search product...",
     onSearchChange: handleSearchChange,
@@ -353,14 +340,45 @@ function ProductsStockPageInner() {
         label: "Product Status",
         placeholder: "All Status",
         value: filters.status,
-        onChange: (value: string | number | boolean | null | undefined) => handleProductStatusChange(value as ProductStatus),
+        onChange: (value: string | number | boolean | null | undefined) =>
+          handleProductStatusChange(value as ProductStatus),
         options: PRODUCT_STATUS_FILTER,
       },
     ],
-  }), [filters.search, filters.status, stockStatusFilter, selectedBrand, selectedCategories]);
+  }), [activeTab, filters.search, filters.status, stockStatusFilter, selectedBrand, selectedCategories]);
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
+      {/* Tab Switcher */}
+      <div className="flex items-center gap-1 border-b border-border/50 pb-0">
+        <button
+          onClick={() => handleTabChange("product")}
+          className={`relative px-4 py-2.5 text-sm font-medium transition-colors duration-200 ${
+            activeTab === "product"
+              ? "text-primary"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Product Stock
+          {activeTab === "product" && (
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
+          )}
+        </button>
+        <button
+          onClick={() => handleTabChange("size")}
+          className={`relative px-4 py-2.5 text-sm font-medium transition-colors duration-200 ${
+            activeTab === "size"
+              ? "text-primary"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Size Stock
+          {activeTab === "size" && (
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
+          )}
+        </button>
+      </div>
+
       <div className="space-y-2">
         <CollapsibleFilterPanel
           config={filterConfig}
@@ -369,9 +387,9 @@ function ProductsStockPageInner() {
 
         <DataTableWithPagination
           data={stockContent}
-          columns={columns}
+          columns={activeTab === "product" ? productColumns : sizeColumns}
           loading={isLoading}
-          emptyMessage="No product found"
+          emptyMessage={activeTab === "product" ? "No product found" : "No product with sizes found"}
           getRowKey={(product) => product.id}
           currentPage={filters.pageNo}
           totalElements={pagination.totalElements}
@@ -387,19 +405,30 @@ function ProductsStockPageInner() {
         productId={viewId || detailModalState.productId}
         isOpen={!!viewId || detailModalState.isOpen}
         onClose={() => {
-          closeDetailModal();
+          setDetailModalState({ isOpen: false, productId: "" });
           closeRouteModal();
         }}
       />
 
-      <StockManagementModal
-        isOpen={!!editId || stockManagementState.isOpen}
-        onClose={() => {
-          closeStockManagementModal();
-          closeRouteModal();
-        }}
-        product={stockProduct}
-      />
+      {activeTab === "product" ? (
+        <StockManagementModal
+          isOpen={!!editId || stockManagementState.isOpen}
+          onClose={() => {
+            setStockManagementState({ isOpen: false, product: null });
+            closeRouteModal();
+          }}
+          product={stockProduct}
+        />
+      ) : (
+        <SizeStockManagementModal
+          isOpen={!!editId || stockManagementState.isOpen}
+          onClose={() => {
+            setStockManagementState({ isOpen: false, product: null });
+            closeRouteModal();
+          }}
+          product={stockProduct}
+        />
+      )}
     </div>
   );
 }
@@ -407,7 +436,7 @@ function ProductsStockPageInner() {
 export default function ProductsStockPage() {
   return (
     <Suspense>
-      <ProductsStockPageInner />
+      <StockPageInner />
     </Suspense>
   );
 }

@@ -533,10 +533,9 @@ export function DataTableWithPagination<T = any>({
         </table>
       </div>
 
-      {}
+      {/* Pagination Footer */}
       {showPagination && (
-        <div className="flex items-center justify-between gap-3 p-3 flex-wrap">
-          {}
+        <div className="flex items-center justify-between gap-3 p-3 flex-wrap border-t border-border/60 bg-muted/10 rounded-b-[12px]">
           {showPageSizeSelector && totalElements > 10 ? (
             <PageSizeSelectField
               pageSize={pageSize}
@@ -547,39 +546,35 @@ export function DataTableWithPagination<T = any>({
             <div />
           )}
 
-          {}
           {totalPages > 1 && (
-            <div className="flex items-center gap-1">
-              {}
+            <div className="flex items-center gap-1.5">
+              {/* Previous Page Button */}
               <CustomButton
                 variant="unstyled"
                 size="unstyled"
                 onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`
-                ${classes.button}
-                flex items-center gap-1 rounded border font-medium transition-all duration-200
-                ${
+                className={cn(
+                  "h-8 px-2.5 flex items-center gap-1.5 rounded-[8px] border text-xs font-bold transition-all duration-200",
                   currentPage === 1
-                    ? "opacity-50 cursor-not-allowed text-muted-foreground border-border"
-                    : "text-foreground border-border hover:bg-primary/10 hover:border-primary hover:text-primary"
-                }
-              `}
+                    ? "opacity-40 cursor-not-allowed text-muted-foreground border-border/60 bg-muted/20"
+                    : "text-foreground border-border/80 bg-background hover:bg-primary/10 hover:border-primary/50 hover:text-primary active:scale-95 shadow-2xs"
+                )}
               >
-                <ChevronLeft className={classes.icon} />
+                <ChevronLeft className="h-4 w-4" />
                 <span className="hidden sm:inline">Previous</span>
               </CustomButton>
 
-              {}
+              {/* Page Number Buttons */}
               <div className="flex items-center gap-1">
                 {getPaginationItems().map((item, index) => {
                   if (item === "ellipsis") {
                     return (
                       <span
                         key={`ellipsis-${index}`}
-                        className="px-1 text-muted-foreground"
+                        className="px-1.5 text-xs text-muted-foreground font-bold select-none"
                       >
-                        ...
+                        •••
                       </span>
                     );
                   }
@@ -590,15 +585,12 @@ export function DataTableWithPagination<T = any>({
                       size="unstyled"
                       key={item}
                       onClick={() => onPageChange(item)}
-                      className={`
-                      ${classes.pageButton}
-                      rounded font-medium px-1 transition-all duration-200
-                      ${
+                      className={cn(
+                        "h-8 min-w-[32px] px-2 rounded-[8px] text-xs font-extrabold transition-all duration-200 flex items-center justify-center border",
                         currentPage === item
-                          ? "bg-primary text-primary-foreground border-2 border-primary shadow-md font-bold"
-                          : "text-foreground border border-border hover:bg-primary/10 hover:border-primary hover:text-primary"
-                      }
-                    `}
+                          ? "bg-primary text-primary-foreground border-primary shadow-xs font-black scale-105"
+                          : "text-foreground border-border/70 bg-background hover:bg-primary/10 hover:border-primary/50 hover:text-primary active:scale-95"
+                      )}
                     >
                       {item}
                     </CustomButton>
@@ -606,26 +598,21 @@ export function DataTableWithPagination<T = any>({
                 })}
               </div>
 
-              {}
+              {/* Next Page Button */}
               <CustomButton
                 variant="unstyled"
                 size="unstyled"
-                onClick={() =>
-                  currentPage < totalPages && onPageChange(currentPage + 1)
-                }
+                onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`
-                ${classes.button}
-                flex items-center gap-1 rounded border font-medium transition-all duration-200
-                ${
+                className={cn(
+                  "h-8 px-2.5 flex items-center gap-1.5 rounded-[8px] border text-xs font-bold transition-all duration-200",
                   currentPage === totalPages
-                    ? "opacity-50 cursor-not-allowed text-muted-foreground border-border"
-                    : "text-foreground border-border hover:bg-primary/10 hover:border-primary hover:text-primary"
-                }
-              `}
+                    ? "opacity-40 cursor-not-allowed text-muted-foreground border-border/60 bg-muted/20"
+                    : "text-foreground border-border/80 bg-background hover:bg-primary/10 hover:border-primary/50 hover:text-primary active:scale-95 shadow-2xs"
+                )}
               >
                 <span className="hidden sm:inline">Next</span>
-                <ChevronRight className={classes.icon} />
+                <ChevronRight className="h-4 w-4" />
               </CustomButton>
             </div>
           )}

@@ -14,6 +14,7 @@ import { POSMoreOptionsModal } from "@/components/pos-custom/pos-more-options-mo
 import { POSOrderSuccessModal } from "@/components/pos-custom/pos-order-success-modal";
 import { SizePickerModal } from "@/components/shared/modal/size-picker-modal";
 import { POSEditCartItemModal } from "@/components/pos-custom/pos-edit-cart-item-modal";
+import { BankQrPaymentModal } from "@/components/pos-custom/bank-qr-payment-modal";
 import { usePOSPageHandlers } from "@/features/business/hooks/use-pos-page-handlers";
 import {
   setShowCart,
@@ -52,6 +53,9 @@ function PosPageInner() {
     setEditingItemForPrice,
     showScrollToTop,
     cartSummary,
+    showBankQrModal,
+    setShowBankQrModal,
+    executeOrderCheckout,
     searchInputRef,
     productGridRef,
     posPageRef,
@@ -212,6 +216,17 @@ function PosPageInner() {
         onNoteChange={(note) => dispatch(setCustomerNote(note))}
         currentOrderTotal={cartSummary.finalTotal}
         onDiscountApply={handleDiscountApply}
+      />
+
+      <BankQrPaymentModal
+        isOpen={showBankQrModal}
+        onClose={() => setShowBankQrModal(false)}
+        onConfirmPayment={executeOrderCheckout}
+        paymentOptionName={selectedPaymentOption?.name || "Bank Transfer"}
+        paymentOptionDescription={selectedPaymentOption?.description}
+        qrImageUrl={selectedPaymentOption?.image?.o || selectedPaymentOption?.image?.md || selectedPaymentOption?.image?.sm}
+        totalAmount={cartSummary.finalTotal}
+        isSubmitting={isSubmitting}
       />
     </div>
   );

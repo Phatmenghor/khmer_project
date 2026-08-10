@@ -9,6 +9,7 @@ import { getStockStatusLabel, getProductStatusLabel } from "@/constants/status/s
 import {
   AllProductResponseModel,
   ProductDetailResponseModel,
+  ProductSize,
 } from "../store/models/response/product-response";
 
 interface StockTableHandlers {
@@ -45,6 +46,41 @@ function StockStatusBadge({
   }
 
   return <span className="text-xs font-medium text-green-600">{stock} Items</span>;
+}
+
+function SizesDisplay({ sizes }: { sizes: ProductSize[] | undefined }) {
+  if (!sizes || sizes.length === 0) {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-muted text-muted-foreground border border-border/50">
+        No sizes
+      </span>
+    );
+  }
+
+  const getStockColor = (stock: number) => {
+    if (stock === 0) return { bg: "bg-red-50", border: "border-red-300", text: "text-red-600", dot: "bg-red-500" };
+    if (stock < 10) return { bg: "bg-yellow-50", border: "border-yellow-300", text: "text-yellow-700", dot: "bg-yellow-400" };
+    return { bg: "bg-green-50", border: "border-green-300", text: "text-green-700", dot: "bg-green-500" };
+  };
+
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {sizes.map((size) => {
+        const total = size.totalStock ?? 0;
+        const color = getStockColor(total);
+        return (
+          <div
+            key={size.id}
+            className={`flex items-center gap-1.5 px-2 py-1 rounded-md border text-[10px] ${color.bg} ${color.border}`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${color.dot}`} />
+            <span className="font-semibold text-foreground">{size.name}</span>
+            <span className={`font-bold ${color.text}`}>({total})</span>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 
@@ -125,6 +161,16 @@ export const stockTableColumns = ({
         <span className="text-xs text-muted-foreground">
           {product?.sku || "---"}
         </span>
+      ),
+    },
+
+    {
+      key: "sizes",
+      label: "Sizes",
+      minWidth: "260px",
+      maxWidth: "480px",
+      render: (product) => (
+        <SizesDisplay sizes={product?.sizes} />
       ),
     },
 

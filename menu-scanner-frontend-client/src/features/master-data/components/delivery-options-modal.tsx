@@ -240,6 +240,18 @@ export default function DeliveryOptionsModal({
             )}
 
             <div className="space-y-4">
+              {!isCreate && (deliveryOptions?.name?.toLowerCase() === "store pickup" || deliveryOptions?.name?.toLowerCase() === "pickup") && (
+                <div className="p-3 rounded-md bg-primary/10 border border-primary/20 flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-extrabold text-primary block">System Default Option: Store Pickup</span>
+                    <span className="text-muted-foreground text-[11px]">Delivery Name and Status are managed by system. You can update Price, Description, and Image.</span>
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-primary text-primary-foreground">
+                    Default
+                  </span>
+                </div>
+              )}
+
               <SpacesImageUpload
                 multiSize
                 deferred
@@ -272,38 +284,54 @@ export default function DeliveryOptionsModal({
                 helperText="Square image works best (500x500)"
               />
 
-              <div className="grid grid-cols-2 gap-4">
-                <TextField
-                  control={control}
-                  name="name"
-                  label="Delivery Name"
-                  placeholder="e.g. Standard Delivery"
-                  required
-                  disabled={isSubmitting}
-                  error={errors.name}
-                />
+              {!isCreate && (deliveryOptions?.name?.toLowerCase() === "store pickup" || deliveryOptions?.name?.toLowerCase() === "pickup") ? (
+                /* Edit Store Pickup: Hide Name & Status, show Price only */
+                <div>
+                  <TextField
+                    control={control}
+                    name="price"
+                    label="Price (USD)"
+                    placeholder="e.g. 0.00"
+                    type="text"
+                    disabled={isSubmitting}
+                    error={errors.price}
+                  />
+                </div>
+              ) : (
+                /* Normal Creation / Edit of non-pickup options */
+                <div className="grid grid-cols-2 gap-4">
+                  <TextField
+                    control={control}
+                    name="name"
+                    label="Delivery Name"
+                    placeholder="e.g. Standard Delivery"
+                    required
+                    disabled={isSubmitting}
+                    error={errors.name}
+                  />
 
-                <TextField
-                  control={control}
-                  name="price"
-                  label="Price (USD)"
-                  placeholder="e.g. 2.50"
-                  type="text"
-                  disabled={isSubmitting}
-                  error={errors.price}
-                />
+                  <TextField
+                    control={control}
+                    name="price"
+                    label="Price (USD)"
+                    placeholder="e.g. 2.50"
+                    type="text"
+                    disabled={isSubmitting}
+                    error={errors.price}
+                  />
 
-                <SelectField
-                  control={control}
-                  name="status"
-                  label="Status"
-                  placeholder="Select status"
-                  options={DELIVERY_OPTIONS_STATUS_CREATE_UPDATE}
-                  required
-                  disabled={isSubmitting}
-                  error={errors.status}
-                />
-              </div>
+                  <SelectField
+                    control={control}
+                    name="status"
+                    label="Status"
+                    placeholder="Select status"
+                    options={DELIVERY_OPTIONS_STATUS_CREATE_UPDATE}
+                    required
+                    disabled={isSubmitting}
+                    error={errors.status}
+                  />
+                </div>
+              )}
 
               <TextareaField
                 control={control}

@@ -610,18 +610,31 @@ export default function OrderDetailPage() {
           )}
 
           {}
-          {order.businessNote && (
-            <div className="rounded border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20 p-4">
-              <h2 className="text-xs font-bold text-amber-900 dark:text-amber-200 mb-3 flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                Business Notes
-              </h2>
-
-              <p className="text-xs text-amber-900 dark:text-amber-300 leading-relaxed">
-                {order.businessNote}
-              </p>
-            </div>
-          )}
+          {/* Remarks */}
+          {(() => {
+            const raw = order.businessNote || "";
+            const parts = raw
+              .split("|")
+              .map((p) => p.trim())
+              .filter((p) => p && !p.startsWith("Discount Applied:"));
+            if (parts.length === 0) return null;
+            return (
+              <div className="rounded border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20 p-4 space-y-2">
+                <h2 className="text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  Remarks
+                </h2>
+                <ul className="space-y-1 text-xs text-amber-900 dark:text-amber-300 font-medium">
+                  {parts.map((part, idx) => (
+                    <li key={idx} className="flex items-start gap-1.5 leading-relaxed">
+                      <span className="font-bold select-none">•</span>
+                      <span>{part}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })()}
         </div>
       </div>
 

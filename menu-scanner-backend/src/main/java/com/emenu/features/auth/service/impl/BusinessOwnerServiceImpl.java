@@ -812,10 +812,10 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         exchangeRate.setStatus(BusinessExchangeRate.ExchangeRateStatus.ACTIVE);
         businessExchangeRateRepository.save(exchangeRate);
 
-        // Create default delivery option: Pickup
+        // Create default delivery option: Store Pickup
         DeliveryOption deliveryOption = new DeliveryOption();
         deliveryOption.setBusinessId(businessId);
-        deliveryOption.setName("Pickup");
+        deliveryOption.setName("Store Pickup");
         deliveryOption.setStatus(Status.ACTIVE);
         deliveryOption.setPrice(BigDecimal.ZERO);
         deliveryOptionRepository.save(deliveryOption);

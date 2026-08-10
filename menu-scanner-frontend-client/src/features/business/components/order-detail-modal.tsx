@@ -222,40 +222,6 @@ export function OrderDetailModal({
                     </div>
                   </div>
                 )}
-
-                {/* Status history list */}
-                {orderData.statusHistory && orderData.statusHistory.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-border/50 space-y-1.5">
-                    {orderData.statusHistory.map((h, idx) => (
-                      <div
-                        key={h.id}
-                        className="flex items-start gap-2 text-xs"
-                      >
-                        <div className="flex-shrink-0 w-4 h-4 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold mt-0.5">
-                          {idx + 1}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="font-semibold text-foreground">
-                            {h.statusName}
-                          </span>
-                          {h.note && (
-                            <span className="text-muted-foreground ml-1">
-                              — {h.note}
-                            </span>
-                          )}
-                          {h.changedBy && (
-                            <span className="text-muted-foreground ml-1">
-                              by {h.changedBy.fullName || h.changedBy.firstName}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-muted-foreground flex-shrink-0">
-                          {dateTimeFormat(h.changedAt)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
 
               {/* Order Items */}
@@ -354,7 +320,7 @@ export function OrderDetailModal({
 
                             {/* Price × qty → total */}
                             <div className="flex items-center justify-between text-xs mt-1 pt-1 border-t border-border/40">
-                              <div className="flex flex-col gap-0.5">
+                              <div className="flex items-center gap-2 flex-wrap min-w-0">
                                 <span className="text-muted-foreground font-semibold">
                                   {formatCurrency(item.finalPrice)} ×{" "}
                                   <span className={cn(
@@ -365,17 +331,17 @@ export function OrderDetailModal({
                                   </span>
                                 </span>
                                 {item.hasPromotion && item.currentPrice && item.currentPrice > item.finalPrice && (
-                                  <div className="flex items-center gap-1.5 text-[10px] mt-0.5">
+                                  <div className="flex items-center gap-1.5 text-[10px]">
                                     <span className="text-muted-foreground line-through">
                                       {formatCurrency(item.currentPrice)}
                                     </span>
-                                    <span className="text-red-500 font-bold">
+                                    <span className="text-red-500 font-bold bg-red-500/10 px-1 py-0.2 rounded border border-red-500/20">
                                       Saved {formatCurrency((item.currentPrice - item.finalPrice) * item.quantity)}
                                     </span>
                                   </div>
                                 )}
                               </div>
-                              <span className="font-extrabold text-foreground">
+                              <span className="font-extrabold text-foreground shrink-0">
                                 {formatCurrency(item.totalPrice)}
                               </span>
                             </div>
@@ -394,47 +360,72 @@ export function OrderDetailModal({
                 </SectionTitle>
                 <div className="space-y-1.5">
                   <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">
+                    <span className="text-muted-foreground font-medium">
                       Subtotal ({orderData.pricing?.totalItems || 0} items)
                     </span>
-                    <span className="font-medium text-foreground">
+                    <span className="font-semibold text-foreground">
                       {formatCurrency(orderData.pricing?.subtotal || 0)}
                     </span>
                   </div>
 
                   {(orderData.pricing?.customizationTotal ?? 0) > 0 && (
                     <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">
+                      <span className="text-muted-foreground font-medium">
                         Add-ons / Customizations
                       </span>
-                      <span className="font-medium text-blue-600">
+                      <span className="font-semibold text-blue-600 dark:text-blue-400">
                         +{formatCurrency(orderData.pricing!.customizationTotal)}
                       </span>
                     </div>
                   )}
 
                   <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Delivery Fee</span>
-                    <span className="font-medium text-foreground">
+                    <span className="text-muted-foreground font-medium">
+                      Delivery {orderData.deliveryOption?.name ? `(${orderData.deliveryOption.name})` : ""}
+                    </span>
+                    <span className="font-semibold text-foreground">
                       {(orderData.pricing?.deliveryFee ?? 0) > 0
-                        ? formatCurrency(orderData.pricing!.deliveryFee)
+                        ? `+${formatCurrency(orderData.pricing!.deliveryFee)}`
                         : "Free"}
                     </span>
                   </div>
 
                   {(orderData.pricing?.taxAmount ?? 0) > 0 && (
                     <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">
+                      <span className="text-muted-foreground font-medium">
                         Tax ({orderData.pricing?.taxPercentage}%)
                       </span>
-                      <span className="font-medium text-green-600">
+                      <span className="font-semibold text-emerald-600 dark:text-emerald-400">
                         +{formatCurrency(orderData.pricing!.taxAmount)}
                       </span>
                     </div>
                   )}
 
+                  {orderData.payment?.paymentMethod && (
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground font-medium">Payment Mode</span>
+                      <span className="font-semibold text-foreground">{orderData.payment.paymentMethod}</span>
+                    </div>
+                  )}
+
+                  {orderData.payment?.paymentStatus && (
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground font-medium">Payment Status</span>
+                      <span className={cn(
+                        "font-bold",
+                        orderData.payment.paymentStatus === "PAID"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : orderData.payment.paymentStatus === "REFUNDED"
+                            ? "text-red-600"
+                            : "text-amber-600"
+                      )}>
+                        {orderData.payment.paymentStatus}
+                      </span>
+                    </div>
+                  )}
+
                   {(orderData.pricing?.discountAmount ?? 0) > 0 && (
-                    <div className="rounded-[6px] border border-red-500/25 bg-red-500/5 px-2.5 py-2 space-y-1 my-1">
+                    <div className="rounded-[6px] border border-red-500/25 bg-red-500/5 px-2.5 py-1.5 space-y-1 my-1">
                       <div className="flex justify-between text-xs items-center">
                         <div className="flex items-center gap-1.5">
                           <span className="text-red-600 dark:text-red-400 font-bold">Discount</span>
@@ -448,24 +439,75 @@ export function OrderDetailModal({
                           -{formatCurrency(orderData.pricing!.discountAmount)}
                         </span>
                       </div>
-                      {orderData.pricing?.discountReason && (
-                        <p className="text-[10px] text-muted-foreground italic leading-tight">
-                          Note: {orderData.pricing.discountReason}
-                        </p>
-                      )}
                     </div>
                   )}
 
-                  <div className="pt-2 mt-1 border-t border-border/50 flex justify-between">
-                    <span className="text-xs font-bold text-foreground">
-                      Total
+                  <div className="pt-2 mt-1 border-t border-border/50 flex justify-between items-center">
+                    <span className="text-xs font-black text-foreground uppercase tracking-wide">
+                      Total Amount
                     </span>
-                    <span className="text-sm font-bold text-primary">
+                    <span className="text-base font-black text-primary">
                       {formatCurrency(orderData.pricing?.finalTotal || 0)}
                     </span>
                   </div>
                 </div>
               </div>
+
+              {/* Status History Card */}
+              {orderData.statusHistory && orderData.statusHistory.length > 0 && (
+                <div className="rounded border border-border/50 bg-card p-3">
+                  <SectionTitle>
+                    Status History
+                  </SectionTitle>
+                  <div className="space-y-1.5 mt-2">
+                    {orderData.statusHistory.map((h, idx) => {
+                      const cleanNote = h.note
+                        ? Array.from(
+                            new Set(
+                              h.note
+                                .split("|")
+                                .map((s) => s.trim())
+                                .filter((s) => s && s !== "Created via POS System" && !s.startsWith("Discount Applied:"))
+                            )
+                          ).join(" | ")
+                        : "";
+
+                      const actorName = h.changedBy
+                        ? h.changedBy.fullName || h.changedBy.firstName
+                        : null;
+
+                      return (
+                        <div
+                          key={h.id || idx}
+                          className="flex items-start gap-2.5 text-xs py-1 border-b border-border/30 last:border-0"
+                        >
+                          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[11px] font-black mt-0.5">
+                            {idx + 1}
+                          </div>
+                          <div className="flex-1 min-w-0 leading-relaxed flex items-center gap-1.5 flex-wrap">
+                            <span className="font-extrabold text-foreground">
+                              {h.statusName}
+                            </span>
+                            {cleanNote && (
+                              <span className="text-muted-foreground">
+                                — {cleanNote}
+                              </span>
+                            )}
+                            {actorName && (
+                              <span className="inline-flex items-center text-[10px] font-extrabold px-1.5 py-0.2 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 whitespace-nowrap">
+                                by {actorName}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[11px] text-muted-foreground font-medium flex-shrink-0">
+                            {dateTimeFormat(h.changedAt)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* ── Right sidebar ── */}
@@ -498,6 +540,16 @@ export function OrderDetailModal({
                     value={orderData.businessName || "-"}
                   />
                   <InfoRow
+                    label="Customer"
+                    value={orderData.customerName || "Walk-in Customer"}
+                  />
+                  {orderData.customerPhone && (
+                    <InfoRow
+                      label="Phone"
+                      value={orderData.customerPhone}
+                    />
+                  )}
+                  <InfoRow
                     label="Order Status"
                     value={
                       <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 border", statusCfg.badgeBg, statusCfg.border)}>
@@ -505,68 +557,8 @@ export function OrderDetailModal({
                       </span>
                     }
                   />
-                  <InfoRow
-                    label="Payment Method"
-                    value={orderData.payment?.paymentMethod || "-"}
-                  />
-                  <InfoRow
-                    label="Payment Status"
-                    value={
-                      <span
-                        className={cn(
-                          "font-semibold",
-                          orderData.payment?.paymentStatus === "PAID"
-                            ? "text-green-600"
-                            : orderData.payment?.paymentStatus === "REFUNDED"
-                              ? "text-red-600"
-                              : "text-amber-600"
-                        )}
-                      >
-                        {orderData.payment?.paymentStatus || "-"}
-                      </span>
-                    }
-                  />
                 </div>
               </div>
-
-              {/* Customer Info */}
-              <div className="rounded border border-border/50 bg-card p-3">
-                <SectionTitle>
-                  Customer
-                </SectionTitle>
-                <div className="space-y-2">
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-0.5">
-                      Name
-                    </p>
-                    <p className="text-xs font-semibold text-foreground">
-                      {orderData.customerName || "Walk-in Customer"}
-                    </p>
-                  </div>
-                  {orderData.customerPhone && (
-                    <div>
-                      <p className="text-xs font-semibold text-muted-foreground mb-0.5">
-                        Phone
-                      </p>
-                      <p className="text-xs font-semibold text-foreground">
-                        {orderData.customerPhone}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Remarks / Business Note */}
-              {orderData.businessNote && (
-                <div className="rounded border border-border/50 bg-card p-3">
-                  <SectionTitle>
-                    Remarks / Internal Note
-                  </SectionTitle>
-                  <p className="text-xs text-foreground font-medium leading-relaxed">
-                    {orderData.businessNote}
-                  </p>
-                </div>
-              )}
 
               {/* Delivery Address */}
               {orderData.deliveryAddress && formattedAddress && (
@@ -638,17 +630,30 @@ export function OrderDetailModal({
                 </div>
               )}
 
-              {/* Business Note */}
-              {orderData.businessNote && (
-                <div className="rounded border border-amber-200 bg-amber-50 p-3">
-                  <SectionTitle>
-                    Business Note
-                  </SectionTitle>
-                  <p className="text-xs text-amber-900 leading-relaxed">
-                    {orderData.businessNote}
-                  </p>
-                </div>
-              )}
+              {/* Remarks */}
+              {(() => {
+                const raw = orderData.businessNote || "";
+                const parts = raw
+                  .split("|")
+                  .map((p) => p.trim())
+                  .filter((p) => p && !p.startsWith("Discount Applied:"));
+                if (parts.length === 0) return null;
+                return (
+                  <div className="rounded border border-border/50 bg-card p-3 space-y-1.5">
+                    <SectionTitle>
+                      Remarks
+                    </SectionTitle>
+                    <ul className="space-y-1 text-xs text-foreground font-medium">
+                      {parts.map((part, idx) => (
+                        <li key={idx} className="flex items-start gap-1.5 leading-relaxed">
+                          <span className="text-primary font-bold text-xs select-none">•</span>
+                          <span>{part}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })()}
 
               {/* System Info */}
               <div className="rounded border border-border/50 bg-card p-3">

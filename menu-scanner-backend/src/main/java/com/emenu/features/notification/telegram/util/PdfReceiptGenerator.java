@@ -62,8 +62,8 @@ public final class PdfReceiptGenerator {
 
         float measuredHeight = measureContentHeight(order, settings, widthPt, fontScale);
 
-        // Add a safe buffer so iText never overflows (avoids second page due to table row padding rounding)
-        float pageHeight = measuredHeight + 8f * fontScale;
+        // Add a safe buffer so iText never overflows onto a second page
+        float pageHeight = measuredHeight + 25f * fontScale;
 
         Rectangle pageSize = new Rectangle(widthPt, pageHeight);
         float margin = 4f * fontScale;
@@ -254,8 +254,11 @@ public final class PdfReceiptGenerator {
                         ? order.getDeliveryOption().getPrice() : BigDecimal.ZERO);
             addMetaRow(summaryTable, delLabel, "+$" + fmt(delFee), fontNormal, fontNormal);
         }
-        if (order.getPaymentMethod() != null)
-            addMetaRow(summaryTable, "Payment Mode", order.getPaymentMethod().name(), fontNormal, fontBold);
+        String paymentMode = hasText(order.getCustomerPaymentMethod())
+                ? order.getCustomerPaymentMethod()
+                : (order.getPaymentMethod() != null ? order.getPaymentMethod().name() : null);
+        if (paymentMode != null)
+            addMetaRow(summaryTable, "Payment Mode", paymentMode, fontNormal, fontBold);
         if (order.getPaymentStatus() != null)
             addMetaRow(summaryTable, "Payment Status", order.getPaymentStatus().name(), fontNormal, fontBold);
         if (order.getDiscountAmount() != null && order.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
@@ -280,9 +283,22 @@ public final class PdfReceiptGenerator {
 
         // ── 7. Remarks ───────────────────────────────────────────────────────────
         if (hasText(order.getBusinessNote())) {
-            Paragraph pRem = new Paragraph("Remarks: " + order.getBusinessNote(), fontMuted);
-            document.add(pRem);
-            document.add(createDashedDividerLine(fontScale));
+            String[] parts = order.getBusinessNote().split("\\|");
+            List<String> cleanParts = new ArrayList<>();
+            for (String p : parts) {
+                String t = p.trim();
+                if (hasText(t) && !t.startsWith("Discount Applied:")) {
+                    cleanParts.add(t);
+                }
+            }
+            if (!cleanParts.isEmpty()) {
+                document.add(new Paragraph("Remarks:", fontHeader));
+                for (String cp : cleanParts) {
+                    Paragraph pPart = new Paragraph("  • " + cp, fontMuted);
+                    document.add(pPart);
+                }
+                document.add(createDashedDividerLine(fontScale));
+            }
         }
 
         // ── 8. Wi-Fi Details ─────────────────────────────────────────────────────

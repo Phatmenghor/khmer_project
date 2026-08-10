@@ -222,27 +222,49 @@ export function CustomerOrderDetailModal({
 
                 {/* Status history */}
                 {order.statusHistory && order.statusHistory.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-border/50 space-y-1.5">
-                    {order.statusHistory.map((h, idx) => (
-                      <div key={h.id} className="flex items-start gap-2 text-xs">
-                        <div className="flex-shrink-0 w-4 h-4 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold mt-0.5">
-                          {idx + 1}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="font-semibold text-foreground">
-                            {h.statusName}
-                          </span>
-                          {h.note && (
-                            <span className="text-muted-foreground ml-1">
-                              — {h.note}
+                  <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
+                    {order.statusHistory.map((h, idx) => {
+                      const cleanNote = h.note
+                        ? Array.from(
+                            new Set(
+                              h.note
+                                .split("|")
+                                .map((s) => s.trim())
+                                .filter((s) => s && s !== "Created via POS System" && !s.startsWith("Discount Applied:"))
+                            )
+                          ).join(" | ")
+                        : "";
+
+                      const actorName = h.changedBy
+                        ? h.changedBy.fullName || h.changedBy.firstName
+                        : null;
+
+                      return (
+                        <div key={h.id || idx} className="flex items-start gap-2.5 text-xs py-0.5">
+                          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[11px] font-black mt-0.5">
+                            {idx + 1}
+                          </div>
+                          <div className="flex-1 min-w-0 leading-relaxed flex items-center gap-1.5 flex-wrap">
+                            <span className="font-extrabold text-foreground">
+                              {h.statusName}
                             </span>
-                          )}
+                            {cleanNote && (
+                              <span className="text-muted-foreground">
+                                — {cleanNote}
+                              </span>
+                            )}
+                            {actorName && (
+                              <span className="inline-flex items-center text-[10px] font-extrabold px-1.5 py-0.2 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 whitespace-nowrap">
+                                by {actorName}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[11px] text-muted-foreground font-medium flex-shrink-0">
+                            {dateTimeFormat(h.changedAt)}
+                          </span>
                         </div>
-                        <span className="text-muted-foreground flex-shrink-0">
-                          {dateTimeFormat(h.changedAt)}
-                        </span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

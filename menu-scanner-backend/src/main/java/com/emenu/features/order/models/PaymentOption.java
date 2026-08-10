@@ -39,6 +39,9 @@ public class PaymentOption extends BaseUUIDEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_option_type", nullable = false)
     @Builder.Default

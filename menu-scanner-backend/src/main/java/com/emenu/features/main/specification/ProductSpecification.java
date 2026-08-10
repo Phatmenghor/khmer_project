@@ -11,6 +11,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import com.emenu.features.main.models.ProductSize;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+
 public class ProductSpecification extends BaseSpecification {
 
     public static Specification<Product> active() {
@@ -38,17 +43,51 @@ public class ProductSpecification extends BaseSpecification {
             if (hasPromotion == null) {
                 return cb.conjunction();
             }
-            if (hasPromotion) {
-                return cb.and(
-                        cb.isNotNull(root.get("promotionType")),
-                        cb.isNotNull(root.get("promotionValue"))
-                );
-            } else {
-                return cb.or(
-                        cb.isNull(root.get("promotionType")),
-                        cb.isNull(root.get("promotionValue"))
-                );
+
+            if (query != null) {
+                query.distinct(true);
             }
+
+            LocalDateTime now = LocalDateTime.now();
+
+            // Product-level active promotion
+            Predicate productPromoNotNull = cb.and(
+                    cb.isNotNull(root.get("promotionType")),
+                    cb.isNotNull(root.get("promotionValue"))
+            );
+            Predicate productFromValid = cb.or(
+                    cb.isNull(root.get("promotionFromDate")),
+                    cb.lessThanOrEqualTo(root.get("promotionFromDate"), now)
+            );
+            Predicate productToValid = cb.or(
+                    cb.isNull(root.get("promotionToDate")),
+                    cb.greaterThanOrEqualTo(root.get("promotionToDate"), now)
+            );
+            Predicate productActivePromo = cb.and(productPromoNotNull, productFromValid, productToValid);
+
+            // Size-level active promotion
+            Join<Product, ProductSize> sizesJoin = root.join("sizes", JoinType.LEFT);
+            Predicate sizeNotDeleted = cb.or(
+                    cb.isNull(sizesJoin.get("isDeleted")),
+                    cb.equal(sizesJoin.get("isDeleted"), false)
+            );
+            Predicate sizePromoNotNull = cb.and(
+                    cb.isNotNull(sizesJoin.get("promotionType")),
+                    cb.isNotNull(sizesJoin.get("promotionValue"))
+            );
+            Predicate sizeFromValid = cb.or(
+                    cb.isNull(sizesJoin.get("promotionFromDate")),
+                    cb.lessThanOrEqualTo(sizesJoin.get("promotionFromDate"), now)
+            );
+            Predicate sizeToValid = cb.or(
+                    cb.isNull(sizesJoin.get("promotionToDate")),
+                    cb.greaterThanOrEqualTo(sizesJoin.get("promotionToDate"), now)
+            );
+            Predicate sizeActivePromo = cb.and(sizeNotDeleted, sizePromoNotNull, sizeFromValid, sizeToValid);
+
+            Predicate hasActivePromotion = cb.or(productActivePromo, sizeActivePromo);
+
+            return hasPromotion ? hasActivePromotion : cb.not(hasActivePromotion);
         };
     }
 

@@ -402,9 +402,9 @@ export default function BusinessSettingsPage() {
           </CardHeader>
           <CardContent className="pt-6">
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
-              {/* Left Column: Logo Uploder */}
-              <div className="w-full lg:w-[240px] shrink-0 flex flex-col items-center lg:items-start justify-start space-y-4">
-                <div className="w-full max-w-full">
+              {/* Left Column: Logo + Core Identity Fields */}
+              <div className="w-full lg:w-[260px] shrink-0 flex flex-col space-y-4">
+                <div className="w-full">
                   <SpacesImageUpload
                     businessId={AppDefault.BUSINESS_ID}
                     label="Business Logo"
@@ -419,22 +419,47 @@ export default function BusinessSettingsPage() {
                     maxSizeMb={5}
                   />
                 </div>
+                <TextField<BusinessSettingsFormData>
+                  control={form.control}
+                  name="businessName"
+                  label="Business Name"
+                  placeholder="Enter your business name"
+                  disabled={isSaving}
+                />
+                <TextField<BusinessSettingsFormData>
+                  control={form.control}
+                  name="contactPhone"
+                  label="Contact Phone"
+                  placeholder="Enter your contact phone number"
+                  disabled={isSaving}
+                />
+                <TextField<BusinessSettingsFormData>
+                  control={form.control}
+                  name="contactEmail"
+                  label="Contact Email"
+                  type="email"
+                  placeholder="Enter your contact email address"
+                  disabled={isSaving}
+                />
               </div>
 
-              {/* Right Column: Information Fields */}
+              {/* Right Column: Store Settings (2 Items Per Row) */}
               <div className="flex-1 space-y-6">
-                {/* Subsection: Basic Identity */}
                 <div className="space-y-4">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground border-b border-border/40 pb-1.5 flex items-center gap-1.5">
                     <span className="w-1 h-3 rounded-full bg-primary shrink-0" />
                     Store Details
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <TextField<BusinessSettingsFormData>
+                    <SelectField<BusinessSettingsFormData>
                       control={form.control}
-                      name="businessName"
-                      label="Business Name"
-                      placeholder="Enter your business name"
+                      name="receiptSize"
+                      label="Default Receipt Size"
+                      options={[
+                        { label: "Small receipt (58mm)", value: "SIZE_58MM" },
+                        { label: "Standard receipt (80mm)", value: "SIZE_80MM" },
+                        { label: "Large receipt (112mm)", value: "SIZE_112MM" },
+                      ]}
                       disabled={isSaving}
                     />
                     <TextField<BusinessSettingsFormData>
@@ -443,16 +468,6 @@ export default function BusinessSettingsPage() {
                       label="Tax Percentage"
                       pattern="[0-9.]"
                       placeholder="Enter your tax percentage"
-                      disabled={isSaving}
-                    />
-                    <SelectField<BusinessSettingsFormData>
-                      control={form.control}
-                      name="enableStock"
-                      label="Stock Management"
-                      options={[
-                        { label: "Enabled", value: "ENABLED" },
-                        { label: "Disabled", value: "DISABLED" },
-                      ]}
                       disabled={isSaving}
                     />
                     <TextField<BusinessSettingsFormData>
@@ -467,28 +482,12 @@ export default function BusinessSettingsPage() {
                     />
                     <SelectField<BusinessSettingsFormData>
                       control={form.control}
-                      name="receiptSize"
-                      label="Default Receipt Size"
+                      name="enableStock"
+                      label="Stock Management"
                       options={[
-                        { label: "Small receipt (58mm)", value: "SIZE_58MM" },
-                        { label: "Standard receipt (80mm)", value: "SIZE_80MM" },
-                        { label: "Large receipt (112mm)", value: "SIZE_112MM" },
+                        { label: "Enabled", value: "ENABLED" },
+                        { label: "Disabled", value: "DISABLED" },
                       ]}
-                      disabled={isSaving}
-                    />
-                    <TextField<BusinessSettingsFormData>
-                      control={form.control}
-                      name="contactPhone"
-                      label="Contact Phone"
-                      placeholder="Enter your contact phone number"
-                      disabled={isSaving}
-                    />
-                    <TextField<BusinessSettingsFormData>
-                      control={form.control}
-                      name="contactEmail"
-                      label="Contact Email"
-                      type="email"
-                      placeholder="Enter your contact email address"
                       disabled={isSaving}
                     />
                     <TextField<BusinessSettingsFormData>

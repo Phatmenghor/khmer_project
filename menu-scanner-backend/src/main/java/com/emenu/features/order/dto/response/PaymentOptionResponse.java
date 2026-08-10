@@ -20,6 +20,7 @@ public class PaymentOptionResponse {
     private UUID id;
     private UUID businessId;
     private String name;
+    private String description;
     private PaymentOptionType paymentOptionType;
     private Status status;
     private ImageUrls image;

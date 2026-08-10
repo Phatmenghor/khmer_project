@@ -73,6 +73,7 @@ public class POSCheckoutRequest {
         @NotNull(message = "Payment method is required")
         private String paymentMethod;
         private String paymentStatus;
+        private String customerPaymentMethod;
     }
 }
 

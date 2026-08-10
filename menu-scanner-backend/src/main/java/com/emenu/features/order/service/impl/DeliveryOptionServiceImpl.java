@@ -17,28 +17,33 @@ import com.emenu.features.order.specification.DeliveryOptionSpecification;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
-import java.util.Map;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
+import com.emenu.shared.dto.BatchImportResponse;
+import com.emenu.shared.cancellation.RequestCancellationRegistry;
+import com.emenu.shared.mapper.PaginationMapper;
+
+import jakarta.validation.Valid;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import org.springframework.transaction.annotation.Propagation;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import com.emenu.shared.dto.BatchImportResponse;
-import com.emenu.shared.cancellation.RequestCancellationRegistry;
-import com.emenu.shared.mapper.PaginationMapper;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import jakarta.validation.Valid;
-import java.util.ArrayList;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -64,6 +69,11 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
 
         User currentUser = securityUtils.getCurrentUser();
         validateUserBusinessAssociation(currentUser);
+
+        // Prevent creating duplicate Store Pickup default option
+        if (isStorePickupName(request.getName())) {
+            throw new ValidationException("Store Pickup is a system default delivery option and cannot be created again");
+        }
 
         // Check if name already exists for this business
         if (deliveryOptionRepository.existsByNameAndBusinessIdAndIsDeletedFalse(
@@ -105,10 +115,10 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
                     results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
                     successCount++;
                     success = true;
-                } catch (jakarta.validation.ConstraintViolationException ex) {
+                } catch (ConstraintViolationException ex) {
                     errorMsg = ex.getConstraintViolations().stream()
-                            .map(jakarta.validation.ConstraintViolation::getMessage)
-                            .collect(java.util.stream.Collectors.joining(", "));
+                            .map(ConstraintViolation::getMessage)
+                            .collect(Collectors.joining(", "));
                     log.error("Batch delivery option creation failed at index {} due to validation: {}", i, errorMsg);
                     results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
                     errorCount++;
@@ -164,7 +174,8 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
         );
 
         Page<DeliveryOption> deliveryOptionPage = deliveryOptionRepository.findAll(spec, pageable);
-        return paginationMapper.toPaginationResponse(deliveryOptionPage, deliveryOptionMapper.toResponseList(deliveryOptionPage.getContent()));
+        List<DeliveryOption> sortedList = sortStorePickupTop(deliveryOptionPage.getContent());
+        return paginationMapper.toPaginationResponse(deliveryOptionPage, deliveryOptionMapper.toResponseList(sortedList));
     }
 
     @Override
@@ -183,8 +194,9 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
 
         Sort sort = PaginationUtils.createSort(filter.getSortBy(), filter.getSortDirection());
         List<DeliveryOption> deliveryOptions = deliveryOptionRepository.findAll(spec, sort);
+        List<DeliveryOption> sortedList = sortStorePickupTop(deliveryOptions);
 
-        return deliveryOptionMapper.toResponseList(deliveryOptions);
+        return deliveryOptionMapper.toResponseList(sortedList);
     }
 
     @Override
@@ -197,6 +209,15 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
     @Override
     public DeliveryOptionResponse updateDeliveryOption(UUID id, DeliveryOptionUpdateRequest request) {
         DeliveryOption deliveryOption = findDeliveryOptionById(id);
+
+        if (isStorePickup(deliveryOption)) {
+            if (request.getName() != null && !isStorePickupName(request.getName())) {
+                throw new ValidationException("Default Store Pickup option name cannot be changed");
+            }
+            if (request.getStatus() != null && request.getStatus() == Status.INACTIVE) {
+                throw new ValidationException("Default Store Pickup option must remain ACTIVE");
+            }
+        }
 
         // Check if new name already exists (if name is being changed)
         if (request.getName() != null && !request.getName().equals(deliveryOption.getName())) {
@@ -217,6 +238,10 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
     public DeliveryOptionResponse deleteDeliveryOption(UUID id) {
         DeliveryOption deliveryOption = findDeliveryOptionById(id);
 
+        if (isStorePickup(deliveryOption)) {
+            throw new ValidationException("Default Store Pickup option cannot be deleted");
+        }
+
         deliveryOption.softDelete();
         deliveryOption = deliveryOptionRepository.save(deliveryOption);
 
@@ -227,6 +252,30 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
     // ================================
     // PRIVATE HELPER METHODS
     // ================================
+
+    private List<DeliveryOption> sortStorePickupTop(List<DeliveryOption> list) {
+        if (list == null || list.isEmpty()) return list;
+        List<DeliveryOption> sorted = new ArrayList<>(list);
+        sorted.sort((a, b) -> {
+            boolean aPickup = isStorePickup(a);
+            boolean bPickup = isStorePickup(b);
+            if (aPickup && !bPickup) return -1;
+            if (!aPickup && bPickup) return 1;
+            return 0;
+        });
+        return sorted;
+    }
+
+    private boolean isStorePickup(DeliveryOption option) {
+        if (option == null || option.getName() == null) return false;
+        return isStorePickupName(option.getName());
+    }
+
+    private boolean isStorePickupName(String name) {
+        if (name == null) return false;
+        String n = name.trim().toLowerCase();
+        return n.equals("store pickup") || n.equals("pickup");
+    }
 
     private DeliveryOption findDeliveryOptionById(UUID id) {
         return deliveryOptionRepository.findByIdWithBusiness(id)

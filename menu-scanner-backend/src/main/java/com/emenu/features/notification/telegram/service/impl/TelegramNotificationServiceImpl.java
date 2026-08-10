@@ -243,7 +243,7 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
         // 2. Send Clean Normal HTML Text Message to Telegram Group
         sendToChatId(chatId, messageText, "HTML", order.getBusinessId(), receiptUrl, null);
 
-        // 3. Send Downloadable PDF Receipt Document directly to Telegram Group (no caption text)
+        // 3. Send Downloadable PDF Receipt Document directly to Telegram Group
         if (pdfBytes != null && pdfBytes.length > 0) {
             sendDocumentToChatId(chatId, pdfBytes, pdfFileName, null);
         }

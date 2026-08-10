@@ -2,11 +2,10 @@
 
 import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { TextField } from "@/components/shared/form-field/text-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { CancelButton, SubmitButton } from "@/components/shared/button/custom-button";
@@ -25,10 +24,8 @@ import { fetchOrderByIdAdminService, updateOrderAdminService } from "../store/th
 import { clearSelectedOrder } from "../store/slice/order-admin-slice";
 import {
   deductOrderStock,
-  checkStockManagementEnabled,
   formatStockDeductionItems,
 } from "@/services/stock-management-service";
-
 
 const updateOrderSchema = z.object({
   orderStatus: z.string().min(1, "Order status is required"),
@@ -105,7 +102,7 @@ export function OrderUpdateModal({
       setPreviousOrderStatus(currentStatus);
       reset({
         orderStatus: currentStatus,
-        businessNote: "",
+        businessNote: "", // Starts empty so user can add a new remark for this status update
         paymentMethod: orderData.payment?.paymentMethod || "CASH",
         paymentStatus: orderData.payment?.paymentStatus || "UNPAID",
       });
@@ -123,15 +120,23 @@ export function OrderUpdateModal({
 
     setIsSaving(true);
     try {
+      // Append new remark to existing businessNote if provided
+      let finalBusinessNote = orderData.businessNote || "";
+      if (data.businessNote && data.businessNote.trim()) {
+        const newNote = data.businessNote.trim();
+        finalBusinessNote = finalBusinessNote
+          ? `${finalBusinessNote} | ${newNote}`
+          : newNote;
+      }
+
       const updatePayload = {
         orderStatus: data.orderStatus,
-        businessNote: data.businessNote,
+        businessNote: finalBusinessNote,
         payment: {
           paymentMethod: data.paymentMethod,
           paymentStatus: data.paymentStatus,
         },
       };
-
 
       const isStatusChanging = previousOrderStatus !== data.orderStatus;
       const isConfirmedOrCompleted = ["CONFIRMED", "COMPLETED"].includes(
@@ -143,14 +148,12 @@ export function OrderUpdateModal({
         businessSettings?.enableStock === "ENABLED" &&
         orderData.items?.length > 0;
 
-
       await dispatch(
         updateOrderAdminService({
           orderId,
           orderData: updatePayload,
         })
       ).unwrap();
-
 
       if (shouldDeductStock) {
         try {
@@ -191,32 +194,37 @@ export function OrderUpdateModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-xl p-0 flex flex-col">
-        <FormHeader
-          title="Update Order"
-          description="Update order status, payment, and notes"
-          isCreate={false}
-        />
+    <CustomModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size="default"
+      disableScrollWrapper={true}
+    >
+      <FormHeader
+        title="Update Order"
+        description="Update order status, payment options, and remarks"
+        isCreate={false}
+      />
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col flex-1 overflow-visible"
-        >
-          <FormBody>
-            {}
-            <SelectField
-              control={control}
-              name="orderStatus"
-              label="Order Status"
-              placeholder="Select order status"
-              options={ORDER_STATUS_OPTIONS}
-              required
-              disabled={isSaving || isFetchingDetail}
-              error={errors.orderStatus}
-            />
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col flex-1 min-h-0"
+      >
+        <FormBody className="space-y-3.5">
+          {/* Order Status Selection */}
+          <SelectField
+            control={control}
+            name="orderStatus"
+            label="Order Status"
+            placeholder="Select order status"
+            options={ORDER_STATUS_OPTIONS}
+            required
+            disabled={isSaving || isFetchingDetail}
+            error={errors.orderStatus}
+          />
 
-            {}
+          {/* Payment Method & Status Row */}
+          <div className="grid grid-cols-2 gap-3">
             <SelectField
               control={control}
               name="paymentMethod"
@@ -228,7 +236,6 @@ export function OrderUpdateModal({
               error={errors.paymentMethod}
             />
 
-            {}
             <SelectField
               control={control}
               name="paymentStatus"
@@ -239,36 +246,36 @@ export function OrderUpdateModal({
               disabled={isSaving || isFetchingDetail}
               error={errors.paymentStatus}
             />
+          </div>
 
-            {}
-            <TextareaField
-              control={control}
-              name="businessNote"
-              label="Business Note"
-              placeholder="Enter business note (optional)"
-              disabled={isSaving || isFetchingDetail}
-              error={errors.businessNote}
-              rows={3}
-            />
-          </FormBody>
+          {/* Remarks Textarea */}
+          <TextareaField
+            control={control}
+            name="businessNote"
+            label="Remarks"
+            placeholder="Enter order remarks or internal notes..."
+            disabled={isSaving || isFetchingDetail}
+            error={errors.businessNote}
+            rows={3}
+          />
+        </FormBody>
 
-          <FormFooter
+        <FormFooter
+          isSubmitting={isSaving}
+          isDirty={isDirty}
+          isCreate={false}
+          updateMessage={isSaving ? "Saving..." : "Update Order"}
+        >
+          <CancelButton onClick={handleClose} disabled={isSaving} />
+          <SubmitButton
             isSubmitting={isSaving}
             isDirty={isDirty}
             isCreate={false}
-            updateMessage={isSaving ? "Updating..." : "Updating order..."}
-          >
-            <CancelButton onClick={handleClose} disabled={isSaving} />
-            <SubmitButton
-              isSubmitting={isSaving}
-              isDirty={isDirty}
-              isCreate={false}
-              updateText="Update Order"
-              submittingUpdateText={isSaving ? "Updating..." : "Updating order..."}
-            />
-          </FormFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            updateText="Update Order"
+            submittingUpdateText="Saving..."
+          />
+        </FormFooter>
+      </form>
+    </CustomModal>
   );
 }

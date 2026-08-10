@@ -75,8 +75,5 @@ export interface ProductSize {
   hasPromotion: boolean;
   quantity: string;
   createdAt: string;
-
   totalStock: number;
-  quantityAvailable: number;
-  quantityReserved: number;
 }
