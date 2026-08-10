@@ -23,7 +23,6 @@ import { stockTableColumns } from "@/features/business/table/product-stock-table
 import { sizeStockTableColumns } from "@/features/business/table/product-size-stock-table";
 import { ProductDetailModal } from "@/features/business/components/product-detail-modal";
 import { StockManagementModal } from "@/features/business/components/product-stock-management-modal";
-import { SizeStockManagementModal } from "@/features/business/components/size-stock-management-modal";
 import { updateStockStatusService } from "@/features/business/store/thunks/stock-thunks";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
@@ -410,25 +409,15 @@ function StockPageInner() {
         }}
       />
 
-      {activeTab === "product" ? (
-        <StockManagementModal
-          isOpen={!!editId || stockManagementState.isOpen}
-          onClose={() => {
-            setStockManagementState({ isOpen: false, product: null });
-            closeRouteModal();
-          }}
-          product={stockProduct}
-        />
-      ) : (
-        <SizeStockManagementModal
-          isOpen={!!editId || stockManagementState.isOpen}
-          onClose={() => {
-            setStockManagementState({ isOpen: false, product: null });
-            closeRouteModal();
-          }}
-          product={stockProduct}
-        />
-      )}
+      <StockManagementModal
+        isOpen={!!editId || stockManagementState.isOpen}
+        onClose={() => {
+          setStockManagementState({ isOpen: false, product: null });
+          closeRouteModal();
+          fetchStock();
+        }}
+        product={stockProduct}
+      />
     </div>
   );
 }

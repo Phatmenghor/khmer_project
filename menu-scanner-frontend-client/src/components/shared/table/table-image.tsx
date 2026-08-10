@@ -22,6 +22,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { appImages } from "@/constants/app-resource/icons/app-images";
+
 interface TableImageProps {
   src?: string;
   previewSrc?: string;
@@ -45,7 +47,6 @@ export function TableImage({
 }: TableImageProps) {
   const [viewOpen, setViewOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [thumbErrored, setThumbErrored] = useState(false);
   const [previewErrored, setPreviewErrored] = useState(false);
   const effectivePreview = previewSrc || src;
 
@@ -95,62 +96,54 @@ export function TableImage({
       <div
         className={`relative group rounded-[10px] overflow-hidden bg-muted border border-border flex-shrink-0 ${className}`}
       >
-        {src && !thumbErrored ? (
-          <>
-            <SmartImage
-              src={src}
-              alt={alt}
-              fill
-              showSkeleton={false}
-              priority={priority}
-              loading={loading}
-              onError={() => setThumbErrored(true)}
-            />
-            {/* Dynamic hover overlay actions — starting from top */}
-            <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none flex items-start justify-between p-0.5">
-              {/* View — top left */}
-              <CustomButton
-                variant="unstyled"
-                size="unstyled"
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setViewOpen(true);
-                }}
-                className="pointer-events-auto p-0.5 bg-black/60 hover:bg-black/85 backdrop-blur-[2px] rounded-[4px] text-white shadow-2xs transition-transform hover:scale-105"
-                title="View"
-              >
-                <Eye className="h-2.5 w-2.5" />
-              </CustomButton>
-              {/* Download — top right */}
-              <CustomButton
-                variant="unstyled"
-                size="unstyled"
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDownload(e);
-                }}
-                className={cn(
-                  "pointer-events-auto p-0.5 bg-black/60 hover:bg-black/85 backdrop-blur-[2px] rounded-[4px] text-white shadow-2xs transition-transform hover:scale-105",
-                  isDownloading && "opacity-100"
-                )}
-                title="Download"
-                disabled={isDownloading}
-              >
-                {isDownloading ? (
-                  <Loader2 className="h-2.5 w-2.5 animate-spin" />
-                ) : (
-                  <Download className="h-2.5 w-2.5" />
-                )}
-              </CustomButton>
-            </div>
-          </>
-        ) : (
-          <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
-            <span className="text-xs font-semibold text-primary">
-              {fallbackText?.charAt(0)?.toUpperCase() || "?"}
-            </span>
+        <SmartImage
+          src={src}
+          alt={alt}
+          fill
+          fallbackSrc={appImages.noImage}
+          showSkeleton={false}
+          priority={priority}
+          loading={loading}
+        />
+        {/* Dynamic hover overlay actions — starting from top */}
+        {src && (
+          <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none flex items-start justify-between p-0.5">
+            {/* View — top left */}
+            <CustomButton
+              variant="unstyled"
+              size="unstyled"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setViewOpen(true);
+              }}
+              className="pointer-events-auto p-0.5 bg-black/60 hover:bg-black/85 backdrop-blur-[2px] rounded-[4px] text-white shadow-2xs transition-transform hover:scale-105"
+              title="View"
+            >
+              <Eye className="h-2.5 w-2.5" />
+            </CustomButton>
+            {/* Download — top right */}
+            <CustomButton
+              variant="unstyled"
+              size="unstyled"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownload(e);
+              }}
+              className={cn(
+                "pointer-events-auto p-0.5 bg-black/60 hover:bg-black/85 backdrop-blur-[2px] rounded-[4px] text-white shadow-2xs transition-transform hover:scale-105",
+                isDownloading && "opacity-100"
+              )}
+              title="Download"
+              disabled={isDownloading}
+            >
+              {isDownloading ? (
+                <Loader2 className="h-2.5 w-2.5 animate-spin" />
+              ) : (
+                <Download className="h-2.5 w-2.5" />
+              )}
+            </CustomButton>
           </div>
         )}
       </div>

@@ -453,6 +453,44 @@ export function OrderDetailModal({
                 </div>
               </div>
 
+              {/* Order Profit & Financial Analysis */}
+              <div className="rounded border border-border/60 bg-muted/20 p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <SectionTitle className="my-0">Order Financial Breakdown</SectionTitle>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    Realized Revenue
+                  </span>
+                </div>
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground font-medium">Item Subtotal ({orderData.pricing?.totalItems || 0} items)</span>
+                    <span className="font-semibold text-foreground">
+                      {formatCurrency(orderData.pricing?.subtotal || 0)}
+                    </span>
+                  </div>
+                  {(orderData.pricing?.customizationTotal ?? 0) > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground font-medium">Add-ons & Customizations</span>
+                      <span className="font-semibold text-blue-600 dark:text-blue-400">
+                        +{formatCurrency(orderData.pricing!.customizationTotal)}
+                      </span>
+                    </div>
+                  )}
+                  {(orderData.pricing?.discountAmount ?? 0) > 0 && (
+                    <div className="flex justify-between text-red-600 dark:text-red-400 font-medium">
+                      <span>Total Discounts Subtracted</span>
+                      <span>-{formatCurrency(orderData.pricing!.discountAmount)}</span>
+                    </div>
+                  )}
+                  <div className="pt-2 border-t border-border/40 flex justify-between items-center text-xs">
+                    <span className="font-bold text-foreground">Final Collected Amount</span>
+                    <span className="font-black text-sm text-emerald-600 dark:text-emerald-400">
+                      {formatCurrency(orderData.pricing?.finalTotal || 0)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               {/* Status History Card */}
               {orderData.statusHistory && orderData.statusHistory.length > 0 && (
                 <div className="rounded border border-border/50 bg-card p-3">

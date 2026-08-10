@@ -1,6 +1,7 @@
 package com.emenu.features.stock.repository;
 
 import com.emenu.features.stock.models.ProductStock;
+import com.emenu.features.stock.repository.projection.ProductStockItemProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -38,7 +39,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
             AND ps.businessId = :businessId
             AND (:sizeId IS NULL OR ps.productSizeId = :sizeId)
             AND ps.isExpired = false
-            AND ps.quantityOnHand > 0
+            AND ps.quantityAvailable > 0
             AND ps.status = 'ACTIVE'
         ORDER BY ps.dateIn ASC
     """)
@@ -124,7 +125,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         SELECT ps FROM ProductStock ps
         WHERE ps.businessId = :businessId
             AND ps.expiryDate IS NOT NULL
-            AND ps.expiryDate < CURRENT_TIMESTAMP
+            AND ps.expiryDate < CURRENT_DATE
             AND ps.isExpired = true
         ORDER BY ps.expiryDate ASC
     """)
@@ -418,7 +419,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         ) AS count_result
     """,
     nativeQuery = true)
-    Page<Object[]> findProductStockItems(
+    Page<ProductStockItemProjection> findProductStockItems(
         @Param("businessId") UUID businessId,
         @Param("search") String search,
         @Param("status") String status,

@@ -220,8 +220,9 @@ export function SizePickerModal({
       : null;
 
     if (hasSizes) {
-      // Priority: editing item > first cart item > first size
-      let selectedSizeForInit = product.sizes![0];
+      // Priority: editing item > first cart item > first size with available stock > first size
+      const availableSizeWithStock = product.sizes!.find((s) => (s.totalStock ?? 0) > 0);
+      let selectedSizeForInit = availableSizeWithStock || product.sizes![0];
       if (editingItem?.productSizeId) {
         const s = product.sizes!.find((s) => s.id === editingItem.productSizeId);
         if (s) selectedSizeForInit = s;

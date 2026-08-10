@@ -20,6 +20,9 @@ import { useLocalStorageSync } from "@/hooks/use-local-storage-sync";
 import { useFilterURLSync } from "@/hooks/use-filter-url-sync";
 import { usePOSPageState } from "@/features/business/store/state/pos-page-state";
 import {
+  checkStockManagementEnabled,
+} from "@/services/stock-management-service";
+import {
   setSelectedDeliveryOption,
   setSelectedPaymentOption,
   setProducts,
@@ -377,6 +380,17 @@ export function usePOSPageHandlers() {
         promotionToDate: size ? size.promotionToDate : product.displayPromotionToDate,
       };
 
+      const isStockEnabled = checkStockManagementEnabled(businessSettings?.enableStock);
+      if (isStockEnabled && product.stockStatus !== "DISABLED" && quantity > 0) {
+        const available = size ? (size.totalStock ?? 0) : (product.totalStock ?? 0);
+        if (quantity > available) {
+          showToast.error(
+            `Insufficient stock! Only ${available} available for "${product.name}${size ? ` (${size.name})` : ""}".`
+          );
+          return;
+        }
+      }
+
       if (quantity <= 0) {
         if (editingId) {
           const existingItem = cartItems.find((item) => item.id === editingId);
@@ -405,7 +419,7 @@ export function usePOSPageHandlers() {
           ...newItem,
           quantity: quantity,
           totalPrice: finalPrice * quantity,
-        }));
+          }));
       } else {
         dispatch(addCartItem(newItem));
       }
@@ -422,7 +436,7 @@ export function usePOSPageHandlers() {
       }
       dispatch(setEditingCartItemId(null));
     },
-    [cartItems, showCart, dispatch]
+    [cartItems, showCart, businessSettings?.enableStock, dispatch]
   );
 
   const updateQuantity = useCallback(
@@ -431,6 +445,21 @@ export function usePOSPageHandlers() {
       if (!item) return;
 
       const newQuantity = Math.max(0, item.quantity + delta);
+      if (newQuantity > item.quantity) {
+        const isStockEnabled = checkStockManagementEnabled(businessSettings?.enableStock);
+        const product = products.find((p) => p.id === item.productId);
+        if (isStockEnabled && product && product.stockStatus !== "DISABLED") {
+          const size = item.productSizeId ? product.sizes?.find((s) => s.id === item.productSizeId) : undefined;
+          const available = size ? (size.totalStock ?? 0) : (product.totalStock ?? 0);
+          if (newQuantity > available) {
+            showToast.error(
+              `Insufficient stock! Only ${available} available for "${item.productName}${item.sizeName ? ` (${item.sizeName})` : ""}".`
+            );
+            return;
+          }
+        }
+      }
+
       if (newQuantity === 0) {
         dispatch(removeCartItem(cartId));
         dispatch(clearProductCustomizations(item.productId));
@@ -442,7 +471,7 @@ export function usePOSPageHandlers() {
         }));
       }
     },
-    [cartItems, dispatch]
+    [cartItems, products, businessSettings?.enableStock, dispatch]
   );
 
   const removeItem = useCallback(
@@ -490,13 +519,22 @@ export function usePOSPageHandlers() {
   }, [cartItems, selectedDeliveryOption, businessSettings?.taxPercentage, orderDiscount]);
 
   const handleProductClick = useCallback((product: ProductDetailResponseModel) => {
+    const isStockEnabled = checkStockManagementEnabled(businessSettings?.enableStock);
+    if (isStockEnabled && product.stockStatus !== "DISABLED") {
+      const available = product.totalStock ?? 0;
+      if (available <= 0) {
+        showToast.error(`Insufficient stock! Only 0 available for "${product.name}".`);
+        return;
+      }
+    }
+
     const hasCustomizations = product.customizations && product.customizations.length > 0;
     if (product.hasSizes || hasCustomizations) {
       dispatch(setSizePickerProduct(product));
       return;
     }
     addToCart(product, undefined, undefined, 1);
-  }, [dispatch, addToCart]);
+  }, [dispatch, addToCart, businessSettings?.enableStock]);
 
   const handleEditPriceItem = useCallback((item: PosPageCartItem) => {
     setEditingItemForPrice(item);
@@ -540,9 +578,49 @@ export function usePOSPageHandlers() {
 
   const [showBankQrModal, setShowBankQrModal] = useState<boolean>(false);
 
+  // Validate all cart items against current stock levels
+  const validateCartStock = (): { valid: boolean; errors: string[] } => {
+    const isStockEnabled = checkStockManagementEnabled(businessSettings?.enableStock);
+    if (!isStockEnabled) return { valid: true, errors: [] };
+
+    const errors: string[] = [];
+
+    cartItems.forEach((item) => {
+      const product = products.find((p) => p.id === item.productId);
+      if (!product) return;
+
+      // Skip if stock tracking is disabled for this product
+      if (product.stockStatus === "DISABLED") return;
+
+      if (item.productSizeId) {
+        // Size-level stock check
+        const size = product.sizes?.find((s) => s.id === item.productSizeId);
+        if (size) {
+          const available = size.totalStock ?? 0;
+          if (available < item.quantity) {
+            errors.push(
+              `"${item.productName}${item.sizeName ? ` (${item.sizeName})` : ""}" — needs ${item.quantity}, only ${available} available`
+            );
+          }
+        }
+      } else {
+        // Product-level stock check
+        const available = product.totalStock ?? 0;
+        if (available < item.quantity) {
+          errors.push(
+            `"${item.productName}" — needs ${item.quantity}, only ${available} available`
+          );
+        }
+      }
+    });
+
+    return { valid: errors.length === 0, errors };
+  };
+
   const handleDiscountApply = useCallback((discount: Exclude<OrderDiscountType, null>) => {
     setOrderDiscount(discount);
   }, []);
+
 
   const executeOrderCheckout = async (selectedPaymentStatus: "PAID" | "UNPAID" = "PAID") => {
     const remarksParts: string[] = ["Created via POS System"];
@@ -616,7 +694,8 @@ export function usePOSPageHandlers() {
     try {
       const result = await dispatch(createPOSCheckoutOrderService(payload));
       if (result.payload) {
-        dispatch(setSuccessOrder(result.payload as OrderResponse));
+        const order = result.payload as OrderResponse;
+        dispatch(setSuccessOrder(order));
         dispatch(clearCartItems());
         dispatch(setCartPricing(null));
         dispatch(setCustomerNote(""));
@@ -639,6 +718,13 @@ export function usePOSPageHandlers() {
 
     if (!selectedDeliveryOption) {
       showToast.error(Messages.delivery.selectOption);
+      return;
+    }
+
+    // Stock validation — runs before bank QR modal so user sees stock issues immediately
+    const { valid, errors } = validateCartStock();
+    if (!valid) {
+      errors.forEach((err) => showToast.error(err));
       return;
     }
 

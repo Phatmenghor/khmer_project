@@ -34,18 +34,18 @@ function StockStatusBadge({
   hasSizes: boolean;
 }) {
   if (stock === null || stock === undefined) {
-    return <span className="text-xs text-muted-foreground">No Data</span>;
+    return <span className="text-xs text-muted-foreground">---</span>;
   }
 
   if (stock === 0) {
-    return <span className="text-xs font-medium text-red-600">{stock} Items</span>;
+    return <span className="text-xs font-semibold text-red-600 dark:text-red-400">0 Items</span>;
   }
 
   if (stock < 10) {
-    return <span className="text-xs font-medium text-yellow-600">{stock} Items</span>;
+    return <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">{stock} Items</span>;
   }
 
-  return <span className="text-xs font-medium text-green-600">{stock} Items</span>;
+  return <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{stock} Items</span>;
 }
 
 
@@ -205,19 +205,6 @@ export const sizeStockTableColumns = ({
             {product?.stockStatus ? formatEnumValue(product.stockStatus) : "---"}
           </span>
         </div>
-      ),
-    },
-
-    {
-      key: "status",
-      label: "Product Status",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.status ? getProductStatusLabel(product.status) : "---"}
-        </span>
       ),
     },
 

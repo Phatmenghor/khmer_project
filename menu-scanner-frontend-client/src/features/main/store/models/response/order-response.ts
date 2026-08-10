@@ -53,6 +53,8 @@ export interface OrderPricingInfo {
   discountType?: string;
   discountReason?: string;
   finalTotal: number;
+  totalStockCost?: number;
+  netProfit?: number;
 }
 
 export interface OrderPaymentInfo {

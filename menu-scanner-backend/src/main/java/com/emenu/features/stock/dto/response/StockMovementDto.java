@@ -21,16 +21,10 @@ public class StockMovementDto {
     private Integer previousQuantity;
     private Integer newQuantity;
 
-    private String referenceType;
-    private UUID referenceId;
     private UUID orderId;
-
-    private String notes;
-    private UUID initiatedBy;
-    private String initiatedByName;
-
-    private BigDecimal costImpact;
     private BigDecimal unitPrice;
+    private BigDecimal costImpact;
+    private String notes;
 
     private LocalDateTime createdAt;
 }

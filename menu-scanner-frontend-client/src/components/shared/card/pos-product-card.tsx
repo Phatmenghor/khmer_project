@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback } from "react";
+import { memo, useCallback, useState } from "react";
 import { useAppSelector } from "@/store";
 import { ShoppingCart, Plus, Minus, Ruler, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,8 @@ import { CustomButton } from "../button/custom-button";
 import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
 import { PromotionType, PromotionStatus } from "@/constants/status/status";
 import { selectPOSProductQuantity } from "@/features/business/store/selectors/pos-cart-selectors";
+
+import { appImages } from "@/constants/app-resource/icons/app-images";
 
 interface POSProductCardProps {
   product: ProductDetailResponseModel;
@@ -56,7 +58,14 @@ function POSProductCardComponent({
     onQuantityChange(product.id, -1);
   }, [product, onAddClick, onQuantityChange]);
 
-  const isOutOfStock = product.status === "OUT_OF_STOCK";
+  const businessSettings = useAppSelector((state) => state.businessSettings.data);
+  const isStockEnabled = businessSettings?.enableStock === "ENABLED";
+  const isProductStockTracked = isStockEnabled && product.stockStatus !== "DISABLED";
+
+  const totalStock = product.totalStock ?? 0;
+  const isOutOfStock =
+    product.status === "OUT_OF_STOCK" ||
+    (isProductStockTracked && totalStock <= 0);
 
   const handleCardClick = useCallback(() => {
     const hasCustomizations = product.customizations && product.customizations.length > 0;
@@ -81,30 +90,26 @@ function POSProductCardComponent({
       className={cn(
         "group relative bg-card rounded-[10px] border border-border/80 hover:border-primary/50 hover:shadow-md overflow-hidden transition-all duration-200 flex flex-col cursor-pointer",
         quantity > 0 && "ring-1.5 ring-primary border-primary bg-primary/5",
-        hasPromotion && "ring-1 ring-amber-500/30",
-        isOutOfStock && "opacity-60 pointer-events-none"
+        hasPromotion && "ring-1 ring-amber-500/30"
       )}
     >
       {/* Product Image Container */}
       <div className="relative aspect-square w-full overflow-hidden bg-muted/30 shrink-0">
-        {imageUrl ? (
-          <SmartImage
-            src={imageUrl}
-            alt={product.name}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-muted/20">
-            <Package className="w-7 h-7 opacity-30" />
-          </div>
-        )}
+        <SmartImage
+          src={imageUrl}
+          alt={product.name}
+          fill
+          fallbackSrc={appImages.noImage}
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+        />
 
-        {/* Status Overlay */}
+        {/* Out of Stock Badge */}
         {isOutOfStock && (
-          <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center">
-            <Badge variant="secondary" className="text-[10px] font-black px-2 py-0.5">Out of Stock</Badge>
+          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+            <Badge variant="destructive" className="text-[10px] font-bold px-2.5 py-1 bg-red-600/95 text-white border-0 shadow-md backdrop-blur-xs uppercase tracking-wider">
+              Out of Stock
+            </Badge>
           </div>
         )}
 
@@ -189,7 +194,6 @@ function POSProductCardComponent({
                 e.stopPropagation();
                 handleCardClick();
               }}
-              disabled={isOutOfStock}
               size="sm"
             >
               <ShoppingCart className="h-3 w-3" />

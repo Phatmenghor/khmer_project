@@ -1,9 +1,10 @@
 package com.emenu.features.stock.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -21,7 +22,8 @@ public class ProductStockUpdateRequest {
     @DecimalMin(value = "0.01", message = "Price in must be > 0")
     private BigDecimal priceIn;
 
-    private LocalDateTime expiryDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate expiryDate;
 
     private String location;
 }

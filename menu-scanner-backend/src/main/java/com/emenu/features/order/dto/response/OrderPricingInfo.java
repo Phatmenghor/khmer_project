@@ -22,5 +22,7 @@ public class OrderPricingInfo {
     private String discountType;                // "fixed" or "percentage"
     private String discountReason;              // Why discount was applied
     private BigDecimal finalTotal;              // Final amount after all calculations
+    private BigDecimal totalStockCost;          // Total COGS (Stock Batch PriceIn * Quantity)
+    private BigDecimal netProfit;               // Net profit (finalTotal - totalStockCost)
 }
 

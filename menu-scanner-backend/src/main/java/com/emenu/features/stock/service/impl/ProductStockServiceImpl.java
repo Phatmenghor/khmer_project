@@ -2,8 +2,6 @@ package com.emenu.features.stock.service.impl;
 
 import com.emenu.enums.product.PromotionStatus;
 import com.emenu.exception.custom.ValidationException;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import com.emenu.features.main.repository.ProductRepository;
 import com.emenu.features.main.repository.ProductSizeRepository;
 import com.emenu.features.stock.dto.request.ProductStockCreateRequest;
@@ -27,7 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,7 +50,9 @@ public class ProductStockServiceImpl implements ProductStockService {
         ProductStock productStock = productStockMapper.toEntity(request);
         productStock.setBusinessId(request.getBusinessId());
         productStock.setDateIn(LocalDateTime.now());
-        productStock.setExpiryDate(toStartOfDay(request.getExpiryDate()));
+        if (request.getExpiryDate() != null) {
+            productStock.setExpiryDate(request.getExpiryDate());
+        }
 
         ProductStock savedProductStock = productStockRepository.save(productStock);
         log.info("Created product stock - id: {}", savedProductStock.getId());
@@ -120,7 +122,6 @@ public class ProductStockServiceImpl implements ProductStockService {
         String search = (request.getSearch() != null && !request.getSearch().isBlank())
                 ? request.getSearch() : null;
 
-        // Use utility to create pageable with native query sorting
         Pageable pageable = PaginationUtils.createPageableForNativeQuery(
                 request.getPageNo(),
                 request.getPageSize(),
@@ -128,8 +129,7 @@ public class ProductStockServiceImpl implements ProductStockService {
                 request.getSortDirection()
         );
 
-        // Fetch items with pagination and sorting from repository
-        Page<Object[]> pageResult = productStockRepository.findProductStockItems(
+        Page<com.emenu.features.stock.repository.projection.ProductStockItemProjection> pageResult = productStockRepository.findProductStockItems(
                 request.getBusinessId(),
                 search,
                 status,
@@ -139,12 +139,9 @@ public class ProductStockServiceImpl implements ProductStockService {
                 pageable
         );
 
-        // Use PaginationMapper with transformation function for clean mapping
         return paginationMapper.toPaginationResponse(
                 pageResult,
-                rows -> rows.stream()
-                        .map(this::mapRowToProductStockItemDto)
-                        .toList()
+                productStockMapper::toItemDtoList
         );
     }
 
@@ -162,10 +159,8 @@ public class ProductStockServiceImpl implements ProductStockService {
         String search = (request.getSearch() != null && !request.getSearch().isBlank())
                 ? request.getSearch() : null;
 
-        // Convert camelCase field names to snake_case for database queries
         String sortByField = convertSortFieldName(request.getSortBy());
 
-        // Use utility to create pageable with native query sorting
         Pageable pageable = PaginationUtils.createPageableForNativeQuery(
                 request.getPageNo(),
                 request.getPageSize(),
@@ -173,8 +168,7 @@ public class ProductStockServiceImpl implements ProductStockService {
                 request.getSortDirection()
         );
 
-        // Fetch items with pagination and sorting from repository
-        Page<Object[]> pageResult = productStockRepository.findProductStockItems(
+        Page<com.emenu.features.stock.repository.projection.ProductStockItemProjection> pageResult = productStockRepository.findProductStockItems(
                 request.getBusinessId(),
                 search,
                 status,
@@ -184,12 +178,9 @@ public class ProductStockServiceImpl implements ProductStockService {
                 pageable
         );
 
-        // Use PaginationMapper with transformation function for clean mapping
         return paginationMapper.toPaginationResponse(
                 pageResult,
-                rows -> rows.stream()
-                        .map(this::mapRowToProductStockItemDto)
-                        .toList()
+                productStockMapper::toItemDtoList
         );
     }
 
@@ -214,7 +205,7 @@ public class ProductStockServiceImpl implements ProductStockService {
         productStockMapper.updateEntityFromRequest(request, productStock);
 
         if (request.getExpiryDate() != null) {
-            productStock.setExpiryDate(toStartOfDay(request.getExpiryDate()));
+            productStock.setExpiryDate(request.getExpiryDate());
         }
 
         ProductStock updatedProductStock = productStockRepository.save(productStock);
@@ -233,11 +224,6 @@ public class ProductStockServiceImpl implements ProductStockService {
         productStockRepository.delete(productStock);
     }
 
-    private LocalDateTime toStartOfDay(LocalDateTime dateTime) {
-        if (dateTime == null) return null;
-        return dateTime.toLocalDate().atStartOfDay();
-    }
-
     private void enrichWithProductInfo(ProductStockDto dto, ProductStock stock) {
         productRepository.findByIdAndIsDeletedFalse(stock.getProductId())
                 .ifPresent(product -> dto.setProductName(product.getName()));
@@ -248,110 +234,9 @@ public class ProductStockServiceImpl implements ProductStockService {
         }
     }
 
-    private LocalDateTime convertToLocalDateTime(Object obj) {
-        if (obj == null) {
-            return null;
-        }
-        if (obj instanceof LocalDateTime) {
-            return (LocalDateTime) obj;
-        }
-        if (obj instanceof java.sql.Timestamp) {
-            return ((java.sql.Timestamp) obj).toLocalDateTime();
-        }
-        // Fallback for other date/time types
-        return null;
-    }
-
-    private ProductStockItemDto mapRowToProductStockItemDto(Object[] row) {
-        // Row mapping based on the extended query result columns (with sales preview fields):
-        // 0: product_id, 1: product_size_id, 2: product_name, 3: description,
-        // 4: category_id, 5: category_name, 6: brand_id, 7: brand_name,
-        // 8: sku, 9: barcode, 10: size_name, 11: price,
-        // 12: display_price, 13: display_promotion_type, 14: display_promotion_value,
-        // 15: display_promotion_from_date, 16: display_promotion_to_date, 17: has_promotion,
-        // 18: total_stock, 19: quantity_available, 20: quantity_reserved, 21: quantity_on_hand,
-        // 22: main_image_url, 23: status, 24: stock_status, 25: item_type,
-        // 26: created_at, 27: updated_at
-
-        UUID productId = (UUID) row[0];
-        UUID productSizeId = (UUID) row[1];
-        String productName = (String) row[2];
-        String description = (String) row[3];
-        UUID categoryId = (UUID) row[4];
-        String categoryName = (String) row[5];
-        UUID brandId = (UUID) row[6];
-        String brandName = (String) row[7];
-        String sku = (String) row[8];
-        String barcode = (String) row[9];
-        String sizeName = (String) row[10];
-        BigDecimal priceDecimal = row[11] != null ? (BigDecimal) row[11] : null;
-        String price = priceDecimal != null ? priceDecimal.toPlainString() : null;
-        BigDecimal displayPrice = row[12] != null ? (BigDecimal) row[12] : null;
-        String displayPromotionType = (String) row[13];
-        BigDecimal displayPromotionValue = row[14] != null ? (BigDecimal) row[14] : null;
-        LocalDateTime displayPromotionFromDate = convertToLocalDateTime(row[15]);
-        LocalDateTime displayPromotionToDate = convertToLocalDateTime(row[16]);
-        
-        PromotionStatus hasPromotionStatus = PromotionStatus.NONE;
-        if (displayPromotionValue != null && displayPromotionType != null && displayPromotionFromDate != null && displayPromotionToDate != null) {
-            LocalDateTime today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
-            if (today.isBefore(displayPromotionFromDate.truncatedTo(ChronoUnit.DAYS))) {
-                hasPromotionStatus = PromotionStatus.FUTURE_PROMOTION;
-            } else if (today.isAfter(displayPromotionToDate.truncatedTo(ChronoUnit.DAYS))) {
-                hasPromotionStatus = PromotionStatus.NONE;
-            } else {
-                hasPromotionStatus = PromotionStatus.ACTIVE;
-            }
-        }
-        Long totalStock = ((Number) row[18]).longValue();
-        Long quantityAvailable = ((Number) row[19]).longValue();
-        Long quantityReserved = ((Number) row[20]).longValue();
-        Long quantityOnHand = ((Number) row[21]).longValue();
-        String mainImageUrl = (String) row[22];
-        String status = (String) row[23];
-        String stockStatus = (String) row[24];
-        String itemType = (String) row[25];
-
-        // Convert java.sql.Timestamp to java.time.LocalDateTime
-        LocalDateTime createdAt = convertToLocalDateTime(row[26]);
-        LocalDateTime updatedAt = convertToLocalDateTime(row[27]);
-
-        return ProductStockItemDto.builder()
-                .id(productSizeId != null ? productSizeId : productId)
-                .productId(productId)
-                .productSizeId(productSizeId)
-                .productName(productName)
-                .description(description)
-                .categoryId(categoryId)
-                .categoryName(categoryName)
-                .brandId(brandId)
-                .brandName(brandName)
-                .sku(sku)
-                .barcode(barcode)
-                .sizeName(sizeName)
-                .price(price)
-                .displayPrice(displayPrice)
-                .displayPromotionType(displayPromotionType)
-                .displayPromotionValue(displayPromotionValue)
-                .displayPromotionFromDate(displayPromotionFromDate)
-                .displayPromotionToDate(displayPromotionToDate)
-                .hasPromotion(hasPromotionStatus)
-                .totalStock(totalStock)
-                .quantityAvailable(quantityAvailable)
-                .quantityReserved(quantityReserved)
-                .quantityOnHand(quantityOnHand)
-                .mainImageUrl(mainImageUrl)
-                .status(status)
-                .stockStatus(stockStatus)
-                .type(itemType)
-                .createdAt(createdAt)
-                .updatedAt(updatedAt)
-                .build();
-    }
-
     private String convertSortFieldName(String camelCase) {
         if (camelCase == null || camelCase.isBlank()) {
-            return "total_stock";  // Default sort field
+            return "total_stock";
         }
 
         return switch (camelCase) {
@@ -363,9 +248,8 @@ public class ProductStockServiceImpl implements ProductStockService {
             case "sizeName" -> "size_name";
             case "createdAt" -> "created_at";
             case "updatedAt" -> "updated_at";
-            // Fields that don't need conversion
             case "sku", "barcode", "status" -> camelCase;
-            default -> "total_stock";  // Fallback to default
+            default -> "total_stock";
         };
     }
 }

@@ -34,18 +34,18 @@ function StockStatusBadge({
   hasSizes: boolean;
 }) {
   if (stock === null || stock === undefined) {
-    return <span className="text-xs text-muted-foreground">No Data</span>;
+    return <span className="text-xs text-muted-foreground">---</span>;
   }
 
   if (stock === 0) {
-    return <span className="text-xs font-medium text-red-600">{stock} Items</span>;
+    return <span className="text-xs font-semibold text-red-600 dark:text-red-400">0 Items</span>;
   }
 
   if (stock < 10) {
-    return <span className="text-xs font-medium text-yellow-600">{stock} Items</span>;
+    return <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">{stock} Items</span>;
   }
 
-  return <span className="text-xs font-medium text-green-600">{stock} Items</span>;
+  return <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{stock} Items</span>;
 }
 
 function SizesDisplay({ sizes }: { sizes: ProductSize[] | undefined }) {
@@ -58,9 +58,9 @@ function SizesDisplay({ sizes }: { sizes: ProductSize[] | undefined }) {
   }
 
   const getStockColor = (stock: number) => {
-    if (stock === 0) return { bg: "bg-red-50", border: "border-red-300", text: "text-red-600", dot: "bg-red-500" };
-    if (stock < 10) return { bg: "bg-yellow-50", border: "border-yellow-300", text: "text-yellow-700", dot: "bg-yellow-400" };
-    return { bg: "bg-green-50", border: "border-green-300", text: "text-green-700", dot: "bg-green-500" };
+    if (stock === 0) return { bg: "bg-red-50 dark:bg-red-950/40", border: "border-red-200 dark:border-red-800/40", text: "text-red-700 dark:text-red-400", dot: "bg-red-500" };
+    if (stock < 10) return { bg: "bg-amber-50 dark:bg-amber-950/40", border: "border-amber-200 dark:border-amber-800/40", text: "text-amber-700 dark:text-amber-400", dot: "bg-amber-500" };
+    return { bg: "bg-emerald-50 dark:bg-emerald-950/40", border: "border-emerald-200 dark:border-emerald-800/40", text: "text-emerald-700 dark:text-emerald-400", dot: "bg-emerald-500" };
   };
 
   return (
@@ -71,7 +71,7 @@ function SizesDisplay({ sizes }: { sizes: ProductSize[] | undefined }) {
         return (
           <div
             key={size.id}
-            className={`flex items-center gap-1.5 px-2 py-1 rounded-md border text-[10px] ${color.bg} ${color.border}`}
+            className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] ${color.bg} ${color.border}`}
           >
             <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${color.dot}`} />
             <span className="font-semibold text-foreground">{size.name}</span>
@@ -95,9 +95,9 @@ export const stockTableColumns = ({
       key: "index",
       label: "#",
       minWidth: "10px",
-      maxWidth: "400px",
+      maxWidth: "60px",
       render: (_, index) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           {indexDisplay(data?.pageNo || 1, data?.pageSize || 15, index + 1)}
         </span>
       ),
@@ -105,8 +105,8 @@ export const stockTableColumns = ({
     {
       key: "imageUrl",
       label: "Image",
-      minWidth: "10px",
-      maxWidth: "400px",
+      minWidth: "50px",
+      maxWidth: "80px",
       render: (product) => (
         <TableImage src={product.mainImage?.sm} previewSrc={product.mainImage?.o} alt={product.name} fallbackText={product.name} />
       ),
@@ -115,11 +115,11 @@ export const stockTableColumns = ({
     {
       key: "name",
       label: "Product Name",
-      minWidth: "10px",
-      maxWidth: "400px",
+      minWidth: "150px",
+      maxWidth: "300px",
       truncate: true,
       render: (product) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs font-bold text-foreground">
           {product?.name || "---"}
         </span>
       ),
@@ -128,11 +128,11 @@ export const stockTableColumns = ({
     {
       key: "categoryName",
       label: "Category",
-      minWidth: "10px",
+      minWidth: "100px",
       maxWidth: "150px",
       truncate: true,
       render: (product) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-muted-foreground font-medium">
           {product?.categoryName || "---"}
         </span>
       ),
@@ -141,11 +141,11 @@ export const stockTableColumns = ({
     {
       key: "brandName",
       label: "Brand",
-      minWidth: "10px",
+      minWidth: "100px",
       maxWidth: "150px",
       truncate: true,
       render: (product) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-muted-foreground font-medium">
           {product?.brandName || "---"}
         </span>
       ),
@@ -154,11 +154,11 @@ export const stockTableColumns = ({
     {
       key: "sku",
       label: "SKU",
-      minWidth: "10px",
+      minWidth: "90px",
       maxWidth: "120px",
       truncate: true,
       render: (product) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs font-mono text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded border border-border/40">
           {product?.sku || "---"}
         </span>
       ),
@@ -167,7 +167,7 @@ export const stockTableColumns = ({
     {
       key: "sizes",
       label: "Sizes",
-      minWidth: "260px",
+      minWidth: "240px",
       maxWidth: "480px",
       render: (product) => (
         <SizesDisplay sizes={product?.sizes} />
@@ -177,11 +177,11 @@ export const stockTableColumns = ({
     {
       key: "barcode",
       label: "Barcode",
-      minWidth: "10px",
+      minWidth: "100px",
       maxWidth: "150px",
       truncate: true,
       render: (product) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs font-mono text-muted-foreground">
           {product?.barcode || "---"}
         </span>
       ),
@@ -190,7 +190,7 @@ export const stockTableColumns = ({
     {
       key: "totalStock",
       label: "Total Stock",
-      minWidth: "10px",
+      minWidth: "110px",
       maxWidth: "150px",
       render: (product) => (
         <StockStatusBadge
@@ -203,17 +203,17 @@ export const stockTableColumns = ({
     {
       key: "stockStatus",
       label: "Stock Status",
-      minWidth: "10px",
-      maxWidth: "150px",
+      minWidth: "130px",
+      maxWidth: "160px",
       render: (product) => (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           {handleToggleStockStatus && (
             <Switch
               checked={product?.stockStatus === "ENABLED"}
               onCheckedChange={() => handleToggleStockStatus(product)}
             />
           )}
-          <span className="text-xs text-muted-foreground">
+          <span className={`text-xs font-bold ${product?.stockStatus === "ENABLED" ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
             {product?.stockStatus ? formatEnumValue(product.stockStatus) : "---"}
           </span>
         </div>
@@ -221,32 +221,19 @@ export const stockTableColumns = ({
     },
 
     {
-      key: "status",
-      label: "Product Status",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.status ? getProductStatusLabel(product.status) : "---"}
-        </span>
-      ),
-    },
-
-    {
       key: "actions",
       label: "Actions",
-      minWidth: "10px",
-      maxWidth: "400px",
+      minWidth: "90px",
+      maxWidth: "120px",
       render: (product) => (
         <div className="flex items-center gap-1">
           <ActionButton
-            icon={<Eye className="w-3 h-3" />}
+            icon={<Eye className="w-3.5 h-3.5 text-primary" />}
             tooltip="View Details"
             onClick={() => handleViewProduct(product)}
           />
           <ActionButton
-            icon={<Plus className="w-3 h-3" />}
+            icon={<Plus className="w-3.5 h-3.5 text-emerald-600" />}
             tooltip="Create Stock"
             onClick={() => handleCreateStock?.(product)}
             variant="secondary"

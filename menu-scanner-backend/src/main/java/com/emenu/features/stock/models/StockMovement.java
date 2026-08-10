@@ -28,7 +28,7 @@ public class StockMovement extends BaseUUIDEntity {
     private UUID productStockId;
 
     @Column(name = "movement_type", nullable = false)
-    private String movementType; // STOCK_IN, STOCK_OUT, ADJUSTMENT, RETURN, DAMAGE, EXPIRY, STOCK_CHECK
+    private String movementType; // STOCK_IN, STOCK_OUT, ADJUSTMENT, RETURN
 
     @Column(name = "quantity_change", nullable = false)
     private Integer quantityChange;
@@ -39,43 +39,24 @@ public class StockMovement extends BaseUUIDEntity {
     @Column(name = "new_quantity", nullable = false)
     private Integer newQuantity;
 
-    // ========== Reference Tracking ==========
-    @Column(name = "reference_type")
-    private String referenceType; // ORDER, ADJUSTMENT, RETURN
-
-    @Column(name = "reference_id")
-    private UUID referenceId;
-
     @Column(name = "order_id")
     private UUID orderId;
 
-    // ========== Notes & People ==========
+    @Column(name = "unit_price", precision = 19, scale = 4)
+    private BigDecimal unitPrice; // Cost price per unit (priceIn)
+
+    @Column(name = "cost_impact", precision = 19, scale = 4)
+    private BigDecimal costImpact; // Total COGS = quantityChange * unitPrice
+
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
-    @Column(name = "initiated_by")
-    private UUID initiatedBy;
-
-    @Column(name = "initiated_by_name")
-    private String initiatedByName;
-
-    // ========== Financial Impact ==========
-    @Column(name = "cost_impact", precision = 19, scale = 4)
-    private BigDecimal costImpact;
-
-    @Column(name = "unit_price", precision = 19, scale = 4)
-    private BigDecimal unitPrice;
-
-    // ========== Calculated Methods ==========
     public String getDisplayType() {
         return switch (movementType) {
             case "STOCK_IN" -> "Stock In (Received)";
             case "STOCK_OUT" -> "Stock Out (Sold)";
             case "ADJUSTMENT" -> "Adjustment";
             case "RETURN" -> "Return";
-            case "DAMAGE" -> "Damage/Loss";
-            case "EXPIRY" -> "Expiry";
-            case "STOCK_CHECK" -> "Physical Count";
             default -> movementType;
         };
     }

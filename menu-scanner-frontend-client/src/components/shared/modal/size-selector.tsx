@@ -68,7 +68,14 @@ function SizeSelectorComponent({
                 </div>
               )}
 
-              <div className="font-semibold text-xs">{size.name}</div>
+              <div className="flex items-center justify-between gap-1">
+                <div className="font-semibold text-xs">{size.name}</div>
+                {size.totalStock !== undefined && size.totalStock <= 0 && (
+                  <span className="text-[9px] font-bold text-red-500 bg-red-50 px-1 py-0.2 rounded border border-red-200">
+                    Out of Stock
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-1 mt-1">
                 <div className={cn("font-bold text-xs", isActive ? "text-primary" : "text-foreground")}>
                   {formatCurrency(size.finalPrice)}

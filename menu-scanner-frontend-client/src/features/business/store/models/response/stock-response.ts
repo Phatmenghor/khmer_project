@@ -16,6 +16,7 @@ export interface ProductStockDto {
   isExpired: boolean;
   isOutOfStock: boolean;
   inventoryValue: number;
+  stockCode?: string;
   createdAt: string;
   updatedAt: string;
 }

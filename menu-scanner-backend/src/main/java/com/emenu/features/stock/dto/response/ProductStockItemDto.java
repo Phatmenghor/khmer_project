@@ -4,6 +4,7 @@ import com.emenu.enums.product.PromotionStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -41,8 +42,10 @@ public class ProductStockItemDto {
     private BigDecimal displayPrice;               // NEW: Final price after discount
     private String displayPromotionType;           // NEW: PERCENTAGE or FIXED_AMOUNT
     private BigDecimal displayPromotionValue;      // NEW: Discount value
-    private LocalDateTime displayPromotionFromDate;
-    private LocalDateTime displayPromotionToDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate displayPromotionFromDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate displayPromotionToDate;
     private PromotionStatus hasPromotion;
 
     // ========== INVENTORY ==========

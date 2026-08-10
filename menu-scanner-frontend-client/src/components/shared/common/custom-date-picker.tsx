@@ -287,7 +287,14 @@ export function CustomDateTimePicker({
           )}
         </CustomButton>
       </PopoverTrigger>
-      <PopoverContent className="w-[280px] p-0" align="start">
+      <PopoverContent
+        className="w-[280px] p-0 shadow-lg border border-border/80 rounded-xl z-[9999] bg-card"
+        align="start"
+        side="bottom"
+        sideOffset={6}
+        collisionPadding={16}
+        avoidCollisions={true}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-2 border-b bg-muted/30">
           <div className="flex items-center gap-1">

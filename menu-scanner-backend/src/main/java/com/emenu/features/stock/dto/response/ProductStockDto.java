@@ -1,8 +1,10 @@
 package com.emenu.features.stock.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import com.emenu.enums.product.ProductStatus;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -45,7 +47,8 @@ public class ProductStockDto {
 
     private LocalDateTime dateIn;
 
-    private LocalDateTime expiryDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate expiryDate;
 
     private String location;
 

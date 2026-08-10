@@ -5,6 +5,7 @@ import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -54,7 +55,7 @@ public class ProductStock extends BaseUUIDEntity {
     private LocalDateTime dateOut;
 
     @Column(name = "expiry_date")
-    private LocalDateTime expiryDate;
+    private LocalDate expiryDate;
 
     @Column(name = "location")
     private String location;
@@ -78,7 +79,7 @@ public class ProductStock extends BaseUUIDEntity {
 
     public Integer getDaysUntilExpiry() {
         if (expiryDate == null) return null;
-        return (int) java.time.temporal.ChronoUnit.DAYS.between(LocalDateTime.now(), expiryDate);
+        return (int) java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), expiryDate);
     }
 
     @Override
@@ -86,27 +87,24 @@ public class ProductStock extends BaseUUIDEntity {
         super.prePersist();
         if (quantityOnHand == null) quantityOnHand = 0;
         if (quantityReserved == null) quantityReserved = 0;
-        if (quantityAvailable == null) quantityAvailable = 0;
+        if (quantityAvailable == null || quantityAvailable == 0) quantityAvailable = quantityOnHand;
         if (status == null) status = ProductStatus.ACTIVE;
         if (isExpired == null) isExpired = false;
-        updateQuantityAvailable();
         checkExpiry();
     }
 
     @Override
     public void preUpdate() {
         super.preUpdate();
-        updateQuantityAvailable();
+        if (quantityAvailable == null) {
+            quantityAvailable = Math.max(0, quantityOnHand - quantityReserved);
+        }
         checkExpiry();
-    }
-
-    private void updateQuantityAvailable() {
-        quantityAvailable = Math.max(0, quantityOnHand - quantityReserved);
     }
 
     private void checkExpiry() {
         if (expiryDate != null) {
-            isExpired = expiryDate.isBefore(LocalDateTime.now());
+            isExpired = expiryDate.isBefore(LocalDate.now());
         }
     }
 }

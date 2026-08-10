@@ -51,6 +51,7 @@ import com.emenu.features.order.repository.OrderDeliveryAddressRepository;
 import com.emenu.features.order.repository.OrderDeliveryOptionRepository;
 import com.emenu.features.order.models.OrderStatusHistory;
 import com.emenu.features.location.repository.LocationRepository;
+import com.emenu.features.stock.repository.ProductStockRepository;
 import com.emenu.features.notification.telegram.service.TelegramNotificationService;
 import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.features.order.service.OrderService;
@@ -93,6 +94,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
     private final DeliveryOptionRepository deliveryOptionRepository;
     private final ProductRepository productRepository;
+    private final ProductStockRepository productStockRepository;
     private final LocationRepository locationRepository;
     private final OrderDeliveryAddressRepository orderDeliveryAddressRepository;
     private final OrderDeliveryOptionRepository orderDeliveryOptionRepository;
@@ -978,24 +980,41 @@ public class OrderServiceImpl implements OrderService {
             return;
         }
 
+        // Pre-validate stock availability for all items before performing deductions
         for (OrderItem item : order.getItems()) {
             Product product = productRepository.findById(item.getProductId()).orElse(null);
             if (product == null || product.getStockStatus() != com.emenu.enums.product.StockStatus.ENABLED) {
                 continue;
             }
 
-            try {
-                stockService.deductStockFIFO(
-                    order.getBusinessId(),
-                    item.getProductId(),
-                    item.getProductSizeId(),
-                    item.getQuantity(),
-                    order.getId(),
-                    "Order confirmed: " + order.getOrderNumber()
-                );
-            } catch (Exception e) {
-                log.warn("Stock deduction failed for order {}, product {}: {}", order.getOrderNumber(), item.getProductId(), e.getMessage());
+            Integer available = productStockRepository.sumAvailableQuantity(
+                item.getProductId(),
+                item.getProductSizeId(),
+                order.getBusinessId()
+            );
+            if (available == null) available = 0;
+
+            if (available < item.getQuantity()) {
+                String sizeInfo = item.getSizeName() != null ? " (" + item.getSizeName() + ")" : "";
+                throw new ValidationException("Insufficient stock for item: " + item.getProductName() + sizeInfo +
+                    ". Available: " + available + ", requested: " + item.getQuantity());
             }
+        }
+
+        for (OrderItem item : order.getItems()) {
+            Product product = productRepository.findById(item.getProductId()).orElse(null);
+            if (product == null || product.getStockStatus() != com.emenu.enums.product.StockStatus.ENABLED) {
+                continue;
+            }
+
+            stockService.deductStockFIFO(
+                order.getBusinessId(),
+                item.getProductId(),
+                item.getProductSizeId(),
+                item.getQuantity(),
+                order.getId(),
+                "Order confirmed: " + order.getOrderNumber()
+            );
         }
     }
 

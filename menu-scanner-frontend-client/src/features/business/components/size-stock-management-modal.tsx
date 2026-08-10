@@ -43,6 +43,8 @@ import { ProductDetailResponseModel, ProductSize } from "../store/models/respons
 import { ProductStockDto } from "../store/models/response/stock-response";
 import { createSizeStockHistoryColumns } from "../table/size-stock-history-table";
 
+import { appImages } from "@/constants/app-resource/icons/app-images";
+
 const stockFormSchema = z.object({
   quantityOnHand: z.number({
     required_error: "Quantity is required",
@@ -234,38 +236,37 @@ export function SizeStockManagementModal({
       <DialogTitle className="sr-only">
         Size Stock Management - {product?.name}
       </DialogTitle>
-      <DialogContent className="w-full sm:max-w-7xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
-        {}
-        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-start gap-4">
-            <div className="relative w-14 h-14 flex-shrink-0 rounded overflow-hidden border bg-muted">
-              {(product?.mainImage?.md || product?.mainImage?.sm) ? (
-                <SmartImage
-                  src={product.mainImage?.md || product.mainImage?.sm}
-                  alt={product.name || "Product"}
-                  fill
-                  showSkeleton={false}
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Package className="w-4 h-4 text-muted-foreground" />
-                </div>
-              )}
+      <DialogContent className="w-full sm:max-w-7xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden rounded-xl border border-border/80 shadow-xl">
+        {/* Header */}
+        <div className="px-5 py-4 border-b border-border/70 bg-gradient-to-r from-primary/10 via-background to-muted/40 flex-shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="relative w-14 h-14 flex-shrink-0 rounded-xl overflow-hidden border border-border/80 bg-muted/50 shadow-2xs">
+              <SmartImage
+                src={product?.mainImage?.md || product?.mainImage?.sm}
+                alt={product?.name || "Product"}
+                fill
+                fallbackSrc={appImages.noImage}
+                showSkeleton={false}
+                className="object-cover"
+              />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-xs font-semibold text-foreground">
-                Size Stock Management
-              </h2>
-              <p className="text-xs text-muted-foreground mt-1">
-                {product.name}
+              <div className="flex items-center gap-2">
+                <Package className="w-4 h-4 text-primary shrink-0" />
+                <h2 className="text-sm font-black text-foreground tracking-tight">
+                  Size Stock Management
+                </h2>
+              </div>
+              <p className="text-xs font-bold text-primary mt-0.5 truncate">
+                {product?.name || "---"}
               </p>
-              <div className="flex items-center gap-1 mt-1 flex-wrap">
-                <Badge variant="outline" className="text-xs">
-                  SKU: {product.sku || "---"}
-                </Badge>
-                <Badge variant="outline" className="text-xs">
-                  Total Sizes: {product.sizes?.length || 0}
-                </Badge>
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-medium bg-muted text-muted-foreground border border-border/50">
+                  SKU: {product?.sku || "---"}
+                </span>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-medium bg-muted text-muted-foreground border border-border/50">
+                  Total Sizes: {product?.sizes?.length || 0}
+                </span>
               </div>
             </div>
           </div>
@@ -305,7 +306,7 @@ export function SizeStockManagementModal({
                         }}
                       >
                         <SelectTrigger className="h-[26px] text-xs">
-                          <SelectValue />
+                          <SelectValue placeholder="Select size" />
                         </SelectTrigger>
                         <SelectContent>
                           {product.sizes?.map((size) => (
@@ -326,7 +327,7 @@ export function SizeStockManagementModal({
                         name="quantityOnHand"
                         label="Quantity On Hand"
                         type="number"
-                        placeholder="Enter quantity"
+                        placeholder="Enter quantity on hand"
                         required
                         min={0}
                         step="1"
@@ -339,7 +340,7 @@ export function SizeStockManagementModal({
                         control={form.control}
                         name="priceIn"
                         label="Unit Price ($)"
-                        placeholder="0.00"
+                        placeholder="Enter unit price"
                         required
                         error={form.formState.errors.priceIn}
                       />
@@ -349,6 +350,7 @@ export function SizeStockManagementModal({
                         name="expiryDate"
                         label="Expiry Date"
                         mode="date"
+                        placeholder="Select expiry date"
                         error={form.formState.errors.expiryDate}
                         inputClassName="h-[26px]"
                       />
@@ -357,7 +359,7 @@ export function SizeStockManagementModal({
                         control={form.control}
                         name="location"
                         label="Storage Location"
-                        placeholder="e.g., Warehouse A, Shelf 3"
+                        placeholder="Enter storage location"
                         error={form.formState.errors.location}
                       />
                     </div>

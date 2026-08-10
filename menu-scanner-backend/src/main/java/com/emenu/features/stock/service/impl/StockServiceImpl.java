@@ -3,6 +3,7 @@ package com.emenu.features.stock.service.impl;
 import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.features.stock.dto.request.StockMovementFilterRequest;
 import com.emenu.features.stock.dto.response.StockMovementDto;
+import com.emenu.features.stock.mapper.StockMovementMapper;
 import com.emenu.features.stock.models.*;
 import com.emenu.features.stock.repository.*;
 import com.emenu.features.stock.service.StockService;
@@ -33,6 +34,7 @@ public class StockServiceImpl implements StockService {
 
     private final ProductStockRepository productStockRepository;
     private final StockMovementRepository stockMovementRepository;
+    private final StockMovementMapper stockMovementMapper;
     private final SecurityUtils securityUtils;
     private final PaginationMapper paginationMapper;
     private final WebSocketNotificationService webSocketNotificationService;
@@ -56,7 +58,7 @@ public class StockServiceImpl implements StockService {
         StockMovement movement = createStockMovement(
             businessId, stock.getId(), "STOCK_IN",
             quantity, previousQty, newQty,
-            null, null, reason, userId, null, stock.getPriceIn()
+            null, reason, stock.getPriceIn()
         );
 
         log.info("Stock added to product {}: {} units", stock.getProductId(), quantity);
@@ -80,7 +82,7 @@ public class StockServiceImpl implements StockService {
         StockMovement movement = createStockMovement(
             businessId, stock.getId(), "STOCK_OUT",
             -quantity, previousQty, newQty,
-            "ORDER", orderId, reason, getCurrentUserId(), orderId, stock.getPriceIn()
+            orderId, reason, stock.getPriceIn()
         );
 
         log.info("Stock deducted for order {}: {} units from batch {}", orderId, quantity, stock.getId());
@@ -100,16 +102,20 @@ public class StockServiceImpl implements StockService {
             if (remaining <= 0) {
                 break;
             }
-            int deduct = Math.min(remaining, batch.getQuantityOnHand());
-            int previousQty = batch.getQuantityOnHand();
+            int availableQty = batch.getQuantityAvailable() != null ? batch.getQuantityAvailable() : batch.getQuantityOnHand();
+            if (availableQty <= 0) {
+                continue;
+            }
+            int deduct = Math.min(remaining, availableQty);
+            int previousQty = availableQty;
             int newQty = previousQty - deduct;
-            batch.setQuantityOnHand(newQty);
+            batch.setQuantityAvailable(newQty);
             batch.setDateOut(LocalDateTime.now());
             productStockRepository.save(batch);
             createStockMovement(
                 businessId, batch.getId(), "STOCK_OUT",
                 -deduct, previousQty, newQty,
-                "ORDER", orderId, reason, getCurrentUserId(), orderId, batch.getPriceIn()
+                orderId, reason, batch.getPriceIn()
             );
             remaining -= deduct;
             log.info("[FIFO DEDUCTED] Product ID: {}, {} units from batch {}, {} units remaining to deduct",
@@ -149,7 +155,7 @@ public class StockServiceImpl implements StockService {
                 createStockMovement(
                     businessId, stock.getId(), "RETURN",
                     returnQuantity, stock.getQuantityOnHand() - returnQuantity, newQty,
-                    "ORDER", orderId, reason, getCurrentUserId(), orderId, stock.getPriceIn()
+                    orderId, reason, stock.getPriceIn()
                 );
             }
         }
@@ -176,7 +182,7 @@ public class StockServiceImpl implements StockService {
         StockMovement movement = createStockMovement(
             businessId, stock.getId(), "EXPIRY",
             0, stock.getQuantityOnHand(), stock.getQuantityOnHand(),
-            null, null, reason, userId, null, stock.getPriceIn()
+            null, reason, stock.getPriceIn()
         );
 
         log.info("Stock marked as expired: product {}", stock.getProductId());
@@ -188,27 +194,31 @@ public class StockServiceImpl implements StockService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<StockMovementDto> getAllMovements(StockMovementFilterRequest request) {
+        log.info("Get all stock movements - business: {}, type: {}", request.getBusinessId(), request.getMovementType());
+
         if (request.getBusinessId() == null) {
             throw new ValidationException("Business ID is required");
         }
 
         Pageable pageable = PaginationUtils.createPageable(request.getPageNo(), request.getPageSize());
 
-        Page<StockMovement> movementPage = stockMovementRepository.findWithFilters(
-            request.getBusinessId(),
-            request.getProductStockId(),
-            request.getProductId(),
-            request.getMovementType(),
-            request.getFromDate(),
-            request.getToDate(),
-            pageable
+        org.springframework.data.jpa.domain.Specification<StockMovement> spec =
+            com.emenu.features.stock.specification.StockMovementSpecification.filterMovements(
+                request.getBusinessId(),
+                request.getProductStockId(),
+                request.getMovementType(),
+                request.getFromDate(),
+                request.getToDate()
+            );
+
+        Page<StockMovement> movementPage = stockMovementRepository.findAll(spec, pageable);
+
+        return paginationMapper.toPaginationResponse(
+            movementPage,
+            movements -> movements.stream()
+                .map(stockMovementMapper::toDto)
+                .toList()
         );
-
-        List<StockMovementDto> dtos = movementPage.getContent().stream()
-            .map(this::mapToDto)
-            .collect(Collectors.toList());
-
-        return paginationMapper.toPaginationResponse(movementPage, dtos);
     }
 
     // ========== Helper Methods ==========
@@ -216,8 +226,7 @@ public class StockServiceImpl implements StockService {
     private StockMovement createStockMovement(
         UUID businessId, UUID productStockId, String movementType,
         Integer quantityChange, Integer previousQuantity, Integer newQuantity,
-        String referenceType, UUID referenceId, String notes,
-        UUID initiatedBy, UUID orderId, BigDecimal unitPrice
+        UUID orderId, String notes, BigDecimal unitPrice
     ) {
         StockMovement movement = new StockMovement();
         movement.setBusinessId(businessId);
@@ -226,11 +235,8 @@ public class StockServiceImpl implements StockService {
         movement.setQuantityChange(quantityChange);
         movement.setPreviousQuantity(previousQuantity);
         movement.setNewQuantity(newQuantity);
-        movement.setReferenceType(referenceType);
-        movement.setReferenceId(referenceId);
         movement.setOrderId(orderId);
         movement.setNotes(notes);
-        movement.setInitiatedBy(initiatedBy);
         movement.setUnitPrice(unitPrice != null ? unitPrice : BigDecimal.ZERO);
 
         BigDecimal costImpact = calculateCostImpact(quantityChange, unitPrice);
@@ -252,34 +258,8 @@ public class StockServiceImpl implements StockService {
         }
     }
 
-    private UUID getCurrentUserId() {
-        try {
-            return securityUtils.getCurrentUserId();
-        } catch (Exception e) {
-            log.warn("Could not resolve current user ID from security context: {}", e.getMessage());
-            return null;
-        }
-    }
-
     private StockMovementDto mapToDto(StockMovement movement) {
-        StockMovementDto dto = new StockMovementDto();
-        dto.setId(movement.getId());
-        dto.setBusinessId(movement.getBusinessId());
-        dto.setProductStockId(movement.getProductStockId());
-        dto.setMovementType(movement.getMovementType());
-        dto.setQuantityChange(movement.getQuantityChange());
-        dto.setPreviousQuantity(movement.getPreviousQuantity());
-        dto.setNewQuantity(movement.getNewQuantity());
-        dto.setReferenceType(movement.getReferenceType());
-        dto.setReferenceId(movement.getReferenceId());
-        dto.setOrderId(movement.getOrderId());
-        dto.setNotes(movement.getNotes());
-        dto.setInitiatedBy(movement.getInitiatedBy());
-        dto.setInitiatedByName(movement.getInitiatedByName());
-        dto.setCostImpact(movement.getCostImpact());
-        dto.setUnitPrice(movement.getUnitPrice());
-        dto.setCreatedAt(movement.getCreatedAt());
-        return dto;
+        return stockMovementMapper.toDto(movement);
     }
 }
 
