@@ -20,7 +20,6 @@ public class OrderCreateHelper {
     private UUID businessId;
     private PaymentMethod paymentMethod;
     private PaymentStatus paymentStatus;
-    private String customerNote;
     private String businessNote;
 
     // ===== Delivery Address Fields =====

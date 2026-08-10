@@ -179,12 +179,6 @@ export function POSCartSidebar({
               </span>
               <span className="font-bold text-foreground">{formatCurrency(cartSummary.subtotal)}</span>
             </div>
-            {cartSummary.discountAmount > 0 && (
-              <div className="flex justify-between items-center text-[11px] sm:text-xs">
-                <span className="text-red-500 font-bold">Discount</span>
-                <span className="text-red-500 font-black">-{formatCurrency(cartSummary.discountAmount)}</span>
-              </div>
-            )}
             <div className="flex justify-between items-center text-[11px] sm:text-xs">
               <span className="text-muted-foreground font-semibold">Delivery Fee</span>
               <span className="font-bold text-emerald-600 dark:text-emerald-400">
@@ -197,6 +191,14 @@ export function POSCartSidebar({
               </span>
               <span className="font-bold text-foreground">{formatCurrency(cartSummary.taxAmount)}</span>
             </div>
+            {cartSummary.discountAmount > 0 && (
+              <div className="flex justify-between items-center text-[11px] sm:text-xs py-0.5">
+                <span className="text-red-600 dark:text-red-400 font-extrabold flex items-center gap-1">
+                  Discount
+                </span>
+                <span className="text-red-600 dark:text-red-400 font-black">-{formatCurrency(cartSummary.discountAmount)}</span>
+              </div>
+            )}
             <Separator className="my-1 bg-border/80" />
             <div className="flex justify-between items-center pt-0.5">
               <span className="text-xs font-black text-foreground">Total Amount</span>
@@ -209,21 +211,21 @@ export function POSCartSidebar({
 
         {/* Bottom Action Submit Bar */}
         <div className="px-3 pb-3">
-          <div className="rounded-[10px] overflow-hidden border border-border shadow-md flex items-stretch bg-background h-11 sm:h-12">
+          <div className="rounded-[10px] overflow-hidden border border-border shadow-xs flex items-stretch bg-background h-9">
             <CustomButton
               variant="ghost"
               size="sm"
-              className="h-full px-3.5 gap-1.5 text-[11px] sm:text-xs font-bold border-r border-border hover:bg-muted/60 shrink-0"
+              className="h-full px-3 gap-1.5 text-xs font-bold border-r border-border hover:bg-muted/60 shrink-0"
               onClick={() => dispatch(setShowOrderDetailsModal(true))}
               title="Add order notes & discount"
             >
               <Tag className="w-3.5 h-3.5 text-primary" />
             </CustomButton>
-            <div className="flex-1 px-2.5 py-1 bg-muted/20 min-w-0 flex items-center justify-between">
-              <p className="text-[11px] sm:text-xs text-muted-foreground font-bold truncate">
+            <div className="flex-1 px-2.5 py-0.5 bg-muted/20 min-w-0 flex items-center justify-between">
+              <p className="text-[11px] text-muted-foreground font-bold truncate">
                 {cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"}
               </p>
-              <p className="text-sm sm:text-base font-black text-primary leading-none">
+              <p className="text-xs sm:text-sm font-black text-primary leading-none">
                 {formatCurrency(cartSummary.finalTotal)}
               </p>
             </div>
@@ -233,18 +235,18 @@ export function POSCartSidebar({
               onClick={handleSubmitOrder}
               disabled={cartItems.length === 0 || isSubmitting}
               className={cn(
-                "flex items-center justify-center px-5 gap-2 transition-all shrink-0 font-black h-full",
+                "flex items-center justify-center px-4 gap-1.5 transition-all shrink-0 font-black h-full",
                 cartItems.length === 0 || isSubmitting
-                  ? "bg-muted text-muted-foreground cursor-not-allowed text-[11px] sm:text-xs"
-                  : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 cursor-pointer text-[11px] sm:text-xs shadow-md"
+                  ? "bg-muted text-muted-foreground cursor-not-allowed text-xs"
+                  : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 cursor-pointer text-xs shadow-xs"
               )}
             >
               {isSubmitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
-                <ReceiptText className="w-4 h-4" />
+                <ReceiptText className="w-3.5 h-3.5" />
               )}
-              <span className="text-[11px] sm:text-xs font-extrabold whitespace-nowrap">
+              <span className="text-xs font-extrabold whitespace-nowrap">
                 {isSubmitting ? "Processing..." : "Place Order"}
               </span>
             </CustomButton>

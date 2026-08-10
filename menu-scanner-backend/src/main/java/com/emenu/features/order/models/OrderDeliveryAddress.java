@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -21,6 +22,7 @@ import java.util.UUID;
         }
 )
 @Data
+@ToString(callSuper = true, exclude = {"order", "location"})
 @EqualsAndHashCode(callSuper = true, exclude = {"order", "location"})
 @NoArgsConstructor
 @AllArgsConstructor

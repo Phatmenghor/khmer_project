@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -17,6 +18,7 @@ import java.util.UUID;
         }
 )
 @Data
+@ToString(callSuper = true, exclude = "orderItem")
 @EqualsAndHashCode(callSuper = true, exclude = "orderItem")
 @NoArgsConstructor
 @AllArgsConstructor

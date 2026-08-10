@@ -307,23 +307,21 @@ export function CustomerOrderDetailModal({
                             )}
 
                             {item.customizations &&
-                              item.customizations.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mb-1">
-                                  {item.customizations.map((c) => (
-                                    <span
-                                      key={c.productCustomizationId}
-                                      className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded text-xs"
-                                    >
-                                      +{c.name}
-                                      {c.priceAdjustment > 0 && (
-                                        <span className="font-medium">
-                                          &nbsp;+{formatCurrency(c.priceAdjustment)}
-                                        </span>
+                                      item.customizations.length > 0 && (
+                                        <div className="flex flex-wrap gap-1 mb-1">
+                                          {item.customizations.map((c: any) => (
+                                            <span
+                                              key={c.productCustomizationId || c.id}
+                                              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded text-xs"
+                                            >
+                                              +{c.name}
+                                              <span className="font-medium">
+                                                &nbsp;+{formatCurrency(c.priceAdjustment ?? 0)}
+                                              </span>
+                                            </span>
+                                          ))}
+                                        </div>
                                       )}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
 
                             <div className="flex items-center justify-between text-xs">
                               <span className="text-muted-foreground">

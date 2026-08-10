@@ -344,11 +344,9 @@ export function OrderDetailModal({
                                       className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded text-xs"
                                     >
                                       +{c.name}
-                                      {c.priceAdjustment > 0 && (
-                                        <span className="font-medium">
-                                          &nbsp;+{formatCurrency(c.priceAdjustment)}
-                                        </span>
-                                      )}
+                                      <span className="font-medium">
+                                        &nbsp;+{formatCurrency(c.priceAdjustment ?? 0)}
+                                      </span>
                                     </span>
                                   ))}
                                 </div>
@@ -415,26 +413,6 @@ export function OrderDetailModal({
                     </div>
                   )}
 
-                  {(orderData.pricing?.discountAmount ?? 0) > 0 && (
-                    <>
-                      <div className="flex justify-between text-xs">
-                        <span className="text-muted-foreground">
-                          Discount
-                          {orderData.pricing?.discountType &&
-                            ` (${orderData.pricing.discountType === "percentage" ? "%" : "Fixed"})`}
-                        </span>
-                        <span className="font-medium text-red-600">
-                          -{formatCurrency(orderData.pricing!.discountAmount)}
-                        </span>
-                      </div>
-                      {orderData.pricing?.discountReason && (
-                        <div className="text-xs text-muted-foreground pl-2 italic">
-                          Reason: {orderData.pricing.discountReason}
-                        </div>
-                      )}
-                    </>
-                  )}
-
                   <div className="flex justify-between text-xs">
                     <span className="text-muted-foreground">Delivery Fee</span>
                     <span className="font-medium text-foreground">
@@ -452,6 +430,29 @@ export function OrderDetailModal({
                       <span className="font-medium text-green-600">
                         +{formatCurrency(orderData.pricing!.taxAmount)}
                       </span>
+                    </div>
+                  )}
+
+                  {(orderData.pricing?.discountAmount ?? 0) > 0 && (
+                    <div className="rounded-[6px] border border-red-500/25 bg-red-500/5 px-2.5 py-2 space-y-1 my-1">
+                      <div className="flex justify-between text-xs items-center">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-red-600 dark:text-red-400 font-bold">Discount</span>
+                          {orderData.pricing?.discountType && (
+                            <span className="text-[9px] font-extrabold uppercase bg-red-500/15 text-red-600 dark:text-red-400 px-1.5 py-0.2 rounded-full border border-red-500/25">
+                              {orderData.pricing.discountType === "PERCENTAGE" || orderData.pricing.discountType === "percentage" ? "%" : "Fixed"}
+                            </span>
+                          )}
+                        </div>
+                        <span className="font-bold text-red-600 dark:text-red-400">
+                          -{formatCurrency(orderData.pricing!.discountAmount)}
+                        </span>
+                      </div>
+                      {orderData.pricing?.discountReason && (
+                        <p className="text-[10px] text-muted-foreground italic leading-tight">
+                          Note: {orderData.pricing.discountReason}
+                        </p>
+                      )}
                     </div>
                   )}
 
@@ -555,14 +556,14 @@ export function OrderDetailModal({
                 </div>
               </div>
 
-              {/* Customer Note */}
-              {orderData.customerNote && (
+              {/* Remarks / Business Note */}
+              {orderData.businessNote && (
                 <div className="rounded border border-border/50 bg-card p-3">
                   <SectionTitle>
-                    Customer Note
+                    Remarks / Internal Note
                   </SectionTitle>
-                  <p className="text-xs text-foreground leading-relaxed">
-                    {orderData.customerNote}
+                  <p className="text-xs text-foreground font-medium leading-relaxed">
+                    {orderData.businessNote}
                   </p>
                 </div>
               )}

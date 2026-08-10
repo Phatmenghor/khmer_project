@@ -92,7 +92,7 @@ export function POSOrderSuccessModal({
 
         <CustomButton
           onClick={onClose}
-          className="w-full h-10 text-xs font-extrabold bg-primary text-primary-foreground hover:bg-primary/90 rounded-[12px] shadow-sm hover:shadow transition-all duration-300"
+          className="w-full h-9 text-xs font-extrabold bg-primary text-primary-foreground hover:bg-primary/90 rounded-[10px] shadow-sm hover:shadow transition-all duration-300"
         >
           Done & Next Order
         </CustomButton>

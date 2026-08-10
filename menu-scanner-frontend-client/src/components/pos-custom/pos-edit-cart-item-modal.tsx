@@ -258,7 +258,7 @@ export function POSEditCartItemModal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <CustomSelect
-                size="sm"
+                size="md"
                 label="Promo Type"
                 placeholder="None"
                 options={[
@@ -274,14 +274,18 @@ export function POSEditCartItemModal({
               <div>
                 <CustomInput
                   id="promoValue"
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   label="Promo Value"
-                  placeholder={promotionType === PromotionType.PERCENTAGE ? "e.g., 10" : "e.g., 5.00"}
+                  placeholder={promotionType === PromotionType.PERCENTAGE ? "Enter discount percentage (e.g. 10)..." : "Enter discount amount (e.g. 5.00)..."}
                   value={promotionValue}
-                  onChange={(e) => setPromotionValue(e.target.value)}
-                  step="0.01"
-                  min="0"
-                  size="sm"
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setPromotionValue(val);
+                    }
+                  }}
+                  size="md"
                 />
               </div>
             )}
@@ -292,7 +296,7 @@ export function POSEditCartItemModal({
         <div className="space-y-1.5">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="text-[11px] font-bold text-muted-foreground mb-1 block">
+              <Label className="text-[11px] font-extrabold text-foreground mb-1 block">
                 Original Price
               </Label>
               <div className="h-9 px-3 bg-muted/40 rounded-[8px] border border-border/70 text-xs font-bold flex items-center">
@@ -302,15 +306,19 @@ export function POSEditCartItemModal({
             <div>
               <CustomInput
                 id="newPrice"
-                type="number"
+                type="text"
+                inputMode="decimal"
                 label="New Price"
                 required
-                placeholder="Enter new price"
+                placeholder="Enter new price..."
                 value={newPrice}
-                onChange={(e) => setNewPrice(e.target.value)}
-                step="0.01"
-                min="0"
-                size="sm"
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setNewPrice(val);
+                  }
+                }}
+                size="md"
               />
             </div>
           </div>
@@ -320,7 +328,7 @@ export function POSEditCartItemModal({
         <div className="space-y-1.5">
           <CustomTextarea
             label="Reason for Change (Optional)"
-            placeholder="e.g., Customer complaint, price adjustment, promotion applied, etc."
+            placeholder="Enter reason for price or quantity adjustment..."
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={2}

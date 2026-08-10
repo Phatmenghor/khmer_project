@@ -14,7 +14,9 @@ import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -89,5 +91,15 @@ public class OrderController {
         log.info("Endpoint: delete-order - order deletion: id={}", id);
         OrderResponse orderResponse = orderService.deleteOrder(id);
         return ResponseEntity.ok(ApiResponse.success("Order deleted successfully", orderResponse));
+    }
+
+    @GetMapping("/{id}/receipt/pdf")
+    public ResponseEntity<byte[]> getOrderReceiptPdf(@PathVariable UUID id) {
+        log.info("Endpoint: get-receipt-pdf - order receipt pdf retrieval: id={}", id);
+        byte[] pdfBytes = orderService.getOrderReceiptPdf(id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("inline", "receipt-" + id + ".pdf");
+        return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
 }

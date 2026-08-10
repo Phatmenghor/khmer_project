@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,6 +28,7 @@ import java.util.UUID;
         }
 )
 @Data
+@ToString(callSuper = true, exclude = {"order", "product", "productSize", "itemCustomizations"})
 @EqualsAndHashCode(callSuper = true, exclude = {"order", "product", "productSize", "itemCustomizations"})
 @NoArgsConstructor
 @AllArgsConstructor

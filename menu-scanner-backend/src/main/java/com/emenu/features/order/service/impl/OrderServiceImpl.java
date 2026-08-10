@@ -8,6 +8,7 @@ import com.emenu.enums.common.StockStatus;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.BusinessSetting;
 import com.emenu.features.auth.models.User;
+import com.emenu.features.notification.telegram.util.PdfReceiptGenerator;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.BusinessSettingRepository;
 import com.emenu.features.order.dto.filter.OrderFilterRequest;
@@ -372,9 +373,6 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        if (request.getCustomerNote() != null) {
-            order.setCustomerNote(request.getCustomerNote());
-        }
         if (request.getBusinessNote() != null) {
             order.setBusinessNote(request.getBusinessNote());
         }
@@ -453,8 +451,13 @@ public class OrderServiceImpl implements OrderService {
         log.info("Order updated: {}", orderId);
 
         if (request.getOrderStatus() != null && updatedOrder.getOrderStatus() != previousStatus) {
-            telegramNotificationService.notifyOrderStatusChanged(updatedOrder);
-            webSocketNotificationService.notifyOrderStatusChanged(updatedOrder);
+            try {
+                Order orderForNotification = orderRepository.findByIdWithDetails(updatedOrder.getId()).orElse(updatedOrder);
+                telegramNotificationService.notifyOrderStatusChanged(orderForNotification);
+                webSocketNotificationService.notifyOrderStatusChanged(orderForNotification);
+            } catch (Exception e) {
+                log.warn("Failed to send notification for order status change: {}", e.getMessage());
+            }
         }
 
         return orderMapper.toResponse(updatedOrder);
@@ -642,7 +645,21 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setBarcode(item.getBarcode() != null ? item.getBarcode() : product.getBarcode());
 
             orderItem.setQuantity(item.getQuantity());
-            orderItem.setCurrentPrice(item.getCurrentPrice() != null ? item.getCurrentPrice() : item.getFinalPrice());
+            BigDecimal basePrice = item.getCurrentPrice() != null ? item.getCurrentPrice() : item.getFinalPrice();
+            if (Boolean.TRUE.equals(item.getHasPromotion()) && item.getPromotionType() != null && item.getPromotionValue() != null && item.getPromotionValue().compareTo(BigDecimal.ZERO) > 0) {
+                if (basePrice.compareTo(item.getFinalPrice()) <= 0) {
+                    if ("FIXED_AMOUNT".equalsIgnoreCase(item.getPromotionType())) {
+                        basePrice = item.getFinalPrice().add(item.getPromotionValue());
+                    } else if ("PERCENTAGE".equalsIgnoreCase(item.getPromotionType()) && item.getPromotionValue().compareTo(new BigDecimal("100")) < 0) {
+                        BigDecimal remainingRatio = BigDecimal.ONE.subtract(item.getPromotionValue().divide(new BigDecimal("100"), 4, java.math.RoundingMode.HALF_UP));
+                        if (remainingRatio.compareTo(BigDecimal.ZERO) > 0) {
+                            basePrice = item.getFinalPrice().divide(remainingRatio, 2, java.math.RoundingMode.HALF_UP);
+                        }
+                    }
+                }
+            }
+
+            orderItem.setCurrentPrice(basePrice);
             orderItem.setUnitPrice(item.getFinalPrice());
             orderItem.setFinalPrice(item.getFinalPrice());
             orderItem.setTotalPrice(item.getTotalPrice() != null ? item.getTotalPrice() :
@@ -903,8 +920,9 @@ public class OrderServiceImpl implements OrderService {
                 response.getItems() != null ? response.getItems().size() : 0,
                 response.getPricing() != null ? response.getPricing().getFinalTotal() : 0);
 
-            telegramNotificationService.notifyNewPOSOrder(orderWithItems);
-            webSocketNotificationService.notifyNewOrder(orderWithItems);
+            Order orderForNotification = orderRepository.findByIdWithDetails(savedOrder.getId()).orElse(savedOrder);
+            telegramNotificationService.notifyNewPOSOrder(orderForNotification);
+            webSocketNotificationService.notifyNewOrder(orderForNotification);
 
             return response;
 
@@ -1007,5 +1025,15 @@ public class OrderServiceImpl implements OrderService {
             log.error("Error creating delivery address snapshot: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to create delivery address snapshot", e);
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] getOrderReceiptPdf(UUID orderId) {
+        Order order = orderRepository.findByIdWithDetails(orderId)
+                .orElseThrow(() -> new NotFoundException("Order not found: " + orderId));
+        BusinessSetting settings = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(order.getBusinessId())
+                .orElse(null);
+        return PdfReceiptGenerator.generatePdfReceipt(order, settings);
     }
 }

@@ -43,6 +43,7 @@ export interface PosPageCartItem {
   promotionValue?: number | null;
   promotionFromDate?: string | null;
   promotionToDate?: string | null;
+  editReason?: string;
 }
 
 

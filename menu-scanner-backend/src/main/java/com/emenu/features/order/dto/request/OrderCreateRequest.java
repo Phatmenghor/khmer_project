@@ -49,7 +49,6 @@ public class OrderCreateRequest {
     private OrderPaymentRequest payment;
 
     // Notes
-    private String customerNote;
     private String businessNote;
 
     // Order metadata

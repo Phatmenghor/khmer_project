@@ -44,7 +44,6 @@ public class POSCheckoutRequest {
     private PaymentInfo payment;
 
     // Notes
-    private String customerNote;
     private String businessNote;
 
     // Order status

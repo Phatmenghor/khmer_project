@@ -35,7 +35,6 @@ public class OrderResponse extends BaseAuditResponse {
 
     // Order details
     private OrderStatus orderStatus;
-    private String customerNote;
     private String businessNote;
 
     // Pricing breakdown - nested object for cleaner structure

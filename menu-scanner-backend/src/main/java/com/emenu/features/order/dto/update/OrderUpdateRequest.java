@@ -50,7 +50,6 @@ public class OrderUpdateRequest {
     private PaymentInfo payment;
 
     // Notes
-    private String customerNote;
     private String businessNote;
 
     // ─── Nested Classes ───

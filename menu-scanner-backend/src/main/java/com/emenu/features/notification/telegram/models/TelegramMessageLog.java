@@ -34,4 +34,10 @@ public class TelegramMessageLog extends BaseUUIDEntity {
 
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
+
+    @Column(name = "receipt_url", columnDefinition = "TEXT")
+    private String receiptUrl;
+
+    @Column(name = "storage_key")
+    private String storageKey;
 }

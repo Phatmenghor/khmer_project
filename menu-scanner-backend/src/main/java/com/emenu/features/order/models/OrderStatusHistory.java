@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.UUID;
 
@@ -20,7 +21,8 @@ import java.util.UUID;
         }
 )
 @Data
-@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true, exclude = {"order", "changedByUser"})
+@EqualsAndHashCode(callSuper = true, exclude = {"order", "changedByUser"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderStatusHistory extends BaseUUIDEntity {

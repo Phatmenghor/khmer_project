@@ -45,7 +45,7 @@ function ProductImageComponent({
       />
 
       {/* Promotion Badge */}
-      {isPromotionActive(product?.hasPromotion) && (
+      {isPromotionActive(product?.hasPromotion) && (product?.displayPromotionValue ?? 0) > 0 && (
         <div className="absolute top-1 left-1 z-10 pointer-events-none">
           <Badge variant="destructive" className="text-xs font-bold px-1 py-0.5 shadow-md">
             {product.displayPromotionType === "PERCENTAGE"

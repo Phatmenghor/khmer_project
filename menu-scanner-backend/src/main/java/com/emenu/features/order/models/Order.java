@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ import java.util.UUID;
         }
 )
 @Data
+@ToString(callSuper = true, exclude = {"customer", "business", "deliveryAddress", "deliveryOption", "items", "statusHistory"})
 @EqualsAndHashCode(callSuper = true, exclude = {"customer", "business", "deliveryAddress", "deliveryOption", "items", "statusHistory"})
 @NoArgsConstructor
 @AllArgsConstructor
@@ -86,9 +88,6 @@ public class Order extends BaseUUIDEntity {
 
     @Column(name = "customer_address", columnDefinition = "TEXT")
     private String customerAddress;
-
-    @Column(name = "customer_note", columnDefinition = "TEXT")
-    private String customerNote;
 
     @Column(name = "business_note", columnDefinition = "TEXT")
     private String businessNote;

@@ -25,4 +25,7 @@ public interface OrderService {
 
     // POS Operations (Admin)
     OrderResponse createPOSCheckoutOrder(POSCheckoutRequest request);
+
+    // Receipt PDF Generation
+    byte[] getOrderReceiptPdf(UUID orderId);
 }

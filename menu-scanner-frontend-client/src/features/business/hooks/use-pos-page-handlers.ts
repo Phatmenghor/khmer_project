@@ -14,6 +14,7 @@ import {
 import { OrderStatus } from "@/enums/order-status.enum";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { PromotionType } from "@/constants/status/status";
+import { formatCurrency } from "@/utils/common/currency-format";
 
 import { useLocalStorageSync } from "@/hooks/use-local-storage-sync";
 import { useFilterURLSync } from "@/hooks/use-filter-url-sync";
@@ -511,21 +512,24 @@ export function usePOSPageHandlers() {
         : newPromotion.value
       : 0;
 
+    const unitFinalPrice = Math.max(0, newPrice - promoDeduction);
+
     const addonsTotal = editingItemForPrice.customizations?.reduce(
       (sum, c) => sum + (c.priceAdjustment || 0), 0
     ) ?? 0;
 
-    const finalPrice = Math.max(0, newPrice - promoDeduction + addonsTotal);
+    const finalPriceWithAddons = unitFinalPrice + addonsTotal;
 
     const updatedItem: PosPageCartItem = {
       ...editingItemForPrice,
       quantity: newQuantity,
       currentPrice: newPrice,
-      finalPrice,
-      totalPrice: finalPrice * newQuantity,
+      finalPrice: unitFinalPrice,
+      totalPrice: finalPriceWithAddons * newQuantity,
       hasPromotion: promoDeduction > 0,
       promotionType: newPromotion.type,
       promotionValue: newPromotion.value,
+      editReason: editData.reason || undefined,
     };
 
     dispatch(updateCartItem(updatedItem));
@@ -547,6 +551,26 @@ export function usePOSPageHandlers() {
       showToast.error(Messages.delivery.selectOption);
       return;
     }
+
+    const itemReasons = cartItems
+      .map((item) => (item.editReason ? `${item.productName}: ${item.editReason}` : null))
+      .filter(Boolean);
+
+    const remarksParts: string[] = ["Created via POS System"];
+    if (customerNote && customerNote.trim()) {
+      remarksParts.push(customerNote.trim());
+    }
+    if (itemReasons.length > 0) {
+      remarksParts.push(itemReasons.join("; "));
+    }
+    if (orderDiscount && orderDiscount.discountAmount > 0) {
+      const discountLabel = orderDiscount.type === "percentage"
+        ? `Discount Applied: ${orderDiscount.value}% (-${formatCurrency(orderDiscount.discountAmount)})`
+        : `Discount Applied: Fixed -${formatCurrency(orderDiscount.discountAmount)}`;
+      remarksParts.push(discountLabel);
+    }
+
+    const finalBusinessNote = remarksParts.join(" | ");
 
     const payload: POSCheckoutPayload = {
       businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
@@ -602,8 +626,8 @@ export function usePOSPageHandlers() {
         paymentMethod: "CASH",
         paymentStatus: "PAID",
       },
-      customerNote: customerNote || "",
-      businessNote: "Created via POS System",
+      customerNote: "",
+      businessNote: finalBusinessNote,
       orderStatus: OrderStatus.PENDING,
     };
 

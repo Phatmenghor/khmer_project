@@ -293,7 +293,7 @@ public class DashboardServiceImpl implements DashboardService {
             "       oi.product_name, " +
             "       SUM(oi.quantity)    AS units_sold, " +
             "       SUM(oi.total_price) AS revenue, " +
-            "       MAX(oi.product_image_url) AS image_url " +
+            "       MAX(CAST(oi.product_image_url AS text)) AS image_url " +
             "FROM order_items oi " +
             "JOIN orders o ON o.id = oi.order_id " +
             "WHERE o.business_id = :bid " +

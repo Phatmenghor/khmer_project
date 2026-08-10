@@ -112,7 +112,7 @@ export function CartItemCard({
                   key={c.productCustomizationId}
                   className="text-xs font-medium text-muted-foreground bg-muted px-1 py-1 rounded-full border border-border whitespace-nowrap"
                 >
-                  {c.name}{c.priceAdjustment > 0 ? ` +${formatCurrency(c.priceAdjustment)}` : ""}
+                  {c.name} (+{formatCurrency(c.priceAdjustment ?? 0)})
                 </span>
               ))}
             </div>
