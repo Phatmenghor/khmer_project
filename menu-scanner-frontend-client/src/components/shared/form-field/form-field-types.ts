@@ -46,6 +46,7 @@ export interface TextFormFieldProps<T extends FieldValues = FieldValues> extends
  */
 export interface TextareaFormFieldProps<T extends FieldValues = FieldValues> extends BaseFormFieldProps<T> {
   rows?: number;
+  textareaClassName?: string;
 }
 
 /**

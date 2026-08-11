@@ -49,6 +49,7 @@ export const ROUTES = {
     ORDERS: "/admin/orders",
     ORDERS_PENDING: "/admin/orders/pending",
     POS: "/admin/pos",
+    TABLE_MONITORING: "/admin/pos/table-monitoring",
     BUSINESS_SETTINGS: "/admin/manage-business-settings",
     QR_GENERATOR: "/admin/qr-generator",
     PORTFOLIO: "/admin/portfolio",
@@ -132,9 +133,18 @@ export const SIDEBAR_MENU: MenuItem[] = [
     ],
   },
   {
-    title: "POS",
-    href: ROUTES.ADMIN.POS,
+    title: "Operations",
     icon: ShoppingCart,
+    items: [
+      {
+        title: "POS Register",
+        href: ROUTES.ADMIN.POS,
+      },
+      {
+        title: "Table Monitoring",
+        href: ROUTES.ADMIN.TABLE_MONITORING,
+      },
+    ],
   },
   {
     title: "Business",

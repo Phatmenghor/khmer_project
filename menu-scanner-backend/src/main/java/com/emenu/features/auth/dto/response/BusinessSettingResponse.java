@@ -30,4 +30,5 @@ public class BusinessSettingResponse extends BaseAuditResponse {
     private ReceiptSize receiptSize;
     private String wifiName;
     private String wifiPassword;
+    private String storeDescription;
 }

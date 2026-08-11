@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "portfolio_gallery")
 @Data
@@ -18,8 +20,11 @@ import org.hibernate.type.SqlTypes;
 @AllArgsConstructor
 public class PortfolioGalleryItem extends BaseUUIDEntity {
 
+    @Column(name = "profile_id", nullable = false)
+    private UUID profileId;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "profile_id", nullable = false)
+    @JoinColumn(name = "profile_id", insertable = false, updatable = false)
     private PortfolioProfile profile;
 
     @JdbcTypeCode(SqlTypes.JSON)

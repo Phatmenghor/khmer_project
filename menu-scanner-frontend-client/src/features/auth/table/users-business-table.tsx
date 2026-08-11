@@ -178,29 +178,29 @@ export const userBusinessTableColumns = ({
         const hideActions = isSelf || isBusinessOwner;
 
         return (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <ActionButton
-              icon={<Eye className="w-3 h-3" />}
+              icon={<Eye className="w-3.5 h-3.5" />}
               tooltip="View Details"
               onClick={() => handleViewUserDetail(user)}
             />
             {!hideActions && (
               <ActionButton
-                icon={<Edit className="w-3 h-3" />}
+                icon={<Edit className="w-3.5 h-3.5" />}
                 tooltip="Edit User"
                 onClick={() => handleEditUser(user)}
               />
             )}
             {!hideActions && (
               <ActionButton
-                icon={<RotateCw className="w-3 h-3" />}
+                icon={<RotateCw className="w-3.5 h-3.5" />}
                 tooltip="Reset Password"
                 onClick={() => handleResetPassword(user)}
               />
             )}
             {!hideActions && (
               <ActionButton
-                icon={<Trash className="w-3 h-3" />}
+                icon={<Trash className="w-3.5 h-3.5" />}
                 tooltip="Delete User"
                 onClick={() => handleDeleteUser(user)}
                 variant="destructive"

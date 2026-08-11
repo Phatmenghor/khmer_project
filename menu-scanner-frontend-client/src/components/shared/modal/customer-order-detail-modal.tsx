@@ -158,7 +158,7 @@ export function CustomerOrderDetailModal({
             <div className="lg:col-span-2 space-y-3">
 
               {/* Order Progress */}
-              <div className="rounded border border-border/50 bg-card p-3">
+              <div className="rounded border border-border bg-card p-3">
                 <SectionTitle>Order Progress</SectionTitle>
                 {isCancelled ? (
                   <div className="flex items-center gap-2 px-2 py-2 rounded bg-red-50 border border-red-200">
@@ -271,7 +271,7 @@ export function CustomerOrderDetailModal({
 
               {/* Order Items */}
               {order.items && order.items.length > 0 && (
-                <div className="rounded border border-border/50 bg-card p-3">
+                <div className="rounded border border-border bg-card p-3">
                   <SectionTitle>
                     Order Items ({order.items.length})
                   </SectionTitle>
@@ -291,7 +291,7 @@ export function CustomerOrderDetailModal({
                       return (
                         <div
                           key={item.id}
-                          className="flex gap-2.5 p-2 rounded border border-border/50 bg-muted/20"
+                          className="flex gap-2.5 p-2 rounded border border-border bg-muted/40"
                         >
                           <CustomImagePreview
                             src={getProductImageUrl(item.product?.imageUrl)}
@@ -363,7 +363,7 @@ export function CustomerOrderDetailModal({
               )}
 
               {/* Pricing Summary */}
-              <div className="rounded border border-border/50 bg-card p-3">
+              <div className="rounded border border-border bg-card p-3">
                 <SectionTitle>Pricing Summary</SectionTitle>
                 <div className="space-y-1.5">
                   <div className="flex justify-between text-xs">
@@ -435,7 +435,7 @@ export function CustomerOrderDetailModal({
             <div className="space-y-3">
 
               {/* Order Info */}
-              <div className="rounded border border-border/50 bg-card p-3">
+              <div className="rounded border border-border bg-card p-3">
                 <SectionTitle>Order Info</SectionTitle>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-2">
                   <InfoRow
@@ -474,7 +474,7 @@ export function CustomerOrderDetailModal({
               </div>
 
               {/* Customer */}
-              <div className="rounded border border-border/50 bg-card p-3">
+              <div className="rounded border border-border bg-card p-3">
                 <SectionTitle>Customer</SectionTitle>
                 <div className="space-y-2">
                   <div>
@@ -500,7 +500,7 @@ export function CustomerOrderDetailModal({
 
               {/* Customer Note */}
               {order.customerNote && (
-                <div className="rounded border border-border/50 bg-card p-3">
+                <div className="rounded border border-border bg-card p-3">
                   <SectionTitle>Customer Note</SectionTitle>
                   <p className="text-xs text-foreground leading-relaxed">
                     {order.customerNote}
@@ -510,7 +510,7 @@ export function CustomerOrderDetailModal({
 
               {/* Delivery Address */}
               {order.deliveryAddress && formattedAddress && (
-                <div className="rounded border border-border/50 bg-card p-3">
+                <div className="rounded border border-border bg-card p-3">
                   <div className="flex items-start justify-between mb-2.5">
                     <SectionTitle>Delivery Address</SectionTitle>
                     <div className="flex gap-1 flex-shrink-0 -mt-0.5">

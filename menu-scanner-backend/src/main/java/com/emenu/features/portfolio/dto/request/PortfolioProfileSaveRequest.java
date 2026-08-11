@@ -11,12 +11,7 @@ import java.util.List;
 public class PortfolioProfileSaveRequest {
 
     @NotBlank
-    private String businessName;
-
-    @NotBlank
     private String description;
-
-    private ImageUrls logo;
 
     private ImageUrls coverImage;
 
@@ -50,7 +45,6 @@ public class PortfolioProfileSaveRequest {
         private String phone;
         @Valid
         private List<PortfolioPhoneRequest> phones;
-        private String whatsapp;
         private String telegram;
         private String address;
         private String mapLink;

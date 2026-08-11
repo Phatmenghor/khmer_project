@@ -24,6 +24,7 @@ interface CustomSelectProps {
   onValueChange: (value: string) => void;
   className?: string;
   disabled?: boolean;
+  clearable?: boolean;
   size?: "sm" | "md" | "lg" | "xl";
   label?: string;
   required?: boolean;
@@ -64,6 +65,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   onValueChange,
   className = "",
   disabled = false,
+  clearable = true,
   size = "md",
   label,
   required = false,
@@ -125,7 +127,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
               {selectedOption?.label || placeholder}
             </span>
             <div className="flex items-center gap-1 shrink-0 ml-1.5">
-              {Boolean(value) &&
+              {clearable &&
+                Boolean(value) &&
                 String(value).toUpperCase() !== "ALL" &&
                 String(value).trim() !== "" &&
                 !disabled && (

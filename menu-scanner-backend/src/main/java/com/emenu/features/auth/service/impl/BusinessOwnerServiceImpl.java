@@ -15,9 +15,12 @@ import com.emenu.features.auth.dto.request.*;
 import com.emenu.features.auth.dto.response.BusinessOwnerCreateResponse;
 import com.emenu.features.auth.dto.response.BusinessOwnerDetailResponse;
 import com.emenu.features.auth.models.BusinessSetting;
+import com.emenu.features.auth.models.BusinessHours;
+import com.emenu.features.auth.models.SocialMedia;
 import com.emenu.features.auth.repository.BusinessSettingRepository;
 import com.emenu.features.auth.mapper.BusinessOwnerMapper;
 import com.emenu.features.auth.models.Business;
+import com.emenu.shared.constants.BusinessConstants;
 import com.emenu.features.auth.models.Role;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.auth.models.UserEmployment;
@@ -784,25 +787,56 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         BusinessSetting businessSetting = new BusinessSetting();
         businessSetting.setBusinessId(businessId);
         businessSetting.setTaxPercentage(creationRequestData.getTaxPercentage() != null
-                ? creationRequestData.getTaxPercentage().doubleValue() : 0.0);
+                ? creationRequestData.getTaxPercentage().doubleValue() : BusinessConstants.DEFAULT_TAX_PERCENTAGE);
         businessSetting.setLowStockThreshold(creationRequestData.getLowStockThreshold() != null
-                ? creationRequestData.getLowStockThreshold() : 5);
+                ? creationRequestData.getLowStockThreshold() : BusinessConstants.DEFAULT_LOW_STOCK_THRESHOLD);
 
         boolean enableStock = creationRequestData.getEnableStockManagement() != null
                 && creationRequestData.getEnableStockManagement();
         businessSetting.setEnableStock(enableStock ? StockStatus.ENABLED : StockStatus.DISABLED);
+        businessSetting.setStoreDescription(BusinessConstants.DEFAULT_STORE_DESCRIPTION);
 
-        businessSettingRepository.save(businessSetting);
-        log.info("Business setting created successfully: business_id={}, enable_stock={}",
+        BusinessSetting savedSetting = businessSettingRepository.save(businessSetting);
+
+        savedSetting.setBusinessHours(createDefaultBusinessHours(savedSetting));
+        savedSetting.setSocialMedia(createDefaultSocialMedia(savedSetting));
+
+        businessSettingRepository.save(savedSetting);
+        log.info("Business setting created successfully with default 7 days hours and 4 social media platforms: business_id={}, enable_stock={}",
                 businessId, enableStock);
     }
 
+    private List<BusinessHours> createDefaultBusinessHours(BusinessSetting setting) {
+        List<BusinessHours> defaultHours = new ArrayList<>();
+        for (String[] cfg : BusinessConstants.DEFAULT_BUSINESS_HOURS_CONFIG) {
+            BusinessHours bh = new BusinessHours();
+            bh.setBusinessSettingId(setting.getId());
+            bh.setBusinessSetting(setting);
+            bh.setDay(cfg[0]);
+            bh.setOpeningTime(cfg[1]);
+            bh.setClosingTime(cfg[2]);
+            defaultHours.add(bh);
+        }
+        return defaultHours;
+    }
+
+    private List<SocialMedia> createDefaultSocialMedia(BusinessSetting setting) {
+        List<SocialMedia> defaultSocials = new ArrayList<>();
+        for (String[] sc : BusinessConstants.DEFAULT_SOCIAL_MEDIA_CONFIG) {
+            SocialMedia sm = new SocialMedia();
+            sm.setBusinessSettingId(setting.getId());
+            sm.setBusinessSetting(setting);
+            sm.setName(sc[0]);
+            sm.setLinkUrl(sc[1]);
+            defaultSocials.add(sm);
+        }
+        return defaultSocials;
+    }
+
     private void initializeBusinessDefaults(UUID businessId) {
-        // Create default portfolio profile with business name only
-        Business business = businessRepository.findById(businessId).orElseThrow();
+        // Create default portfolio profile
         PortfolioProfile portfolioProfile = new PortfolioProfile();
         portfolioProfile.setBusinessId(businessId);
-        portfolioProfile.setBusinessName(business.getName());
         portfolioProfileRepository.save(portfolioProfile);
 
         // Create default exchange rate: 4000 USD to KHR

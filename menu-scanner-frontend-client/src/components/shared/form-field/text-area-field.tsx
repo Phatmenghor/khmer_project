@@ -15,6 +15,7 @@ export function TextareaField<T extends FieldValues = FieldValues>({
   placeholder = "",
   rows = 3,
   className = "",
+  textareaClassName = "",
 }: TextareaFormFieldProps<T>) {
   return (
     <div className={`flex flex-col gap-1 w-full ${className}`}>
@@ -33,7 +34,7 @@ export function TextareaField<T extends FieldValues = FieldValues>({
             placeholder={placeholder}
             disabled={disabled}
             rows={rows}
-            className={error ? "border-destructive focus:border-destructive" : ""}
+            className={`${error ? "border-destructive focus:border-destructive" : ""} ${textareaClassName}`}
           />
         )}
       />

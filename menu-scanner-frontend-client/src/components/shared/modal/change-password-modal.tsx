@@ -3,16 +3,12 @@
 import { CustomModal } from "./custom-modal";
 import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { PasswordField } from "@/components/shared/form-field/password-field";
-import { FormHeader } from "@/components/shared/form-field/form-header";
-import { FormBody } from "@/components/shared/form-field/form-body";
-import { FormFooter } from "@/components/shared/form-field/form-footer";
-import { CancelButton, SubmitButton } from "@/components/shared/button/custom-button";
-
+import { CustomButton } from "@/components/shared/button/custom-button";
+import { Lock, AlertTriangle } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { changePasswordService } from "@/features/auth/store/thunks/auth-thunks";
 import {
@@ -21,7 +17,6 @@ import {
 } from "@/features/auth/store/selectors/auth-selectors";
 import { clearError } from "@/features/auth/store/slice/auth-slice";
 import { showToast } from "@/components/shared/common/show-toast";
-import { getFieldError } from "@/utils/common/get-field-error";
 import { changePasswordSchema } from "@/features/auth/store/models/schema/user.schema";
 
 type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
@@ -55,7 +50,6 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
     },
     mode: "onChange",
   });
-
 
   useEffect(() => {
     if (isOpen) {
@@ -94,95 +88,92 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
   };
 
   return (
-    <CustomModal isOpen={isOpen} onClose={handleClose} size="lg" className="max-h-[92vh] -col">
-      
-        {}
-        <FormHeader
-          title="Change Password"
-          description="Update your password to keep your account secure"
-          showAvatar={false}
-          isCreate={true}
-          className="m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4"
-        />
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="sm">
+      {/* ── Header ── */}
+      <div className="flex items-center gap-3 p-4 px-5 border-b border-border/80 bg-background shrink-0">
+        <div className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
+          <Lock className="w-5 h-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-extrabold text-base text-foreground leading-tight">Change Password</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Update your account security password</p>
+        </div>
+      </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col flex-1 overflow-visible"
-        >
-          {}
-          <FormBody>
-            {}
-            {reduxError && (
-              <div className="p-3 bg-destructive/10 border border-destructive rounded">
-                <p className="text-xs text-destructive font-medium">
-                  {reduxError}
-                </p>
-              </div>
-            )}
-
-            {}
-            <div className="space-y-3">
-              <PasswordField
-                control={control}
-                name="currentPassword"
-                label="Current Password"
-                placeholder="Enter your current password"
-                disabled={isProfileLoading}
-                required
-                error={errors.currentPassword}
-                showPassword={showCurrentPassword}
-                onTogglePassword={() => setShowCurrentPassword(!showCurrentPassword)}
-              />
-
-              <PasswordField
-                control={control}
-                name="newPassword"
-                label="New Password"
-                placeholder="Enter your new password"
-                disabled={isProfileLoading}
-                required
-                error={errors.newPassword}
-                showPassword={showNewPassword}
-                onTogglePassword={() => setShowNewPassword(!showNewPassword)}
-              />
-
-              <PasswordField
-                control={control}
-                name="confirmPassword"
-                label="Confirm Password"
-                placeholder="Confirm your new password"
-                disabled={isProfileLoading}
-                required
-                error={errors.confirmPassword}
-                showPassword={showConfirmPassword}
-                onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
-              />
+      {/* ── Form Body ── */}
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
+        <div className="p-4 px-5 space-y-3 bg-card/30">
+          {reduxError && (
+            <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
+              <p className="text-xs text-destructive font-medium">{reduxError}</p>
             </div>
-          </FormBody>
+          )}
 
-          {}
-          <FormFooter
-            isSubmitting={isProfileLoading}
-            isDirty={isDirty}
-            isCreate={true}
-            createMessage="Changing password..."
-            updateMessage=""
-            className="m-0 mx-0 mb-0 md:mx-0 md:mb-0 p-4 md:p-4"
-          >
-            <CancelButton onClick={handleClose} disabled={isProfileLoading} />
-
-            <SubmitButton
-              isSubmitting={isProfileLoading}
-              isDirty={isDirty}
-              isCreate={true}
-              createText="Change Password"
-              updateText=""
-              submittingCreateText="Changing..."
-              submittingUpdateText=""
+          <div className="space-y-3">
+            <PasswordField
+              control={control}
+              name="currentPassword"
+              label="Current Password"
+              placeholder="Enter current password"
+              disabled={isProfileLoading}
+              required
+              error={errors.currentPassword}
+              showPassword={showCurrentPassword}
+              onTogglePassword={() => setShowCurrentPassword(!showCurrentPassword)}
             />
-          </FormFooter>
-        </form>
-      
+
+            <PasswordField
+              control={control}
+              name="newPassword"
+              label="New Password"
+              placeholder="Enter new password"
+              disabled={isProfileLoading}
+              required
+              error={errors.newPassword}
+              showPassword={showNewPassword}
+              onTogglePassword={() => setShowNewPassword(!showNewPassword)}
+            />
+
+            <PasswordField
+              control={control}
+              name="confirmPassword"
+              label="Confirm Password"
+              placeholder="Confirm new password"
+              disabled={isProfileLoading}
+              required
+              error={errors.confirmPassword}
+              showPassword={showConfirmPassword}
+              onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+            />
+          </div>
+        </div>
+
+        {/* ── Footer ── */}
+        <div className="p-4 px-5 border-t border-border/80 bg-background flex items-center justify-end gap-2 shrink-0">
+          <CustomButton
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleClose}
+            disabled={isProfileLoading}
+            className="font-bold min-w-[80px]"
+          >
+            Cancel
+          </CustomButton>
+
+          <CustomButton
+            type="submit"
+            variant="primary"
+            size="sm"
+            disabled={isProfileLoading || !isDirty}
+            isLoading={isProfileLoading}
+            className="font-bold min-w-[130px]"
+          >
+            {isProfileLoading ? "Changing..." : "Change Password"}
+          </CustomButton>
+        </div>
+      </form>
     </CustomModal>
   );
 }

@@ -2,7 +2,7 @@ import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Edit, Eye, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
-import { ActionButton } from "@/components/shared/button/custom-button";
+import { ActionButton, TableActionButtons } from "@/components/shared/button/custom-button";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { Switch } from "@/components/ui/switch";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
@@ -141,24 +141,14 @@ export const categoriesTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (categories) => (
-        <div className="flex items-center gap-1">
-          <ActionButton
-            icon={<Eye className="w-3 h-3" />}
-            tooltip="View Details"
-            onClick={() => handleCategoriesViewDetail(categories)}
-          />
-          <ActionButton
-            icon={<Edit className="w-3 h-3" />}
-            tooltip="Edit Category"
-            onClick={() => handleEditCategories(categories)}
-          />
-          <ActionButton
-            icon={<Trash className="w-3 h-3" />}
-            tooltip="Delete Category"
-            onClick={() => handleDeleteCategories(categories)}
-            variant="destructive"
-          />
-        </div>
+        <TableActionButtons
+          onView={() => handleCategoriesViewDetail(categories)}
+          onEdit={() => handleEditCategories(categories)}
+          onDelete={() => handleDeleteCategories(categories)}
+          viewTooltip="View Details"
+          editTooltip="Edit Category"
+          deleteTooltip="Delete Category"
+        />
       ),
     },
   ];

@@ -8,18 +8,23 @@ import com.emenu.features.auth.dto.response.BusinessSettingResponse;
 import com.emenu.features.auth.dto.update.BusinessSettingUpdateRequest;
 import com.emenu.features.auth.mapper.BusinessSettingMapper;
 import com.emenu.features.auth.models.Business;
+import com.emenu.features.auth.models.BusinessHours;
 import com.emenu.features.auth.models.BusinessSetting;
+import com.emenu.features.auth.models.SocialMedia;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.BusinessSettingRepository;
 import com.emenu.features.auth.service.BusinessSettingService;
 import com.emenu.security.SecurityUtils;
+import com.emenu.shared.constants.BusinessConstants;
 import com.emenu.features.notification.telegram.repository.TelegramMessageLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -37,17 +42,51 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
     private BusinessSetting getOrCreateBusinessSetting(UUID businessId) {
         return businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
                 .orElseGet(() -> {
-                    log.info("Business setting not found, creating a default one for businessId={}", businessId);
+                    log.info("Business setting not found, creating default settings for businessId={}", businessId);
                     
                     BusinessSetting newSetting = new BusinessSetting();
                     newSetting.setBusinessId(businessId);
-                    newSetting.setTaxPercentage(0.0);
-                    newSetting.setLowStockThreshold(5);
+                    newSetting.setTaxPercentage(BusinessConstants.DEFAULT_TAX_PERCENTAGE);
+                    newSetting.setLowStockThreshold(BusinessConstants.DEFAULT_LOW_STOCK_THRESHOLD);
                     newSetting.setEnableStock(StockStatus.DISABLED);
                     newSetting.setUseBrands(true);
                     newSetting.setReceiptSize(ReceiptSize.SIZE_58MM);
-                    return businessSettingRepository.save(newSetting);
+                    newSetting.setStoreDescription(BusinessConstants.DEFAULT_STORE_DESCRIPTION);
+
+                    BusinessSetting savedSetting = businessSettingRepository.save(newSetting);
+
+                    savedSetting.setBusinessHours(createDefaultBusinessHours(savedSetting));
+                    savedSetting.setSocialMedia(createDefaultSocialMedia(savedSetting));
+
+                    return businessSettingRepository.save(savedSetting);
                 });
+    }
+
+    private List<BusinessHours> createDefaultBusinessHours(BusinessSetting setting) {
+        List<BusinessHours> defaultHours = new ArrayList<>();
+        for (String[] cfg : BusinessConstants.DEFAULT_BUSINESS_HOURS_CONFIG) {
+            BusinessHours bh = new BusinessHours();
+            bh.setBusinessSettingId(setting.getId());
+            bh.setBusinessSetting(setting);
+            bh.setDay(cfg[0]);
+            bh.setOpeningTime(cfg[1]);
+            bh.setClosingTime(cfg[2]);
+            defaultHours.add(bh);
+        }
+        return defaultHours;
+    }
+
+    private List<SocialMedia> createDefaultSocialMedia(BusinessSetting setting) {
+        List<SocialMedia> defaultSocials = new ArrayList<>();
+        for (String[] sc : BusinessConstants.DEFAULT_SOCIAL_MEDIA_CONFIG) {
+            SocialMedia sm = new SocialMedia();
+            sm.setBusinessSettingId(setting.getId());
+            sm.setBusinessSetting(setting);
+            sm.setName(sc[0]);
+            sm.setLinkUrl(sc[1]);
+            defaultSocials.add(sm);
+        }
+        return defaultSocials;
     }
 
     @Override
@@ -91,6 +130,7 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
         // Explicitly set wifiName and wifiPassword to support updating and clearing
         businessSetting.setWifiName(request.getWifiName());
         businessSetting.setWifiPassword(request.getWifiPassword());
+        businessSetting.setStoreDescription(request.getStoreDescription());
 
         // Update Business entity with contact information if provided
         if (request.getBusinessName() != null) {

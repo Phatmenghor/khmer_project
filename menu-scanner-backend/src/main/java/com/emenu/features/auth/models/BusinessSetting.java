@@ -75,4 +75,7 @@ public class BusinessSetting extends BaseUUIDEntity {
 
     @Column(name = "wifi_password")
     private String wifiPassword;
+
+    @Column(name = "store_description", columnDefinition = "TEXT")
+    private String storeDescription;
 }

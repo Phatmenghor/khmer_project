@@ -370,7 +370,7 @@ export function SizeStockManagementModal({
                       <div className="mt-4 pt-3 border-t">
                         <p className="text-xs font-semibold text-foreground mb-2">Sales Preview</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          <div className="rounded border border-border/50 bg-muted/30 p-2.5 space-y-1.5">
+                          <div className="rounded border border-border bg-muted/50 p-2.5 space-y-1.5">
                             <div className="flex items-center justify-between">
                               <span className="text-xs text-muted-foreground">Selling Price</span>
                               {selectedSize.hasPromotion && (
@@ -400,7 +400,7 @@ export function SizeStockManagementModal({
                             )}
                           </div>
 
-                          <div className="rounded border border-border/50 bg-muted/30 p-2.5 space-y-1.5">
+                          <div className="rounded border border-border bg-muted/50 p-2.5 space-y-1.5">
                             <span className="text-xs text-muted-foreground">Revenue Estimate</span>
                             <div className="space-y-1 text-xs">
                               <div className="flex justify-between">

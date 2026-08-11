@@ -40,7 +40,6 @@ public class PortfolioResponse {
         private String email;
         private String phone;
         private List<PhoneDto> phones;
-        private String whatsapp;
         private String telegram;
         private String address;
         private String mapLink;

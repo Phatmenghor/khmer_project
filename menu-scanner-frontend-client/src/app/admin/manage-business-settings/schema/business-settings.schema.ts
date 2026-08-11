@@ -63,6 +63,7 @@ export const businessSettingsSchema = z.object({
   receiptSize: z.nativeEnum(ReceiptSize).optional(),
   wifiName: z.string().optional(),
   wifiPassword: z.string().optional(),
+  storeDescription: z.string().optional(),
 });
 
 export type BusinessSettingsFormData = z.infer<typeof businessSettingsSchema>;

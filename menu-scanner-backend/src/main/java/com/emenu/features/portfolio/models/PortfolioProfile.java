@@ -29,15 +29,8 @@ public class PortfolioProfile extends BaseUUIDEntity {
     @Column(name = "business_id", nullable = false)
     private UUID businessId;
 
-    @Column(name = "business_name")
-    private String businessName;
-
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "logo", columnDefinition = "jsonb")
-    private ImageUrls logo;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "cover_image", columnDefinition = "jsonb")
@@ -53,9 +46,6 @@ public class PortfolioProfile extends BaseUUIDEntity {
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("createdAt ASC")
     private List<PortfolioPhone> contactPhones = new ArrayList<>();
-
-    @Column(name = "contact_whatsapp")
-    private String contactWhatsapp;
 
     @Column(name = "contact_telegram")
     private String contactTelegram;

@@ -4,8 +4,7 @@ import { CustomButton } from "@/components/shared/button/custom-button";
 import { CustomModal } from "./custom-modal";
 import React, { useEffect, useRef, useState } from "react";
 import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
-
-import { Camera, Download, Loader2, Trash2 } from "lucide-react";
+import { Camera, Download, Trash2, UserCheck } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import { uploadMultiSize, uploadMultiSizeCustomer, SpacesMultiSizeResult } from "@/services/spaces-service";
@@ -100,23 +99,32 @@ export function ProfilePictureModal({
 
   return (
     <CustomModal isOpen={isOpen} onClose={onClose} size="sm">
-      
-        <DialogTitle asChild>
-          <VisuallyHidden>Profile Picture Manager</VisuallyHidden>
-        </DialogTitle>
-        <DialogDescription asChild>
-          <VisuallyHidden>Upload, download, or remove your profile picture</VisuallyHidden>
-        </DialogDescription>
+      <DialogTitle asChild>
+        <VisuallyHidden>Profile Picture Manager</VisuallyHidden>
+      </DialogTitle>
+      <DialogDescription asChild>
+        <VisuallyHidden>Upload, download, or remove your profile picture</VisuallyHidden>
+      </DialogDescription>
 
-        <div className="px-4 py-3 border-b">
-          <h2 className="text-xs font-semibold">Update Profile Picture</h2>
+      {/* ── Fixed Header ── */}
+      <div className="flex items-center gap-3 p-4 px-5 border-b border-border/80 bg-background shrink-0">
+        <div className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
+          <Camera className="w-5 h-5" />
         </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-extrabold text-base text-foreground leading-tight">Update Profile Picture</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Upload or manage your avatar image</p>
+        </div>
+      </div>
 
-        <div className="p-4 flex flex-col items-center gap-4">
-          {/* Circle preview */}
+      {/* ── Body ── */}
+      <div className="p-5 flex flex-col items-center gap-4 bg-card/30">
+        {/* Circle preview with floating remove trash button stacked on bottom-right of avatar */}
+        <div className="relative flex-shrink-0">
           <div
-            className="relative group cursor-pointer w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20 flex-shrink-0 bg-primary/10 flex items-center justify-center"
+            className="relative group cursor-pointer w-28 h-28 rounded-full overflow-hidden ring-4 ring-primary/20 flex-shrink-0 bg-primary/10 flex items-center justify-center shadow-md transition-all hover:ring-primary/40"
             onClick={() => fileInputRef.current?.click()}
+            title="Click to choose image"
           >
             {previewUrl && !isRemoving ? (
               <SmartImage
@@ -126,77 +134,122 @@ export function ProfilePictureModal({
                 rounded="full"
               />
             ) : (
-              <span className="text-2xl font-bold text-primary/60 select-none">
-                {userName?.charAt(0)?.toUpperCase() || "?"}
+              <span className="text-3xl font-extrabold text-primary/60 select-none">
+                {userName?.charAt(0)?.toUpperCase() || "U"}
               </span>
             )}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
-              <Camera className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <Camera className="h-6 w-6 text-white mb-1" />
+              <span className="text-[10px] text-white font-bold uppercase tracking-wider">Change</span>
             </div>
           </div>
 
-          {selectedFile && (
-            <p className="text-xs text-primary font-medium">New photo selected — click Save to apply</p>
-          )}
-          {isRemoving && (
-            <p className="text-xs text-destructive font-medium">Photo will be removed — click Save to apply</p>
+          {/* Floating Trash Action Button Stacked on Avatar Bottom-Right */}
+          {(currentImageUrl || selectedFile) && !isRemoving && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsRemoving(true);
+                setPreviewUrl("");
+                setSelectedFile(null);
+              }}
+              disabled={busy}
+              title="Remove profile picture"
+              className="absolute bottom-0 right-0 p-2 rounded-full bg-destructive text-white shadow-md hover:bg-destructive/90 transition-all hover:scale-110 active:scale-95 z-20 border-2 border-background"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
           )}
         </div>
 
-        <div className="border-t px-4 py-3 space-y-2">
+        {selectedFile && (
+          <div className="px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-bold flex items-center gap-1.5">
+            <UserCheck className="w-3.5 h-3.5" />
+            <span>New photo selected — click Save to apply</span>
+          </div>
+        )}
+        {isRemoving && (
+          <div className="px-3 py-1.5 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs font-bold flex items-center gap-1.5">
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Photo will be removed — click Save to apply</span>
+          </div>
+        )}
+
+        {/* Toolbar Action Buttons (Upload & Download) */}
+        <div className="grid grid-cols-2 gap-2 w-full pt-1">
           <CustomButton
+            type="button"
+            variant="outline"
+            size="sm"
             onClick={() => fileInputRef.current?.click()}
-            className="w-full gap-1 bg-primary hover:bg-primary/90"
             disabled={busy}
+            className="gap-1.5 font-bold text-xs h-9 rounded-xl border-border/80 hover:border-primary/40 hover:bg-primary/5 hover:text-primary transition-colors"
           >
-            <Camera className="h-3 w-3" />
-            Select Photo
+            <Camera className="h-3.5 w-3.5 text-primary" />
+            Upload New
           </CustomButton>
 
-          {currentImageUrl && (
+          {currentImageUrl ? (
             <CustomButton
-              onClick={handleDownload}
+              type="button"
               variant="outline"
-              className="w-full gap-1"
+              size="sm"
+              onClick={handleDownload}
               disabled={busy}
+              className="gap-1.5 font-bold text-xs h-9 rounded-xl border-border/80 hover:border-primary/40 hover:bg-primary/5 hover:text-primary transition-colors"
             >
-              <Download className="h-3 w-3" />
+              <Download className="h-3.5 w-3.5 text-primary" />
+              Download
+            </CustomButton>
+          ) : (
+            <CustomButton
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={true}
+              className="gap-1.5 font-bold text-xs h-9 rounded-xl border-border/40 bg-muted/20 text-muted-foreground/50 cursor-not-allowed opacity-60"
+            >
+              <Download className="h-3.5 w-3.5 text-muted-foreground/40" />
               Download
             </CustomButton>
           )}
-
-          {currentImageUrl && !isRemoving && (
-            <CustomButton
-              onClick={() => { setIsRemoving(true); setPreviewUrl(""); setSelectedFile(null); }}
-              variant="outline"
-              className="w-full gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
-              disabled={busy}
-            >
-              <Trash2 className="h-3 w-3" />
-              Remove Photo
-            </CustomButton>
-          )}
-
-          <div className="flex gap-2 pt-1">
-            <CustomButton onClick={onClose} variant="outline" className="flex-1" disabled={busy}>
-              Cancel
-            </CustomButton>
-            <CustomButton onClick={handleSave} className="flex-1" disabled={busy || !hasChanges}>
-              {isUploading ? (
-                <><Loader2 className="h-3 w-3 animate-spin mr-1" />Saving...</>
-              ) : "Save"}
-            </CustomButton>
-          </div>
         </div>
+      </div>
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileSelect}
-        />
-      
+      {/* ── Footer ── */}
+      <div className="p-4 px-5 border-t border-border/80 bg-background flex items-center justify-end gap-2 shrink-0">
+        <CustomButton
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={onClose}
+          disabled={busy}
+          className="font-bold min-w-[80px] rounded-xl"
+        >
+          Cancel
+        </CustomButton>
+
+        <CustomButton
+          type="button"
+          variant="primary"
+          size="sm"
+          onClick={handleSave}
+          disabled={busy || !hasChanges}
+          isLoading={busy}
+          className="font-bold min-w-[110px] rounded-xl"
+        >
+          {isUploading ? "Saving..." : "Save Changes"}
+        </CustomButton>
+      </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileSelect}
+      />
     </CustomModal>
   );
 }

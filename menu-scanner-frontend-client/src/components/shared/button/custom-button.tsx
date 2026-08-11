@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Button, ButtonProps } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Loader2, X, Download, FileSpreadsheet } from "lucide-react";
+import { Loader2, X, Download, FileSpreadsheet, Eye, Edit, Trash } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -15,7 +15,7 @@ export interface CustomButtonProps extends Omit<ButtonProps, "variant" | "size">
   children?: React.ReactNode;
   isLoading?: boolean;
   icon?: React.ReactNode;
-  variant?: ButtonProps["variant"] | "unstyled";
+  variant?: ButtonProps["variant"] | "primary" | "unstyled";
   size?: ButtonProps["size"] | "unstyled";
 }
 
@@ -28,6 +28,8 @@ export const CustomButton = React.forwardRef<
       onClick(e);
     }
   };
+
+  const resolvedVariant = (variant === "primary" ? "default" : variant) as ButtonProps["variant"];
 
   if (variant === "unstyled") {
     return (
@@ -47,7 +49,6 @@ export const CustomButton = React.forwardRef<
   }
 
   // Radix Slot (activated via asChild) expects exactly one React child element.
-  // We pass children directly to avoid breaking Slot with conditional icons or text wrappers.
   if (props.asChild) {
     return (
       <Button
@@ -56,7 +57,7 @@ export const CustomButton = React.forwardRef<
         onClick={handleClick}
         className={cn(className)}
         disabled={isLoading || disabled}
-        variant={variant as any}
+        variant={resolvedVariant}
         size={size as any}
         {...props}
       >
@@ -72,7 +73,7 @@ export const CustomButton = React.forwardRef<
       onClick={handleClick}
       className={cn(className)}
       disabled={isLoading || disabled}
-      variant={variant as any}
+      variant={resolvedVariant}
       size={size as any}
       {...props}
     >
@@ -88,61 +89,30 @@ CustomButton.displayName = "CustomButton";
 export interface SubmitButtonProps {
   isSubmitting: boolean;
   isDirty?: boolean;
-  isCreate?: boolean;
-  createText?: string;
-  updateText?: string;
-  submittingCreateText?: string;
-  submittingUpdateText?: string;
-  disabled?: boolean;
-  onClick?: () => void;
+  isEdit?: boolean;
+  customText?: string;
   className?: string;
-  variant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
-  size?: "default" | "sm" | "lg" | "icon";
-  icon?: React.ReactNode;
 }
 
 export function SubmitButton({
   isSubmitting,
   isDirty = true,
-  isCreate = false,
-  createText = "Create",
-  updateText = "Update",
-  submittingCreateText = "Creating...",
-  submittingUpdateText = "Updating...",
-  disabled = false,
-  onClick,
+  isEdit = false,
+  customText,
   className,
-  variant = "default",
-  size = "default",
-  icon,
 }: SubmitButtonProps) {
-  const isDisabled = isSubmitting || disabled || (!isDirty && !isCreate);
-
-  const getButtonText = () => {
-    if (isSubmitting) {
-      return isCreate ? submittingCreateText : submittingUpdateText;
-    }
-    return isCreate ? createText : updateText;
-  };
+  const defaultText = isEdit ? "Save Changes" : "Create Item";
+  const buttonText = customText || defaultText;
 
   return (
     <CustomButton
-      type={onClick ? "button" : "submit"}
-      onClick={onClick}
-      disabled={isDisabled}
-      variant={variant}
-      size={size}
+      type="submit"
+      disabled={isSubmitting || !isDirty}
       isLoading={isSubmitting}
-      icon={icon}
-      className={cn("min-w-[120px] transition-all", className)}
+      variant="default"
+      className={cn("min-w-[120px]", className)}
     >
-      {getButtonText()}
+      {buttonText}
     </CustomButton>
   );
 }
@@ -150,214 +120,280 @@ export function SubmitButton({
 export interface CancelButtonProps {
   onClick: () => void;
   disabled?: boolean;
-  text?: string;
+  customText?: string;
   className?: string;
-  variant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
-  size?: "default" | "sm" | "lg" | "icon";
-  showIcon?: boolean;
 }
 
 export function CancelButton({
   onClick,
   disabled = false,
-  text = "Cancel",
+  customText = "Cancel",
   className,
-  variant = "outline",
-  size = "default",
-  showIcon = false,
 }: CancelButtonProps) {
   return (
     <CustomButton
       type="button"
-      variant={variant}
-      size={size}
+      variant="outline"
       onClick={onClick}
       disabled={disabled}
-      className={cn("transition-all", className)}
-      icon={showIcon ? <X className="h-4 w-4" /> : undefined}
+      className={className}
     >
-      {text}
+      {customText}
     </CustomButton>
   );
 }
 
-export interface ActionButtonProps extends Omit<CustomButtonProps, "onClick"> {
-  icon: React.ReactNode;
-  tooltip: string;
-  onClick: () => void;
-  disabled?: boolean;
-  loading?: boolean;
-  className?: string;
+export interface ModalFooterActionsProps {
+  onCancel: () => void;
+  onSubmit?: () => void;
+  isSubmitting?: boolean;
+  isDirty?: boolean;
+  isEdit?: boolean;
+  submitText?: string;
+  cancelText?: string;
+  submitDisabled?: boolean;
 }
 
-export const ActionButton = ({
-  icon,
-  tooltip,
-  onClick,
-  variant = "outline",
-  size = "sm",
-  disabled = false,
-  loading = false,
-  className = "",
-  ...rest
-}: ActionButtonProps) => (
-  <TooltipProvider>
-    <Tooltip>
-      <TooltipTrigger asChild>
+export function ModalFooterActions({
+  onCancel,
+  onSubmit,
+  isSubmitting = false,
+  isDirty = true,
+  isEdit = false,
+  submitText,
+  cancelText = "Cancel",
+  submitDisabled = false,
+}: ModalFooterActionsProps) {
+  return (
+    <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+      <CancelButton
+        onClick={onCancel}
+        disabled={isSubmitting}
+        customText={cancelText}
+      />
+      {onSubmit ? (
         <CustomButton
-          variant={variant}
-          size={size}
-          disabled={disabled}
-          isLoading={loading}
-          icon={icon}
-          className={cn(
-            "h-6 w-auto min-w-6 px-1.5 py-0 gap-1",
-            variant === "outline" &&
-              "hover:bg-primary/10 hover:border-primary hover:text-primary",
-            variant === "secondary" &&
-              "bg-primary/10 border-primary text-primary hover:bg-primary/20",
-            className
-          )}
-          onClick={(e) => {
-            e.stopPropagation();
-            onClick();
-          }}
-          {...rest}
+          type="button"
+          onClick={onSubmit}
+          disabled={isSubmitting || !isDirty || submitDisabled}
+          isLoading={isSubmitting}
+          variant="default"
+        >
+          {submitText || (isEdit ? "Save Changes" : "Create")}
+        </CustomButton>
+      ) : (
+        <SubmitButton
+          isSubmitting={isSubmitting}
+          isDirty={isDirty && !submitDisabled}
+          isEdit={isEdit}
+          customText={submitText}
         />
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>{tooltip}</p>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
-);
+      )}
+    </div>
+  );
+}
 
-export const ConditionalActionButton = ({
+export interface IconButtonProps {
+  icon: React.ReactNode;
+  label?: string;
+  tooltip?: string;
+  onClick: () => void;
+  variant?: ButtonProps["variant"];
+  size?: ButtonProps["size"];
+  className?: string;
+  disabled?: boolean;
+}
+
+export function IconButton({
   icon,
+  label,
   tooltip,
   onClick,
-  variant = "outline",
-  size = "sm",
+  variant = "ghost",
+  size = "icon",
+  className,
   disabled = false,
-  loading = false,
-  className = "",
-  ...rest
-}: ActionButtonProps & { tooltip?: string }) => {
-  const buttonElement = (
-    <CustomButton
-      variant={variant}
-      size={size}
-      disabled={disabled}
-      isLoading={loading}
-      icon={icon}
-      className={cn(
-        variant === "outline" &&
-          "hover:bg-primary/10 hover:border-primary hover:text-primary",
-        variant === "secondary" &&
-          "bg-primary/10 border-primary text-primary hover:bg-primary/20",
-        className
-      )}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-      {...rest}
-    />
+}: IconButtonProps) {
+  const text = tooltip || label;
+  const isDestructive = variant === "destructive";
+
+  const defaultThemeClass = isDestructive
+    ? "text-red-500 hover:text-red-600 hover:bg-red-500/10"
+    : "text-foreground hover:bg-muted/80";
+
+  const finalClassName = cn(
+    "h-7 w-7 rounded-lg transition-all duration-150 ease-out hover:scale-105 active:scale-95 flex items-center justify-center shrink-0",
+    defaultThemeClass,
+    className
   );
 
-  if (!tooltip) {
-    return buttonElement;
+  if (!text) {
+    return (
+      <CustomButton
+        type="button"
+        variant="ghost"
+        size={size}
+        onClick={onClick}
+        disabled={disabled}
+        className={finalClassName}
+      >
+        {icon}
+      </CustomButton>
+    );
   }
 
   return (
-    <TooltipProvider>
+    <TooltipProvider delayDuration={100}>
       <Tooltip>
-        <TooltipTrigger asChild>{buttonElement}</TooltipTrigger>
-        <TooltipContent>
-          <p>{tooltip}</p>
+        <TooltipTrigger asChild>
+          <CustomButton
+            type="button"
+            variant="ghost"
+            size={size}
+            onClick={onClick}
+            disabled={disabled}
+            className={finalClassName}
+            aria-label={text}
+          >
+            {icon}
+          </CustomButton>
+        </TooltipTrigger>
+        <TooltipContent side="top" sideOffset={5} className="z-50 px-2.5 py-1 text-[11px] font-extrabold shadow-md bg-popover/95 backdrop-blur-xs text-popover-foreground border border-border/80 rounded-md animate-in fade-in-0 zoom-in-95 duration-150">
+          <p>{text}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
-};
-
-export interface DownloadTemplateButtonProps {
-  onDownload: () => void | Promise<void>;
-  className?: string;
-  children?: React.ReactNode;
 }
 
-export function DownloadTemplateButton({
-  onDownload,
-  className,
-  children,
-}: DownloadTemplateButtonProps) {
-  const [isDownloading, setIsDownloading] = React.useState(false);
+export type ActionButtonProps = IconButtonProps;
+export const ActionButton = IconButton;
 
-  const handleDownload = async () => {
-    setIsDownloading(true);
-    try {
-      // Visual feedback delay
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      await onDownload();
-    } catch (err) {
-      console.error("Failed to download template:", err);
-    } finally {
-      setIsDownloading(false);
-    }
-  };
+export interface TableActionButtonsProps {
+  onView?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  viewTooltip?: string;
+  editTooltip?: string;
+  deleteTooltip?: string;
+  isDeleting?: boolean;
+  className?: string;
+}
+
+export function TableActionButtons({
+  onView,
+  onEdit,
+  onDelete,
+  viewTooltip = "View Details",
+  editTooltip = "Edit Item",
+  deleteTooltip = "Delete Item",
+  isDeleting = false,
+  className = "",
+}: TableActionButtonsProps) {
+  return (
+    <div className={cn("flex items-center gap-1.5", className)}>
+      {onView && (
+        <IconButton
+          icon={<Eye className="w-3.5 h-3.5" />}
+          label={viewTooltip}
+          onClick={onView}
+        />
+      )}
+      {onEdit && (
+        <IconButton
+          icon={<Edit className="w-3.5 h-3.5" />}
+          label={editTooltip}
+          onClick={onEdit}
+        />
+      )}
+      {onDelete && (
+        <IconButton
+          icon={<Trash className="w-3.5 h-3.5" />}
+          label={deleteTooltip}
+          onClick={onDelete}
+          variant="destructive"
+          disabled={isDeleting}
+        />
+      )}
+    </div>
+  );
+}
+
+export interface ExportButtonProps {
+  onExport: () => void;
+  isExporting?: boolean;
+  variant?: "csv" | "excel";
+  label?: string;
+}
+
+export function ExportButton({
+  onExport,
+  isExporting = false,
+  variant = "excel",
+  label,
+}: ExportButtonProps) {
+  const Icon = variant === "excel" ? FileSpreadsheet : Download;
+  const defaultLabel = variant === "excel" ? "Export Excel" : "Export CSV";
 
   return (
     <CustomButton
       type="button"
       variant="outline"
       size="sm"
-      onClick={handleDownload}
-      disabled={isDownloading}
-      isLoading={isDownloading}
-      icon={!isDownloading ? <Download className="w-3.5 h-3.5" /> : undefined}
-      className={cn(
-        "gap-1.5 h-[36px] text-xs font-semibold rounded-[12px] border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500 min-w-[95px] px-3",
-        className
-      )}
-      title="Download Excel template"
+      onClick={onExport}
+      isLoading={isExporting}
+      icon={<Icon className="h-4 w-4 text-emerald-600" />}
+      className="border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300 text-emerald-700 font-semibold"
     >
-      {isDownloading ? "Downloading..." : (children || "Template")}
+      {label || defaultLabel}
+    </CustomButton>
+  );
+}
+
+export interface DownloadTemplateButtonProps {
+  onDownload?: () => void;
+  isDownloading?: boolean;
+  label?: string;
+}
+
+export function DownloadTemplateButton({
+  onDownload,
+  isDownloading = false,
+  label = "Download Template",
+}: DownloadTemplateButtonProps) {
+  return (
+    <CustomButton
+      type="button"
+      variant="outline"
+      size="sm"
+      onClick={onDownload}
+      isLoading={isDownloading}
+      icon={<Download className="h-4 w-4 text-primary" />}
+      className="font-semibold"
+    >
+      {label}
     </CustomButton>
   );
 }
 
 export interface ImportSpreadsheetButtonProps {
-  onClick: () => void;
-  className?: string;
-  title?: string;
+  onImport?: (file: File) => void;
+  isImporting?: boolean;
   label?: string;
 }
 
 export function ImportSpreadsheetButton({
-  onClick,
-  className,
-  title = "Import from Excel",
-  label = "Import",
+  isImporting = false,
+  label = "Import Excel",
 }: ImportSpreadsheetButtonProps) {
   return (
     <CustomButton
       type="button"
       variant="outline"
       size="sm"
-      onClick={onClick}
-      icon={<FileSpreadsheet className="w-3.5 h-3.5" />}
-      className={cn(
-        "gap-1.5 h-[36px] text-xs font-semibold rounded-[12px] border-pink-500/30 text-pink-600 dark:text-pink-400 hover:bg-pink-500/10 hover:border-pink-500 min-w-[75px] px-3",
-        className
-      )}
-      title={title}
+      isLoading={isImporting}
+      icon={<FileSpreadsheet className="h-4 w-4 text-emerald-600" />}
+      className="border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300 text-emerald-700 font-semibold"
     >
       {label}
     </CustomButton>

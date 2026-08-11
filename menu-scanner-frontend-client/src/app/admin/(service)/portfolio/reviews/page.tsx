@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
+import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -30,7 +30,7 @@ export default function PortfolioReviewsPage() {
 
   const { data, content, isLoading, filters, operations, dispatch } = usePortfolioReviewsState();
   const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const debouncedSearch = useDebounce(filters.search, 400);
+  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
 
   const [detailModalState, setDetailModalState] = useState<{
     isOpen: boolean;
@@ -90,21 +90,38 @@ export default function PortfolioReviewsPage() {
     }
   };
 
+  const filterConfig: FilterPanelConfig = {
+    title: "Customer Reviews",
+    search: {
+      value: filters.search,
+      onChange: (value) => dispatch(setSearchFilter(value)),
+      placeholder: "Search by customer name, phone number, rating score, or comment...",
+    },
+    onReset: () => {
+      dispatch(setSearchFilter(""));
+      dispatch(setPageNo(1));
+    },
+    onRefresh: () => {
+      dispatch(
+        fetchPortfolioReviewsThunk({
+          pageNo: filters.pageNo,
+          pageSize: globalPageSize,
+          search: debouncedSearch || undefined,
+        })
+      );
+    },
+  };
+
   return (
-    <div className="flex flex-1 flex-col gap-3 px-1">
-      <div className="space-y-3">
-        <CardHeaderSection
-          title="Customer Reviews"
-          searchValue={filters.search}
-          searchPlaceholder="Search by customer name..."
-          onSearchChange={(e) => dispatch(setSearchFilter(e.target.value))}
-        />
+    <div className="flex flex-1 flex-col gap-4 px-1 pb-10 pt-2">
+      <div className="space-y-4">
+        <CollapsibleFilterPanel config={filterConfig} />
 
         <DataTableWithPagination
           data={content}
           columns={columns}
           loading={isLoading}
-          emptyMessage="No reviews found"
+          emptyMessage="No customer reviews found"
           getRowKey={(r) => r.id}
           currentPage={filters.pageNo}
           totalElements={data?.totalElements ?? 0}
@@ -126,9 +143,9 @@ export default function PortfolioReviewsPage() {
         isOpen={deleteState.isOpen}
         onClose={() => setDeleteState({ isOpen: false, review: null })}
         onDelete={handleDelete}
-        title="Delete Review"
-        description="Are you sure you want to delete this review? This action cannot be undone."
-        itemName={deleteState.review?.customerName}
+        title="Delete Customer Review"
+        description={`Are you sure you want to delete the review from ${deleteState.review?.customerName || "this customer"}? This action cannot be undone.`}
+        itemName={deleteState.review?.customerName || "Customer Review"}
         isSubmitting={operations.isDeleting}
       />
     </div>

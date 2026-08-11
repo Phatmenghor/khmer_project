@@ -40,6 +40,15 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 userEntity.getUserIdentifier()
         );
 
+        Optional<RefreshToken> existingTokenOpt = refreshTokenRepository.findByToken(tokenString);
+        if (existingTokenOpt.isPresent()) {
+            RefreshToken existing = existingTokenOpt.get();
+            if (!existing.isExpired() && !existing.getIsDeleted()) {
+                log.info("Refresh token already exists in DB and is valid, returning existing token: user_id={}", userEntity.getId());
+                return existing;
+            }
+        }
+
         RefreshTokenCreateHelper tokenCreateHelper = RefreshTokenCreateHelper.builder()
                 .token(tokenString)
                 .userId(userEntity.getId())
@@ -71,7 +80,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             return Optional.empty();
         }
 
-        Optional<RefreshToken> refreshTokenOpt = refreshTokenRepository.findByTokenAndIsValidTrue(token);
+        Optional<RefreshToken> refreshTokenOpt = refreshTokenRepository.findByToken(token);
 
         if (refreshTokenOpt.isEmpty()) {
             log.warn("Refresh token verification failed - token not found in database");
@@ -80,9 +89,20 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         RefreshToken refreshTokenEntity = refreshTokenOpt.get();
 
-        if (!refreshTokenEntity.isValid()) {
-            log.warn("Refresh token verification failed - invalid state: expired={}, revoked={}, deleted={}",
-                    refreshTokenEntity.isExpired(), refreshTokenEntity.getIsRevoked(), refreshTokenEntity.getIsDeleted());
+        if (Boolean.TRUE.equals(refreshTokenEntity.getIsDeleted()) || refreshTokenEntity.isExpired()) {
+            log.warn("Refresh token verification failed - invalid state: expired={}, deleted={}",
+                    refreshTokenEntity.isExpired(), refreshTokenEntity.getIsDeleted());
+            return Optional.empty();
+        }
+
+        // Grace period for concurrent token refreshes (e.g. within 30 seconds of token rotation)
+        if (Boolean.TRUE.equals(refreshTokenEntity.getIsRevoked())) {
+            if (refreshTokenEntity.getRevokedAt() != null &&
+                refreshTokenEntity.getRevokedAt().isAfter(LocalDateTime.now().minusSeconds(30))) {
+                log.info("Refresh token is recently revoked (concurrent refresh within 30s grace period), allowing verification");
+                return Optional.of(refreshTokenEntity);
+            }
+            log.warn("Refresh token verification failed - token revoked beyond grace period");
             return Optional.empty();
         }
 

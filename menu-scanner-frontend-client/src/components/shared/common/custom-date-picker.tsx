@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, ChevronLeft, ChevronRight, X, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Clock, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DATE_RANGE_CALENDAR_DAYS, YEAR_RANGE_OFFSET } from "@/constants/form-options";
 
@@ -28,6 +28,21 @@ interface DateTimePickerProps {
   mode?: "date" | "datetime";
   id?: string;
 }
+
+const FULL_MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+] as const;
 
 const MONTHS = [
   "Jan",
@@ -59,117 +74,92 @@ export function CustomDateTimePicker({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewDate, setViewDate] = useState<Date>(new Date());
+  
+  // Time states
   const [selectedHour, setSelectedHour] = useState<string>("12");
   const [selectedMinute, setSelectedMinute] = useState<string>("00");
-  const [selectedPeriod, setSelectedPeriod] = useState<"AM" | "PM">("PM");
+  const [selectedPeriod, setSelectedPeriod] = useState<"AM" | "PM">("AM");
 
-
+  // Sync with value prop
   useEffect(() => {
     if (value) {
       const date = new Date(value);
       if (!isNaN(date.getTime())) {
         setSelectedDate(date);
         setViewDate(date);
-
+        
         if (mode === "datetime") {
           const hours = date.getHours();
           const minutes = date.getMinutes();
-
-          setSelectedPeriod(hours >= 12 ? "PM" : "AM");
-          setSelectedHour(String(hours % 12 || 12).padStart(2, "0"));
+          const period = hours >= 12 ? "PM" : "AM";
+          const hour12 = hours % 12 || 12;
+          
+          setSelectedHour(String(hour12).padStart(2, "0"));
           setSelectedMinute(String(minutes).padStart(2, "0"));
+          setSelectedPeriod(period);
         }
+      } else {
+        setSelectedDate(null);
       }
     } else {
       setSelectedDate(null);
     }
   }, [value, mode]);
 
-
-  const formatDate = (date: Date): string => {
-    const dateStr = date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-
-    if (mode === "datetime") {
-      const hours = date.getHours();
-      const minutes = date.getMinutes();
-      const period = hours >= 12 ? "PM" : "AM";
-      const displayHour = hours % 12 || 12;
-      return `${dateStr}, ${displayHour}:${String(minutes).padStart(
-        2,
-        "0"
-      )} ${period}`;
+  // Handle date selection
+  const handleDateSelect = (day: number) => {
+    const newDate = new Date(
+      viewDate.getFullYear(),
+      viewDate.getMonth(),
+      day
+    );
+    setSelectedDate(newDate);
+    
+    if (mode === "date") {
+      onChange(formatDateForForm(newDate));
+      setIsOpen(false);
     }
-
-    return dateStr;
   };
 
-
+  // Format date for form submission
   const formatDateForForm = (date: Date): string => {
     if (mode === "datetime") {
-      return date.toISOString();
-    }
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-
-
-  const handleDateSelect = (day: number) => {
-    const newDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
-
-    if (mode === "datetime" && selectedDate) {
-      newDate.setHours(selectedDate.getHours());
-      newDate.setMinutes(selectedDate.getMinutes());
-    }
-
-    setSelectedDate(newDate);
-  };
-
-
-  const applyDateTime = () => {
-    if (!selectedDate) return;
-
-    if (mode === "datetime") {
-      const newDate = new Date(selectedDate);
-      let hours = parseInt(selectedHour);
-
-      if (selectedPeriod === "PM" && hours !== 12) {
-        hours += 12;
-      } else if (selectedPeriod === "AM" && hours === 12) {
-        hours = 0;
-      }
-
-      newDate.setHours(hours);
-      newDate.setMinutes(parseInt(selectedMinute));
-
-      setSelectedDate(newDate);
-      onChange(formatDateForForm(newDate));
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      
+      let hours = parseInt(selectedHour, 10);
+      if (selectedPeriod === "PM" && hours < 12) hours += 12;
+      if (selectedPeriod === "AM" && hours === 12) hours = 0;
+      
+      const formattedHours = String(hours).padStart(2, "0");
+      const formattedMinutes = selectedMinute.padStart(2, "0");
+      
+      return `${year}-${month}-${day}T${formattedHours}:${formattedMinutes}:00`;
     } else {
-      onChange(formatDateForForm(selectedDate));
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
     }
-
-    setIsOpen(false);
   };
 
-
-  const handleMonthChange = (month: string) => {
-    const monthIndex = MONTHS.indexOf(month as typeof MONTHS[number]);
-    const newDate = new Date(viewDate.getFullYear(), monthIndex, 1);
-    setViewDate(newDate);
+  // Apply date and time
+  const applyDateTime = () => {
+    if (selectedDate) {
+      onChange(formatDateForForm(selectedDate));
+      setIsOpen(false);
+    }
   };
 
-
-  const handleYearChange = (year: string) => {
-    const newDate = new Date(parseInt(year), viewDate.getMonth(), 1);
-    setViewDate(newDate);
+  // Clear selection
+  const clearSelection = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedDate(null);
+    onChange("");
   };
 
-
+  // Navigation handlers
   const navigateMonth = (direction: "prev" | "next") => {
     const newDate = new Date(viewDate);
     if (direction === "prev") {
@@ -180,102 +170,144 @@ export function CustomDateTimePicker({
     setViewDate(newDate);
   };
 
+  const handleMonthChange = (val: string) => {
+    const monthIndex = MONTHS.indexOf(val as typeof MONTHS[number]);
+    if (monthIndex !== -1) {
+      const newDate = new Date(viewDate);
+      newDate.setMonth(monthIndex);
+      setViewDate(newDate);
+    }
+  };
 
-  const generateCalendarDays = () => {
+  const handleYearChange = (val: string) => {
+    const year = parseInt(val, 10);
+    if (!isNaN(year)) {
+      const newDate = new Date(viewDate);
+      newDate.setFullYear(year);
+      setViewDate(newDate);
+    }
+  };
+
+  // Generate calendar days
+  const getCalendarDays = () => {
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();
 
-    const firstDayOfMonth = new Date(year, month, 1);
-    const startDate = new Date(firstDayOfMonth);
-    startDate.setDate(startDate.getDate() - firstDayOfMonth.getDay());
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
 
-    const days = [];
-    const currentDate = new Date(startDate);
+    const days: Array<{
+      day: number;
+      isCurrentMonth: boolean;
+      isSelected: boolean;
+      isToday: boolean;
+    }> = [];
 
-    for (let i = 0; i < DATE_RANGE_CALENDAR_DAYS; i++) {
-      const dayObj = {
-        date: new Date(currentDate),
-        day: currentDate.getDate(),
-        isCurrentMonth: currentDate.getMonth() === month,
-        isSelected: selectedDate
-          ? currentDate.toDateString() === selectedDate.toDateString()
-          : false,
-        isToday: currentDate.toDateString() === new Date().toDateString(),
-      };
-      days.push(dayObj);
-      currentDate.setDate(currentDate.getDate() + 1);
+    for (let i = firstDay - 1; i >= 0; i--) {
+      days.push({
+        day: daysInPrevMonth - i,
+        isCurrentMonth: false,
+        isSelected: false,
+        isToday: false,
+      });
+    }
+
+    const today = new Date();
+    for (let i = 1; i <= daysInMonth; i++) {
+      const isSelected =
+        selectedDate !== null &&
+        selectedDate.getDate() === i &&
+        selectedDate.getMonth() === month &&
+        selectedDate.getFullYear() === year;
+
+      const isToday =
+        today.getDate() === i &&
+        today.getMonth() === month &&
+        today.getFullYear() === year;
+
+      days.push({
+        day: i,
+        isCurrentMonth: true,
+        isSelected,
+        isToday,
+      });
+    }
+
+    const remainingDays = DATE_RANGE_CALENDAR_DAYS - days.length;
+    for (let i = 1; i <= remainingDays; i++) {
+      days.push({
+        day: i,
+        isCurrentMonth: false,
+        isSelected: false,
+        isToday: false,
+      });
     }
 
     return days;
   };
 
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from(
+    { length: YEAR_RANGE_OFFSET * 2 + 1 },
+    (_, i) => (currentYear - YEAR_RANGE_OFFSET + i).toString()
+  );
 
-  const generateYearOptions = () => {
-    const currentYear = new Date().getFullYear();
-    const years = [];
-    for (let i = currentYear - YEAR_RANGE_OFFSET; i <= currentYear + YEAR_RANGE_OFFSET; i++) {
-      years.push(i.toString());
-    }
-    return years;
-  };
-
-
-  const hours = Array.from({ length: 12 }, (_, i) =>
+  const hours = Array.from({ length: 12 }, (_, i) => 
     String(i + 1).padStart(2, "0")
   );
-  const minutes = Array.from({ length: 60 }, (_, i) =>
-    String(i).padStart(2, "0")
+
+  const minutes = Array.from({ length: 12 }, (_, i) => 
+    String(i * 5).padStart(2, "0")
   );
 
+  const formatDisplayText = () => {
+    if (!selectedDate) return placeholder;
 
-  const clearSelection = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setSelectedDate(null);
-    onChange("");
+    const day = String(selectedDate.getDate()).padStart(2, "0");
+    const monthFull = FULL_MONTHS[selectedDate.getMonth()];
+    const year = selectedDate.getFullYear();
+    const formattedDate = `${day} ${monthFull} ${year}`;
+
+    if (mode === "datetime") {
+      return `${formattedDate}, ${selectedHour}:${selectedMinute} ${selectedPeriod}`;
+    }
+
+    return formattedDate;
   };
-
-  const calendarDays = generateCalendarDays();
-  const yearOptions = generateYearOptions();
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <CustomButton
-          id={id}
           variant="outline"
+          size="unstyled"
+          id={id}
+          disabled={disabled}
           className={cn(
-            "w-full justify-start text-left font-normal h-[36px] px-3.5 text-base md:text-sm rounded-[12px] transition-all duration-200 border border-border/80 bg-muted/30 shadow-2xs",
-            !selectedDate && "text-muted-foreground/75",
-            "hover:bg-muted/50 hover:border-border",
-            "focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25",
-            isOpen && "bg-background border-primary text-foreground ring-2 ring-primary/25",
-            error && "border-red-500 focus:border-red-500",
-            disabled && "opacity-50 cursor-not-allowed bg-muted/20",
+            "w-full h-8 px-3 text-xs justify-between font-normal rounded-[8px] bg-muted/30 border-border/80 hover:bg-muted/50 focus:bg-background transition-all flex items-center gap-2.5",
+            !selectedDate && "text-muted-foreground",
+            error && "border-destructive focus-visible:border-destructive",
             className
           )}
-          disabled={disabled}
         >
-          {mode === "datetime" ? (
-            <Clock className="mr-2 h-4 w-4 shrink-0 text-muted-foreground/60" />
-          ) : (
-            <Calendar className="mr-2 h-4 w-4 shrink-0 text-muted-foreground/60" />
-          )}
-          <span
-            className={cn(
-              "flex-1 truncate text-base md:text-sm",
-              selectedDate ? "text-foreground" : "text-muted-foreground/75"
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            {mode === "datetime" ? (
+              <Clock className="h-3.5 w-3.5 text-primary/80 shrink-0" />
+            ) : (
+              <Calendar className="h-3.5 w-3.5 text-primary/80 shrink-0" />
             )}
-          >
-            {selectedDate ? formatDate(selectedDate) : placeholder}
-          </span>
+            <span className="truncate text-left text-xs font-medium">
+              {formatDisplayText()}
+            </span>
+          </div>
+
           {selectedDate && !disabled && (
             <div
-              className="ml-1 h-5 w-5 p-0 flex items-center justify-center rounded hover:bg-destructive/10 hover:text-destructive cursor-pointer transition-colors"
-              onClick={clearSelection}
               role="button"
               tabIndex={0}
-              aria-label="Clear date selection"
+              className="h-4 w-4 rounded-full flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground shrink-0 ml-1 cursor-pointer transition-colors"
+              onClick={clearSelection}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   clearSelection(e as any);
@@ -288,7 +320,7 @@ export function CustomDateTimePicker({
         </CustomButton>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[280px] p-0 shadow-lg border border-border/80 rounded-xl z-[9999] bg-card"
+        className="w-[290px] sm:w-[310px] p-0 shadow-xl border border-border/80 rounded-xl z-[9999] bg-card overflow-hidden transition-all"
         align="start"
         side="bottom"
         sideOffset={6}
@@ -296,44 +328,46 @@ export function CustomDateTimePicker({
         avoidCollisions={true}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-2 border-b bg-muted/30">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center justify-between p-2 border-b border-border bg-muted/30">
+          <div className="flex items-center gap-1 flex-1">
             <CustomButton
               variant="ghost"
               size="unstyled"
               onClick={() => navigateMonth("prev")}
-              className="h-7 w-7 p-0 hover:bg-accent rounded-md flex items-center justify-center"
+              className="h-7 w-7 p-0 hover:bg-accent rounded-md flex items-center justify-center shrink-0"
               icon={<ChevronLeft className="h-4 w-4" />}
             />
 
-            <div className="flex gap-1">
+            <div className="flex items-center gap-1 flex-1 min-w-0">
+              {/* Shadcn Custom Select for Month */}
               <Select
                 value={MONTHS[viewDate.getMonth()]}
                 onValueChange={handleMonthChange}
               >
-                <SelectTrigger className="h-7 text-xs font-semibold px-2 border border-input rounded-md bg-background hover:bg-accent transition-colors flex items-center gap-1">
+                <SelectTrigger className="h-7 text-xs font-bold px-2 py-0 min-w-[95px] flex-1 rounded-md border border-border/80 bg-background text-foreground shadow-2xs">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  {MONTHS.map((month) => (
-                    <SelectItem key={month} value={month} className="text-xs">
-                      {month}
+                <SelectContent className="z-[10000] max-h-56">
+                  {MONTHS.map((m, idx) => (
+                    <SelectItem key={m} value={m} className="text-xs font-semibold">
+                      {FULL_MONTHS[idx]}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
 
+              {/* Shadcn Custom Select for Year */}
               <Select
                 value={viewDate.getFullYear().toString()}
                 onValueChange={handleYearChange}
               >
-                <SelectTrigger className="h-7 text-xs font-semibold px-2 border border-input rounded-md bg-background hover:bg-accent transition-colors flex items-center gap-1">
+                <SelectTrigger className="h-7 text-xs font-bold px-2 py-0 min-w-[75px] w-[75px] rounded-md border border-border/80 bg-background text-foreground shadow-2xs">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  {yearOptions.map((year) => (
-                    <SelectItem key={year} value={year} className="text-xs">
-                      {year}
+                <SelectContent className="z-[10000] max-h-56">
+                  {yearOptions.map((y) => (
+                    <SelectItem key={y} value={y} className="text-xs font-semibold">
+                      {y}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -344,7 +378,7 @@ export function CustomDateTimePicker({
               variant="ghost"
               size="unstyled"
               onClick={() => navigateMonth("next")}
-              className="h-7 w-7 p-0 hover:bg-accent rounded-md flex items-center justify-center"
+              className="h-7 w-7 p-0 hover:bg-accent rounded-md flex items-center justify-center shrink-0"
               icon={<ChevronRight className="h-4 w-4" />}
             />
           </div>
@@ -353,26 +387,28 @@ export function CustomDateTimePicker({
             variant="ghost"
             size="unstyled"
             onClick={() => setIsOpen(false)}
-            className="h-7 w-7 p-0 opacity-65 hover:opacity-100 hover:bg-accent rounded-full flex items-center justify-center"
-            icon={<X className="h-4 w-4" />}
+            className="h-7 w-7 p-0 hover:bg-accent rounded-md flex items-center justify-center shrink-0 ml-1"
+            icon={<X className="h-4 w-4 text-muted-foreground" />}
           />
         </div>
 
-        {/* Days grid */}
-        <div className="p-3">
-          <div className="grid grid-cols-7 gap-1 mb-1 justify-items-center">
-            {DAYS.map((day, index) => (
+        {/* Calendar Grid */}
+        <div className="p-2">
+          {/* Day Headers */}
+          <div className="grid grid-cols-7 gap-1 text-center mb-1">
+            {DAYS.map((day, idx) => (
               <div
-                key={index}
-                className="h-8 w-8 flex items-center justify-center text-xs font-bold text-muted-foreground"
+                key={`${day}-${idx}`}
+                className="text-[10px] font-bold text-muted-foreground/70 h-6 flex items-center justify-center"
               >
                 {day}
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-1 justify-items-center">
-            {calendarDays.map((dayObj, index) => (
+          {/* Days Grid */}
+          <div className="grid grid-cols-7 gap-1">
+            {getCalendarDays().map((dayObj, index) => (
               <CustomButton
                 key={index}
                 variant="ghost"
@@ -380,7 +416,7 @@ export function CustomDateTimePicker({
                 onClick={() => handleDateSelect(dayObj.day)}
                 disabled={!dayObj.isCurrentMonth}
                 className={cn(
-                  "h-8 w-8 p-0 text-xs font-medium transition-all rounded-md flex items-center justify-center",
+                  "h-7 w-7 p-0 text-xs font-medium transition-all rounded-md flex items-center justify-center",
                   !dayObj.isCurrentMonth &&
                     "text-muted-foreground/30 hover:text-muted-foreground/30 hover:bg-transparent cursor-not-allowed",
                   dayObj.isSelected &&
@@ -398,18 +434,18 @@ export function CustomDateTimePicker({
 
         {/* DateTime selection mode */}
         {mode === "datetime" && (
-          <div className="p-3 border-t bg-muted/5">
-            <div className="flex items-center justify-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <div className="p-2 border-t border-border bg-muted/10">
+            <div className="flex items-center justify-center gap-1.5">
+              <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
               
               <Select value={selectedHour} onValueChange={setSelectedHour}>
-                <SelectTrigger className="h-8 w-14 text-xs font-semibold border-input bg-background">
+                <SelectTrigger className="h-7 px-2 py-0 text-xs font-bold w-[60px] rounded-md border border-border/80 bg-background text-foreground shadow-2xs">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="max-h-48">
-                  {hours.map((hour) => (
-                    <SelectItem key={hour} value={hour} className="font-medium text-xs">
-                      {hour}
+                <SelectContent className="z-[10000] max-h-48">
+                  {hours.map((h) => (
+                    <SelectItem key={h} value={h} className="text-xs font-semibold">
+                      {h}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -418,28 +454,25 @@ export function CustomDateTimePicker({
               <span className="text-xs font-bold text-muted-foreground">:</span>
               
               <Select value={selectedMinute} onValueChange={setSelectedMinute}>
-                <SelectTrigger className="h-8 w-14 text-xs font-semibold border-input bg-background">
+                <SelectTrigger className="h-7 px-2 py-0 text-xs font-bold w-[60px] rounded-md border border-border/80 bg-background text-foreground shadow-2xs">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="max-h-48">
-                  {minutes.map((minute) => (
-                    <SelectItem key={minute} value={minute} className="font-medium text-xs">
-                      {minute}
+                <SelectContent className="z-[10000] max-h-48">
+                  {minutes.map((m) => (
+                    <SelectItem key={m} value={m} className="text-xs font-semibold">
+                      {m}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               
-              <Select
-                value={selectedPeriod}
-                onValueChange={(val) => setSelectedPeriod(val as "AM" | "PM")}
-              >
-                <SelectTrigger className="h-8 w-14 text-xs font-semibold border-input bg-background">
+              <Select value={selectedPeriod} onValueChange={(val) => setSelectedPeriod(val as "AM" | "PM")}>
+                <SelectTrigger className="h-7 px-2 py-0 text-xs font-bold w-[65px] rounded-md border border-border/80 bg-background text-foreground shadow-2xs">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="AM" className="font-medium text-xs">AM</SelectItem>
-                  <SelectItem value="PM" className="font-medium text-xs">PM</SelectItem>
+                <SelectContent className="z-[10000]">
+                  <SelectItem value="AM" className="text-xs font-semibold">AM</SelectItem>
+                  <SelectItem value="PM" className="text-xs font-semibold">PM</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -447,7 +480,7 @@ export function CustomDateTimePicker({
         )}
 
         {/* Footer actions */}
-        <div className="p-3 border-t bg-muted/20 flex gap-2">
+        <div className="p-2 border-t border-border bg-muted/20 flex gap-2">
           <CustomButton
             variant="outline"
             size="sm"
@@ -467,17 +500,17 @@ export function CustomDateTimePicker({
               onChange(formatDateForForm(today));
               setIsOpen(false);
             }}
-            className="flex-1 h-8 text-xs font-semibold"
+            className="flex-1 h-7 text-xs font-semibold"
           >
             Now
           </CustomButton>
 
           <CustomButton
-            variant="default"
+            variant="primary"
             size="sm"
             onClick={applyDateTime}
             disabled={!selectedDate}
-            className="flex-1 h-8 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="flex-1 h-7 text-xs font-bold"
           >
             Apply
           </CustomButton>

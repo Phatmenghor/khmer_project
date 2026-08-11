@@ -38,4 +38,5 @@ public class BusinessSettingCreateRequest {
     private ReceiptSize receiptSize;
     private String wifiName;
     private String wifiPassword;
+    private String storeDescription;
 }

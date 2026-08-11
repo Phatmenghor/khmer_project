@@ -5,6 +5,15 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { QRDisplay } from "./qr-display";
 import { QRDownloadButton } from "./qr-download-button";
 
+export interface QRGeneratorActionsProps {
+  downloading: boolean;
+  copied: boolean;
+  link: string;
+  onDownload: () => void;
+  onCopyUrl: () => void;
+  onShare: () => void;
+}
+
 export interface QRGeneratorProps {
   /** The URL to encode in the QR code */
   link: string;
@@ -12,8 +21,10 @@ export interface QRGeneratorProps {
   businessName: string;
   /** Subtitle text, defaults to "Scan to view our menu" */
   subtitle?: string;
-  /** Logo URL shown in the top-left circle */
+  /** Logo URL shown in the top-left circle and QR center */
   logoUrl?: string | null;
+  /** Logo size scale in QR center (0.1 to 0.4) */
+  logoSize?: number;
   /** Text shown in the scan row, defaults to "SCAN QR CODE" */
   scanText?: string;
   /** Gradient start color for the header */
@@ -32,6 +43,8 @@ export interface QRGeneratorProps {
   showCopy?: boolean;
   /** Show share button */
   showShare?: boolean;
+  /** Optional callback providing action handlers for external modal footers */
+  onActionsReady?: (actions: QRGeneratorActionsProps) => void;
 }
 
 const QR_SIZE = 220;
@@ -42,6 +55,7 @@ export function QRGenerator({
   businessName,
   subtitle = "Scan to view our menu",
   logoUrl,
+  logoSize = 0.15,
   scanText = "SCAN QR CODE",
   gradFrom,
   gradTo,
@@ -51,6 +65,7 @@ export function QRGenerator({
   showDownload = true,
   showCopy = true,
   showShare = true,
+  onActionsReady,
 }: QRGeneratorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -72,9 +87,10 @@ export function QRGenerator({
       cornersSquareOptions: { color: primaryColor, type: "extra-rounded" as const },
       cornersDotOptions: { color: primaryColor },
       backgroundOptions: { color: bgColor },
-      imageOptions: { crossOrigin: "anonymous", margin: 4 },
+      image: logoUrl ?? undefined,
+      imageOptions: { crossOrigin: "anonymous", margin: 4, imageSize: logoSize, hideBackgroundDots: true },
     }),
-    [link, primaryColor, bgColor],
+    [link, primaryColor, bgColor, logoUrl, logoSize],
   );
 
   // Generate QR code
@@ -99,7 +115,7 @@ export function QRGenerator({
   }, [buildQROptions]);
 
   // Download with 100% matching preview
-  const handleDownload = async () => {
+  const handleDownload = useCallback(async () => {
     if (!link) {
       showToast.error("Fill in all required fields first");
       return;
@@ -300,9 +316,9 @@ export function QRGenerator({
     } finally {
       setDownloading(false);
     }
-  };
+  }, [link, businessName, bgColor, footerBg]);
 
-  const handleCopyUrl = async () => {
+  const handleCopyUrl = useCallback(async () => {
     if (!link) {
       showToast.error("Fill in all required fields first");
       return;
@@ -315,9 +331,9 @@ export function QRGenerator({
     } catch {
       showToast.error("Failed to copy URL");
     }
-  };
+  }, [link]);
 
-  const handleShare = async () => {
+  const handleShare = useCallback(async () => {
     if (!link) {
       showToast.error("Fill in all required fields first");
       return;
@@ -327,7 +343,20 @@ export function QRGenerator({
     } else {
       navigator.clipboard?.writeText(link).catch(() => {});
     }
-  };
+  }, [link, businessName]);
+
+  useEffect(() => {
+    if (onActionsReady) {
+      onActionsReady({
+        downloading,
+        copied,
+        link,
+        onDownload: handleDownload,
+        onCopyUrl: handleCopyUrl,
+        onShare: handleShare,
+      });
+    }
+  }, [downloading, copied, link, handleDownload, handleCopyUrl, handleShare, onActionsReady]);
 
   return (
     <div className="flex flex-col items-center gap-3 w-full">
@@ -346,17 +375,19 @@ export function QRGenerator({
         footerBg={footerBg}
       />
 
-      <QRDownloadButton
-        downloading={downloading}
-        copied={copied}
-        link={link}
-        showDownload={showDownload}
-        showCopy={showCopy}
-        showShare={showShare}
-        onDownload={handleDownload}
-        onCopyUrl={handleCopyUrl}
-        onShare={handleShare}
-      />
+      {!onActionsReady && (
+        <QRDownloadButton
+          downloading={downloading}
+          copied={copied}
+          link={link}
+          showDownload={showDownload}
+          showCopy={showCopy}
+          showShare={showShare}
+          onDownload={handleDownload}
+          onCopyUrl={handleCopyUrl}
+          onShare={handleShare}
+        />
+      )}
     </div>
   );
 }

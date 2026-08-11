@@ -9,6 +9,7 @@ public class PortfolioReviewSubmitRequest {
     @NotBlank
     private String customerName;
 
+    @NotBlank
     private String customerPhone;
 
     @NotNull

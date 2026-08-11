@@ -150,7 +150,7 @@ export function OrderDetailModal({
             <div className="lg:col-span-2 space-y-3">
 
               {/* Status Timeline */}
-              <div className="rounded border border-border/50 bg-card p-3">
+              <div className="rounded border border-border bg-card p-3">
                 <SectionTitle>
                   Order Progress
                 </SectionTitle>
@@ -226,7 +226,7 @@ export function OrderDetailModal({
 
               {/* Order Items */}
               {orderData.items && orderData.items.length > 0 && (
-                <div className="rounded border border-border/50 bg-card p-3">
+                <div className="rounded border border-border bg-card p-3 shadow-2xs">
                   <SectionTitle>
                     Order Items ({orderData.items.length})
                   </SectionTitle>
@@ -248,7 +248,7 @@ export function OrderDetailModal({
                       return (
                         <div
                           key={item.id}
-                          className="flex gap-2.5 p-2 rounded border border-border/50 bg-muted/20"
+                          className="flex gap-2.5 p-2 rounded border border-border bg-muted/40"
                         >
                           {/* Image */}
                           <CustomImagePreview
@@ -354,7 +354,7 @@ export function OrderDetailModal({
               )}
 
               {/* Pricing Summary */}
-              <div className="rounded border border-border/50 bg-card p-3">
+              <div className="rounded border border-border bg-card p-3">
                 <SectionTitle>
                   Pricing Summary
                 </SectionTitle>
@@ -442,7 +442,7 @@ export function OrderDetailModal({
                     </div>
                   )}
 
-                  <div className="pt-2 mt-1 border-t border-border/50 flex justify-between items-center">
+                  <div className="pt-2 mt-1 border-t border-border flex justify-between items-center">
                     <span className="text-xs font-black text-foreground uppercase tracking-wide">
                       Total Amount
                     </span>
@@ -493,7 +493,7 @@ export function OrderDetailModal({
 
               {/* Status History Card */}
               {orderData.statusHistory && orderData.statusHistory.length > 0 && (
-                <div className="rounded border border-border/50 bg-card p-3">
+                <div className="rounded border border-border bg-card p-3">
                   <SectionTitle>
                     Status History
                   </SectionTitle>
@@ -552,7 +552,7 @@ export function OrderDetailModal({
             <div className="space-y-3">
 
               {/* Order Info */}
-              <div className="rounded border border-border/50 bg-card p-3">
+              <div className="rounded border border-border bg-card p-3">
                 <SectionTitle>
                   Order Info
                 </SectionTitle>
@@ -600,7 +600,7 @@ export function OrderDetailModal({
 
               {/* Delivery Address */}
               {orderData.deliveryAddress && formattedAddress && (
-                <div className="rounded border border-border/50 bg-card p-3">
+                <div className="rounded border border-border bg-card p-3">
                   <div className="flex items-start justify-between mb-2.5">
                     <SectionTitle>
                       Delivery Address
@@ -677,7 +677,7 @@ export function OrderDetailModal({
                   .filter((p) => p && !p.startsWith("Discount Applied:"));
                 if (parts.length === 0) return null;
                 return (
-                  <div className="rounded border border-border/50 bg-card p-3 space-y-1.5">
+                  <div className="rounded border border-border bg-card p-3 space-y-1.5">
                     <SectionTitle>
                       Remarks
                     </SectionTitle>
@@ -694,7 +694,7 @@ export function OrderDetailModal({
               })()}
 
               {/* System Info */}
-              <div className="rounded border border-border/50 bg-card p-3">
+              <div className="rounded border border-border bg-card p-3">
                 <SectionTitle>System Info</SectionTitle>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-2">
                   <InfoRow label="Created By" value={orderData.createdBy || "-"} />

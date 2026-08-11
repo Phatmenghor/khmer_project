@@ -158,7 +158,7 @@ export const stockTableColumns = ({
       maxWidth: "120px",
       truncate: true,
       render: (product) => (
-        <span className="text-xs font-mono text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded border border-border/40">
+        <span className="text-xs font-mono text-muted-foreground">
           {product?.sku || "---"}
         </span>
       ),

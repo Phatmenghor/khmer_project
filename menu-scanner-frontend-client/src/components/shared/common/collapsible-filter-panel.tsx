@@ -113,16 +113,18 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
 }) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  const essentialFilters = config.filters.filter((f) =>
+  const filtersList = config.filters || [];
+
+  const essentialFilters = filtersList.filter((f) =>
     essentialFilterIds.includes(f.id),
   );
 
-  const advancedFilters = config.filters.filter(
+  const advancedFilters = filtersList.filter(
     (f) => !essentialFilterIds.includes(f.id),
   );
 
   const advancedActiveCount = advancedFilters.filter(isFilterActive).length;
-  const anyFilterActive = config.filters.some(isFilterActive);
+  const anyFilterActive = filtersList.some(isFilterActive);
 
   const renderFilter = (filter: FilterConfig): React.ReactNode => {
     switch (filter.type) {

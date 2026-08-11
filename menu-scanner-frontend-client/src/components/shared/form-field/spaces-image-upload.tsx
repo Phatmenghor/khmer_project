@@ -234,15 +234,15 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
             </div>
           </div>
         ) : !isUploading ? (
-          <div className="w-full h-full flex flex-col items-center justify-center gap-2.5 p-4">
-            <div className="p-3 bg-primary/10 text-primary border border-primary/20 rounded-full shadow-2xs group-hover:scale-110 group-hover:bg-primary/15 transition-all duration-300">
-              <ImageIcon className="h-6 w-6" />
+          <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 p-2">
+            <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-full shadow-2xs group-hover:scale-110 group-hover:bg-primary/15 transition-all duration-300 shrink-0">
+              <ImageIcon className="h-4 w-4" />
             </div>
-            <div className="text-center px-3">
-              <p className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">
+            <div className="text-center w-full px-1 min-w-0">
+              <p className="text-[10px] font-semibold text-foreground group-hover:text-primary transition-colors leading-tight line-clamp-2 break-words">
                 {placeholder}
               </p>
-              <p className="text-[11px] text-muted-foreground/80 mt-0.5 font-normal">
+              <p className="text-[9px] text-muted-foreground/80 mt-0.5 font-normal hidden [@media(min-height:120px)]:block leading-tight line-clamp-1">
                 {helperText ?? `PNG, JPG up to ${maxSizeMb}MB`}
               </p>
             </div>

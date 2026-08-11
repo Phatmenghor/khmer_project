@@ -1,7 +1,7 @@
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { indexDisplay } from "@/utils/common/common";
-import { Eye, Star, Trash } from "lucide-react";
-import { ActionButton } from "@/components/shared/button/custom-button";
+import { Star } from "lucide-react";
+import { TableActionButtons } from "@/components/shared/button/custom-button";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { PortfolioReviewAdmin } from "../store/models/portfolio-types";
 import { PaginationResponseModel } from "@/features/master-data/store/models/response/pagination-response";
@@ -18,13 +18,16 @@ interface PortfolioReviewTableOptions {
 
 function StarRating({ rating }: { rating: number }) {
   return (
-    <div className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <Star
-          key={i}
-          className={`w-2 h-2 ${i <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-200"}`}
-        />
-      ))}
+    <div className="flex items-center gap-1.5">
+      <span className="text-xs font-bold text-foreground">{rating ? rating.toFixed(1) : "0.0"}</span>
+      <div className="flex items-center gap-0.5">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <Star
+            key={i}
+            className={`w-3.5 h-3.5 ${i <= rating ? "fill-amber-400 text-amber-400" : "text-muted/30"}`}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -49,7 +52,7 @@ export const portfolioReviewTableColumns = ({
     },
     {
       key: "customerName",
-      label: "Name",
+      label: "Customer Name",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
@@ -106,19 +109,12 @@ export const portfolioReviewTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (r) => (
-        <div className="flex items-center gap-1">
-          <ActionButton
-            icon={<Eye className="w-3 h-3" />}
-            tooltip="View Details"
-            onClick={() => handleViewDetail(r)}
-          />
-          <ActionButton
-            icon={<Trash className="w-3 h-3" />}
-            tooltip="Delete Review"
-            onClick={() => handleDeleteReview(r)}
-            variant="destructive"
-          />
-        </div>
+        <TableActionButtons
+          onView={() => handleViewDetail(r)}
+          onDelete={() => handleDeleteReview(r)}
+          deleteTooltip="Delete Review"
+          viewTooltip="View Details"
+        />
       ),
     },
   ];

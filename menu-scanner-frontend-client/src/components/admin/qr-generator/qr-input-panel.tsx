@@ -1,169 +1,137 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { CustomInput } from "@/components/shared/form-field/custom-input";
+import { CustomSelect } from "@/components/shared/common/custom-select";
+import { QrCode, UtensilsCrossed, Type, Sparkles, Tag, Layers, RefreshCw } from "lucide-react";
 import { QR_TYPE_OPTIONS, type QRConfig, type QRType } from "./use-qr-generator";
 
 interface QRInputPanelProps {
   config: QRConfig;
   onUpdate: (updates: Partial<QRConfig>) => void;
+  businessNameFromSettings?: string;
 }
 
-function FieldRow({
-  id,
-  label,
-  required,
-  children,
-  hint,
-}: {
-  id?: string;
-  label: string;
-  required?: boolean;
-  children: React.ReactNode;
-  hint?: string;
-}) {
-  return (
-    <div className="space-y-1">
-      <Label htmlFor={id} className="text-xs font-medium text-foreground">
-        {label}
-        {required && <span className="text-destructive ml-0.5">*</span>}
-      </Label>
-      {children}
-      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
-    </div>
-  );
-}
+const PRESET_TABLES = ["1", "2", "3", "4", "5", "6", "8", "10", "12", "15", "20"];
 
-export function QRInputPanel({ config, onUpdate }: QRInputPanelProps) {
-  const selectedLabel =
-    QR_TYPE_OPTIONS.find((o) => o.value === config.type)?.label ?? "Select QR type";
+export function QRInputPanel({ config, onUpdate, businessNameFromSettings }: QRInputPanelProps) {
+  const typeOptions = QR_TYPE_OPTIONS.map((opt) => ({
+    value: opt.value,
+    label: `${opt.label} (${opt.description})`,
+  }));
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-xs font-semibold">QR Configuration</CardTitle>
+    <Card className="border border-border shadow-2xs bg-card overflow-hidden">
+      <CardHeader className="pb-3 border-b border-border bg-muted/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20">
+              <QrCode className="w-4 h-4" />
+            </div>
+            <div>
+              <CardTitle className="text-xs font-bold text-foreground">QR Configuration</CardTitle>
+              <p className="text-[11px] text-muted-foreground">Select type &amp; setup labels</p>
+            </div>
+          </div>
+        </div>
       </CardHeader>
 
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-4 pt-4">
         {/* ── QR Type ── */}
-        <FieldRow label="QR Type" required>
-          <Select
-            value={config.type}
-            onValueChange={(val) => onUpdate({ type: val as QRType })}
-          >
-            <SelectTrigger className="w-full">
-              <span className="text-xs truncate">{selectedLabel}</span>
-            </SelectTrigger>
-            <SelectContent>
-              {QR_TYPE_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  <div className="flex items-center gap-1 min-w-0">
-                    <span className="font-medium text-xs whitespace-nowrap">
-                      {option.label}
-                    </span>
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">
-                      · {option.description}
-                    </span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </FieldRow>
+        <CustomSelect
+          label="QR Type"
+          required
+          options={typeOptions}
+          value={config.type}
+          onValueChange={(val) => onUpdate({ type: val as QRType })}
+          size="sm"
+        />
+
+        {/* ── Table Number Input (Shown when type is Table QR) ── */}
+        {config.type === "table" && (
+          <div className="space-y-3 p-3 rounded-lg bg-muted/40 border border-border">
+            <CustomInput
+              label="Table Number"
+              required
+              placeholder="e.g. 1, 2, A1"
+              value={config.tableNumber}
+              onChange={(e) => onUpdate({ tableNumber: e.target.value })}
+              leftIcon={<UtensilsCrossed className="w-3.5 h-3.5 text-primary" />}
+              size="sm"
+            />
+            {/* Quick table pills */}
+            <div className="space-y-1">
+              <span className="text-[10px] font-semibold text-muted-foreground">Quick Table Select:</span>
+              <div className="flex flex-wrap gap-1">
+                {PRESET_TABLES.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => onUpdate({ tableNumber: t })}
+                    className={`px-2 py-0.5 rounded text-[10px] font-medium border transition-colors ${
+                      config.tableNumber === t
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background text-foreground border-border hover:border-primary/50"
+                    }`}
+                  >
+                    T-{t}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         <Separator />
 
-        {/* ── URL Fields ── */}
+        {/* ── Card Display Labels ── */}
         <div className="space-y-3">
-          <FieldRow id="shopId" label="Shop ID" required>
-            <Input
-              id="shopId"
-              placeholder="Enter shop ID"
-              value={config.shopId}
-              onChange={(e) => onUpdate({ shopId: e.target.value })}
-            />
-          </FieldRow>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <Type className="w-3.5 h-3.5 text-primary" />
+              <p className="text-xs font-bold text-foreground">Card Labels</p>
+            </div>
+            {businessNameFromSettings && config.cardTitle !== businessNameFromSettings && (
+              <button
+                type="button"
+                onClick={() => onUpdate({ cardTitle: businessNameFromSettings })}
+                className="text-[10px] text-primary hover:underline flex items-center gap-1 font-medium"
+                title="Reset to Business Name from Settings"
+              >
+                <RefreshCw className="w-2.5 h-2.5" />
+                Use Business Setting Name
+              </button>
+            )}
+          </div>
 
-          {config.type === "table" && (
-            <FieldRow id="tableNumber" label="Table Number" required>
-              <Input
-                id="tableNumber"
-                placeholder="e.g. 1, 2, A1"
-                value={config.tableNumber}
-                onChange={(e) => onUpdate({ tableNumber: e.target.value })}
-              />
-            </FieldRow>
-          )}
-
-          <Separator />
-
-          <FieldRow
-            id="domain"
-            label="Domain"
-            hint="Base domain used to build the QR URL"
-          >
-            <Input
-              id="domain"
-              placeholder="https://your-domain.com"
-              value={config.domain}
-              onChange={(e) => onUpdate({ domain: e.target.value })}
-            />
-          </FieldRow>
-        </div>
-
-        <Separator />
-
-        {/* ── Card Display ── */}
-        <div className="space-y-3">
-          <p className="text-xs font-semibold text-foreground">Card Display</p>
-
-          <FieldRow
-            id="cardTitle"
+          <CustomInput
             label="Shop / Business Name"
             required
-            hint="Shown at the top of the QR card"
-          >
-            <Input
-              id="cardTitle"
-              placeholder="e.g. Mega Store, My Restaurant"
-              value={config.cardTitle}
-              onChange={(e) => onUpdate({ cardTitle: e.target.value })}
-            />
-          </FieldRow>
+            placeholder={businessNameFromSettings || "e.g. Angkor Coffee"}
+            value={config.cardTitle}
+            onChange={(e) => onUpdate({ cardTitle: e.target.value })}
+            leftIcon={<Tag className="w-3.5 h-3.5 text-muted-foreground" />}
+            size="sm"
+          />
 
-          <FieldRow
-            id="cardSubtitle"
+          <CustomInput
             label="Subtitle"
-            hint="Shown below the business name"
-          >
-            <Input
-              id="cardSubtitle"
-              placeholder="e.g. Scan to view our menu"
-              value={config.cardSubtitle}
-              onChange={(e) => onUpdate({ cardSubtitle: e.target.value })}
-            />
-          </FieldRow>
+            placeholder="e.g. Scan to view our menu"
+            value={config.cardSubtitle}
+            onChange={(e) => onUpdate({ cardSubtitle: e.target.value })}
+            leftIcon={<Sparkles className="w-3.5 h-3.5 text-muted-foreground" />}
+            size="sm"
+          />
 
-          <FieldRow
-            id="scanText"
+          <CustomInput
             label="Scan Button Text"
-            hint="Text shown below the QR code"
-          >
-            <Input
-              id="scanText"
-              placeholder="e.g. SCAN QR CODE"
-              value={config.scanText}
-              onChange={(e) => onUpdate({ scanText: e.target.value })}
-            />
-          </FieldRow>
+            placeholder="e.g. SCAN QR CODE"
+            value={config.scanText}
+            onChange={(e) => onUpdate({ scanText: e.target.value })}
+            leftIcon={<Layers className="w-3.5 h-3.5 text-muted-foreground" />}
+            size="sm"
+          />
         </div>
       </CardContent>
     </Card>

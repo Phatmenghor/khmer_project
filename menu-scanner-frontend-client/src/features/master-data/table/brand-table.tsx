@@ -3,7 +3,7 @@ import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { formatProductCount } from "@/utils/format/product-count-formatter";
 import { Edit, Eye, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
-import { ActionButton } from "@/components/shared/button/custom-button";
+import { ActionButton, TableActionButtons } from "@/components/shared/button/custom-button";
 import { Switch } from "@/components/ui/switch";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { TableImage } from "@/components/shared/table/table-image";
@@ -142,24 +142,14 @@ export const brandTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (brand) => (
-        <div className="flex items-center gap-1">
-          <ActionButton
-            icon={<Eye className="w-3 h-3" />}
-            tooltip="View Details"
-            onClick={() => handleBrandViewDetail(brand)}
-          />
-          <ActionButton
-            icon={<Edit className="w-3 h-3" />}
-            tooltip="Edit Brand"
-            onClick={() => handleEditBrand(brand)}
-          />
-          <ActionButton
-            icon={<Trash className="w-3 h-3" />}
-            tooltip="Delete Brand"
-            onClick={() => handleDeleteBrand(brand)}
-            variant="destructive"
-          />
-        </div>
+        <TableActionButtons
+          onView={() => handleBrandViewDetail(brand)}
+          onEdit={() => handleEditBrand(brand)}
+          onDelete={() => handleDeleteBrand(brand)}
+          viewTooltip="View Details"
+          editTooltip="Edit Brand"
+          deleteTooltip="Delete Brand"
+        />
       ),
     },
   ];

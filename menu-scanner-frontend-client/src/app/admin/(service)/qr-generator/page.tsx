@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
+import { useAppDispatch, useAppSelector } from "@/store";
+import {
+  selectBusinessName,
+  selectBusinessLogo,
+  selectBusinessSettings,
+} from "@/features/business/store/selectors/business-settings-selector";
+import { fetchBusinessSettingsThunk } from "@/features/business/store/thunks/business-settings-thunks";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 import { QRInputPanel } from "@/components/admin/qr-generator/qr-input-panel";
 import { QRPreviewPanel } from "@/components/admin/qr-generator/qr-preview-panel";
 import { QRSettingsPanel } from "@/components/admin/qr-generator/qr-settings-panel";
@@ -13,13 +20,39 @@ import {
 } from "@/components/admin/qr-generator/use-qr-generator";
 
 export default function QRGeneratorPage() {
-  const [config, setConfig] = useState<QRConfig>(DEFAULT_CONFIG);
-  const [style,  setStyle]  = useState<QRStyle>(DEFAULT_STYLE);
+  const dispatch = useAppDispatch();
+  const businessSettings = useAppSelector(selectBusinessSettings);
+  const businessName = useAppSelector(selectBusinessName);
+  const businessLogo = useAppSelector(selectBusinessLogo);
 
-  // Set domain from actual window origin on mount
+  const [config, setConfig] = useState<QRConfig>(DEFAULT_CONFIG);
+  const [style, setStyle] = useState<QRStyle>(DEFAULT_STYLE);
+
+  // Fetch business settings on mount if not loaded
   useEffect(() => {
-    setConfig((prev) => ({ ...prev, domain: window.location.origin }));
-  }, []);
+    if (!businessSettings) {
+      dispatch(fetchBusinessSettingsThunk());
+    }
+  }, [dispatch, businessSettings]);
+
+  // Pre-fill cardTitle from businessName when business settings arrive
+  useEffect(() => {
+    if (businessName) {
+      setConfig((prev) => ({
+        ...prev,
+        cardTitle: prev.cardTitle || businessName,
+      }));
+    }
+  }, [businessName]);
+
+  // Pre-fill logoDataUrl from businessLogo if available, else default to appImages.scanmekhLogo
+  useEffect(() => {
+    const logoUrl = typeof businessLogo === "string" ? businessLogo : (businessLogo as any)?.sm || (businessLogo as any)?.md;
+    setStyle((prev) => ({
+      ...prev,
+      logoDataUrl: prev.logoDataUrl || logoUrl || appImages.scanmekhLogo,
+    }));
+  }, [businessLogo]);
 
   const updateConfig = useCallback((updates: Partial<QRConfig>) => {
     setConfig((prev) => ({ ...prev, ...updates }));
@@ -30,20 +63,15 @@ export default function QRGeneratorPage() {
   }, []);
 
   return (
-    <div className="flex flex-1 flex-col gap-3 px-1 pb-5">
-      <CardHeaderSection title="QR Generator" />
-
-      {/*
-        Responsive grid:
-        • Mobile  (< md):  single column — config → preview → settings
-        • Tablet  (md):    2 cols: [config top-left / settings bottom-left] | [preview right, spans both rows]
-        • Desktop (lg):    3 cols: config | preview | settings
-      */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[300px_1fr_280px] gap-3 items-start">
-
+    <div className="flex flex-1 flex-col gap-4 px-1 pb-6 pt-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[320px_1fr_300px] gap-4 items-start">
         {/* Config — col 1 row 1 on tablet, col 1 on desktop */}
         <div className="md:col-start-1 md:row-start-1">
-          <QRInputPanel config={config} onUpdate={updateConfig} />
+          <QRInputPanel
+            config={config}
+            onUpdate={updateConfig}
+            businessNameFromSettings={businessName}
+          />
         </div>
 
         {/* Preview — col 2 spans rows 1+2 on tablet, col 2 on desktop */}
@@ -55,7 +83,6 @@ export default function QRGeneratorPage() {
         <div className="md:col-start-1 md:row-start-2 lg:col-start-3 lg:row-start-1">
           <QRSettingsPanel style={style} onUpdate={updateStyle} />
         </div>
-
       </div>
     </div>
   );

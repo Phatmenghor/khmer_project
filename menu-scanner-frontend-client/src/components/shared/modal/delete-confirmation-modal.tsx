@@ -1,17 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { AlertTriangle, Trash2, type LucideIcon } from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { CustomModal } from "./custom-modal";
-import { useEffect, useState } from "react";
-
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle, Trash2, Loader2, type LucideIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { FormHeader } from "@/components/shared/form-field/form-header";
-import { FormBody } from "@/components/shared/form-field/form-body";
-import { FormFooter } from "@/components/shared/form-field/form-footer";
 
 interface DeleteConfirmationDialogProps {
   isOpen: boolean;
@@ -72,7 +67,7 @@ export function DeleteConfirmationModal({
   const isCritical = variant === "critical";
   const isDeleteDisabled =
     inFlight ||
-    (requireConfirmation && confirmationValue !== confirmationText);
+    (requireConfirmation && confirmationValue.trim() !== confirmationText);
 
   const buttonLabel = confirmButtonText
     ? confirmButtonText
@@ -80,99 +75,106 @@ export function DeleteConfirmationModal({
       ? "Delete Permanently"
       : "Delete";
 
+  const IconComponent = icon ?? Trash2;
+
   return (
-    <CustomModal isOpen={isOpen} onClose={onClose} size="md">
-      <FormHeader
-        title={title}
-        description="Confirm deletion"
-        icon={icon ?? Trash2}
-        variant="destructive"
-        className="m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4"
-      />
+    <CustomModal isOpen={isOpen} onClose={onClose} size="sm">
+      {/* ── Fixed Header ── */}
+      <div className="flex items-center gap-3 p-4 px-5 border-b border-border/80 bg-background shrink-0">
+        <div className="p-2.5 rounded-xl bg-destructive/10 text-destructive border border-destructive/20 shrink-0">
+          <IconComponent className="w-5 h-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-extrabold text-base text-foreground leading-tight">{title}</h3>
+          <p className="text-xs text-muted-foreground mt-0.5 font-medium">Confirm permanent deletion</p>
+        </div>
+      </div>
 
-      <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
-        <FormBody className="px-4 py-3.5 space-y-3">
-          {description && (
-            <p className="text-xs text-foreground leading-relaxed">
-              {description}
-            </p>
-          )}
+      {/* ── Compact Body ── */}
+      <div className="p-4 px-5 space-y-3.5 bg-card/30">
+        {description && (
+          <p className="text-xs text-muted-foreground/90 leading-relaxed font-medium">
+            {description}
+          </p>
+        )}
 
-          {itemName && (
-            <div className="px-3 py-2.5 bg-muted/50 rounded-lg border border-border/70">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                Item
-              </p>
-              <p className="text-xs font-bold text-foreground mt-0.5 truncate">
-                {itemName}
-              </p>
-            </div>
-          )}
+        {(itemName || isCritical) && (
+          <div className="p-3.5 bg-destructive/5 rounded-xl border border-destructive/15 space-y-2">
+            {itemName && (
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[11px] font-bold text-destructive flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />
+                  Target Account / Item
+                </span>
+                <span className="text-xs font-medium text-foreground truncate">
+                  {itemName}
+                </span>
+              </div>
+            )}
 
-          {isCritical && (
-            <Alert className="border-destructive/30 bg-destructive/5 py-2">
-              <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
-              <AlertDescription className="text-xs text-destructive font-medium">
-                This action cannot be undone.
-              </AlertDescription>
-            </Alert>
-          )}
+            {isCritical && (
+              <div className="flex items-center gap-2 pt-1 border-t border-destructive/10 text-destructive text-xs font-medium">
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-destructive" />
+                <span>Warning: This action cannot be undone and will permanently erase data.</span>
+              </div>
+            )}
+          </div>
+        )}
 
-          {requireConfirmation && (
-            <div className="space-y-1.5 pt-1">
-              <Label htmlFor="confirmation" className="text-xs font-medium">
-                Type{" "}
-                <code className="bg-muted px-1.5 py-0.5 rounded text-destructive font-mono text-xs">
-                  {confirmationText}
-                </code>{" "}
-                to confirm:
-              </Label>
-              <Input
-                id="confirmation"
-                value={confirmationValue}
-                onChange={(e) => setConfirmationValue(e.target.value)}
-                placeholder="Type to confirm"
-                className="font-mono text-xs"
-                autoComplete="off"
-                disabled={inFlight}
-              />
-            </div>
-          )}
+        {requireConfirmation && (
+          <div className="space-y-1.5 pt-1">
+            <Label htmlFor="confirmation" className="text-xs font-bold text-foreground flex items-center gap-1 flex-wrap">
+              <span>Type</span>
+              <code className="bg-destructive/10 text-destructive border border-destructive/20 px-1.5 py-0.5 rounded text-xs font-mono font-extrabold">
+                {confirmationText}
+              </code>
+              <span>to confirm:</span>
+            </Label>
+            <Input
+              id="confirmation"
+              value={confirmationValue}
+              onChange={(e) => setConfirmationValue(e.target.value)}
+              placeholder={`Type "${confirmationText}" to confirm`}
+              className="font-mono text-xs h-9 uppercase tracking-wider border-destructive/30 focus-visible:border-destructive focus-visible:ring-destructive/25 rounded-xl"
+              autoComplete="off"
+              disabled={inFlight}
+            />
+          </div>
+        )}
 
-          {(error || errorMessage) && (
-            <Alert variant="destructive" className="py-2">
-              <AlertTriangle className="h-3.5 w-3.5" />
-              <AlertDescription className="text-xs">
-                {error || errorMessage}
-              </AlertDescription>
-            </Alert>
-          )}
-        </FormBody>
+        {(error || errorMessage) && (
+          <Alert variant="destructive" className="py-2.5 rounded-xl flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+            <AlertDescription className="text-xs font-bold">
+              {error || errorMessage}
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
 
-        <FormFooter
-          isSubmitting={inFlight}
-          isDirty={true}
-          showStatusText={false}
-          className="m-0 mx-0 mb-0 md:mx-0 md:mb-0 p-4 md:p-4"
+      {/* ── Fixed Compact Footer ── */}
+      <div className="p-4 px-5 border-t border-border/80 bg-background flex items-center justify-end gap-2 shrink-0">
+        <CustomButton
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={onClose}
+          disabled={inFlight}
+          className="font-bold min-w-[80px] rounded-xl"
         >
-          <CustomButton
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            disabled={inFlight}
-          >
-            Cancel
-          </CustomButton>
-          <CustomButton
-            type="button"
-            variant="destructive"
-            onClick={handleDelete}
-            disabled={isDeleteDisabled}
-            isLoading={inFlight}
-          >
-            {inFlight ? "Deleting..." : buttonLabel}
-          </CustomButton>
-        </FormFooter>
+          Cancel
+        </CustomButton>
+        <CustomButton
+          type="button"
+          variant="destructive"
+          size="sm"
+          onClick={handleDelete}
+          disabled={isDeleteDisabled}
+          isLoading={inFlight}
+          className="font-bold min-w-[130px] rounded-xl"
+        >
+          {inFlight ? "Deleting..." : buttonLabel}
+        </CustomButton>
       </div>
     </CustomModal>
   );

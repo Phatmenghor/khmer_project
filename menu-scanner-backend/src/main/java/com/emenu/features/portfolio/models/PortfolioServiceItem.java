@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "portfolio_service_item")
 @Data
@@ -15,8 +17,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PortfolioServiceItem extends BaseUUIDEntity {
 
+    @Column(name = "profile_id", nullable = false)
+    private UUID profileId;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "profile_id", nullable = false)
+    @JoinColumn(name = "profile_id", insertable = false, updatable = false)
     private PortfolioProfile profile;
 
     @Column(name = "name")

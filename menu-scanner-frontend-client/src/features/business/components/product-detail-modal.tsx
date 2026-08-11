@@ -92,7 +92,7 @@ export function ProductDetailModal({
             <div className="lg:col-span-2 space-y-3">
 
               {/* Product Info */}
-              <div className="rounded border border-border/50 bg-card p-3">
+              <div className="rounded border border-border bg-card p-3 shadow-2xs">
                 <SectionTitle>Product Information</SectionTitle>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-2">
                   <InfoRow label="Name" value={productData.name} fullWidth />
@@ -106,7 +106,7 @@ export function ProductDetailModal({
 
               {/* Pricing */}
               {!hasSizesList && (
-                <div className="rounded border border-border/50 bg-card p-3">
+                <div className="rounded border border-border bg-card p-3 shadow-2xs">
                   <SectionTitle>Pricing</SectionTitle>
                   <div className="grid grid-cols-2 gap-x-3 gap-y-2">
                     <InfoRow
@@ -173,7 +173,7 @@ export function ProductDetailModal({
 
               {/* Sizes */}
               {hasSizesList && (
-                  <div className="rounded border border-border/50 bg-card p-3">
+                <div className="rounded border border-border bg-card p-3 shadow-2xs">
                     <SectionTitle>
                       Sizes ({productData.sizes.length})
                     </SectionTitle>
@@ -190,7 +190,7 @@ export function ProductDetailModal({
                         return (
                           <div
                             key={size.id}
-                            className="border border-border/50 rounded p-2.5 bg-muted/20 space-y-2"
+                            className="border border-border rounded p-2.5 bg-muted/40 space-y-2"
                           >
                             {/* Size header */}
                             <div className="flex items-center justify-between gap-1">
@@ -266,7 +266,7 @@ export function ProductDetailModal({
 
               {/* Images */}
               {productData.images && productData.images.length > 0 && (
-                <div className="rounded border border-border/50 bg-card p-3">
+                <div className="rounded border border-border bg-card p-3 shadow-2xs">
                   <SectionTitle>
                     Images ({productData.images.length})
                   </SectionTitle>
@@ -289,17 +289,17 @@ export function ProductDetailModal({
             <div className="space-y-3">
 
               {/* Engagement */}
-              <div className="rounded border border-border/50 bg-card p-3">
+              <div className="rounded border border-border bg-card p-3 shadow-2xs">
                 <SectionTitle>Engagement</SectionTitle>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="flex flex-col items-center gap-1 p-2 rounded bg-muted/30 border border-border/40">
+                  <div className="flex flex-col items-center gap-1 p-2 rounded bg-muted/50 border border-border">
                     <Eye className="h-4 w-4 text-blue-500" />
                     <span className="text-sm font-bold text-foreground">
                       {(productData.viewCount ?? 0).toLocaleString()}
                     </span>
                     <span className="text-xs text-muted-foreground">Views</span>
                   </div>
-                  <div className="flex flex-col items-center gap-1 p-2 rounded bg-muted/30 border border-border/40">
+                  <div className="flex flex-col items-center gap-1 p-2 rounded bg-muted/50 border border-border">
                     <Heart className="h-4 w-4 text-red-500" />
                     <span className="text-sm font-bold text-foreground">
                       {(productData.favoriteCount ?? 0).toLocaleString()}
@@ -312,7 +312,7 @@ export function ProductDetailModal({
               {/* Customizations */}
               {productData.customizations &&
                 productData.customizations.length > 0 && (
-                  <div className="rounded border border-border/50 bg-card p-3">
+                  <div className="rounded border border-border bg-card p-3 shadow-2xs">
                     <SectionTitle>
                       Customizations ({productData.customizations.length})
                     </SectionTitle>
@@ -320,10 +320,10 @@ export function ProductDetailModal({
                       {productData.customizations.map((c) => (
                         <div
                           key={c.id}
-                          className="flex items-center justify-between px-2 py-1.5 bg-blue-50 border border-blue-100 rounded text-xs"
+                          className="flex items-center justify-between px-2.5 py-1.5 bg-primary/10 border border-primary/20 rounded text-xs"
                         >
-                          <span className="font-medium text-blue-700">{c.name}</span>
-                          <span className="font-bold text-blue-700">
+                          <span className="font-medium text-foreground">{c.name}</span>
+                          <span className="font-bold text-primary">
                             +{formatCurrency(c.priceAdjustment ?? 0)}
                           </span>
                         </div>
@@ -333,7 +333,7 @@ export function ProductDetailModal({
                 )}
 
               {/* Stock */}
-              <div className="rounded border border-border/50 bg-card p-3">
+              <div className="rounded border border-border bg-card p-3 shadow-2xs">
                 <SectionTitle>Stock</SectionTitle>
                 <div className="space-y-2">
                   {/* Stock status badge */}
@@ -394,7 +394,7 @@ export function ProductDetailModal({
               </div>
 
               {/* System Info */}
-              <div className="rounded border border-border/50 bg-card p-3">
+              <div className="rounded border border-border bg-card p-3 shadow-2xs">
                 <SectionTitle>System Info</SectionTitle>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-2">
                   <InfoRow label="Created By" value={productData.createdBy || "-"} />

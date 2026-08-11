@@ -114,11 +114,13 @@ export function CustomTimePicker({
       <PopoverTrigger asChild>
         <div
           className={cn(
-            "relative w-full h-[32px] rounded-md border border-input bg-background",
-            "transition-all duration-200",
-            isOpen && "bg-primary/20 border-primary",
-            error && "border-red-500",
-            disabled && "opacity-50 cursor-not-allowed bg-muted"
+            "relative w-full h-[36px] rounded-[12px] border border-border bg-muted/50 shadow-2xs",
+            "transition-all duration-200 ease-out",
+            "hover:bg-muted/65 hover:border-border",
+            isOpen && "bg-background border-primary ring-2 ring-primary/25",
+            error && "border-destructive focus:border-destructive",
+            disabled && "opacity-50 cursor-not-allowed bg-muted/20",
+            className
           )}
         >
           <CustomButton variant="unstyled" size="unstyled"
@@ -126,9 +128,8 @@ export function CustomTimePicker({
             disabled={disabled}
             className={cn(
               "w-full h-full px-3 text-base md:text-sm font-normal text-left flex items-center gap-2",
-              "rounded-md transition-colors min-w-0",
-              !disabled && "hover:bg-primary/10 hover:border-primary",
-              "focus:outline-none focus:ring-2 focus:ring-primary/20",
+              "rounded-[12px] transition-colors min-w-0",
+              "focus:outline-none",
               disabled && "cursor-not-allowed"
             )}
             onClick={() => setIsOpen(true)}
@@ -137,8 +138,8 @@ export function CustomTimePicker({
             <Clock className="h-4 w-4 flex-shrink-0 text-muted-foreground/60" />
             <span
               className={cn(
-                "flex-1 truncate line-clamp-1 text-base md:text-sm",
-                value ? "text-foreground" : "text-muted-foreground/75"
+                "flex-1 truncate line-clamp-1 text-base md:text-sm font-normal",
+                value ? "text-foreground font-medium" : "text-muted-foreground/60"
               )}
             >
               {displayValue || placeholder}
@@ -153,7 +154,7 @@ export function CustomTimePicker({
                 role="button"
                 tabIndex={0}
               >
-                <X className="h-3 w-3 text-destructive" />
+                <X className="h-3.5 w-3.5 text-destructive" />
               </div>
             )}
           </CustomButton>

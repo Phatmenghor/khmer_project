@@ -7,9 +7,7 @@ const imageUrlsSchema = z.object({
 }).optional();
 
 export const portfolioFormSchema = z.object({
-  businessName: z.string().min(1, "Business name is required"),
   description: z.string().min(1, "Description is required"),
-  logo: imageUrlsSchema,
   coverImage: imageUrlsSchema,
 
   contact: z.object({
@@ -21,7 +19,6 @@ export const portfolioFormSchema = z.object({
         number: z.string().min(1, "Phone number is required"),
       })
     ).optional(),
-    whatsapp: z.string().optional(),
     telegram: z.string().optional(),
     address: z.string().optional(),
     mapLink: z.string().optional(),

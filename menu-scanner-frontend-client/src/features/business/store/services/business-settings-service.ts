@@ -37,6 +37,7 @@ export interface BusinessSettingsResponse {
   receiptSize?: ReceiptSize;
   wifiName?: string;
   wifiPassword?: string;
+  storeDescription?: string;
 }
 
 export interface UpdateBusinessSettingsRequest {
@@ -56,6 +57,7 @@ export interface UpdateBusinessSettingsRequest {
   receiptSize?: ReceiptSize;
   wifiName?: string | null;
   wifiPassword?: string | null;
+  storeDescription?: string | null;
 }
 
 const API_BASE_URL = "/api/v1/business-settings";

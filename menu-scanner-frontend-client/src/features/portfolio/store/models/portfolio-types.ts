@@ -9,7 +9,6 @@ export interface PortfolioContactDto {
   email?: string;
   phone?: string;
   phones?: PortfolioPhoneDto[];
-  whatsapp?: string;
   telegram?: string;
   address?: string;
   mapLink?: string;
@@ -160,16 +159,13 @@ export interface PortfolioContactRequest {
   email?: string;
   phone?: string;
   phones?: PortfolioPhoneRequest[];
-  whatsapp?: string;
   telegram?: string;
   address?: string;
   mapLink?: string;
 }
 
 export interface PortfolioProfileSaveRequest {
-  businessName: string;
   description: string;
-  logo?: ImageUrls;
   coverImage?: ImageUrls;
   contact?: PortfolioContactRequest;
   socialMedia?: PortfolioSocialMediaRequest[];
