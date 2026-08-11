@@ -182,7 +182,7 @@ export function POSMoreOptionsModal({
                 value={discountValue}
                 onChange={(e) => {
                   const val = e.target.value;
-                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                  if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
                     setDiscountValue(val);
                   }
                 }}

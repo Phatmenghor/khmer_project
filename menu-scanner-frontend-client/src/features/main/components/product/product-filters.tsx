@@ -228,7 +228,12 @@ function ProductFiltersComponent({
               inputMode="decimal"
               placeholder="Min"
               value={minPrice}
-              onChange={(e) => setMinPrice(e.target.value.replace(/[^0-9.]/g, ""))}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
+                  setMinPrice(val);
+                }
+              }}
               className="h-8 sm:h-8.5 pl-6 text-xs rounded-[10px] bg-muted/30 border-border/60 focus:bg-background transition-colors"
             />
           </div>
@@ -239,7 +244,12 @@ function ProductFiltersComponent({
               inputMode="decimal"
               placeholder="Max"
               value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value.replace(/[^0-9.]/g, ""))}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
+                  setMaxPrice(val);
+                }
+              }}
               className="h-8 sm:h-8.5 pl-6 text-xs rounded-[10px] bg-muted/30 border-border/60 focus:bg-background transition-colors"
             />
           </div>

@@ -27,8 +27,8 @@ export function PromotionValueField<T extends FieldValues = FieldValues>({
           value={value ?? ""}
           onChange={(e) => {
             const val = e.target.value;
-            // Only allow numbers and decimal values
-            if (val === "" || /^\d*\.?\d*$/.test(val)) {
+            // Only allow numbers and decimal values with up to 2 decimal places
+            if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
               onChange(val);
             }
           }}

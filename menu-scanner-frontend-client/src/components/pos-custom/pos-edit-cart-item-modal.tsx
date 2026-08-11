@@ -281,7 +281,7 @@ export function POSEditCartItemModal({
                   value={promotionValue}
                   onChange={(e) => {
                     const val = e.target.value;
-                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
                       setPromotionValue(val);
                     }
                   }}
@@ -314,7 +314,7 @@ export function POSEditCartItemModal({
                 value={newPrice}
                 onChange={(e) => {
                   const val = e.target.value;
-                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                  if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
                     setNewPrice(val);
                   }
                 }}

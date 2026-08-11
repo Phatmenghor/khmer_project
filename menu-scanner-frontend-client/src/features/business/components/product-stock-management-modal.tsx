@@ -34,6 +34,7 @@ import {
   clearError,
   clearSuccess,
 } from "../store/slice/stock-management-slice";
+import { fetchProductByIdService } from "../store/thunks/product-thunks";
 import { ProductDetailResponseModel, ProductSize } from "../store/models/response/product-response";
 import { ProductStockDto } from "../store/models/response/stock-response";
 import { createStockHistoryColumns } from "../table/product-stock-history-table";
@@ -56,17 +57,24 @@ interface StockManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
   product?: ProductDetailResponseModel | null;
+  productId?: string;
+  initialSizeId?: string;
+  hideSizeSelector?: boolean;
 }
 
 export function StockManagementModal({
   isOpen,
   onClose,
   product,
+  productId,
+  initialSizeId,
+  hideSizeSelector = false,
 }: StockManagementModalProps) {
   const dispatch = useAppDispatch();
   const { history, isLoading, isCreating, isUpdating, isDeleting, error, successMessage } =
     useAppSelector((state) => state.stockManagement);
   
+  const [fetchedProduct, setFetchedProduct] = useState<ProductDetailResponseModel | null>(null);
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [historyPageNo, setHistoryPageNo] = useState(1);
   const [historyPageSize, setHistoryPageSize] = useState(10);
@@ -77,7 +85,23 @@ export function StockManagementModal({
   });
   const formSectionRef = useRef<HTMLDivElement>(null);
 
-  const hasSizes = Boolean(product?.sizes && product.sizes.length > 0);
+  const effectiveProductId = product?.id || productId;
+
+  useEffect(() => {
+    if (isOpen && productId && (!product || product.id !== productId)) {
+      dispatch(fetchProductByIdService(productId))
+        .unwrap()
+        .then((res: ProductDetailResponseModel) => {
+          setFetchedProduct(res);
+        })
+        .catch(() => {});
+    } else if (!isOpen) {
+      setFetchedProduct(null);
+    }
+  }, [isOpen, productId, product, dispatch]);
+
+  const activeProduct = product || fetchedProduct;
+  const hasSizes = Boolean(activeProduct?.sizes && activeProduct.sizes.length > 0);
 
   const form = useForm<StockFormData>({
     resolver: zodResolver(stockFormSchema),
@@ -90,16 +114,23 @@ export function StockManagementModal({
     },
   });
 
-  // Default to first size if product has sizes
+  // Sync selected size based on activeProduct and initialSizeId
   useEffect(() => {
-    if (isOpen && product?.sizes && product.sizes.length > 0) {
-      if (!selectedSize || !product.sizes.some((s) => s.id === selectedSize.id)) {
-        setSelectedSize(product.sizes[0]);
+    if (isOpen && activeProduct?.sizes && activeProduct.sizes.length > 0) {
+      if (initialSizeId) {
+        const matchSize = activeProduct.sizes.find((s) => s.id === initialSizeId);
+        if (matchSize) {
+          setSelectedSize(matchSize);
+          return;
+        }
+      }
+      if (!selectedSize || !activeProduct.sizes.some((s) => s.id === selectedSize.id)) {
+        setSelectedSize(activeProduct.sizes[0]);
       }
     } else if (!hasSizes) {
       setSelectedSize(null);
     }
-  }, [isOpen, product, hasSizes, selectedSize]);
+  }, [isOpen, activeProduct, hasSizes, initialSizeId]);
 
   useEffect(() => {
     if (successMessage) {
@@ -123,16 +154,16 @@ export function StockManagementModal({
   }, [error, dispatch]);
 
   useEffect(() => {
-    if (isOpen && product?.id) {
+    if (isOpen && effectiveProductId) {
       dispatch(
         getProductStockHistoryService({
           pageNo: historyPageNo,
           pageSize: historyPageSize,
-          productId: product.id,
+          productId: effectiveProductId,
         })
       );
     }
-  }, [isOpen, product?.id, dispatch, historyPageNo, historyPageSize]);
+  }, [isOpen, effectiveProductId, dispatch, historyPageNo, historyPageSize]);
 
   useEffect(() => {
     if (isOpen) {
@@ -156,7 +187,7 @@ export function StockManagementModal({
 
   const handleCreateStock = async (data: StockFormData) => {
     if (editingStock) return handleUpdateStock(data);
-    if (!product?.id) return;
+    if (!activeProduct?.id) return;
     if (hasSizes && !selectedSize) {
       showToast.error("Please select a size first");
       return;
@@ -168,7 +199,7 @@ export function StockManagementModal({
 
     dispatch(
       createProductStockService({
-        productId: product.id,
+        productId: activeProduct.id,
         productSizeId: hasSizes ? selectedSize?.id : undefined,
         quantityOnHand: parseFloat(data.quantityOnHand),
         priceIn: parseFloat(data.priceIn),
@@ -203,8 +234,8 @@ export function StockManagementModal({
     setEditingStock(stock);
 
     // If stock history record is tied to a specific size, sync selectedSize
-    if (stock.productSizeId && product?.sizes) {
-      const matchSize = product.sizes.find((s) => s.id === stock.productSizeId);
+    if (stock.productSizeId && activeProduct?.sizes) {
+      const matchSize = activeProduct.sizes.find((s) => s.id === stock.productSizeId);
       if (matchSize) setSelectedSize(matchSize);
     }
 
@@ -246,15 +277,15 @@ export function StockManagementModal({
   // Selling price & revenue preview calculations
   const previewSellingPrice = hasSizes && selectedSize
     ? (selectedSize.hasPromotion ? selectedSize.finalPrice : selectedSize.price)
-    : (product?.hasPromotion === true ? (product.displayPrice || 0) : ((product?.price as unknown as number) || 0));
+    : (activeProduct?.hasPromotion === true ? (activeProduct.displayPrice || 0) : ((activeProduct?.price as unknown as number) || 0));
 
   const previewOriginalPrice = hasSizes && selectedSize
     ? selectedSize.price
-    : ((product?.price as unknown as number) || 0);
+    : ((activeProduct?.price as unknown as number) || 0);
 
   const previewHasPromotion = hasSizes && selectedSize
     ? selectedSize.hasPromotion
-    : Boolean(product?.hasPromotion === true);
+    : Boolean(activeProduct?.hasPromotion === true);
 
   const watchQuantity = parseFloat(form.watch("quantityOnHand") || "0") || 0;
   const watchPriceIn = parseFloat(form.watch("priceIn") || "0") || 0;
@@ -269,10 +300,16 @@ export function StockManagementModal({
     <CustomModal isOpen={isOpen} onClose={onClose} size="7xl">
       <FormHeader
         title="Stock Management"
-        description={product?.name || "---"}
+        description={
+          activeProduct?.name
+            ? hasSizes && selectedSize
+              ? `${activeProduct.name} — Size: ${selectedSize.name}`
+              : activeProduct.name
+            : "---"
+        }
         showAvatar={true}
-        avatarName={product?.name || "Product"}
-        avatarImageUrl={product?.mainImage?.md || product?.mainImage?.sm}
+        avatarName={activeProduct?.name || "Product"}
+        avatarImageUrl={activeProduct?.mainImage?.md || activeProduct?.mainImage?.sm}
         isCreate={!editingStock}
       />
 
@@ -284,10 +321,12 @@ export function StockManagementModal({
           <Card ref={formSectionRef} className="border border-border/80 shadow-2xs">
             <CardHeader className="pb-3 border-b border-border/40">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-bold text-foreground">
-                  {editingStock ? "Update Stock" : "Add New Stock"}
+                <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <span>{editingStock ? "Update Stock" : "Add New Stock"}</span>
                   {hasSizes && selectedSize && (
-                    <span className="text-primary font-bold ml-1.5">({selectedSize.name})</span>
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                      Variant: {selectedSize.name}
+                    </span>
                   )}
                 </CardTitle>
                 {editingStock && (
@@ -299,9 +338,23 @@ export function StockManagementModal({
             </CardHeader>
             <CardContent className="pt-4">
               <form id="stock-form" onSubmit={form.handleSubmit(handleCreateStock)}>
-                {/* Size selector if product has sizes */}
-                {hasSizes && product?.sizes && (
-                  <div className="space-y-1 mb-3.5">
+                {/* Fixed Size Variant Summary Banner when opened from item row */}
+                {hasSizes && selectedSize && (hideSizeSelector || (initialSizeId && !editingStock)) && (
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground font-medium">Selected Variant:</span>
+                      <span className="text-xs font-bold text-primary">{selectedSize.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs">
+                      <span className="text-muted-foreground">Selling: <span className="font-semibold text-foreground">${selectedSize.finalPrice}</span></span>
+                      <span className="text-muted-foreground">Current Stock: <span className="font-bold text-emerald-600">{selectedSize.totalStock ?? 0} items</span></span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Interactive Size selector when opened from product level */}
+                {hasSizes && activeProduct?.sizes && !hideSizeSelector && (!initialSizeId || editingStock) && (
+                  <div className="space-y-1.5 mb-3.5">
                     <label className="text-xs font-semibold text-foreground flex items-center min-h-[16px]">
                       <span>Select Size</span>
                       <span className="text-destructive ml-0.5">*</span>
@@ -309,22 +362,24 @@ export function StockManagementModal({
                     <Select
                       value={selectedSize?.id || ""}
                       onValueChange={(id) => {
-                        const size = product.sizes?.find((s) => s.id === id);
+                        const size = activeProduct.sizes?.find((s) => s.id === id);
                         if (size) setSelectedSize(size);
                       }}
                     >
-                      <SelectTrigger className="h-9 text-xs w-full">
-                        <SelectValue placeholder="Select size" />
+                      <SelectTrigger className="h-9 text-xs w-full rounded-[10px] bg-background border border-border/80 focus:border-primary focus:ring-2 focus:ring-primary/20">
+                        <SelectValue placeholder="Choose a size variant..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {product.sizes.map((size) => (
+                        {activeProduct.sizes.map((size) => (
                           <SelectItem key={size.id} value={size.id}>
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold text-foreground">{size.name}</span>
-                              <span className="text-xs text-muted-foreground">(${size.finalPrice})</span>
-                              <span className="text-[10px] font-bold text-emerald-600">
-                                Stock: {size.totalStock ?? 0}
-                              </span>
+                            <div className="flex items-center justify-between gap-3 w-full text-xs py-0.5">
+                              <span className="font-bold text-foreground">{size.name}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-muted-foreground">(${size.finalPrice})</span>
+                                <span className="text-[11px] font-bold text-emerald-600">
+                                  Stock: {size.totalStock ?? 0}
+                                </span>
+                              </div>
                             </div>
                           </SelectItem>
                         ))}

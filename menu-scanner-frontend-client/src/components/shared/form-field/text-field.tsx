@@ -56,7 +56,7 @@ export function TextField<T extends FieldValues = FieldValues>({
                   onCustomChange?.("");
                   return;
                 }
-                if (/^\d*\.?\d*$/.test(raw)) {
+                if (/^\d*\.?\d{0,2}$/.test(raw)) {
                   const num = parseFloat(raw);
                   if (isNaN(num)) {
                     field.onChange(undefined);
@@ -69,8 +69,11 @@ export function TextField<T extends FieldValues = FieldValues>({
                     onCustomChange?.(raw);
                   }
                 }
-              } else if (type === "number") {
-                field.onChange(raw === "" ? undefined : raw);
+              } else if (type === "number" || step === "0.01" || step === 0.01) {
+                if (raw === "" || /^\d*\.?\d{0,2}$/.test(raw)) {
+                  field.onChange(raw === "" ? undefined : raw);
+                  onCustomChange?.(raw);
+                }
               } else {
                 let value = raw;
                 if (pattern) {

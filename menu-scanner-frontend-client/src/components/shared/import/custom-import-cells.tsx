@@ -37,8 +37,13 @@ export function CustomInputCell({
       inputMode={isDecimalOnly ? "decimal" : "text"}
       value={value || ""}
       onChange={(e) => {
-        const val = isDecimalOnly ? e.target.value.replace(/[^0-9.]/g, "") : e.target.value;
-        onChange(val);
+        const raw = e.target.value;
+        if (isDecimalOnly) {
+          if (raw !== "" && !/^\d*\.?\d{0,2}$/.test(raw)) {
+            return;
+          }
+        }
+        onChange(raw);
       }}
       disabled={disabled}
       placeholder={placeholder}

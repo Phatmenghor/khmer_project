@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState, useRef, useCallback, Suspense } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
@@ -20,7 +19,6 @@ import {
   revertStockStatusOptimistic,
 } from "@/features/business/store/slice/stock-slice";
 import { stockTableColumns } from "@/features/business/table/product-stock-table";
-import { sizeStockTableColumns } from "@/features/business/table/product-size-stock-table";
 import { ProductDetailModal } from "@/features/business/components/product-detail-modal";
 import { StockManagementModal } from "@/features/business/components/product-stock-management-modal";
 import { updateStockStatusService } from "@/features/business/store/thunks/stock-thunks";
@@ -40,24 +38,8 @@ const STOCK_STATUS_FILTER = [
   { value: "DISABLED", label: "Stock Disabled" },
 ];
 
-type StockTab = "product" | "size";
-
 function StockPageInner() {
   useAdminCleanup(resetState);
-
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const activeTab: StockTab = searchParams.get("tab") === "size" ? "size" : "product";
-
-  const handleTabChange = (tab: StockTab) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", tab);
-    // Reset page when switching tabs
-    params.delete("pageNo");
-    router.replace(`${pathname}?${params.toString()}`);
-  };
 
   const {
     stockState,
@@ -65,7 +47,6 @@ function StockPageInner() {
     stockContent,
     isLoading,
     filters,
-    operations,
     pagination,
     dispatch,
   } = useStockState();
@@ -124,16 +105,6 @@ function StockPageInner() {
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
-  // Reset page to 1 when switching tabs
-  useEffect(() => {
-    dispatch(setPageNo(1));
-    dispatch(setSearchFilter(""));
-    dispatch(selectProductStatus(ProductStatus.ALL));
-    setSelectedBrand(null);
-    setSelectedCategories(null);
-    setStockStatusFilter("ALL");
-  }, [activeTab]);
-
   const fetchStock = useCallback(() => {
     if (!isHydrated) return;
 
@@ -156,7 +127,6 @@ function StockPageInner() {
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         stockStatuses,
-        hasSize: activeTab === "size" ? true : undefined,
       }),
     );
   }, [
@@ -169,7 +139,6 @@ function StockPageInner() {
     selectedBrand,
     selectedCategories,
     stockStatusFilter,
-    activeTab,
   ]);
 
   useEffect(() => {
@@ -248,14 +217,9 @@ function StockPageInner() {
     [handleToggleStockStatus, openView, openEdit]
   );
 
-  const productColumns = useMemo(
+  const columns = useMemo(
     () => stockTableColumns({ data: stockData, handlers: tableHandlers }),
-    [stockState, tableHandlers]
-  );
-
-  const sizeColumns = useMemo(
-    () => sizeStockTableColumns({ data: stockData, handlers: tableHandlers }),
-    [stockState, tableHandlers]
+    [stockData, tableHandlers]
   );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -297,7 +261,7 @@ function StockPageInner() {
   }, [stockManagementState.product, editId, stockContent]);
 
   const filterConfig = useMemo((): FilterPanelConfig => ({
-    title: activeTab === "product" ? "Product Stock" : "Size Stock",
+    title: "Product Stock",
     searchValue: filters.search,
     searchPlaceholder: "Search product...",
     onSearchChange: handleSearchChange,
@@ -344,40 +308,10 @@ function StockPageInner() {
         options: PRODUCT_STATUS_FILTER,
       },
     ],
-  }), [activeTab, filters.search, filters.status, stockStatusFilter, selectedBrand, selectedCategories]);
+  }), [filters.search, filters.status, stockStatusFilter, selectedBrand, selectedCategories]);
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
-      {/* Tab Switcher */}
-      <div className="flex items-center gap-1 border-b border-border/50 pb-0">
-        <button
-          onClick={() => handleTabChange("product")}
-          className={`relative px-4 py-2.5 text-sm font-medium transition-colors duration-200 ${
-            activeTab === "product"
-              ? "text-primary"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Product Stock
-          {activeTab === "product" && (
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
-          )}
-        </button>
-        <button
-          onClick={() => handleTabChange("size")}
-          className={`relative px-4 py-2.5 text-sm font-medium transition-colors duration-200 ${
-            activeTab === "size"
-              ? "text-primary"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Size Stock
-          {activeTab === "size" && (
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
-          )}
-        </button>
-      </div>
-
       <div className="space-y-2">
         <CollapsibleFilterPanel
           config={filterConfig}
@@ -386,9 +320,9 @@ function StockPageInner() {
 
         <DataTableWithPagination
           data={stockContent}
-          columns={activeTab === "product" ? productColumns : sizeColumns}
+          columns={columns}
           loading={isLoading}
-          emptyMessage={activeTab === "product" ? "No product found" : "No product with sizes found"}
+          emptyMessage="No products found"
           getRowKey={(product) => product.id}
           currentPage={filters.pageNo}
           totalElements={pagination.totalElements}

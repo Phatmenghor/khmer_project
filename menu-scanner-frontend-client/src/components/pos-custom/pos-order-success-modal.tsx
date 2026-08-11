@@ -3,6 +3,7 @@
 import { Download, Printer, Check } from "lucide-react";
 import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { useDownloadReceipt } from "@/hooks/use-download-receipt";
 import { formatCurrency } from "@/utils/common/currency-format";
@@ -39,10 +40,10 @@ export function POSOrderSuccessModal({
             <Check className="h-6 w-6" strokeWidth={3} />
           </div>
         </div>
-        <h2 className="text-lg font-black text-foreground tracking-tight">Order Confirmed!</h2>
-        <p className="text-xs text-muted-foreground mt-1 max-w-[280px] leading-relaxed">
+        <DialogTitle className="text-lg font-black text-foreground tracking-tight">Order Confirmed!</DialogTitle>
+        <DialogDescription className="text-xs text-muted-foreground mt-1 max-w-[280px] leading-relaxed">
           Your order has been successfully created and sent to the kitchen.
-        </p>
+        </DialogDescription>
       </div>
 
       {/* Order Details Card */}

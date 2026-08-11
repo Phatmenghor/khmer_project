@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Loader2 } from "lucide-react";
-import { DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 import { Separator } from "@/components/ui/separator";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -193,9 +193,9 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
           <DialogTitle className="text-xs font-semibold leading-tight">
             {businessName || "Create your account"}
           </DialogTitle>
-          <p className="text-[11px] text-muted-foreground leading-snug">
+          <DialogDescription className="text-[11px] text-muted-foreground leading-snug">
             Create a new account to continue
-          </p>
+          </DialogDescription>
         </DialogHeader>
 
         <Separator />

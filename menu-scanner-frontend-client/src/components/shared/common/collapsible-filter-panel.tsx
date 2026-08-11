@@ -175,19 +175,19 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               {filter.label}
             </label>
             <Input
-              type="number"
+              type="text"
               inputMode="numeric"
               placeholder={filter.placeholder || "0"}
-              value={filter.value?.toString() || ""}
+              value={filter.value != null ? String(filter.value) : ""}
               onChange={(e) => {
                 const value = e.target.value;
-                if (value === "" || /^\d+$/.test(value)) {
-                  filter.onChange(value ? parseInt(value) : undefined);
+                if (value === "") {
+                  filter.onChange(undefined);
+                } else if (/^\d+$/.test(value)) {
+                  filter.onChange(parseInt(value, 10));
                 }
               }}
-              min={(filter as any).min || "0"}
-              max={(filter as any).max}
-              className="h-[28px] text-xs w-full"
+              className="h-[36px] text-xs w-full rounded-[10px] bg-background border border-border/80 focus:border-primary focus:ring-2 focus:ring-primary/20"
               disabled={filter.disabled}
             />
           </div>

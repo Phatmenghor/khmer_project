@@ -505,16 +505,23 @@ export function usePOSPageHandlers() {
     const taxAmount = (subtotal + customizationTotal) * (taxPercentage / 100);
     const discountAmount = orderDiscount?.discountAmount || 0;
     const finalTotal = Math.max(0, subtotal + customizationTotal + deliveryFee + taxAmount - discountAmount);
+    const roundedSubtotal = Math.round(subtotal * 100) / 100;
+    const roundedCustomizationTotal = Math.round(customizationTotal * 100) / 100;
+    const roundedDeliveryFee = Math.round(deliveryFee * 100) / 100;
+    const roundedTaxAmount = Math.round(taxAmount * 100) / 100;
+    const roundedDiscountAmount = Math.round(discountAmount * 100) / 100;
+    const roundedFinalTotal = Math.round(finalTotal * 100) / 100;
+
     return {
       totalItems,
       totalQuantity,
-      subtotal,
-      customizationTotal,
-      discountAmount,
-      deliveryFee,
-      taxAmount,
+      subtotal: roundedSubtotal,
+      customizationTotal: roundedCustomizationTotal,
+      discountAmount: roundedDiscountAmount,
+      deliveryFee: roundedDeliveryFee,
+      taxAmount: roundedTaxAmount,
       taxPercentage,
-      finalTotal,
+      finalTotal: roundedFinalTotal,
     };
   }, [cartItems, selectedDeliveryOption, businessSettings?.taxPercentage, orderDiscount]);
 

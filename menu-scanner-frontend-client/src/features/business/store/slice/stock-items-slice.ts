@@ -32,7 +32,7 @@ const initialFilterState: StockItemsFilterState = {
   pageNo: 1,
   pageSize: 15,
   sortBy: "totalStock",
-  sortDirection: "DESC",
+  sortDirection: "ASC",
   search: "",
 };
 
@@ -87,6 +87,44 @@ const stockItemsSlice = createSlice({
       state.filters.hasSizes = action.payload;
       state.filters.pageNo = 1;
     },
+    updateStockStatusOptimistic: (
+      state,
+      action: PayloadAction<{ productId: string; newStatus: "ENABLED" | "DISABLED" }>
+    ) => {
+      if (state.items) {
+        state.items.forEach((item) => {
+          if (item.productId === action.payload.productId) {
+            item.stockStatus = action.payload.newStatus;
+          }
+        });
+      }
+      if (state.data?.content) {
+        state.data.content.forEach((item) => {
+          if (item.productId === action.payload.productId) {
+            item.stockStatus = action.payload.newStatus;
+          }
+        });
+      }
+    },
+    revertStockStatusOptimistic: (
+      state,
+      action: PayloadAction<{ productId: string; previousStatus: "ENABLED" | "DISABLED" }>
+    ) => {
+      if (state.items) {
+        state.items.forEach((item) => {
+          if (item.productId === action.payload.productId) {
+            item.stockStatus = action.payload.previousStatus;
+          }
+        });
+      }
+      if (state.data?.content) {
+        state.data.content.forEach((item) => {
+          if (item.productId === action.payload.productId) {
+            item.stockStatus = action.payload.previousStatus;
+          }
+        });
+      }
+    },
     resetFilters: (state) => {
       state.filters = initialFilterState;
     },
@@ -131,6 +169,8 @@ export const {
   setStockStatusFilter,
   setLowStockThreshold,
   setHasSizesFilter,
+  updateStockStatusOptimistic,
+  revertStockStatusOptimistic,
   resetFilters,
   resetState,
 } = stockItemsSlice.actions;

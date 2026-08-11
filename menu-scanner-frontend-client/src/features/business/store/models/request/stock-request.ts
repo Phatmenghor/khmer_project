@@ -34,4 +34,6 @@ export interface ProductStockItemsFilterRequest {
   stockStatus?: "ENABLED" | "DISABLED";
   lowStockThreshold?: number;
   hasSizes?: boolean;
+  categoryId?: string;
+  brandId?: string;
 }

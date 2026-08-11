@@ -125,8 +125,10 @@ export function POSHeaderFilters({
             placeholder="Min $"
             value={minPrice}
             onChange={(e) => {
-              const val = e.target.value.replace(/[^0-9.]/g, "");
-              dispatch(setMinPrice(val));
+              const val = e.target.value;
+              if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
+                dispatch(setMinPrice(val));
+              }
             }}
             size="sm"
             className="h-[26px] w-[70px] sm:w-[80px] text-[11px] sm:text-xs px-2 bg-background border-border/60 rounded-[8px] font-semibold"
@@ -138,8 +140,10 @@ export function POSHeaderFilters({
             placeholder="Max $"
             value={maxPrice}
             onChange={(e) => {
-              const val = e.target.value.replace(/[^0-9.]/g, "");
-              dispatch(setMaxPrice(val));
+              const val = e.target.value;
+              if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
+                dispatch(setMaxPrice(val));
+              }
             }}
             size="sm"
             className="h-[26px] w-[70px] sm:w-[80px] text-[11px] sm:text-xs px-2 bg-background border-border/60 rounded-[8px] font-semibold"

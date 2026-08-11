@@ -2,7 +2,7 @@
 
 import { Star, User, MessageSquare, Info } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { DisplayField } from "@/components/shared/form-field/display-field";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { PortfolioReviewAdmin } from "../store/models/portfolio-types";
@@ -55,8 +55,9 @@ function StarRating({ rating }: { rating: number }) {
 export function PortfolioReviewDetailModal({ review, isOpen, onClose }: Props) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogTitle className="sr-only">Review Details</DialogTitle>
       <DialogContent className="w-full sm:max-w-xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
+        <DialogTitle className="sr-only">Review Details</DialogTitle>
+        <DialogDescription className="sr-only">Detailed view of portfolio review</DialogDescription>
         {/* Header — matches portfolio page-header proportions */}
         <div className="px-5 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-3">

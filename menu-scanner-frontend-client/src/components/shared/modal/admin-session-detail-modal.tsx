@@ -3,7 +3,7 @@
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { CustomModal } from "./custom-modal";
 import * as React from "react";
-import { DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -70,6 +70,7 @@ export function AdminSessionDetailModal({
       
         <DialogHeader>
           <DialogTitle>Session Details (Admin View)</DialogTitle>
+          <DialogDescription className="sr-only">Session information and device details</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3 max-h-[70vh] overflow-y-auto">

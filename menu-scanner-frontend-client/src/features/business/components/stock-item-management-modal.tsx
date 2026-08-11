@@ -10,6 +10,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { CancelButton, CustomButton, SubmitButton } from "@/components/shared/button/custom-button";
@@ -229,10 +230,13 @@ export function StockItemManagementModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogTitle className="sr-only">
-        Stock Management - {getTitle()}
-      </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
+        <DialogTitle className="sr-only">
+          Stock Management - {getTitle()}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          Stock history and management for {getTitle()}
+        </DialogDescription>
         {}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-4">

@@ -9,6 +9,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { CancelButton, CustomButton, SubmitButton } from "@/components/shared/button/custom-button";
@@ -253,13 +254,13 @@ export function SizeStockManagementModal({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <Package className="w-4 h-4 text-primary shrink-0" />
-                <h2 className="text-sm font-black text-foreground tracking-tight">
+                <DialogTitle className="text-sm font-black text-foreground tracking-tight">
                   Size Stock Management
-                </h2>
+                </DialogTitle>
               </div>
-              <p className="text-xs font-bold text-primary mt-0.5 truncate">
+              <DialogDescription className="text-xs font-bold text-primary mt-0.5 truncate">
                 {product?.name || "---"}
-              </p>
+              </DialogDescription>
               <div className="flex items-center gap-2 mt-1 flex-wrap">
                 <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-medium bg-muted text-muted-foreground border border-border/50">
                   SKU: {product?.sku || "---"}

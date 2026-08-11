@@ -8,6 +8,7 @@ import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { useStockItemsState } from "@/features/business/store/state/stock-items-state";
 import { ProductStockItemDto } from "@/features/business/store/models/response/stock-response";
 import { getProductStockItemsService } from "@/features/business/store/thunks/stock-management-thunks";
+import { updateStockStatusService } from "@/features/business/store/thunks/stock-thunks";
 import {
   setPageNo,
   setPageSize,
@@ -18,11 +19,15 @@ import {
   setStockStatusFilter,
   setLowStockThreshold,
   setHasSizesFilter,
+  updateStockStatusOptimistic,
+  revertStockStatusOptimistic,
   resetState,
 } from "@/features/business/store/slice/stock-items-slice";
+import { showToast } from "@/components/shared/common/show-toast";
+import { useRef } from "react";
 import { stockItemsTableColumns } from "@/features/business/table/product-stock-items-table";
 import { ProductDetailModal } from "@/features/business/components/product-detail-modal";
-import { StockItemManagementModal } from "@/features/business/components/stock-item-management-modal";
+import { StockManagementModal } from "@/features/business/components/product-stock-management-modal";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
@@ -147,7 +152,11 @@ function StockItemsPageInner() {
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
-  useEffect(() => {
+  const stockManagementSuccessMessage = useAppSelector(
+    (state) => (state.stockManagement as { successMessage: string | null }).successMessage ?? undefined
+  );
+
+  const fetchStockItems = useCallback(() => {
     if (!isHydrated) return;
 
     const request = {
@@ -158,8 +167,10 @@ function StockItemsPageInner() {
       search: debouncedSearch,
       status: filters.status as "ACTIVE" | "INACTIVE" | undefined,
       stockStatus: filters.stockStatus as "ENABLED" | "DISABLED" | undefined,
-      lowStockThreshold: debouncedLowStockThreshold ?? businessLowStockThreshold,
+      lowStockThreshold: debouncedLowStockThreshold,
       hasSizes: filters.hasSizes,
+      categoryId: selectedCategories?.id,
+      brandId: selectedBrand?.id,
     };
 
     dispatch(getProductStockItemsService(request));
@@ -174,9 +185,20 @@ function StockItemsPageInner() {
     filters.stockStatus,
     debouncedLowStockThreshold,
     filters.hasSizes,
+    selectedCategories,
+    selectedBrand,
     globalPageSize,
-    businessLowStockThreshold,
   ]);
+
+  useEffect(() => {
+    fetchStockItems();
+  }, [fetchStockItems]);
+
+  useEffect(() => {
+    if (isHydrated && stockManagementSuccessMessage) {
+      fetchStockItems();
+    }
+  }, [isHydrated, stockManagementSuccessMessage, fetchStockItems]);
 
   const handleViewItem = (item: ProductStockItemDto) => {
     openView(item.productId);
@@ -190,12 +212,67 @@ function StockItemsPageInner() {
     openEdit(item.id);
   };
 
+  const stockStatusDebounceRefs = useRef<{ [key: string]: NodeJS.Timeout }>({});
+
+  const handleToggleStockStatus = useCallback(
+    (item: ProductStockItemDto) => {
+      if (!item.productId) return;
+
+      const productId = item.productId;
+      if (stockStatusDebounceRefs.current[productId]) {
+        clearTimeout(stockStatusDebounceRefs.current[productId]);
+      }
+
+      const newStatus = item.stockStatus === "ENABLED" ? "DISABLED" : "ENABLED";
+      const previousStatus = (item.stockStatus || "DISABLED") as "ENABLED" | "DISABLED";
+
+      // 1. Instant local state optimistic update (zero latency UI)
+      dispatch(
+        updateStockStatusOptimistic({
+          productId,
+          newStatus: newStatus as "ENABLED" | "DISABLED",
+        })
+      );
+
+      // 2. Background debounced API call
+      stockStatusDebounceRefs.current[productId] = setTimeout(() => {
+        dispatch(
+          updateStockStatusService({
+            productId,
+            newStatus: newStatus as "ENABLED" | "DISABLED",
+          })
+        )
+          .unwrap()
+          .then(() => {
+            showToast.success(
+              `Stock status updated to ${newStatus === "ENABLED" ? "Enabled" : "Disabled"}`
+            );
+          })
+          .catch((error: unknown) => {
+            // Revert state if backend call fails
+            dispatch(
+              revertStockStatusOptimistic({
+                productId,
+                previousStatus,
+              })
+            );
+            showToast.error(
+              (error as { message?: string })?.message ||
+                "Failed to update stock status. Changes reverted."
+            );
+          });
+      }, 300);
+    },
+    [dispatch]
+  );
+
   const tableHandlers = useMemo(
     () => ({
       handleViewItem,
       handleEditStock,
+      handleToggleStockStatus,
     }),
-    [openView, openEdit],
+    [openView, openEdit, handleToggleStockStatus],
   );
 
   const columns = useMemo(
@@ -365,9 +442,9 @@ function StockItemsPageInner() {
         {
           id: "lowStockThreshold",
           type: "input-number" as const,
-          label: `Low Stock Threshold (default: ${businessLowStockThreshold})`,
-          placeholder: String(businessLowStockThreshold),
-          value: filters.lowStockThreshold ?? businessLowStockThreshold,
+          label: `Low Stock Threshold`,
+          placeholder: `e.g. ${businessLowStockThreshold || 5}`,
+          value: filters.lowStockThreshold,
           onChange: handleLowStockThresholdChange,
           min: 1,
         },
@@ -422,13 +499,16 @@ function StockItemsPageInner() {
         }}
       />
 
-      <StockItemManagementModal
+      <StockManagementModal
         isOpen={!!editId || stockManagementState.isOpen}
         onClose={() => {
           closeStockManagementModal();
           closeRouteModal();
+          fetchStockItems();
         }}
-        stockItem={stockItem || undefined}
+        productId={stockItem?.productId}
+        initialSizeId={stockItem?.productSizeId || undefined}
+        hideSizeSelector={true}
       />
     </div>
   );
