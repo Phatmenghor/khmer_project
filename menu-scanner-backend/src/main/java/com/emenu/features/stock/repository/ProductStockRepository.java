@@ -284,11 +284,13 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     AND ps.status = 'ACTIVE'
                 WHERE p.business_id = :businessId
                     AND p.is_deleted = false
-                    AND p.has_sizes = false
+                    AND NOT EXISTS (SELECT 1 FROM product_sizes psz2 WHERE psz2.product_id = p.id AND psz2.is_deleted = false)
                     AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = false)
                     AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
                     AND (CAST(:status AS text) IS NULL OR p.status = :status)
                     AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
+                    AND (CAST(:categoryId AS uuid) IS NULL OR p.category_id = :categoryId)
+                    AND (CAST(:brandId AS uuid) IS NULL OR p.brand_id = :brandId)
                 GROUP BY p.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, p.price, p.promotion_type, p.promotion_value, p.promotion_from_date, p.promotion_to_date, p.main_image, p.status, p.stock_status, p.created_at, p.updated_at
                 HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
             )
@@ -304,8 +306,8 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     p.category_name,
                     p.brand_id,
                     p.brand_name,
-                    p.sku,
-                    p.barcode,
+                    COALESCE(psz.sku, p.sku) as sku,
+                    COALESCE(psz.barcode, p.barcode) as barcode,
                     psz.name as size_name,
                     psz.price,
                     CASE
@@ -367,12 +369,13 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     AND ps.status = 'ACTIVE'
                 WHERE p.business_id = :businessId
                     AND p.is_deleted = false
-                    AND p.has_sizes = true
                     AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = true)
                     AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
                     AND (CAST(:status AS text) IS NULL OR p.status = :status)
                     AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
-                GROUP BY p.id, psz.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, psz.name, psz.price, psz.promotion_type, psz.promotion_value, psz.promotion_from_date, psz.promotion_to_date, p.main_image, p.status, p.stock_status, psz.created_at, psz.updated_at
+                    AND (CAST(:categoryId AS uuid) IS NULL OR p.category_id = :categoryId)
+                    AND (CAST(:brandId AS uuid) IS NULL OR p.brand_id = :brandId)
+                GROUP BY p.id, psz.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, psz.name, psz.price, psz.sku, psz.barcode, psz.promotion_type, psz.promotion_value, psz.promotion_from_date, psz.promotion_to_date, p.main_image, p.status, p.stock_status, psz.created_at, psz.updated_at
                 HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
             )
         ) AS result
@@ -388,11 +391,13 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     AND ps.status = 'ACTIVE'
                 WHERE p.business_id = :businessId
                     AND p.is_deleted = false
-                    AND p.has_sizes = false
+                    AND NOT EXISTS (SELECT 1 FROM product_sizes psz2 WHERE psz2.product_id = p.id AND psz2.is_deleted = false)
                     AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = false)
                     AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
                     AND (CAST(:status AS text) IS NULL OR p.status = :status)
                     AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
+                    AND (CAST(:categoryId AS uuid) IS NULL OR p.category_id = :categoryId)
+                    AND (CAST(:brandId AS uuid) IS NULL OR p.brand_id = :brandId)
                 GROUP BY p.id, p.name, p.category_name, p.brand_name, p.sku, p.barcode, p.status, p.stock_status, p.created_at, p.updated_at
                 HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
             )
@@ -408,11 +413,12 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     AND ps.status = 'ACTIVE'
                 WHERE p.business_id = :businessId
                     AND p.is_deleted = false
-                    AND p.has_sizes = true
                     AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = true)
                     AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
                     AND (CAST(:status AS text) IS NULL OR p.status = :status)
                     AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
+                    AND (CAST(:categoryId AS uuid) IS NULL OR p.category_id = :categoryId)
+                    AND (CAST(:brandId AS uuid) IS NULL OR p.brand_id = :brandId)
                 GROUP BY p.id, psz.id, p.name, p.category_name, p.brand_name, p.sku, p.barcode, psz.name, p.status, p.stock_status, psz.created_at, psz.updated_at
                 HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
             )
@@ -424,6 +430,8 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         @Param("search") String search,
         @Param("status") String status,
         @Param("stockStatus") String stockStatus,
+        @Param("categoryId") UUID categoryId,
+        @Param("brandId") UUID brandId,
         @Param("lowStockThreshold") Integer lowStockThreshold,
         @Param("hasSizes") Boolean hasSizes,
         Pageable pageable

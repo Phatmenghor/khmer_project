@@ -92,7 +92,24 @@ public class ProductSpecification extends BaseSpecification {
     }
 
     public static Specification<Product> byHasSize(Boolean hasSize) {
-        return filterByField("hasSizes", hasSize);
+        return (root, query, cb) -> {
+            if (hasSize == null) return cb.conjunction();
+            if (query != null) query.distinct(true);
+
+            Join<Product, ProductSize> sizesJoin = root.join("sizes", JoinType.LEFT);
+            Predicate sizeNotDeleted = cb.or(
+                    cb.isNull(sizesJoin.get("isDeleted")),
+                    cb.equal(sizesJoin.get("isDeleted"), false)
+            );
+            Predicate hasSizeRecord = cb.and(cb.isNotNull(sizesJoin.get("id")), sizeNotDeleted);
+
+            Predicate productHasSizes = cb.or(
+                    cb.equal(root.get("hasSizes"), true),
+                    hasSizeRecord
+            );
+
+            return hasSize ? productHasSizes : cb.not(productHasSizes);
+        };
     }
 
     public static Specification<Product> byStockStatus(List<StockStatus> stockStatuses) {

@@ -134,6 +134,8 @@ public class ProductStockServiceImpl implements ProductStockService {
                 search,
                 status,
                 stockStatus,
+                request.getCategoryId(),
+                request.getBrandId(),
                 request.getLowStockThreshold(),
                 request.getHasSizes(),
                 pageable
@@ -173,6 +175,8 @@ public class ProductStockServiceImpl implements ProductStockService {
                 search,
                 status,
                 stockStatus,
+                request.getCategoryId(),
+                request.getBrandId(),
                 request.getLowStockThreshold(),
                 request.getHasSizes(),
                 pageable

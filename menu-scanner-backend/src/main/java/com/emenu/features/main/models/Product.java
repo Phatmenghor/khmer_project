@@ -135,6 +135,13 @@ public class Product extends BaseUUIDEntity {
     @OrderBy("name ASC")
     private List<ProductCustomization> customizations = new ArrayList<>();
 
+    public Boolean getHasSizes() {
+        if (this.sizes != null && !this.sizes.isEmpty()) {
+            return this.sizes.stream().anyMatch(s -> s != null && !Boolean.TRUE.equals(s.getIsDeleted()));
+        }
+        return Boolean.TRUE.equals(this.hasSizes);
+    }
+
     public ProductSize getDisplaySize() {
         List<ProductSize> activeSizes = (sizes == null) ? List.of() : sizes.stream()
                 .filter(size -> size != null && !size.getIsDeleted())

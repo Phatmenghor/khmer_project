@@ -132,7 +132,12 @@ public class ProductServiceImpl implements ProductService {
         }
 
         // Batch initialize sizes to avoid lazy-loading (prevents Hibernate pagination warning)
-        productPage.getContent().forEach(p -> Hibernate.initialize(p.getSizes()));
+        productPage.getContent().forEach(p -> {
+            Hibernate.initialize(p.getSizes());
+            if (p.getSizes() != null) {
+                p.getSizes().removeIf(s -> Boolean.TRUE.equals(s.getIsDeleted()));
+            }
+        });
 
         // Recalculate display fields from current sizes
 
@@ -388,7 +393,12 @@ public class ProductServiceImpl implements ProductService {
         }
 
         // Batch initialize sizes to avoid lazy-loading
-        productPage.getContent().forEach(p -> Hibernate.initialize(p.getSizes()));
+        productPage.getContent().forEach(p -> {
+            Hibernate.initialize(p.getSizes());
+            if (p.getSizes() != null) {
+                p.getSizes().removeIf(s -> Boolean.TRUE.equals(s.getIsDeleted()));
+            }
+        });
 
         // Clear images (not needed for stock listing)
         productPage.getContent().forEach(p -> p.setImages(new ArrayList<>()));
@@ -750,6 +760,7 @@ public class ProductServiceImpl implements ProductService {
 
                 List<ProductSize> sizes = productSizeRepository.findByProductId(savedProduct.getId());
                 savedProduct.setSizes(sizes);
+                savedProduct.setHasSizes(true);
                 savedProduct = productRepository.save(savedProduct);
             }
 
@@ -856,6 +867,8 @@ public class ProductServiceImpl implements ProductService {
                 if (sizes != null) {
                     updatedProduct.getSizes().addAll(sizes);
                 }
+                boolean hasActiveSizes = sizes != null && sizes.stream().anyMatch(s -> !s.getIsDeleted());
+                updatedProduct.setHasSizes(hasActiveSizes);
                 updatedProduct = productRepository.save(updatedProduct);
             }
 
@@ -1095,7 +1108,8 @@ public class ProductServiceImpl implements ProductService {
      */
     private void enrichProductSizesStock(List<ProductDetailDto> dtoList) {
         for (ProductDetailDto dto : dtoList) {
-            if (dto.getHasSizes() && dto.getSizes() != null && !dto.getSizes().isEmpty()) {
+            if (dto.getSizes() != null && !dto.getSizes().isEmpty()) {
+                dto.setHasSizes(true);
                 int totalSizesStock = 0;
 
                 // Get stock for each size from repository
@@ -1108,6 +1122,8 @@ public class ProductServiceImpl implements ProductService {
 
                 // Set parent product totalStock as sum of all sizes
                 dto.setTotalStock(totalSizesStock);
+            } else {
+                dto.setHasSizes(false);
             }
             // For products without sizes, totalStock is already set by enrichTotalStockForDetails
         }

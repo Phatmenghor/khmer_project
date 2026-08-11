@@ -29,6 +29,9 @@ public class ProductStockFilterRequest extends BaseFilterRequest {
     // When set, returns stocks whose expiryDate <= this datetime (e.g. now+7days = expiring within 7 days)
     private LocalDateTime expiredBefore;
 
+    private UUID categoryId;
+    private UUID brandId;
+
     // Filter by product sizes: true = only products with sizes, false = only products without sizes, null = all
     private Boolean hasSizes;
 }
