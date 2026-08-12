@@ -5,6 +5,9 @@ import com.emenu.features.location.dto.filter.LocationFilterRequest;
 import com.emenu.features.location.dto.request.LocationCreateRequest;
 import com.emenu.features.location.dto.response.LocationResponse;
 import com.emenu.features.location.dto.update.LocationUpdateRequest;
+import com.emenu.features.location.dto.response.LocationGeocodingResponse;
+import com.emenu.features.location.dto.response.PlaceAutocompleteResponse;
+import com.emenu.features.location.service.LocationGeocodingService;
 import com.emenu.features.location.service.LocationService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
@@ -16,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -25,6 +29,7 @@ import java.util.UUID;
 public class LocationController {
 
     private final LocationService addressService;
+    private final LocationGeocodingService geocodingService;
     private final SecurityUtils securityUtils;
 
     @PostMapping
@@ -78,5 +83,30 @@ public class LocationController {
         log.info("Endpoint: get-default-location - default location retrieval");
         LocationResponse address = addressService.getDefaultAddress();
         return ResponseEntity.ok(ApiResponse.success("Default address retrieved successfully", address));
+    }
+
+    @GetMapping("/geocode/reverse")
+    public ResponseEntity<ApiResponse<LocationGeocodingResponse>> reverseGeocode(
+            @RequestParam("lat") Double lat,
+            @RequestParam("lng") Double lng) {
+        log.info("Endpoint: geocode-reverse - reverse geocoding: lat={}, lng={}", lat, lng);
+        LocationGeocodingResponse response = geocodingService.reverseGeocode(lat, lng);
+        return ResponseEntity.ok(ApiResponse.success("Reverse geocoding retrieved successfully", response));
+    }
+
+    @GetMapping("/geocode/search")
+    public ResponseEntity<ApiResponse<LocationGeocodingResponse>> geocodeSearch(
+            @RequestParam("address") String address) {
+        log.info("Endpoint: geocode-search - geocoding address query: address={}", address);
+        LocationGeocodingResponse response = geocodingService.geocodeAddress(address);
+        return ResponseEntity.ok(ApiResponse.success("Geocode search retrieved successfully", response));
+    }
+
+    @GetMapping("/geocode/autocomplete")
+    public ResponseEntity<ApiResponse<List<PlaceAutocompleteResponse>>> autocompletePlaces(
+            @RequestParam("input") String input) {
+        log.info("Endpoint: geocode-autocomplete - autocomplete search: input={}", input);
+        List<PlaceAutocompleteResponse> response = geocodingService.autocompletePlaces(input);
+        return ResponseEntity.ok(ApiResponse.success("Place autocomplete retrieved successfully", response));
     }
 }

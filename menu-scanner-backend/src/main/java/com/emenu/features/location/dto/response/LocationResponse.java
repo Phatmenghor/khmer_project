@@ -25,5 +25,6 @@ public class LocationResponse extends BaseAuditResponse {
     private Boolean isDefault;
     private String fullAddress;
     private Boolean hasCoordinates;
+    private String googleMapsUrl;
     private List<LocationImageResponse> locationImages;
 }

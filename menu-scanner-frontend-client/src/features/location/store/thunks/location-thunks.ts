@@ -81,3 +81,34 @@ export const fetchDefaultLocationService = createApiThunk<
   const response = await axiosClientWithAuth.get("/api/v1/locations/default");
   return response.data.data;
 });
+
+export const reverseGeocodeService = createApiThunk<
+  any,
+  { lat: number; lng: number }
+>("location/reverseGeocode", async ({ lat, lng }) => {
+  const response = await axiosClientWithAuth.get(
+    `/api/v1/locations/geocode/reverse?lat=${lat}&lng=${lng}`
+  );
+  return response.data.data;
+});
+
+export const geocodeSearchService = createApiThunk<
+  any,
+  { address: string }
+>("location/geocodeSearch", async ({ address }) => {
+  const response = await axiosClientWithAuth.get(
+    `/api/v1/locations/geocode/search?address=${encodeURIComponent(address)}`
+  );
+  return response.data.data;
+});
+
+export const autocompletePlacesService = createApiThunk<
+  any,
+  { input: string }
+>("location/autocompletePlaces", async ({ input }) => {
+  const response = await axiosClientWithAuth.get(
+    `/api/v1/locations/geocode/autocomplete?input=${encodeURIComponent(input)}`
+  );
+  return response.data.data;
+});
+

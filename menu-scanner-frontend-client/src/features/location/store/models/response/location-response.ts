@@ -22,6 +22,7 @@ export interface LocationResponseModel {
   isDefault: boolean;
   fullAddress: string;
   hasCoordinates: boolean;
+  googleMapsUrl?: string | null;
   locationImages: LocationImageModel[];
   createdAt: string;
   updatedAt: string;

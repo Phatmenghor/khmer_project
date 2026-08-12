@@ -95,4 +95,9 @@ public class Location extends BaseUUIDEntity {
         return latitude != null && longitude != null &&
                (latitude.compareTo(BigDecimal.ZERO) != 0 || longitude.compareTo(BigDecimal.ZERO) != 0);
     }
+
+    public String getGoogleMapsUrl() {
+        if (!hasCoordinates()) return null;
+        return "https://www.google.com/maps/search/" + latitude + "," + longitude;
+    }
 }

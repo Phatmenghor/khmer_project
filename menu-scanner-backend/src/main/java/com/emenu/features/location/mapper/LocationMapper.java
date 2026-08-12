@@ -20,6 +20,7 @@ public interface LocationMapper {
 
     @Mapping(target = "fullAddress", expression = "java(address.getFullAddress())")
     @Mapping(target = "hasCoordinates", expression = "java(address.hasCoordinates())")
+    @Mapping(target = "googleMapsUrl", expression = "java(address.getGoogleMapsUrl())")
     @Mapping(target = "locationImages", expression = "java(toLocationImageResponseList(address.getLocationImages()))")
     LocationResponse toResponse(Location address);
 

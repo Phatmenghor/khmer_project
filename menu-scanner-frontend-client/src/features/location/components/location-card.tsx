@@ -4,6 +4,7 @@ import React from "react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import {
   Edit2,
   Trash2,
@@ -11,12 +12,12 @@ import {
   Crown,
   MapPin,
   ExternalLink,
+  ImageIcon,
+  FileText,
 } from "lucide-react";
 import { LocationResponseModel } from "../store/models/response/location-response";
-import {
-  getLabelIcon,
-  isLocationPrimary,
-} from "../utils/location-helpers";
+import { isLocationPrimary } from "../utils/location-helpers";
+import { getLabelIcon, getLabelTheme } from "../utils/location-theme";
 
 interface LocationCardProps {
   location: LocationResponseModel;
@@ -24,29 +25,6 @@ interface LocationCardProps {
   onEdit: (location: LocationResponseModel) => void;
   onDelete: (location: LocationResponseModel) => void;
   onSetPrimary: (location: LocationResponseModel) => void;
-}
-
-
-const LABEL_THEME: Record<string, { bg: string; text: string; accent: string; iconBg: string }> = {
-  home:      { bg: "bg-blue-50 dark:bg-blue-950/20",      text: "text-blue-600 dark:text-blue-400",    accent: "bg-blue-500",    iconBg: "bg-blue-100 dark:bg-blue-900/40"    },
-  house:     { bg: "bg-blue-50 dark:bg-blue-950/20",      text: "text-blue-600 dark:text-blue-400",    accent: "bg-blue-500",    iconBg: "bg-blue-100 dark:bg-blue-900/40"    },
-  office:    { bg: "bg-violet-50 dark:bg-violet-950/20",  text: "text-violet-600 dark:text-violet-400",accent: "bg-violet-500",  iconBg: "bg-violet-100 dark:bg-violet-900/40"},
-  work:      { bg: "bg-violet-50 dark:bg-violet-950/20",  text: "text-violet-600 dark:text-violet-400",accent: "bg-violet-500",  iconBg: "bg-violet-100 dark:bg-violet-900/40"},
-  shop:      { bg: "bg-orange-50 dark:bg-orange-950/20",  text: "text-orange-600 dark:text-orange-400",accent: "bg-orange-500",  iconBg: "bg-orange-100 dark:bg-orange-900/40"},
-  store:     { bg: "bg-orange-50 dark:bg-orange-950/20",  text: "text-orange-600 dark:text-orange-400",accent: "bg-orange-500",  iconBg: "bg-orange-100 dark:bg-orange-900/40"},
-  building:  { bg: "bg-slate-50 dark:bg-slate-950/20",    text: "text-slate-600 dark:text-slate-400",  accent: "bg-slate-500",   iconBg: "bg-slate-100 dark:bg-slate-900/40" },
-  apartment: { bg: "bg-slate-50 dark:bg-slate-950/20",    text: "text-slate-600 dark:text-slate-400",  accent: "bg-slate-500",   iconBg: "bg-slate-100 dark:bg-slate-900/40" },
-  family:    { bg: "bg-rose-50 dark:bg-rose-950/20",      text: "text-rose-600 dark:text-rose-400",    accent: "bg-rose-500",    iconBg: "bg-rose-100 dark:bg-rose-900/40"   },
-  love:      { bg: "bg-rose-50 dark:bg-rose-950/20",      text: "text-rose-600 dark:text-rose-400",    accent: "bg-rose-500",    iconBg: "bg-rose-100 dark:bg-rose-900/40"   },
-};
-
-function getLabelTheme(label?: string | null) {
-  if (!label) return null;
-  const lower = label.toLowerCase();
-  for (const [key, t] of Object.entries(LABEL_THEME)) {
-    if (lower.includes(key)) return t;
-  }
-  return null;
 }
 
 export function LocationCard({
@@ -62,9 +40,26 @@ export function LocationCard({
   const theme = getLabelTheme(location.label);
   const hasCoordinates = location.hasCoordinates && location.latitude && location.longitude;
 
-  const googleMapsUrl = hasCoordinates
-    ? `https://www.google.com/maps/search/${location.latitude},${location.longitude}`
-    : null;
+  const images = location.locationImages ?? [];
+  const primaryImage = images.find((img) => Boolean(img.imageUrl))?.imageUrl;
+
+  const fullAddress = [
+    location.houseNumber ? `#${location.houseNumber}` : null,
+    location.streetNumber ? `St ${location.streetNumber}` : null,
+    location.village ? `Phum ${location.village}` : null,
+    location.commune,
+    location.district,
+    location.province,
+    location.country || "Cambodia",
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  const googleMapsUrl =
+    location.googleMapsUrl ||
+    (hasCoordinates
+      ? `https://www.google.com/maps/search/${location.latitude},${location.longitude}`
+      : null);
 
   const handleViewMap = () => {
     if (googleMapsUrl) {
@@ -75,57 +70,85 @@ export function LocationCard({
   return (
     <div
       className={cn(
-        "group relative rounded-2xl border bg-card overflow-hidden transition-all duration-300 shadow-2xs hover:shadow-md p-4 sm:p-4.5 flex gap-3 text-left",
+        "group relative rounded-2xl border bg-card overflow-hidden transition-colors duration-200 shadow-2xs flex flex-col sm:flex-row items-stretch text-left",
         isPrimary
-          ? "border-amber-400/80 dark:border-amber-600/50 bg-gradient-to-br from-amber-500/5 via-card to-card"
-          : "border-border/80 hover:border-primary/40"
+          ? "border-primary bg-primary/5 ring-2 ring-primary/20 hover:border-primary"
+          : "border-border/80 hover:border-primary"
       )}
     >
-      {/* Side bar accent */}
+      {/* Side Bar Accent Indicator */}
       <div
         className={cn(
-          "absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl",
+          "absolute left-0 top-0 bottom-0 w-1.5 z-10 hidden sm:block",
           isPrimary
-            ? "bg-gradient-to-b from-amber-400 to-amber-500"
+            ? "bg-primary"
             : theme
             ? theme.accent
-            : "bg-primary"
+            : "bg-primary/40"
         )}
       />
 
-      {/* Left Icon Block */}
-      <div
-        className={cn(
-          "flex-shrink-0 w-12 h-12 rounded-xl border flex items-center justify-center shadow-2xs",
-          isPrimary
-            ? "bg-amber-50 border-amber-200 text-amber-600 dark:bg-amber-950/40 dark:border-amber-700/50 dark:text-amber-400"
-            : theme
-            ? `${theme.bg} border-border/40 ${theme.text}`
-            : "bg-primary/10 border border-primary/20 text-primary"
-        )}
-      >
-        <LabelIcon className="h-5 w-5" strokeWidth={2} />
-      </div>
-
-      {/* Right Content Block */}
-      <div className="flex-1 min-w-0">
-        {/* Header Row */}
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span
+      {/* Left Column: Image or Icon Block (Compact Size) */}
+      <div className="relative w-full sm:w-28 lg:w-32 shrink-0 bg-muted/40 overflow-hidden flex items-center justify-center min-h-[100px] sm:min-h-[110px] border-b sm:border-b-0 sm:border-r border-border/60">
+        {primaryImage ? (
+          <div className="w-full h-full relative overflow-hidden min-h-[100px]">
+            <SmartImage
+              src={primaryImage}
+              alt={location.label || "Location image"}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              sizes="(max-width: 640px) 100vw, 128px"
+            />
+            {images.length > 1 && (
+              <Badge className="absolute bottom-1.5 right-1.5 text-[9px] font-bold bg-background/90 text-foreground backdrop-blur-md border border-border/60 gap-0.5 px-1 py-0">
+                <ImageIcon className="h-2.5 w-2.5" />
+                +{images.length - 1}
+              </Badge>
+            )}
+          </div>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center p-3 bg-gradient-to-br from-muted/60 via-muted/30 to-muted/80 text-center">
+            <div
               className={cn(
-                "text-xs font-extrabold leading-tight",
+                "p-2.5 rounded-xl border flex items-center justify-center shadow-xs transition-transform duration-300 group-hover:scale-110",
                 isPrimary
-                  ? "text-amber-700 dark:text-amber-400"
-                  : "text-foreground"
+                  ? "bg-primary/10 border-primary/30 text-primary"
+                  : theme
+                  ? `${theme.bg} border-border/40 ${theme.text}`
+                  : "bg-primary/10 border-primary/20 text-primary"
               )}
             >
-              {location.label || "Location"}
-            </span>
+              <LabelIcon className="h-5 w-5" strokeWidth={2} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Right Column: Address Details & Controls */}
+      <div className="flex-1 p-3.5 sm:p-4 flex flex-col justify-between gap-2.5 min-w-0">
+        {/* Header Row */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+            <Badge
+              className={cn(
+                "text-xs font-bold px-2.5 py-0.5 rounded-xl border shadow-2xs flex items-center gap-1.5",
+                isPrimary
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : theme
+                  ? `${theme.bg} ${theme.text} border-border/60`
+                  : "bg-primary/10 text-primary border-primary/20"
+              )}
+            >
+              <LabelIcon className="h-3.5 w-3.5" />
+              <span>{location.label || "Location"}</span>
+            </Badge>
             {isPrimary && (
-              <Badge className="h-4 px-2 text-[9px] font-extrabold tracking-wide bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/50 dark:text-amber-400 dark:border-amber-700/60 rounded-full shrink-0 flex items-center gap-1 shadow-2xs">
-                <Crown className="h-2.5 w-2.5" />
-                Default
+              <Badge
+                variant="outline"
+                className="h-5 px-2.5 text-[10px] font-extrabold tracking-wide bg-primary/10 hover:bg-primary/10 text-primary hover:text-primary border border-primary/40 hover:border-primary rounded-full shrink-0 flex items-center gap-1 shadow-2xs transition-colors duration-200"
+              >
+                <Crown className="h-3 w-3 fill-primary text-primary" />
+                <span>Default</span>
               </Badge>
             )}
           </div>
@@ -138,17 +161,17 @@ export function LocationCard({
                 size="sm"
                 onClick={() => onSetPrimary(location)}
                 disabled={isSettingPrimary}
-                className="h-6 text-[10px] gap-1 rounded-xl px-2 font-bold border-border/60 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-950/40 cursor-pointer"
+                className="h-7 text-[11px] gap-1 rounded-xl px-2.5 font-bold border border-border/70 bg-transparent hover:bg-transparent hover:border-primary hover:text-primary cursor-pointer transition-colors"
               >
                 <Star className="h-3 w-3" />
-                <span>Default</span>
+                <span>Set Default</span>
               </CustomButton>
             )}
             <CustomButton
               variant="ghost"
               size="sm"
               onClick={() => onEdit(location)}
-              className="h-6 w-6 p-0 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+              className="h-7 w-7 p-0 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
               title="Edit location"
             >
               <Edit2 className="h-3.5 w-3.5" />
@@ -157,7 +180,7 @@ export function LocationCard({
               variant="ghost"
               size="sm"
               onClick={() => onDelete(location)}
-              className="h-6 w-6 p-0 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+              className="h-7 w-7 p-0 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer transition-colors"
               title="Delete location"
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -165,68 +188,46 @@ export function LocationCard({
           </div>
         </div>
 
-        {/* Structured Grid Info */}
-        <div className="grid grid-cols-2 gap-1.5 text-[10px]">
-          <div className="bg-muted/30 border border-border/40 p-1.5 rounded-xl flex flex-col gap-0.5">
-            <span className="font-semibold text-muted-foreground text-[9px] uppercase tracking-wider">House / Street</span>
-            <span className="text-foreground truncate font-extrabold">
-              {location.houseNumber && location.streetNumber
-                ? `${location.houseNumber} / ${location.streetNumber}`
-                : location.houseNumber || location.streetNumber || "-"}
-            </span>
-          </div>
-
-          <div className="bg-muted/30 border border-border/40 p-1.5 rounded-xl flex flex-col gap-0.5">
-            <span className="font-semibold text-muted-foreground text-[9px] uppercase tracking-wider">Village</span>
-            <span className="text-foreground truncate font-extrabold">{location.village || "-"}</span>
-          </div>
-
-          <div className="bg-muted/30 border border-border/40 p-1.5 rounded-xl flex flex-col gap-0.5">
-            <span className="font-semibold text-muted-foreground text-[9px] uppercase tracking-wider">Commune</span>
-            <span className="text-foreground truncate font-extrabold">{location.commune || "-"}</span>
-          </div>
-
-          <div className="bg-muted/30 border border-border/40 p-1.5 rounded-xl flex flex-col gap-0.5">
-            <span className="font-semibold text-muted-foreground text-[9px] uppercase tracking-wider">District</span>
-            <span className="text-foreground truncate font-extrabold">{location.district || "-"}</span>
-          </div>
-
-          <div className="bg-muted/30 border border-border/40 p-1.5 rounded-xl flex flex-col gap-0.5">
-            <span className="font-semibold text-muted-foreground text-[9px] uppercase tracking-wider">Province</span>
-            <span className="text-foreground truncate font-extrabold">{location.province || "-"}</span>
-          </div>
-
-          <div className="bg-muted/30 border border-border/40 p-1.5 rounded-xl flex flex-col gap-0.5">
-            <span className="font-semibold text-muted-foreground text-[9px] uppercase tracking-wider">Country</span>
-            <span className="text-foreground truncate font-extrabold">{location.country || "-"}</span>
+        {/* Address Body */}
+        <div className="space-y-1.5">
+          <div className="flex items-start gap-1.5 text-xs text-foreground font-medium leading-relaxed">
+            <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+            <p className="line-clamp-2">{fullAddress || "No address specified"}</p>
           </div>
 
           {location.note && (
-            <div className="bg-muted/30 border border-border/40 p-1.5 rounded-xl flex flex-col gap-0.5 col-span-2">
-              <span className="font-semibold text-muted-foreground text-[9px] uppercase tracking-wider">Note</span>
-              <span className="text-foreground font-bold break-words line-clamp-1">{location.note}</span>
+            <div className="flex items-start gap-1.5 text-[11px] text-muted-foreground bg-muted/40 border border-border/50 rounded-xl p-2 mt-1">
+              <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
+              <span className="line-clamp-1 italic">{location.note}</span>
             </div>
+          )}
+        </div>
+
+        {/* Footer Meta Row */}
+        <div className="pt-2 border-t border-border/50 flex items-center justify-between gap-2 flex-wrap">
+          {hasCoordinates ? (
+            <button
+              type="button"
+              onClick={handleViewMap}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-extrabold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all cursor-pointer group/pin"
+              title="View on Google Maps"
+            >
+              <MapPin className="h-3.5 w-3.5 text-primary shrink-0 group-hover/pin:scale-110 transition-transform" />
+              <span>Google Maps</span>
+              <ExternalLink className="h-3 w-3 opacity-60" />
+            </button>
+          ) : (
+            <span className="text-[11px] text-muted-foreground italic">No GPS coordinates set</span>
           )}
 
           {hasCoordinates && (
-            <div className="col-span-2 pt-1.5 border-t border-border/30 mt-1 flex items-center justify-between gap-2">
-              <button
-                type="button"
-                onClick={handleViewMap}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all cursor-pointer group/pin"
-                title="View on Google Maps"
-              >
-                <MapPin className="h-3 w-3 text-red-500 fill-red-500/20 shrink-0 group-hover/pin:scale-110 transition-transform" />
-                <span>Map Pin</span>
-                <ExternalLink className="h-2.5 w-2.5 opacity-60 ml-0.5" />
-              </button>
-              <span className="text-[9px] font-mono text-muted-foreground/80 truncate">
-                {location.latitude?.toFixed(4)}, {location.longitude?.toFixed(4)}
-              </span>
-            </div>
+            <span className="text-[10px] font-mono text-muted-foreground">
+              {location.latitude?.toFixed(5)}, {location.longitude?.toFixed(5)}
+            </span>
           )}
         </div>
       </div>
     </div>
   );
 }
+

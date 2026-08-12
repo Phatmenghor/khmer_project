@@ -100,16 +100,23 @@ function NavbarAuthComponent({
     </div>
   );
 
+  const displayName = fullName || profile?.fullName || "User";
+
   return (
     <>
       <CustomDropdownMenu
         trigger={
-          <div className="relative h-7 w-7 rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
-            <CustomAvatar
-              imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
-              name={fullName || profile?.fullName || "User"}
-              size="md"
-            />
+          <div className="flex items-center gap-2 cursor-pointer rounded-xl px-1.5 py-1 hover:bg-accent/80 transition-colors">
+            <div className="relative h-7 w-7 rounded-full overflow-hidden shrink-0">
+              <CustomAvatar
+                imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
+                name={displayName}
+                size="md"
+              />
+            </div>
+            <span className="text-xs font-bold text-foreground truncate max-w-[120px] hidden sm:inline-block">
+              {displayName}
+            </span>
           </div>
         }
         header={dropdownHeader}

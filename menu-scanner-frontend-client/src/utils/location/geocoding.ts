@@ -1,6 +1,8 @@
 
 
 
+import { axiosClientWithAuth } from "@/utils/axios";
+
 interface GeocodeResult {
   address: string;
   formattedAddress: string;
@@ -66,32 +68,14 @@ export const getAddressFromCoordinates = async (
   latitude: number,
   longitude: number,
 ): Promise<string> => {
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
-  if (!apiKey) {
-    return formatCoordinates(latitude, longitude);
-  }
-
   try {
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`,
+    const response = await axiosClientWithAuth.get(
+      `/api/v1/locations/geocode/reverse?lat=${latitude}&lng=${longitude}`
     );
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    const data = response.data?.data;
+    if (data?.formattedAddress) {
+      return data.formattedAddress;
     }
-
-    const data: GoogleMapsGeocodeResponse = await response.json();
-
-    if (data.status !== "OK") {
-      return formatCoordinates(latitude, longitude);
-    }
-
-    const parsed = parseGoogleGeocodeResponse(data);
-    if (parsed) {
-      return parsed.formattedAddress;
-    }
-
     return formatCoordinates(latitude, longitude);
   } catch (error) {
     return formatCoordinates(latitude, longitude);
@@ -103,26 +87,24 @@ export const getDetailedAddressFromCoordinates = async (
   latitude: number,
   longitude: number,
 ): Promise<GeocodeResult | null> => {
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
-  if (!apiKey) {
-    return null;
-  }
-
   try {
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`,
+    const response = await axiosClientWithAuth.get(
+      `/api/v1/locations/geocode/reverse?lat=${latitude}&lng=${longitude}`
     );
+    const data = response.data?.data;
+    if (!data) return null;
 
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-    const data: GoogleMapsGeocodeResponse = await response.json();
-
-    if (data.status !== "OK") {
-      return null;
-    }
-
-    return parseGoogleGeocodeResponse(data);
+    return {
+      address: data.formattedAddress || "",
+      formattedAddress: data.formattedAddress || "",
+      components: {
+        street: data.streetNumber || data.houseNumber,
+        city: data.commune,
+        district: data.district,
+        state: data.province,
+        country: data.country || "Cambodia",
+      },
+    };
   } catch (error) {
     return null;
   }

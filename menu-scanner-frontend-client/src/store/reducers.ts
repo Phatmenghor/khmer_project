@@ -37,7 +37,6 @@ import uiReducer from "./slices/ui-slice";
 import comboboxCacheReducer from "./slices/combobox-cache-slice";
 import dashboardReducer from "@/features/dashboard/store/slice/dashboard-slice";
 import locationReducer from "@/features/location/store/slice/location-slice";
-import publicLocationReducer from "@/features/location/store/slice/public-location-slice";
 
 import publicPortfolioReducer from "@/features/portfolio/store/slice/public-portfolio-slice";
 import portfolioProfileReducer from "@/features/portfolio/store/slice/portfolio-profile-slice";
@@ -90,7 +89,6 @@ export const reducers = {
 
 
   location: locationReducer,
-  publicLocation: publicLocationReducer,
 
   publicPortfolio: publicPortfolioReducer,
   portfolioProfile: portfolioProfileReducer,

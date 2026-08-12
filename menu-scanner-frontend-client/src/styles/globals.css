@@ -1054,13 +1054,14 @@ body.route-changing #nprogress .peg {
 
 /* Google Places Autocomplete dropdown - ensure it appears above dialogs/modals */
 .pac-container {
-  z-index: 10000 !important;
+  z-index: 999999 !important;
   pointer-events: auto !important;
   background-color: hsl(var(--card)) !important;
   border: 1px solid hsl(var(--border)) !important;
-  border-radius: var(--radius) !important;
-  box-shadow: var(--shadow-lg) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
   font-family: inherit !important;
+  margin-top: 4px !important;
 }
 
 /* Ensure the dialog overlay doesn't block the autocomplete dropdown */

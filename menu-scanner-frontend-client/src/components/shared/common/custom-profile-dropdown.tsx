@@ -44,8 +44,9 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
     setIsLoggingOut(false);
   };
 
-  const displayName = fullName || profile?.fullName || "Admin";
+  const displayName = fullName || profile?.fullName || "Customer";
   const displayEmail = profile?.email || "";
+  const userIdentifier = (profile as any)?.userIdentifier || (profile as any)?.employeeId || "";
   const profileImageUrl = typeof profileImage === "string"
     ? profileImage
     : (profileImage?.sm ?? profile?.profileImage?.sm ?? "");
@@ -71,14 +72,14 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
               )}
             </div>
 
-            {/* Name & Role Text */}
-            <div className="flex flex-col items-start leading-none text-left hidden sm:flex">
-              <span className="text-sm font-bold text-foreground truncate max-w-[140px] group-hover:text-primary transition-colors">
+            {/* Clean Name & User Identifier */}
+            <div className="flex flex-col items-start leading-tight text-left hidden sm:flex">
+              <span className="text-xs font-bold text-foreground truncate max-w-[150px] group-hover:text-primary transition-colors">
                 {displayName}
               </span>
-              {primaryRole && (
-                <span className="text-xs text-muted-foreground capitalize mt-0.5 font-medium">
-                  {primaryRole.toLowerCase().replace(/_/g, " ")}
+              {userIdentifier && !userIdentifier.includes("@") && (
+                <span className="text-[10px] font-mono text-muted-foreground truncate max-w-[150px] mt-0.5">
+                  ID: {userIdentifier}
                 </span>
               )}
             </div>
@@ -86,10 +87,17 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
           </CustomButton>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="w-60 p-1.5" sideOffset={8}>
+        <DropdownMenuContent align="end" className="w-64 p-1.5" sideOffset={8}>
           <DropdownMenuLabel className="font-normal px-2.5 py-2">
-            <div className="flex flex-col gap-0.5">
-              <span className="font-bold text-sm truncate text-foreground">{displayName}</span>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center justify-between gap-2 min-w-0">
+                <span className="font-bold text-sm truncate text-foreground">{displayName}</span>
+                {userIdentifier && !userIdentifier.includes("@") && (
+                  <span className="text-[10px] font-mono font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded border border-primary/20 shrink-0">
+                    ID: {userIdentifier}
+                  </span>
+                )}
+              </div>
               <span className="text-xs text-muted-foreground truncate font-medium">
                 {displayEmail}
               </span>

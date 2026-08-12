@@ -17,6 +17,9 @@ import {
   updateLocationService,
   deleteLocationService,
   fetchDefaultLocationService,
+  reverseGeocodeService,
+  geocodeSearchService,
+  autocompletePlacesService,
 } from "../thunks/location-thunks";
 import { clearLocationError, resetLocationState } from "../slice/location-slice";
 import {
@@ -38,11 +41,22 @@ export const useLocationState = () => {
   const update = useCallback((params: LocationUpdateRequest) => dispatch(updateLocationService(params)), [dispatch]);
   const remove = useCallback((locationId: string) => dispatch(deleteLocationService(locationId)), [dispatch]);
   const fetchDefault = useCallback(() => dispatch(fetchDefaultLocationService()), [dispatch]);
+  const reverseGeocode = useCallback(
+    (lat: number, lng: number) => dispatch(reverseGeocodeService({ lat, lng })),
+    [dispatch]
+  );
+  const geocodeSearch = useCallback(
+    (address: string) => dispatch(geocodeSearchService({ address })),
+    [dispatch]
+  );
+  const autocompletePlaces = useCallback(
+    (input: string) => dispatch(autocompletePlacesService({ input })),
+    [dispatch]
+  );
   const clearError = useCallback(() => dispatch(clearLocationError()), [dispatch]);
   const reset = useCallback(() => dispatch(resetLocationState()), [dispatch]);
 
   return {
-
     locations: useAppSelector(selectLocations),
     data: useAppSelector(selectLocationData),
     defaultLocation: useAppSelector(selectDefaultLocation),
@@ -50,11 +64,9 @@ export const useLocationState = () => {
     locationCount: useAppSelector(selectLocationCount),
     locationPagination: useAppSelector(selectLocationPagination),
 
-
     isLoading: useAppSelector(selectLocationIsLoading),
     error: useAppSelector(selectLocationError),
     operations: useAppSelector(selectLocationOperations),
-
 
     fetchAll,
     fetchAllWithPagination,
@@ -62,9 +74,11 @@ export const useLocationState = () => {
     update,
     remove,
     fetchDefault,
+    reverseGeocode,
+    geocodeSearch,
+    autocompletePlaces,
     clearError,
     reset,
-
 
     dispatch,
   };

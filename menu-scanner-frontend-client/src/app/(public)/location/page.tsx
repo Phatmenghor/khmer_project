@@ -251,48 +251,6 @@ function LocationPageInner() {
           }
         />
 
-        {/* Sticky Segmented Tab Bar Pinned Under Navbar */}
-        {locations.length > 0 && (
-          <div className="sticky top-12 z-30 bg-background/95 backdrop-blur-md border-b border-border/60 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-2.5 mb-4 sm:mb-6 transition-all">
-            <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
-              <div className="p-1 rounded-2xl border border-border/80 bg-muted/40 flex items-center gap-1.5 shadow-2xs">
-                {[
-                  { id: "all", label: "All Locations", count: tabCounts.all },
-                  { id: "primary", label: "Primary Default", count: tabCounts.primary },
-                  { id: "home", label: "Home", count: tabCounts.home },
-                  { id: "work", label: "Work", count: tabCounts.work },
-                  { id: "other", label: "Other", count: tabCounts.other },
-                ].map((tab) => {
-                  const isActive = activeTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => setActiveTab(tab.id as LocationTabType)}
-                      className={cn(
-                        "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap",
-                        isActive
-                          ? "bg-card text-primary font-bold shadow-2xs border border-border/70"
-                          : "text-muted-foreground hover:text-foreground hover:bg-card/50"
-                      )}
-                    >
-                      <span>{tab.label}</span>
-                      <span
-                        className={cn(
-                          "text-[10px] px-1.5 py-0.2 rounded-full font-bold",
-                          isActive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                        )}
-                      >
-                        {tab.count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
         {locations.length === 0 ? (
           <PageState
             type="empty"
@@ -303,21 +261,11 @@ function LocationPageInner() {
             size="lg"
             className="my-auto py-12"
           />
-        ) : filteredLocations.length === 0 ? (
-          <PageState
-            type="empty"
-            title={`No ${activeTab.toUpperCase()} Locations`}
-            description="No locations match this tab filter."
-            actionLabel="View All Locations"
-            onAction={() => setActiveTab("all")}
-            size="md"
-            className="my-12 py-8"
-          />
         ) : (
           <>
             {/* Locations Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {filteredLocations.map((location, index) => {
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+              {locations.map((location, index) => {
                 const uniqueKey = `location-${location.id}-${index}`;
                 return (
                   <div

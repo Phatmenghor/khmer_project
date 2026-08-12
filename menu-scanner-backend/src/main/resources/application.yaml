@@ -81,3 +81,7 @@ app:
   description: "Restaurant Management Platform for Cambodia"
   subscription:
     expiry-soon-days: 7
+  social:
+    google:
+      maps:
+        api-key: "${GOOGLE_MAPS_API_KEY:AIzaSyBm9cuaxspSEfAIT3PKYa1naawr8SJ0zA8}"
