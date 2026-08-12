@@ -14,6 +14,7 @@ import { showToast } from "../common/show-toast";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 import { LoginModal } from "../modal/login-modal";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { useFavoriteState } from "@/features/main/store/state/favorite-state";
 import {
   addLocalCartItem,
@@ -22,6 +23,7 @@ import {
 import { CartItemCustomization } from "@/features/main/store/models/response/cart-response";
 import { SizePickerModal } from "../modal/size-picker-modal";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
+import { useFavoriteDebounce } from "@/hooks/use-favorite-debounce";
 import {
   selectProductQuantityInCart,
   selectProductTotalQuantity,
@@ -69,19 +71,25 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
   const isFavoritedFromStore = favLoaded
     ? favoriteItems.some((item) => item.id === product.id)
     : (product?.isFavorited ?? false);
-  const [isFavorited, setIsFavorited] = useState(isFavoritedFromStore);
-  useEffect(() => {
-    setIsFavorited(isFavoritedFromStore);
-  }, [isFavoritedFromStore]);
 
+  const [optimisticFavorite, setOptimisticFavorite] = useState<boolean | null>(null);
+  const isFavorited = optimisticFavorite !== null ? optimisticFavorite : isFavoritedFromStore;
+
+  useEffect(() => {
+    if (optimisticFavorite !== null && optimisticFavorite === isFavoritedFromStore) {
+      setOptimisticFavorite(null);
+    }
+  }, [isFavoritedFromStore, optimisticFavorite]);
 
   const { debouncedUpdate } = useCartDebounce(cartDispatch);
-
+  const { debouncedToggleFavorite } = useFavoriteDebounce(favoriteDispatch);
 
   const isInCart = totalQuantity > 0;
 
-
-  const imageUrl = sanitizeImageUrl(product.mainImage?.md || product.mainImage?.sm, appImages.noImage);
+  const imageUrl = sanitizeImageUrl(
+    product.mainImage?.md || product.mainImage?.sm || product.mainImage?.o,
+    appImages.noImage
+  );
 
   const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -104,18 +112,14 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
     const ts = Date.now();
 
     if (isInCart) {
-      // Simple product already in cart — increment locally immediately
-      setLocalQuantity((prev) => {
-        const current = prev !== null ? prev : quantity;
-        const newQty = current + 1;
-        cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
-        debouncedUpdate(key, product.id, null, newQty, ts);
-        return newQty;
-      });
+      const current = localQuantity !== null ? localQuantity : quantity;
+      const newQty = current + 1;
+      setLocalQuantity(newQty);
+      cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
+      debouncedUpdate(key, product.id, null, newQty, ts);
       return;
     }
 
-    // First add — set local quantity immediately, then Redux + API in background
     setLocalQuantity(1);
     cartDispatch(
       addLocalCartItem({
@@ -136,8 +140,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
       })
     );
     debouncedUpdate(key, product.id, null, 1, ts);
-  }, [isAuthenticated, product, isInCart, quantity, cartDispatch, debouncedUpdate]);
-
+  }, [isAuthenticated, product, isInCart, localQuantity, quantity, cartDispatch, debouncedUpdate]);
 
   const handleIncrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -156,16 +159,12 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
-    // Functional update — always reads the latest local quantity, never stale
-    setLocalQuantity((prev) => {
-      const current = prev !== null ? prev : quantity;
-      const newQty = current + 1;
-      cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
-      debouncedUpdate(key, product.id, null, newQty, ts);
-      return newQty;
-    });
-  }, [product, quantity, isInCart, cartDispatch, debouncedUpdate]);
-
+    const current = localQuantity !== null ? localQuantity : quantity;
+    const newQty = current + 1;
+    setLocalQuantity(newQty);
+    cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
+    debouncedUpdate(key, product.id, null, newQty, ts);
+  }, [product, localQuantity, quantity, isInCart, cartDispatch, debouncedUpdate]);
 
   const handleDecrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -184,35 +183,25 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
-    setLocalQuantity((prev) => {
-      const current = prev !== null ? prev : quantity;
-      const newQty = Math.max(0, current - 1);
-      cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
-      debouncedUpdate(key, product.id, null, newQty, ts);
-      return newQty;
-    });
-  }, [product, quantity, isInCart, cartDispatch, debouncedUpdate]);
-
+    const current = localQuantity !== null ? localQuantity : quantity;
+    const newQty = Math.max(0, current - 1);
+    setLocalQuantity(newQty);
+    cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
+    debouncedUpdate(key, product.id, null, newQty, ts);
+  }, [product, localQuantity, quantity, isInCart, cartDispatch, debouncedUpdate]);
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    e.nativeEvent.stopImmediatePropagation();
 
-    if (!isAuthenticated) { setShowLoginModal(true); return; }
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
 
-
-    const newFavState = !isFavorited;
-    setIsFavorited(newFavState);
-
-
-    favoriteDispatch(toggleFavorite({ productId: product.id, isFavorited }))
-      .unwrap()
-      .catch((error: unknown) => {
-
-        setIsFavorited((prev) => !prev);
-        showToast.error((error as { message?: string })?.message || Messages.favorites.updateFailed);
-      });
+    debouncedToggleFavorite(product.id, isFavorited, (newState) => {
+      setOptimisticFavorite(newState);
+    });
   };
 
 
@@ -319,25 +308,46 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
     <>
       <div
         className={cn(
-          "group relative bg-card rounded-[16px] border border-border/80 hover:border-primary/30 shadow-2xs hover:shadow-md overflow-hidden transition-all duration-300 flex flex-col hover:-translate-y-0.5 active:scale-[0.98]",
-          isInCart && "ring-1.5 ring-primary/40 border-primary/50 shadow-xs",
-          isOutOfStock && "opacity-70",
-          !isInCart && product?.hasPromotion && "ring-1 ring-amber-500/20",
+          "group relative bg-card rounded-[18px] border border-border/80 hover:border-primary/40 shadow-2xs hover:shadow-lg hover:shadow-primary/5 overflow-hidden transition-all duration-300 flex flex-col hover:-translate-y-1 active:scale-[0.98]",
+          isInCart && "ring-2 ring-primary/40 border-primary/60 shadow-xs",
+          isOutOfStock && "opacity-75",
+          !isInCart && product?.hasPromotion && "ring-1 ring-amber-500/25 border-amber-500/30",
           className,
         )}
       >
-        {/* Clickable area — image + info only, no action buttons inside */}
+        {/* Favorite Button — OUTSIDE Link wrapper so clicking it never triggers NProgress or navigation */}
+        <div className="absolute top-1.5 right-1.5 z-30">
+          <CustomButton
+            size="icon"
+            variant="unstyled"
+            className={cn(
+              "h-7 w-7 rounded-full shadow-md backdrop-blur-md transition-all duration-200 flex items-center justify-center active:scale-90 cursor-pointer",
+              isFavorited
+                ? "bg-red-500 text-white shadow-red-500/30 scale-105"
+                : "bg-background/80 hover:bg-background text-muted-foreground hover:text-red-500 border border-border/60 hover:border-red-200"
+            )}
+            onClick={handleToggleFavorite}
+            aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+          >
+            <Heart
+              className={cn(
+                "h-3.5 w-3.5 transition-transform duration-200",
+                isFavorited && "fill-current scale-110"
+              )}
+            />
+          </CustomButton>
+        </div>
+
+        {/* Clickable area — image + info only */}
         <Link href={`/products/${product.id}`} className="flex flex-col flex-1 cursor-pointer">
           <ProductImage
             product={product}
             imageUrl={imageUrl}
             isOutOfStock={isOutOfStock}
-            isFavorited={isFavorited}
             loading={imageLoading}
-            onToggleFavorite={handleToggleFavorite}
           />
 
-          <div className="p-2 pb-1 flex flex-col flex-1">
+          <div className="p-2.5 pb-1 flex flex-col flex-1">
             <ProductInfo product={product} />
           </div>
         </Link>

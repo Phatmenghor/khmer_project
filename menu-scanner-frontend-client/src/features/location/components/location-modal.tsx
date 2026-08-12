@@ -19,13 +19,13 @@ import React, {
   useState,
   useMemo,
 } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { CancelButton, CustomButton, SubmitButton } from "@/components/shared/button/custom-button";
 
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
@@ -51,6 +51,8 @@ import {
   Loader2,
   AlertTriangle,
   CheckCircle2,
+  Check,
+  Lock,
 } from "lucide-react";
 
 import { useLocationState } from "../store/state/location-state";
@@ -73,6 +75,9 @@ import {
   VillageResponseModel,
 } from "../store/models/response/location-response";
 import { LocationSelectTab } from "./location-select-tab";
+import { LocationLabelPresets } from "./location-label-presets";
+import { LocationPrimaryToggle } from "./location-primary-toggle";
+import { MultiImageUpload } from "./multi-image-upload";
 
 
 let gmapLoadPromise: Promise<void> | null = null;
@@ -127,81 +132,7 @@ function CenterPin({ size = "h-6 w-6", isDragging }: { size?: string; isDragging
 }
 
 
-interface MultiImageUploadProps {
-  images: { imageUrl: string }[];
-  onAdd: (url: string) => void;
-  onRemove: (idx: number) => void;
-  disabled?: boolean;
-}
 
-function MultiImageUpload({ images, onAdd, onRemove, disabled }: MultiImageUploadProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [lightbox, setLightbox] = useState<string | null>(null);
-  const MAX_IMAGES = 5;
-  const canAddMore = images.length < MAX_IMAGES;
-
-  const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
-    Array.from(e.target.files ?? []).forEach((file) => {
-      if (!file.type.startsWith("image/")) return;
-      if (images.length >= MAX_IMAGES) {
-        showToast.warning(`Maximum ${MAX_IMAGES} images allowed`);
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = () => { if (typeof reader.result === "string") onAdd(reader.result); };
-      reader.readAsDataURL(file);
-    });
-    if (inputRef.current) inputRef.current.value = "";
-  };
-
-  return (
-    <div className="space-y-1">
-      {lightbox && (
-        <div className="fixed inset-0 z-[300] bg-black/80 flex items-center justify-center" onClick={() => setLightbox(null)}>
-          <div className="relative w-[90vw] h-[90vh] max-w-3xl">
-            <SmartImage
-              src={lightbox}
-              alt="Preview"
-              fill
-              showSkeleton={false}
-              objectFit="contain"
-              containerClassName="rounded shadow-2xl"
-            />
-          </div>
-          <CustomButton variant="unstyled" size="unstyled" type="button" onClick={() => setLightbox(null)} className="absolute top-3 right-3 rounded-full bg-white/20 text-white p-1 hover:bg-white/40 transition-colors">
-            <X className="h-3 w-3" />
-          </CustomButton>
-        </div>
-      )}
-
-      <Label className="text-xs font-medium flex items-center gap-1">
-        <ImageIcon className="h-3 w-3 text-muted-foreground" />
-        Location Images
-        <span className="text-muted-foreground text-xs font-normal">({images.length}/{MAX_IMAGES})</span>
-      </Label>
-
-      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-1">
-        {images.map((img, idx) => (
-          <div key={idx} className="relative aspect-square rounded overflow-hidden border bg-muted cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setLightbox(img.imageUrl)}>
-            <SmartImage src={img.imageUrl} alt={`Location ${idx + 1}`} fill />
-            {!disabled && (
-              <CustomButton variant="unstyled" size="unstyled" type="button" onClick={(e) => { e.stopPropagation(); onRemove(idx); }} className="absolute top-0.5 right-0.5 rounded-full bg-destructive/90 text-white p-0.5 hover:bg-destructive transition-colors">
-                <X className="h-2 w-2" />
-              </CustomButton>
-            )}
-          </div>
-        ))}
-        {!disabled && canAddMore && (
-          <CustomButton variant="unstyled" size="unstyled" type="button" onClick={() => inputRef.current?.click()} className="aspect-square rounded border-2 border-dashed border-border hover:border-primary hover:bg-primary/5 flex flex-col items-center justify-center gap-1 transition-colors text-muted-foreground hover:text-primary">
-            <Upload className="h-2.5 w-2.5" />
-            <span className="text-[10px] font-medium">Add</span>
-          </CustomButton>
-        )}
-      </div>
-      <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
-    </div>
-  );
-}
 
 
 export default function LocationModal({ isOpen, onClose, editData, initialCoords }: LocationModalProps) {
@@ -210,7 +141,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   }, [isOpen, editData]);
 
   const isCreate = !editData;
-  const { create, update, operations, error: reduxError, clearError } = useLocationState();
+  const { locations, create, update, operations, error: reduxError, clearError } = useLocationState();
   const {
     selectedProvince, selectedDistrict, selectedCommune,
     selectProvince, selectDistrict, selectCommune,
@@ -235,6 +166,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   const geocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const setValueRef = useRef<typeof setValue>(null!);
   const dropdownInitRef = useRef(false);
+  const tabHeaderRef = useRef<HTMLDivElement>(null);
 
   const [isMapReady, setIsMapReady] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -285,10 +217,11 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
         locationImages: editData.locationImages ?? [],
       });
     } else {
-      reset({ label: "", latitude: 0, longitude: 0, houseNumber: "", streetNumber: "", village: "", commune: "", district: "", province: "", country: "", note: "", isPrimary: false, locationImages: [] });
+      const autoPrimary = locations.length === 0;
+      reset({ label: "", latitude: 0, longitude: 0, houseNumber: "", streetNumber: "", village: "", commune: "", district: "", province: "", country: "", note: "", isPrimary: autoPrimary, locationImages: [] });
     }
     clearError();
-  }, [isOpen, editData, reset, clearError]);
+  }, [isOpen, editData, reset, clearError, locations.length]);
 
 
   useEffect(() => {
@@ -360,19 +293,97 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     geocoderRef.current.geocode({ location: { lat, lng } }, (results: any, status: any) => {
       setIsReverseGeocoding(false);
       if (status !== "OK" || !results?.length) return;
-      const comps = results[0].address_components || [];
-      let streetNumber = "", village = "", commune = "", district = "", province = "", country = "";
-      for (const comp of comps) {
-        const t = comp.types;
-        if (t.includes("street_number")) streetNumber = comp.long_name;
-        else if (t.includes("route")) streetNumber = streetNumber ? `${streetNumber} ${comp.long_name}` : comp.long_name;
-        else if (t.includes("sublocality_level_1") || t.includes("sublocality")) village = comp.long_name;
-        else if (t.includes("locality")) commune = comp.long_name;
-        else if (t.includes("administrative_area_level_2")) district = comp.long_name;
-        else if (t.includes("administrative_area_level_1")) province = comp.long_name;
-        else if (t.includes("country")) country = comp.long_name;
-      }
+
       const sv = setValueRef.current;
+      sv("latitude", lat, { shouldDirty: true });
+      sv("longitude", lng, { shouldDirty: true });
+
+      let houseNumber = "";
+      let streetNumber = "";
+      let village = "";
+      let commune = "";
+      let district = "";
+      let province = "";
+      let country = "";
+      let poiName = "";
+
+      // Iterate through all geocode results to ensure full administrative hierarchy is captured
+      for (const result of results) {
+        const comps = result.address_components || [];
+        for (const comp of comps) {
+          const t = comp.types;
+          const name = comp.long_name || comp.short_name || "";
+          if (!name) continue;
+
+          if (t.includes("street_number")) {
+            if (!houseNumber) houseNumber = name;
+          } else if (t.includes("subpremise") || t.includes("premise") || t.includes("building")) {
+            if (!houseNumber) houseNumber = name;
+          } else if (t.includes("establishment") || t.includes("point_of_interest")) {
+            if (!poiName) poiName = name;
+          } else if (t.includes("route")) {
+            if (!streetNumber) streetNumber = name;
+          } else if (t.includes("sublocality_level_2") || t.includes("neighborhood")) {
+            if (!village) village = name;
+          } else if (t.includes("sublocality_level_1") || t.includes("sublocality") || t.includes("administrative_area_level_3")) {
+            if (!commune) commune = name;
+          } else if (t.includes("locality")) {
+            if (!commune && name.toLowerCase() !== province.toLowerCase()) {
+              commune = name;
+            }
+          } else if (t.includes("administrative_area_level_2")) {
+            if (!district) district = name;
+          } else if (t.includes("administrative_area_level_1")) {
+            if (!province) province = name;
+            if (commune && commune.toLowerCase() === province.toLowerCase()) {
+              commune = "";
+            }
+          } else if (t.includes("country")) {
+            if (!country) country = name;
+          }
+        }
+      }
+
+      // If house number is empty, fallback to landmark / establishment name
+      if (!houseNumber && poiName) {
+        houseNumber = poiName;
+      }
+
+      // Regex fallback from formatted_address for any missing hierarchy (e.g. Sangkat / Khan)
+      const formattedAddress = results[0]?.formatted_address || "";
+      if (formattedAddress) {
+        const parts = formattedAddress.split(",").map((s: string) => s.trim()).filter(Boolean);
+
+        if (!district) {
+          const foundDistrict = parts.find((p: string) => /khan|district|krong/i.test(p));
+          if (foundDistrict) district = foundDistrict;
+        }
+
+        if (!commune) {
+          const foundCommune = parts.find((p: string) => /sangkat|commune/i.test(p));
+          if (foundCommune) commune = foundCommune;
+        }
+
+        if (!village) {
+          const foundVillage = parts.find((p: string) => /phum|village/i.test(p));
+          if (foundVillage) village = foundVillage;
+        }
+
+        if (!province && parts.length >= 2) {
+          province = parts[parts.length - 2].replace(/\d+/g, "").trim();
+        }
+
+        if (!country && parts.length >= 1) {
+          country = parts[parts.length - 1].replace(/\d+/g, "").trim();
+        }
+      }
+
+      // Clean up: Ensure commune is not set to Province name
+      if (commune && province && commune.toLowerCase() === province.toLowerCase()) {
+        commune = "";
+      }
+
+      sv("houseNumber", houseNumber, { shouldDirty: true });
       sv("streetNumber", streetNumber, { shouldDirty: true });
       sv("village", village, { shouldDirty: true });
       sv("commune", commune, { shouldDirty: true });
@@ -430,21 +441,12 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
       mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
       zoomControl: false,
       gestureHandling: "none",
+      disableDefaultUI: true,
+      clickableIcons: false,
+      keyboardShortcuts: false,
     });
     googleMapRef.current = map;
     geocoderRef.current = new google.maps.Geocoder();
-
-    map.addListener("dragstart", () => setIsDragging(true));
-    map.addListener("dragend", () => {
-      const center = map.getCenter();
-      if (!center) return;
-      const lat = center.lat(); const lng = center.lng();
-      setValueRef.current("latitude", lat, { shouldDirty: true });
-      setValueRef.current("longitude", lng, { shouldDirty: true });
-      setIsDragging(false);
-      if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
-      geocodeTimerRef.current = setTimeout(() => reverseGeocode(lat, lng), 400);
-    });
 
     setValueRef.current("latitude", lat, { shouldDirty: true });
     setValueRef.current("longitude", lng, { shouldDirty: true });
@@ -495,6 +497,17 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
         setIsDragging(false);
         if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
         geocodeTimerRef.current = setTimeout(() => reverseGeocode(lat, lng), 400);
+      });
+
+      fullscreenMap.addListener("click", (e: google.maps.MapMouseEvent) => {
+        if (!e.latLng) return;
+        const clickLat = e.latLng.lat();
+        const clickLng = e.latLng.lng();
+        fullscreenMap.panTo({ lat: clickLat, lng: clickLng });
+        setValueRef.current("latitude", clickLat, { shouldDirty: true });
+        setValueRef.current("longitude", clickLng, { shouldDirty: true });
+        if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
+        geocodeTimerRef.current = setTimeout(() => reverseGeocode(clickLat, clickLng), 200);
       });
 
       fullscreenMapRef.current = fullscreenMap;
@@ -668,72 +681,140 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
       setValue("latitude", 0, { shouldDirty: true }); setValue("longitude", 0, { shouldDirty: true });
       setGeocodeSuccess(false); setGeocodedCoords(null);
     }
+    setTimeout(() => {
+      tabHeaderRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
   };
 
 
   if (isFullScreen) {
     return (
-      <div className="fixed inset-0 z-[201] flex flex-col bg-white">
-        {}
-        <div className="flex items-center justify-between px-3 py-2 border-b bg-background shrink-0 gap-2 shadow-sm">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="p-1 rounded bg-primary/10 shrink-0">
-              <MapPin className="h-3 w-3 text-primary" />
+      <div className="fixed inset-0 z-[250] flex flex-col bg-background select-none animate-in fade-in duration-300">
+        {/* Sleek Floating Glass Header Bar */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border/80 bg-card/90 backdrop-blur-xl shrink-0 gap-3 shadow-md z-30">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="p-2 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 text-primary-foreground shrink-0 shadow-md ring-2 ring-primary/20">
+              <MapPin className="h-4 w-4" />
             </div>
             <div className="min-w-0">
-              <span className="text-xs font-semibold block">Select on Map</span>
-              {hasCoords && (
-                <span className="text-xs font-mono text-muted-foreground">
-                  {latitude.toFixed(5)}, {longitude.toFixed(5)}
-                  {isReverseGeocoding && <Loader2 className="inline-block h-2 w-2 ml-1 animate-spin" />}
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-foreground block truncate">Interactive Map Location Selector</span>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
+              </div>
+              {hasCoords ? (
+                <span className="text-xs font-mono text-muted-foreground flex items-center gap-1">
+                  <span>{latitude.toFixed(6)}, {longitude.toFixed(6)}</span>
+                  {isReverseGeocoding && <Loader2 className="inline-block h-3 w-3 ml-1 animate-spin text-primary" />}
+                </span>
+              ) : (
+                <span className="text-xs text-muted-foreground">Drag pin to target location</span>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-1 shrink-0">
-            <CustomButton type="button" variant="outline" size="sm" onClick={handleMyLocation} className="gap-1 h-6">
-              <LocateFixed className="h-3 w-3" />
+
+          {/* Action Header Buttons */}
+          <div className="flex items-center gap-2 shrink-0">
+            <CustomButton
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleMyLocation}
+              className="gap-1.5 h-9 rounded-xl border-border/80 font-semibold shadow-2xs hover:border-primary/40 cursor-pointer"
+            >
+              <LocateFixed className="h-3.5 w-3.5 text-primary" />
               <span className="hidden sm:inline">My Location</span>
             </CustomButton>
-            <CustomButton type="button" variant="default" size="sm" onClick={() => { setIsFullScreen(false); }} className="gap-1 h-6">
-              <Minimize2 className="h-3 w-3" />
-              <span className="hidden sm:inline">Done</span>
+
+            <CustomButton
+              type="button"
+              variant="default"
+              size="sm"
+              onClick={() => { setIsFullScreen(false); }}
+              className="gap-1.5 h-9 rounded-xl font-bold bg-primary text-primary-foreground hover:opacity-90 shadow-md transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+            >
+              <Check className="h-3.5 w-3.5" />
+              <span>Confirm & Done</span>
             </CustomButton>
+
+            <button
+              type="button"
+              onClick={() => setIsFullScreen(false)}
+              className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors cursor-pointer"
+              title="Close Fullscreen Map"
+            >
+              <Minimize2 className="h-4 w-4" />
+            </button>
           </div>
         </div>
 
-        {}
-        <div className="px-3 py-2 border-b bg-background/95 backdrop-blur shrink-0">
-          <div ref={fullscreenSearchContainerRef} className="gmap-autocomplete-container w-full" />
+        {/* Embedded Search Autocomplete Bar */}
+        <div className="px-4 py-2.5 border-b border-border/60 bg-muted/40 backdrop-blur-md shrink-0 shadow-2xs">
+          <div className="max-w-2xl mx-auto relative">
+            <div ref={fullscreenSearchContainerRef} className="gmap-autocomplete-container w-full" />
+          </div>
         </div>
 
-        {}
-        <div className="flex-1 relative bg-gray-100">
+        {/* Main Map Viewport */}
+        <div className="flex-1 relative bg-muted/30">
           {!isFullScreenMapReady && (
-            <div className="absolute inset-0 flex items-center justify-center bg-muted/80 z-10">
-              <div className="flex flex-col items-center gap-1">
-                <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                <span className="text-xs text-muted-foreground">Loading map…</span>
+            <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-md z-20">
+              <div className="flex flex-col items-center gap-2 p-5 rounded-3xl bg-card border border-border/80 shadow-2xl">
+                <Loader2 className="h-7 w-7 animate-spin text-primary" />
+                <span className="text-xs font-semibold text-foreground">Loading Full Map Viewport…</span>
               </div>
             </div>
           )}
-          <CenterPin isDragging={isDragging} size="h-7 w-7" />
-          <div ref={fullscreenMapContainerRef} className="w-full h-full bg-white" />
-          {}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-background/95 backdrop-blur-sm border rounded px-4 py-3 shadow-lg w-[90%] max-w-2xl">
-            <div className="flex items-start gap-2">
-              <MapPin className="h-3 w-3 text-red-500 shrink-0 mt-0.5" />
+
+          {/* Center Target Pin */}
+          <CenterPin isDragging={isDragging} size="h-9 w-9" />
+
+          {/* Google Map Container */}
+          <div ref={fullscreenMapContainerRef} className="w-full h-full" />
+
+          {/* Floating Bottom Location Address Card */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-card/95 backdrop-blur-2xl border border-border/80 rounded-[24px] p-4 sm:p-5 shadow-2xl w-[92%] max-w-xl z-20 space-y-3 animate-in slide-in-from-bottom-4 duration-300">
+            <div className="flex items-start gap-3">
+              <div className="p-2.5 rounded-2xl bg-primary/10 border border-primary/20 text-primary shrink-0 mt-0.5 shadow-2xs">
+                <MapPin className="h-5 w-5 text-primary" />
+              </div>
               <div className="min-w-0 flex-1">
-                {addressPreview && (
-                  <p className="text-xs font-semibold text-foreground leading-relaxed break-words">
-                    {addressPreview}
-                  </p>
-                )}
-                <p className="text-xs font-mono text-muted-foreground mt-1 flex items-center gap-1">
-                  {latitude.toFixed(6)}, {longitude.toFixed(6)}
-                  {isReverseGeocoding && <Loader2 className="h-2 w-2 animate-spin shrink-0" />}
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <span className="text-[11px] uppercase tracking-wider font-extrabold text-primary">Selected Address</span>
+                  {isReverseGeocoding ? (
+                    <Badge variant="outline" className="text-[10px] gap-1 border-primary/30 text-primary bg-primary/5">
+                      <Loader2 className="h-2.5 w-2.5 animate-spin" /> Resolving…
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="text-[10px] bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border-none">
+                      GPS LOCKED
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs sm:text-sm font-semibold text-foreground leading-relaxed break-words line-clamp-2">
+                  {addressPreview || "Drag map or use search bar above to pinpoint address..."}
+                </p>
+                <p className="text-xs font-mono text-muted-foreground mt-1.5 flex items-center gap-1.5">
+                  <span>Lat: {latitude.toFixed(6)}</span>
+                  <span>•</span>
+                  <span>Lng: {longitude.toFixed(6)}</span>
                 </p>
               </div>
+            </div>
+
+            <div className="pt-2 border-t border-border/60 flex items-center gap-2">
+              <CustomButton
+                type="button"
+                variant="default"
+                size="default"
+                onClick={() => setIsFullScreen(false)}
+                className="w-full h-10 rounded-xl font-bold bg-primary text-primary-foreground hover:opacity-90 shadow-md flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-95 cursor-pointer"
+              >
+                <Check className="h-4 w-4" />
+                <span>Use This Location</span>
+              </CustomButton>
             </div>
           </div>
         </div>
@@ -743,20 +824,21 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent
-        className="p-0 overflow-hidden flex flex-col w-full sm:max-w-2xl lg:max-w-4xl max-h-[95vh] rounded"
-        onInteractOutside={(e) => { const t = e.target as HTMLElement; if (t.closest(".pac-container") || t.closest("gmp-placeautocomplete")) e.preventDefault(); }}
-        onPointerDownOutside={(e) => { const t = e.target as HTMLElement; if (t.closest(".pac-container") || t.closest("gmp-placeautocomplete")) e.preventDefault(); }}
-      >
-        <FormHeader
-          title={isCreate ? "Add Location" : "Edit Location"}
-          description={isCreate ? "Pin on map or select from address list" : "Update your location details"}
-          isCreate={isCreate}
-        />
+    <CustomModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size="3xl"
+      className="max-h-[92vh] gap-0 p-0 flex flex-col overflow-hidden rounded-[24px]"
+      disableScrollWrapper={true}
+    >
+      <FormHeader
+        title={isCreate ? "Add Location" : "Edit Location"}
+        description={isCreate ? "Pin on map or select from address list" : "Update your location details"}
+        isCreate={isCreate}
+      />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-visible">
-          <FormBody contentClassName="space-y-3">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+        <FormBody contentClassName="space-y-4 p-4 sm:p-5">
             {}
             {reduxError && (
               <div className="p-2 bg-destructive/10 border border-destructive/30 rounded text-xs text-destructive font-medium">
@@ -764,68 +846,105 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
               </div>
             )}
 
-            {}
-            <div className="flex border-b -mx-4 px-4">
-              {(["map", "select"] as SelectionMode[]).map((mode) => (
-                <CustomButton variant="unstyled" size="unstyled"
-                  key={mode}
+            {/* Sticky Modern Segmented Control Header */}
+            <div ref={tabHeaderRef} className="sticky top-0 z-20 bg-background/95 backdrop-blur-md pb-2 pt-1 border-b border-border/40 -mx-4 px-4 sm:-mx-5 sm:px-5">
+              <div className="grid grid-cols-2 p-1 rounded-2xl bg-muted/60 dark:bg-muted/30 border border-border/80 shadow-2xs gap-1">
+                <button
                   type="button"
-                  onClick={() => handleModeChange(mode)}
+                  onClick={() => handleModeChange("map")}
                   className={cn(
-                    "flex-1 flex items-center justify-center gap-1 py-1 text-xs font-medium transition-all border-b-2 -mb-px rounded-t-lg",
-                    selectionMode === mode
-                      ? "border-primary text-primary bg-primary/5"
-                      : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    "flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer select-none",
+                    selectionMode === "map"
+                      ? "bg-card text-foreground shadow-sm border border-border/80 scale-[1.01]"
+                      : "text-muted-foreground hover:text-foreground hover:bg-card/40"
                   )}
                 >
-                  {mode === "map" ? <><Map className="h-3 w-3" /> Map</> : <><ListFilter className="h-3 w-3" /> Select</>}
-                </CustomButton>
-              ))}
+                  <div className={cn("p-1 rounded-lg transition-colors", selectionMode === "map" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
+                    <MapPin className="h-3.5 w-3.5" />
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="leading-none">Pin on Map</span>
+                    <span className="text-[10px] text-muted-foreground font-normal mt-0.5">Interactive GPS</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleModeChange("select")}
+                  className={cn(
+                    "flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer select-none",
+                    selectionMode === "select"
+                      ? "bg-card text-foreground shadow-sm border border-border/80 scale-[1.01]"
+                      : "text-muted-foreground hover:text-foreground hover:bg-card/40"
+                  )}
+                >
+                  <div className={cn("p-1 rounded-lg transition-colors", selectionMode === "select" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
+                    <ListFilter className="h-3.5 w-3.5" />
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="leading-none">Address List</span>
+                    <span className="text-[10px] text-muted-foreground font-normal mt-0.5">Select Dropdowns</span>
+                  </div>
+                </button>
+              </div>
             </div>
 
-            {}
+            {/* Map Mode Content */}
             <div className={cn(selectionMode !== "map" && "hidden")}>
-              <div className="space-y-2">
-                <div className="relative h-44 rounded overflow-hidden border bg-muted">
+              <div className="space-y-3">
+                <div className="relative h-56 sm:h-64 rounded-[22px] overflow-hidden border border-border/80 shadow-sm bg-muted ring-1 ring-primary/10 group">
                   <div ref={mapContainerRef} className="w-full h-full" />
                   {!isMapReady && !mapError && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-muted/50">
-                      <div className="flex flex-col items-center gap-1">
-                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                        <span className="text-xs text-muted-foreground">Loading map…</span>
+                    <div className="absolute inset-0 flex items-center justify-center bg-muted/60 backdrop-blur-xs">
+                      <div className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-card/80 border border-border/60 shadow-sm">
+                        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                        <span className="text-xs font-medium text-muted-foreground">Loading interactive map…</span>
                       </div>
                     </div>
                   )}
                   {mapError && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-yellow-50/90">
-                      <div className="text-center">
-                        <AlertTriangle className="h-3 w-3 text-yellow-600 mx-auto mb-1" />
-                        <p className="text-xs font-medium text-yellow-800">Map unavailable</p>
+                    <div className="absolute inset-0 flex items-center justify-center bg-amber-50/90 dark:bg-amber-950/90">
+                      <div className="text-center p-3 rounded-2xl bg-card border border-amber-200 shadow-sm">
+                        <AlertTriangle className="h-4 w-4 text-amber-600 mx-auto mb-1" />
+                        <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">Map unavailable</p>
                       </div>
                     </div>
                   )}
-                  <div className="absolute inset-0 group cursor-pointer" onClick={() => setIsFullScreen(true)}>
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-sm border rounded px-2 py-1 text-xs text-foreground flex items-center gap-1 shadow-sm group-hover:shadow-md transition-all">
-                      <Maximize2 className="h-2.5 w-2.5 text-primary" />
-                      Click to expand
-                    </div>
+
+                  {/* Expand map button */}
+                  <div className="absolute bottom-3 right-3 z-10">
+                    <button
+                      type="button"
+                      onClick={() => setIsFullScreen(true)}
+                      className="bg-card/90 hover:bg-card text-foreground border border-border/80 shadow-md rounded-xl px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5 backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      <Maximize2 className="h-3 w-3 text-primary" />
+                      <span>Expand Map</span>
+                    </button>
                   </div>
-                  <CenterPin isDragging={isDragging} size="h-5 w-5" />
+
+                  <CenterPin isDragging={isDragging} size="h-6 w-6" />
                 </div>
 
-                {hasCoords && (
-                  <div className="flex items-center gap-1 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded px-2 py-1">
-                    <CheckCircle2 className="h-3 w-3 text-green-600 dark:text-green-400 shrink-0" />
-                    <span className="text-xs font-mono text-green-700 dark:text-green-400 flex-1">{latitude.toFixed(6)}, {longitude.toFixed(6)}</span>
-                    <Badge variant="secondary" className="text-xs">Set</Badge>
-                  </div>
-                )}
+                <div className="flex items-center justify-between gap-2">
+                  {hasCoords ? (
+                    <div className="flex-1 flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-2 text-xs font-mono text-emerald-700 dark:text-emerald-300 shadow-2xs">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                      <span className="flex-1 truncate">{latitude.toFixed(6)}, {longitude.toFixed(6)}</span>
+                      <Badge variant="secondary" className="text-[10px] bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold border-none px-2 py-0.5">GPS SET</Badge>
+                    </div>
+                  ) : (
+                    <div className="flex-1 text-xs text-muted-foreground flex items-center gap-1.5 px-1">
+                      <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <span>Drag map to set position or click 'Use My Location'</span>
+                    </div>
+                  )}
 
-                <CustomButton type="button" variant="outline" onClick={handleMyLocation} className="w-full gap-1" disabled={isSubmitting}>
-                  <LocateFixed className="h-3 w-3" />
-                  Use My Location
-                </CustomButton>
+                  <CustomButton type="button" variant="outline" onClick={handleMyLocation} className="gap-1.5 h-9 rounded-xl border-border/80 shrink-0 font-medium" disabled={isSubmitting}>
+                    <LocateFixed className="h-3.5 w-3.5 text-primary" />
+                    <span>My Location</span>
+                  </CustomButton>
+                </div>
               </div>
             </div>
 
@@ -847,50 +966,40 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
               />
             )}
 
-            {}
-            <div className="space-y-3 pt-2 border-t">
-              <TextField control={control} name="label" label="Label" placeholder="e.g., Home, Office, Shop" required disabled={isSubmitting} error={errors.label} />
+            {/* Address Details & Custom Form Fields */}
+            <div className="space-y-3 pt-3 border-t border-border/60">
+              <div>
+                <LocationLabelPresets
+                  currentValue={watch("label")}
+                  onSelect={(preset) => setValue("label", preset, { shouldDirty: true, shouldValidate: true })}
+                  disabled={isSubmitting}
+                />
+                <TextField control={control} name="label" label="Location Label" placeholder="Enter location label (e.g. Home, Work, Office)" required disabled={isSubmitting} error={errors.label} />
+              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <TextField control={control} name="houseNumber" label="House Number" placeholder="Enter house number" disabled={isSubmitting} error={errors.houseNumber} />
-                <TextField control={control} name="streetNumber" label="Street" placeholder="Enter street" disabled={isSubmitting} error={errors.streetNumber} />
+                <TextField control={control} name="houseNumber" label="House / Building Number" placeholder="Enter house or building number" disabled={isSubmitting} error={errors.houseNumber} />
+                <TextField control={control} name="streetNumber" label="Street Name or Number" placeholder="Enter street name or number" disabled={isSubmitting} error={errors.streetNumber} />
                 {selectionMode === "map" && (
                   <>
-                    <TextField control={control} name="village" label="Village / Sangkat" placeholder="Auto-filled" disabled={isSubmitting} error={errors.village} />
-                    <TextField control={control} name="commune" label="Commune / City" placeholder="Auto-filled" required disabled={isSubmitting} error={errors.commune} />
-                    <TextField control={control} name="district" label="District / Khan" placeholder="Auto-filled" disabled={isSubmitting} error={errors.district} />
-                    <TextField control={control} name="province" label="Province" placeholder="Auto-filled" disabled={isSubmitting} error={errors.province} />
+                    <TextField control={control} name="village" label="Village / Phum" placeholder="Enter village or phum name" disabled={isSubmitting} error={errors.village} />
+                    <TextField control={control} name="commune" label="Commune / Sangkat" placeholder="Enter commune or sangkat name" required disabled={isSubmitting} error={errors.commune} />
+                    <TextField control={control} name="district" label="District / Khan" placeholder="Enter district or khan name" disabled={isSubmitting} error={errors.district} />
+                    <TextField control={control} name="province" label="Province / City" placeholder="Enter province or city name" required disabled={isSubmitting} error={errors.province} />
                   </>
                 )}
               </div>
 
-              <TextareaField control={control} name="note" label="Notes" placeholder="Delivery instructions…" rows={2} disabled={isSubmitting} error={errors.note} />
+              <TextareaField control={control} name="note" label="Delivery Instructions & Notes" placeholder="Enter delivery instructions or notes (e.g. Leave at front door, call upon arrival...)" rows={2} disabled={isSubmitting} error={errors.note} />
 
-              {}
-              <CustomButton variant="unstyled" size="unstyled"
-                type="button"
-                onClick={() => setValue("isPrimary", !isPrimaryValue, { shouldDirty: true })}
+              {/* Primary Location Selector Card */}
+              <LocationPrimaryToggle
+                isPrimary={isPrimaryValue}
+                onToggle={() => setValue("isPrimary", !isPrimaryValue, { shouldDirty: true })}
                 disabled={isSubmitting}
-                className={cn(
-                  "w-full flex items-center gap-2 rounded border-2 p-2 text-left transition-all focus:outline-none",
-                  isPrimaryValue
-                    ? "border-amber-300 bg-amber-50/50 dark:bg-amber-950/20"
-                    : "border-border hover:border-primary/30 hover:bg-muted/30"
-                )}
-              >
-                <div className={cn("p-1 rounded shrink-0", isPrimaryValue ? "bg-amber-100 dark:bg-amber-900/40" : "bg-muted")}>
-                  <Star className={cn("h-3 w-3", isPrimaryValue ? "text-amber-500 fill-amber-500" : "text-muted-foreground")} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className={cn("text-xs font-semibold", isPrimaryValue ? "text-amber-700 dark:text-amber-400" : "text-foreground")}>
-                    {isPrimaryValue ? "Primary Location" : "Set as Primary"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Default address for deliveries</p>
-                </div>
-                {isPrimaryValue && <CheckCircle2 className="h-3 w-3 text-amber-500 shrink-0" />}
-              </CustomButton>
+              />
 
-              {}
+              {/* Location Image Attachments */}
               <MultiImageUpload
                 images={imageFields.map((f: { id: string; imageUrl: string }) => ({ imageUrl: f.imageUrl }))}
                 onAdd={(url) => appendImage({ imageUrl: url })}
@@ -905,7 +1014,6 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
             <SubmitButton isSubmitting={isSubmitting} isDirty={isDirty} isCreate={isCreate} createText="Add Location" updateText="Update" submittingCreateText="Creating…" submittingUpdateText="Updating…" />
           </FormFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </CustomModal>
   );
 }

@@ -1,14 +1,73 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
-  <!-- Background -->
-  <rect width="200" height="200" fill="#f3f4f6"/>
-  <!-- Inner frame -->
-  <rect x="30" y="30" width="140" height="140" rx="6" fill="#e5e7eb"/>
-  <!-- Image icon frame -->
-  <rect x="58" y="52" width="84" height="68" rx="4" fill="none" stroke="#9ca3af" stroke-width="2.5"/>
-  <!-- Sun circle -->
-  <circle cx="76" cy="70" r="9" fill="#9ca3af"/>
-  <!-- Mountain shape -->
-  <path d="M62 112 L85 82 L100 97 L118 76 L138 112 Z" fill="#9ca3af"/>
-  <!-- Label -->
-  <text x="100" y="152" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#6b7280" letter-spacing="0.5">No Image</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+
+    <!-- Card Gradient -->
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#f8fafc" stop-opacity="0.7"/>
+    </linearGradient>
+
+    <!-- Primary Accent Gradient -->
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+
+    <!-- Icon Sparkle Gradient -->
+    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#cbd5e1"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </linearGradient>
+
+    <!-- Soft Drop Shadow -->
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0f172a" flood-opacity="0.06"/>
+    </filter>
+
+    <filter id="iconGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#64748b" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="400" height="400" rx="0" fill="url(#bgGrad)"/>
+
+  <!-- Decorative Ambient Circles -->
+  <circle cx="200" cy="180" r="110" fill="#e2e8f0" opacity="0.4" />
+  <circle cx="200" cy="180" r="85" fill="#ffffff" opacity="0.6" />
+
+  <!-- Modern Floating Card -->
+  <g filter="url(#softShadow)">
+    <rect x="100" y="80" width="200" height="200" rx="28" fill="url(#cardGrad)" stroke="#ffffff" stroke-width="2"/>
+  </g>
+
+  <!-- Central Camera / Image Frame Illustration -->
+  <g filter="url(#iconGlow)">
+    <!-- Image Card Frame -->
+    <rect x="135" y="115" width="130" height="100" rx="16" fill="none" stroke="url(#primaryGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Sun / Lens Accent -->
+    <circle cx="168" cy="145" r="10" fill="url(#iconGrad)"/>
+    
+    <!-- Mountain Silhouette -->
+    <path d="M145 198 L178 162 L198 182 L225 150 L255 198 Z" fill="url(#primaryGrad)" opacity="0.85"/>
+
+    <!-- Subtle Floating Decorative Sparkles -->
+    <path d="M250 110 L253 117 L260 120 L253 123 L250 130 L247 123 L240 120 L247 117 Z" fill="#94a3b8" opacity="0.7"/>
+    <path d="M136 100 L137.5 104.5 L142 106 L137.5 107.5 L136 112 L134.5 107.5 L130 106 L134.5 104.5 Z" fill="#cbd5e1" opacity="0.8"/>
+  </g>
+
+  <!-- Modern Typography -->
+  <text x="200" y="315" text-anchor="middle" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#64748b" letter-spacing="1.5">
+    NO IMAGE AVAILABLE
+  </text>
+  
+  <text x="200" y="333" text-anchor="middle" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="500" fill="#94a3b8" letter-spacing="0.5">
+    Image preview coming soon
+  </text>
 </svg>

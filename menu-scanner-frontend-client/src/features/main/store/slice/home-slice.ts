@@ -167,7 +167,12 @@ const homeSlice = createSlice({
       tryRestore("categories", p.categories, () => { state.categories = p.categories; });
       tryRestore("promotionProducts", p.promotionProducts, () => { state.promotionProducts = p.promotionProducts; });
       tryRestore("featuredProducts", p.featuredProducts, () => {
-        state.featuredProducts = p.featuredProducts;
+        const seen = new Set<string>();
+        state.featuredProducts = (p.featuredProducts || []).filter((item) => {
+          if (!item?.id || seen.has(item.id)) return false;
+          seen.add(item.id);
+          return true;
+        });
         state.featuredPagination = p.featuredPagination;
       });
       tryRestore("brands", p.brands, () => { state.brands = p.brands; });
@@ -217,12 +222,17 @@ const homeSlice = createSlice({
     addSectionPending(fetchHomeFeaturedProducts, "featuredProducts");
     builder.addCase(fetchHomeFeaturedProducts.fulfilled, (state, action) => {
       const newProducts = action.payload?.content || [];
+      const pageNo = action.payload?.pageNo || 1;
 
+      if (pageNo === 1) {
+        state.featuredProducts = newProducts;
+      } else {
+        const existingIds = new Set(state.featuredProducts.map((p) => p.id));
+        const uniqueNew = newProducts.filter((p: ProductDetailResponseModel) => !existingIds.has(p.id));
+        state.featuredProducts = [...state.featuredProducts, ...uniqueNew];
+      }
 
-      state.featuredProducts = [...state.featuredProducts, ...newProducts];
-
-
-      state.featuredPagination.currentPage = action.payload?.pageNo || 1;
+      state.featuredPagination.currentPage = pageNo;
       state.featuredPagination.totalPages = action.payload?.totalPages || 1;
       state.featuredPagination.hasMore = !action.payload?.last;
       state.sections.featuredProducts.loading = false;

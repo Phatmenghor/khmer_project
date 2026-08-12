@@ -40,6 +40,7 @@ import { SpacesMultiSizeResult } from "@/services/spaces-service";
 import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 import { TelegramSyncCard } from "@/components/shared/telegram/telegram-sync-card";
 import { PageContainer } from "@/components/shared/common/page-container";
+import { PageHeader } from "@/components/shared/common/page-header";
 import { GENDER_OPTIONS } from "@/constants/form-options";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { formatEnumLabel } from "@/utils/common/common";
@@ -236,391 +237,348 @@ export default function PublicProfilePage() {
   }
 
   return (
-    <PageContainer className="min-h-screen flex flex-col">
-      <div className="flex flex-1 flex-col gap-3 py-3">
-        {}
-        <div className="w-full mb-1">
-          <h1 className="text-xs font-bold text-foreground">
-            Customer Profile
-          </h1>
-          <p className="text-muted-foreground text-xs mt-1">
-            Manage your personal information and account settings
-          </p>
-        </div>
+    <div className="min-h-screen bg-background relative">
+      {/* Ambient background glow — matching Admin Dashboard aesthetic */}
+      <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[300px] bg-primary/5 blur-[120px] rounded-full opacity-60" />
 
-        <div className="space-y-3 w-full">
-          <Card className="mb-4 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-primary/5 shadow-md">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                {}
-                <div
-                  className="relative group cursor-pointer flex-shrink-0"
-                  onClick={() => setIsProfilePictureModalOpen(true)}
-                >
-                  <div className="relative h-14 w-14 rounded-full overflow-hidden ring-2 ring-primary/20 bg-primary/10">
-                    {(watch("profileImageUrl") || userProfile?.profileImage?.md) ? (
-                      <SmartImage
-                        src={watch("profileImageUrl") || userProfile?.profileImage?.md}
-                        alt={userProfile?.fullName || "User"}
-                        fill
-                        showSkeleton={false}
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-primary font-semibold">
-                        {userProfile?.fullName?.charAt(0)?.toUpperCase() || "U"}
+      <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5 relative z-10">
+        <div className="space-y-4 w-full">
+          {/* Facebook-Style Profile Hero Header */}
+          <div className="relative rounded-[24px] overflow-hidden border border-border/80 bg-gradient-to-r from-primary/20 via-card to-card shadow-xs">
+            {/* Cover Photo Banner with Grid Overlay & Gradient Glow */}
+            <div className="h-36 sm:h-48 w-full bg-gradient-to-r from-primary/35 via-primary/20 to-primary/10 relative overflow-hidden flex items-center justify-between px-6">
+              {/* Subtle Grid Pattern */}
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/30 via-transparent to-transparent pointer-events-none" />
+
+              {/* Decorative Glassmorphic Badge */}
+              <div className="relative z-10 hidden sm:flex items-center gap-2">
+                <span className="text-[11px] font-extrabold text-primary uppercase tracking-widest bg-card/75 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-primary/25 shadow-2xs">
+                  Customer Profile
+                </span>
+              </div>
+            </div>
+
+            {/* Overlapping Profile Content */}
+            <div className="px-4 sm:px-6 pb-5 pt-0 bg-card relative">
+              <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 -mt-12 sm:-mt-14 mb-2">
+                {/* Overlapping Avatar & Info */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
+                  <div
+                    className="relative group cursor-pointer shrink-0"
+                    onClick={() => setIsProfilePictureModalOpen(true)}
+                    title="Change profile picture"
+                  >
+                    <div className="relative h-24 w-24 sm:h-28 sm:w-28 rounded-full border-4 border-card shadow-xl overflow-hidden bg-muted ring-2 ring-primary/25 transition-transform duration-300 group-hover:scale-105">
+                      {(watch("profileImageUrl") || userProfile?.profileImage?.md) ? (
+                        <SmartImage
+                          src={watch("profileImageUrl") || userProfile?.profileImage?.md}
+                          alt={userProfile?.fullName || "User"}
+                          fill
+                          showSkeleton={false}
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center text-primary font-extrabold text-2xl sm:text-3xl bg-gradient-to-br from-primary/25 via-primary/10 to-card">
+                          {userProfile?.fullName?.charAt(0)?.toUpperCase() || "U"}
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10 backdrop-blur-xs">
+                        <Camera className="h-5 w-5 text-white" />
                       </div>
-                    )}
-                    <div className="absolute bottom-1 right-1 bg-primary rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80 z-10">
-                      <Camera className="h-3 w-3 text-white" />
                     </div>
                   </div>
-                </div>
 
-                <div className="flex-1">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h2 className="text-xs font-bold text-foreground">
-                        {userProfile?.fullName}
-                      </h2>
-                      <p className="text-primary/70 text-xs font-medium">
-                        {userProfile?.email}
-                      </p>
-                      <div className="flex items-center gap-1 mt-1">
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-semibold">
-                          {userProfile?.accountStatus}
+                  {/* Headline & Badges */}
+                  <div className="pb-1">
+                    <h2 className="text-base sm:text-lg md:text-xl font-extrabold text-foreground tracking-tight flex items-center justify-center sm:justify-start gap-2">
+                      {userProfile?.fullName || "Customer User"}
+                    </h2>
+                    <p className="text-xs font-semibold text-muted-foreground mt-0.5">
+                      {userProfile?.email}
+                    </p>
+                    <div className="flex items-center justify-center sm:justify-start gap-2 mt-2 flex-wrap">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-bold shadow-2xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                        {userProfile?.accountStatus || "ACTIVE"}
+                      </span>
+                      {userProfile?.userType && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-muted border border-border/60 text-muted-foreground text-[11px] font-semibold">
+                          {formatEnumLabel(userProfile.userType)}
                         </span>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-1">
-                      {isEditing ? (
-                        <>
-                          <CustomButton
-                            variant="outline"
-                            size="sm"
-                            onClick={handleCancel}
-                            disabled={isProfileLoading || isUploadingImage}
-                            className="border-primary/30 hover:bg-primary/5 hover:text-primary hover:border-primary/50"
-                          >
-                            Cancel
-                          </CustomButton>
-                          <CustomButton
-                            size="sm"
-                            onClick={handleSubmit(onSubmit)}
-                            disabled={
-                              isProfileLoading || isUploadingImage || !isDirty
-                            }
-                            className="bg-primary hover:bg-primary/90"
-                          >
-                            {isProfileLoading || isUploadingImage ? (
-                              <>
-                                <Loader2 className="h-2 w-2 mr-1 animate-spin" />
-                                {isUploadingImage
-                                  ? "Uploading..."
-                                  : "Saving..."}
-                              </>
-                            ) : (
-                              "Save"
-                            )}
-                          </CustomButton>
-                        </>
-                      ) : (
-                        <CustomButton
-                          size="sm"
-                          onClick={() => setIsEditing(true)}
-                          className="bg-primary hover:bg-primary/90 text-white"
-                        >
-                          <Edit className="h-2 w-2 mr-1" />
-                          Edit
-                        </CustomButton>
                       )}
                     </div>
                   </div>
                 </div>
+
+                {/* Edit / Save Action Buttons */}
+                <div className="flex items-center gap-2 shrink-0 pb-1">
+                  {isEditing ? (
+                    <>
+                      <CustomButton
+                        variant="outline"
+                        size="sm"
+                        onClick={handleCancel}
+                        disabled={isProfileLoading || isUploadingImage}
+                        className="rounded-xl border-border/60 hover:bg-muted/50 font-bold text-xs px-4 py-2 cursor-pointer"
+                      >
+                        Cancel
+                      </CustomButton>
+                      <CustomButton
+                        size="sm"
+                        onClick={handleSubmit(onSubmit)}
+                        disabled={isProfileLoading || isUploadingImage || !isDirty}
+                        className="rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs px-5 py-2 shadow-2xs cursor-pointer"
+                      >
+                        {isProfileLoading || isUploadingImage ? (
+                          <>
+                            <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                            {isUploadingImage ? "Uploading..." : "Saving..."}
+                          </>
+                        ) : (
+                          "Save Changes"
+                        )}
+                      </CustomButton>
+                    </>
+                  ) : (
+                    <CustomButton
+                      size="sm"
+                      onClick={() => setIsEditing(true)}
+                      className="rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs px-5 py-2 shadow-2xs cursor-pointer"
+                    >
+                      <Edit className="h-3.5 w-3.5 mr-1.5" />
+                      Edit Profile
+                    </CustomButton>
+                  )}
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          {}
-          <div className="flex gap-0 mb-5 w-full relative group border border-primary/30 rounded overflow-hidden">
-            {}
-            <div
-              className={cn(
-                "absolute inset-y-0 h-full bg-primary/5 transition-all duration-500 ease-out",
-                activeSection === "profile" ? "left-0 w-1/2" : "left-1/2 w-1/2",
-              )}
-            />
-
-            {}
-            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/20" />
-
-            {}
-            <CustomButton variant="unstyled" size="unstyled"
+          {/* Facebook-Style Segmented Tab Control */}
+          <div className="p-1 rounded-2xl border border-border/80 bg-muted/40 grid grid-cols-2 gap-1 w-full shadow-2xs">
+            <CustomButton
+              variant="unstyled"
+              size="unstyled"
               onClick={() => setActiveSection("profile")}
               className={cn(
-                "flex-1 flex items-center justify-center gap-1 py-3 px-4 relative z-10",
-                "text-xs font-semibold transition-all duration-300",
-                "border-r border-primary/20",
+                "flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-extrabold transition-all cursor-pointer",
                 activeSection === "profile"
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground/70",
+                  ? "bg-card border border-border/60 text-primary shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-card/50"
               )}
             >
-              <User
-                className={cn(
-                  "h-3 w-3 transition-all duration-300",
-                  activeSection === "profile" ? "scale-110" : "scale-100",
-                )}
-              />
-              <span>Profile</span>
+              <User className="h-3.5 w-3.5" />
+              <span>Personal Profile</span>
             </CustomButton>
 
-            {}
-            <CustomButton variant="unstyled" size="unstyled"
+            <CustomButton
+              variant="unstyled"
+              size="unstyled"
               onClick={() => setActiveSection("security")}
               className={cn(
-                "flex-1 flex items-center justify-center gap-1 py-3 px-4 relative z-10",
-                "text-xs font-semibold transition-all duration-300",
+                "flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-extrabold transition-all cursor-pointer",
                 activeSection === "security"
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground/70",
+                  ? "bg-card border border-border/60 text-primary shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-card/50"
               )}
             >
-              <Lock
-                className={cn(
-                  "h-3 w-3 transition-all duration-300",
-                  activeSection === "security" ? "scale-110" : "scale-100",
-                )}
-              />
-              <span>Security</span>
+              <Lock className="h-3.5 w-3.5" />
+              <span>Security & Accounts</span>
             </CustomButton>
           </div>
 
-          {}
+          {/* Profile Section */}
           {activeSection === "profile" && (
             <form onSubmit={handleSubmit(onSubmit)} className="w-full">
-              <div className="w-full space-y-4">
-                {}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Personal Information</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {isEditing ? (
-                        <>
-                          <TextField
-                            control={control}
-                            name="firstName"
-                            label="First Name"
-                            placeholder="First name"
-                            error={errors.firstName}
-                          />
+              <Card className="rounded-[22px] border border-border/80 bg-gradient-to-b from-card via-card to-muted/10 shadow-2xs">
+                <CardHeader className="border-b border-border/40 pb-3">
+                  <CardTitle className="text-xs font-extrabold text-foreground flex items-center justify-between">
+                    <span>Personal Details</span>
+                    <span className="text-[11px] font-semibold text-muted-foreground">
+                      {isEditing ? "Editing Mode" : "View Mode"}
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 sm:p-5 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    {isEditing ? (
+                      <>
+                        <TextField
+                          control={control}
+                          name="firstName"
+                          label="First Name"
+                          placeholder="First name"
+                          error={errors.firstName}
+                        />
 
-                          <TextField
-                            control={control}
-                            name="lastName"
-                            label="Last Name"
-                            placeholder="Last name"
-                            error={errors.lastName}
-                          />
+                        <TextField
+                          control={control}
+                          name="lastName"
+                          label="Last Name"
+                          placeholder="Last name"
+                          error={errors.lastName}
+                        />
 
-                          <TextField
-                            control={control}
-                            name="nickname"
-                            label="Nickname"
-                            placeholder="Nickname"
-                            error={errors.nickname}
-                          />
+                        <TextField
+                          control={control}
+                          name="nickname"
+                          label="Nickname"
+                          placeholder="Nickname"
+                          error={errors.nickname}
+                        />
 
-                          <TextField
-                            control={control}
-                            name="email"
-                            label="Email"
-                            placeholder="Email"
-                            type="email"
-                            error={errors.email}
-                          />
+                        <TextField
+                          control={control}
+                          name="email"
+                          label="Email"
+                          placeholder="Email"
+                          type="email"
+                          error={errors.email}
+                        />
 
-                          <TextField
-                            control={control}
-                            name="phoneNumber"
-                            label="Phone Number"
-                            placeholder="Phone"
-                            error={errors.phoneNumber}
-                          />
+                        <TextField
+                          control={control}
+                          name="phoneNumber"
+                          label="Phone Number"
+                          placeholder="Phone"
+                          error={errors.phoneNumber}
+                        />
 
-                          <SelectField
-                            control={control}
-                            name="gender"
-                            label="Gender"
-                            placeholder="Select gender"
-                            options={GENDER_OPTIONS}
-                            error={errors.gender}
-                          />
+                        <SelectField
+                          control={control}
+                          name="gender"
+                          label="Gender"
+                          placeholder="Select gender"
+                          options={GENDER_OPTIONS}
+                          error={errors.gender}
+                        />
 
-                          <DateTimePickerField
-                            control={control}
-                            name="dateOfBirth"
-                            label="Date of Birth"
-                            mode="date"
-                            placeholder="Date of birth"
-                            error={errors.dateOfBirth}
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <DisplayField
-                            label="First Name"
-                            value={watch("firstName")}
-                          />
-                          <DisplayField
-                            label="Last Name"
-                            value={watch("lastName")}
-                          />
-                          <DisplayField
-                            label="Full Name"
-                            value={userProfile?.fullName}
-                          />
-                          <DisplayField
-                            label="Nickname"
-                            value={watch("nickname")}
-                          />
-                          <DisplayField label="Email" value={watch("email")} />
-                          <DisplayField
-                            label="Phone Number"
-                            value={watch("phoneNumber")}
-                          />
-                          <DisplayField
-                            label="Gender"
-                            value={
-                              GENDER_OPTIONS.find(
-                                (o) => o.value === watch("gender"),
-                              )?.label
-                            }
-                          />
-                          <DisplayField
-                            label="Date of Birth"
-                            value={watch("dateOfBirth")}
-                          />
-                          <DisplayField
-                            label="User Identifier"
-                            value={userProfile?.userIdentifier}
-                          />
-                          <DisplayField
-                            label="User Type"
-                            value={formatEnumLabel(userProfile?.userType)}
-                          />
-                          <DisplayField
-                            label="Account Status"
-                            value={formatEnumLabel(userProfile?.accountStatus)}
-                          />
-                          <DisplayField
-                            label="Status"
-                            value={formatEnumLabel(userProfile?.status)}
-                          />
-                          <DisplayField
-                            label="Roles"
-                            value={userProfile?.roles?.length ? userProfile.roles.map(formatEnumLabel).join(", ") : undefined}
-                          />
-                          <DisplayField
-                            label="Remark"
-                            value={userProfile?.remark}
-                          />
-                          <DisplayField
-                            label="Last Login"
-                            value={userProfile?.lastLoginAt}
-                          />
-                          <DisplayField
-                            label="Telegram ID"
-                            value={userProfile?.telegramId?.toString()}
-                          />
-                          <DisplayField
-                            label="Telegram Username"
-                            value={userProfile?.telegramUsername}
-                          />
-                          <DisplayField
-                            label="Telegram First Name"
-                            value={userProfile?.telegramFirstName}
-                          />
-                          <DisplayField
-                            label="Telegram Last Name"
-                            value={userProfile?.telegramLastName}
-                          />
-                          <DisplayField
-                            label="Telegram Photo URL"
-                            value={userProfile?.telegramPhotoUrl}
-                          />
-                          <DisplayField
-                            label="Telegram Synced At"
-                            value={userProfile?.telegramSyncedAt}
-                          />
-                          <DisplayField
-                            label="Telegram Synced"
-                            value={userProfile?.telegramSynced !== undefined ? (userProfile.telegramSynced ? "Yes" : "No") : undefined}
-                          />
-                        </>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                        <DateTimePickerField
+                          control={control}
+                          name="dateOfBirth"
+                          label="Date of Birth"
+                          mode="date"
+                          placeholder="Date of birth"
+                          error={errors.dateOfBirth}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <DisplayField
+                          label="First Name"
+                          value={watch("firstName")}
+                        />
+                        <DisplayField
+                          label="Last Name"
+                          value={watch("lastName")}
+                        />
+                        <DisplayField
+                          label="Full Name"
+                          value={userProfile?.fullName}
+                        />
+                        <DisplayField
+                          label="Nickname"
+                          value={watch("nickname")}
+                        />
+                        <DisplayField label="Email" value={watch("email")} />
+                        <DisplayField
+                          label="Phone Number"
+                          value={watch("phoneNumber")}
+                        />
+                        <DisplayField
+                          label="Gender"
+                          value={
+                            GENDER_OPTIONS.find(
+                              (o) => o.value === watch("gender")
+                            )?.label
+                          }
+                        />
+                        <DisplayField
+                          label="Date of Birth"
+                          value={watch("dateOfBirth")}
+                        />
+                        <DisplayField
+                          label="User Identifier"
+                          value={userProfile?.userIdentifier}
+                        />
+                        <DisplayField
+                          label="User Type"
+                          value={formatEnumLabel(userProfile?.userType)}
+                        />
+                        <DisplayField
+                          label="Account Status"
+                          value={formatEnumLabel(userProfile?.accountStatus)}
+                        />
+                        <DisplayField
+                          label="Status"
+                          value={formatEnumLabel(userProfile?.status)}
+                        />
+                        <DisplayField
+                          label="Roles"
+                          value={userProfile?.roles?.length ? userProfile.roles.map(formatEnumLabel).join(", ") : undefined}
+                        />
+                        <DisplayField
+                          label="Last Login"
+                          value={userProfile?.lastLoginAt}
+                        />
+                      </>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </form>
           )}
 
-          {}
+          {/* Security Section */}
           {activeSection === "security" && (
-            <div className="space-y-3">
-              {}
+            <div className="space-y-3.5">
               <div>
-                <h3 className="text-xs font-medium text-muted-foreground mb-2">
-                  Connected Accounts
+                <h3 className="text-xs font-bold text-muted-foreground mb-2 px-1">
+                  Connected Social Accounts
                 </h3>
                 <TelegramSyncCard />
               </div>
 
-              {}
-              <Card>
-                <CardContent className="p-3 sm:p-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <Card className="rounded-[22px] border border-border/80 bg-gradient-to-b from-card to-muted/10 shadow-2xs">
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
-                      <h3 className="font-semibold text-foreground">
-                        Change Password
+                      <h3 className="text-xs font-extrabold text-foreground">
+                        Change Account Password
                       </h3>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Update your password to keep your account secure
+                      <p className="text-xs text-muted-foreground mt-0.5 font-medium">
+                        Update your password periodically to keep your account secure
                       </p>
                     </div>
                     <CustomButton
                       onClick={() => setIsChangePasswordModalOpen(true)}
-                      className="w-full sm:w-auto"
+                      className="rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs px-4 py-2 cursor-pointer shrink-0"
                     >
-                      <Lock className="h-3 w-3 mr-1" />
+                      <Lock className="h-3.5 w-3.5 mr-1.5" />
                       Change Password
                     </CustomButton>
                   </div>
                 </CardContent>
               </Card>
 
-              {}
-              <Card className="border-destructive/50">
-                <CardContent className="p-3 sm:p-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <Card className="rounded-[22px] border border-destructive/30 bg-destructive/5 shadow-2xs">
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
-                      <h3 className="font-semibold text-destructive">
+                      <h3 className="text-xs font-extrabold text-destructive">
                         Delete Account
                       </h3>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Permanently delete your account and all associated data
+                      <p className="text-xs text-muted-foreground mt-0.5 font-medium">
+                        Permanently erase your account and all associated customer data
                       </p>
                     </div>
                     <CustomButton
                       variant="destructive"
                       size="sm"
                       onClick={() => setIsDeleteDialogOpen(true)}
-                      className="w-full sm:w-auto"
+                      className="rounded-xl bg-destructive hover:bg-destructive/90 text-white font-bold text-xs px-4 py-2 shadow-2xs cursor-pointer shrink-0"
                     >
-                      <Trash2 className="h-3 w-3 mr-1" />
+                      <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                       Delete Account
                     </CustomButton>
                   </div>
@@ -662,8 +620,8 @@ export default function PublicProfilePage() {
           />
 
         </div>
-      </div>
-    </PageContainer>
+      </PageContainer>
+    </div>
   );
 }
 

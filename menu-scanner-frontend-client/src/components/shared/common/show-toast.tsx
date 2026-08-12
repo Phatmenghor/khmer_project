@@ -1,21 +1,20 @@
 import { toast } from "sonner";
-
-const DURATION_MS = 4000;
+import { TOAST_CONSTANTS } from "@/constants/ui-constants";
 
 export const showToast = {
   success: (message: string) => {
-    toast.success(message, { duration: DURATION_MS });
+    toast.success(message, { id: `success-${message}`, duration: TOAST_CONSTANTS.DURATION_MS });
   },
 
   error: (message: string) => {
-    toast.error(message, { duration: DURATION_MS });
+    toast.error(message, { id: `error-${message}`, duration: TOAST_CONSTANTS.DURATION_MS });
   },
 
   warning: (message: string) => {
-    toast.warning(message, { duration: DURATION_MS });
+    toast.warning(message, { id: `warning-${message}`, duration: TOAST_CONSTANTS.DURATION_MS });
   },
 
   info: (message: string) => {
-    toast.info(message, { duration: DURATION_MS });
+    toast.info(message, { id: `info-${message}`, duration: TOAST_CONSTANTS.DURATION_MS });
   },
 };

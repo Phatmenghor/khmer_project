@@ -88,7 +88,7 @@ const BannerSectionComponent = ({
           <CarouselContent>
             {banners.map((banner, index) => (
               <CarouselItem key={banner.id + "-" + index}>
-                <div className="relative w-full h-[200px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded-[20px] sm:rounded-[24px] overflow-hidden border border-border/60 shadow-2xs group">
+                <div className="relative w-full h-[200px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded-[20px] sm:rounded-[24px] overflow-hidden border border-border/70 shadow-md group">
                   <SmartImage
                     src={banner.image?.o || banner.image?.md}
                     alt={banner.businessName || "Banner"}
@@ -96,7 +96,10 @@ const BannerSectionComponent = ({
                     priority={index === 0}
                     loading={index === 0 ? "eager" : "lazy"}
                     sizes="100vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
+                  {/* Subtle bottom vignette gradient for depth */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                 </div>
               </CarouselItem>
             ))}
@@ -104,8 +107,8 @@ const BannerSectionComponent = ({
 
           {banners.length > 1 && (
             <>
-              <CarouselPrevious className="left-1 sm:left-3 bg-white/90 hover:bg-white border-none shadow-lg" />
-              <CarouselNext className="right-1 sm:right-3 bg-white/90 hover:bg-white border-none shadow-lg" />
+              <CarouselPrevious className="left-2 sm:left-4 bg-background/80 hover:bg-background backdrop-blur-md border border-border/60 text-foreground shadow-lg h-9 w-9 sm:h-10 sm:w-10 opacity-80 hover:opacity-100 transition-all" />
+              <CarouselNext className="right-2 sm:right-4 bg-background/80 hover:bg-background backdrop-blur-md border border-border/60 text-foreground shadow-lg h-9 w-9 sm:h-10 sm:w-10 opacity-80 hover:opacity-100 transition-all" />
             </>
           )}
         </Carousel>

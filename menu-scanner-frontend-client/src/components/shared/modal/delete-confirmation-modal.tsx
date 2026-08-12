@@ -79,19 +79,19 @@ export function DeleteConfirmationModal({
 
   return (
     <CustomModal isOpen={isOpen} onClose={onClose} size="sm">
-      {/* ── Fixed Header ── */}
-      <div className="flex items-center gap-3 p-4 px-5 border-b border-border/80 bg-background shrink-0">
-        <div className="p-2.5 rounded-xl bg-destructive/10 text-destructive border border-destructive/20 shrink-0">
+      {/* ── Header ── */}
+      <div className="flex items-center gap-3 p-4 px-5 border-b border-border/60 bg-gradient-to-r from-background via-card to-background shrink-0">
+        <div className="p-2.5 rounded-2xl bg-destructive/10 text-destructive border border-destructive/20 shrink-0 shadow-2xs">
           <IconComponent className="w-5 h-5" />
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-extrabold text-base text-foreground leading-tight">{title}</h3>
-          <p className="text-xs text-muted-foreground mt-0.5 font-medium">Confirm permanent deletion</p>
+          <p className="text-xs text-muted-foreground mt-0.5 font-medium">Action cannot be undone</p>
         </div>
       </div>
 
-      {/* ── Compact Body ── */}
-      <div className="p-4 px-5 space-y-3.5 bg-card/30">
+      {/* ── Body ── */}
+      <div className="p-4 px-5 space-y-3.5 bg-card/40">
         {description && (
           <p className="text-xs text-muted-foreground/90 leading-relaxed font-medium">
             {description}
@@ -99,14 +99,14 @@ export function DeleteConfirmationModal({
         )}
 
         {(itemName || isCritical) && (
-          <div className="p-3.5 bg-destructive/5 rounded-xl border border-destructive/15 space-y-2">
+          <div className="p-3.5 bg-destructive/5 rounded-2xl border border-destructive/15 space-y-2">
             {itemName && (
               <div className="flex flex-col gap-0.5">
                 <span className="text-[11px] font-bold text-destructive flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />
-                  Target Account / Item
+                  Target Item
                 </span>
-                <span className="text-xs font-medium text-foreground truncate">
+                <span className="text-xs font-semibold text-foreground truncate">
                   {itemName}
                 </span>
               </div>
@@ -115,7 +115,7 @@ export function DeleteConfirmationModal({
             {isCritical && (
               <div className="flex items-center gap-2 pt-1 border-t border-destructive/10 text-destructive text-xs font-medium">
                 <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-destructive" />
-                <span>Warning: This action cannot be undone and will permanently erase data.</span>
+                <span>Warning: This action will permanently remove selected data.</span>
               </div>
             )}
           </div>
@@ -152,15 +152,15 @@ export function DeleteConfirmationModal({
         )}
       </div>
 
-      {/* ── Fixed Compact Footer ── */}
-      <div className="p-4 px-5 border-t border-border/80 bg-background flex items-center justify-end gap-2 shrink-0">
+      {/* ── Footer ── */}
+      <div className="p-4 px-5 border-t border-border/60 bg-background flex items-center justify-end gap-2.5 shrink-0">
         <CustomButton
           type="button"
           variant="outline"
           size="sm"
           onClick={onClose}
           disabled={inFlight}
-          className="font-bold min-w-[80px] rounded-xl"
+          className="font-bold min-w-[85px] rounded-xl border-border/60 hover:bg-muted/50 text-xs py-2 cursor-pointer"
         >
           Cancel
         </CustomButton>
@@ -171,9 +171,9 @@ export function DeleteConfirmationModal({
           onClick={handleDelete}
           disabled={isDeleteDisabled}
           isLoading={inFlight}
-          className="font-bold min-w-[130px] rounded-xl"
+          className="font-bold min-w-[125px] rounded-xl bg-destructive hover:bg-destructive/90 text-white text-xs py-2 shadow-xs cursor-pointer"
         >
-          {inFlight ? "Deleting..." : buttonLabel}
+          {inFlight ? "Processing..." : buttonLabel}
         </CustomButton>
       </div>
     </CustomModal>

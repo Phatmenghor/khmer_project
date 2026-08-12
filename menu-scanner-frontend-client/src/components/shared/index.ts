@@ -41,7 +41,7 @@ export type { FormDialogBaseProps } from "./modal/form-dialog-base";
 
 // Common Components
 export { PageContainer } from "./common/page-container";
-export { CustomButton, SubmitButton, CancelButton, ActionButton, ConditionalActionButton } from "./button/custom-button";
+export { CustomButton, SubmitButton, CancelButton, ActionButton } from "./button/custom-button";
 export { EmptyState } from "./empty-state/empty-state";
 export { CustomAvatar } from "./avatar/custom-avatar";
 

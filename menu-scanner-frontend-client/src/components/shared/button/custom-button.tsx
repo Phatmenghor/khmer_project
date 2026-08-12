@@ -90,26 +90,43 @@ export interface SubmitButtonProps {
   isSubmitting: boolean;
   isDirty?: boolean;
   isEdit?: boolean;
+  isCreate?: boolean;
+  createText?: string;
+  updateText?: string;
+  submittingCreateText?: string;
+  submittingUpdateText?: string;
   customText?: string;
   className?: string;
+  disabled?: boolean;
+  onClick?: (e?: any) => void;
 }
 
 export function SubmitButton({
   isSubmitting,
   isDirty = true,
   isEdit = false,
+  isCreate = false,
+  createText,
+  updateText,
+  submittingCreateText,
+  submittingUpdateText,
   customText,
   className,
+  disabled,
+  onClick,
 }: SubmitButtonProps) {
-  const defaultText = isEdit ? "Save Changes" : "Create Item";
-  const buttonText = customText || defaultText;
+  const isCreation = isCreate || !isEdit;
+  const defaultText = customText || (isCreation ? (createText || "Create Item") : (updateText || "Save Changes"));
+  const defaultSubmittingText = isCreation ? (submittingCreateText || "Creating…") : (submittingUpdateText || "Saving…");
+  const buttonText = isSubmitting ? defaultSubmittingText : defaultText;
 
   return (
     <CustomButton
       type="submit"
-      disabled={isSubmitting || !isDirty}
+      disabled={isSubmitting || !isDirty || disabled}
       isLoading={isSubmitting}
       variant="default"
+      onClick={onClick}
       className={cn("min-w-[120px]", className)}
     >
       {buttonText}
@@ -121,24 +138,28 @@ export interface CancelButtonProps {
   onClick: () => void;
   disabled?: boolean;
   customText?: string;
+  text?: string;
+  variant?: ButtonProps["variant"];
   className?: string;
 }
 
 export function CancelButton({
   onClick,
   disabled = false,
-  customText = "Cancel",
+  customText,
+  text = "Cancel",
+  variant = "outline",
   className,
 }: CancelButtonProps) {
   return (
     <CustomButton
       type="button"
-      variant="outline"
+      variant={variant as any}
       onClick={onClick}
       disabled={disabled}
       className={className}
     >
-      {customText}
+      {customText || text}
     </CustomButton>
   );
 }
@@ -202,6 +223,7 @@ export interface IconButtonProps {
   size?: ButtonProps["size"];
   className?: string;
   disabled?: boolean;
+  loading?: boolean;
 }
 
 export function IconButton({
@@ -213,6 +235,7 @@ export function IconButton({
   size = "icon",
   className,
   disabled = false,
+  loading = false,
 }: IconButtonProps) {
   const text = tooltip || label;
   const isDestructive = variant === "destructive";
@@ -235,6 +258,7 @@ export function IconButton({
         size={size}
         onClick={onClick}
         disabled={disabled}
+        isLoading={loading}
         className={finalClassName}
       >
         {icon}
@@ -252,6 +276,7 @@ export function IconButton({
             size={size}
             onClick={onClick}
             disabled={disabled}
+            isLoading={loading}
             className={finalClassName}
             aria-label={text}
           >

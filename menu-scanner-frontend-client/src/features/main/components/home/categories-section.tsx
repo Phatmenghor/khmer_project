@@ -1,8 +1,7 @@
-
-
+"use client";
 
 import React, { useState, useEffect } from "react";
-import { CategoryCard } from "@/components/shared/card/category-card";
+import { CategoryGalleryCard } from "@/components/shared/card/category-gallery-card";
 import { CategoryGridSkeleton } from "@/components/shared/skeletons/category-card-skeleton";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import {
@@ -18,10 +17,8 @@ interface CategoriesSectionProps {
   title?: string;
 }
 
-
 const DEFAULT_TITLE = "Shop by Category";
 const DEFAULT_SUBTITLE = "Browse products by category";
-
 
 const CategoriesSectionComponent = ({
   categories,
@@ -31,11 +28,9 @@ const CategoriesSectionComponent = ({
 }: CategoriesSectionProps) => {
   const [limit, setLimit] = useState(12);
 
-
   useEffect(() => {
     const updateLimit = () => {
       const width = window.innerWidth;
-
 
       if (width < 640) {
         setLimit(4);
@@ -57,7 +52,6 @@ const CategoriesSectionComponent = ({
 
   const displayCategories = categories?.slice(0, limit) || [];
 
-
   if (loading) {
     return (
       <SectionWrapper>
@@ -70,11 +64,9 @@ const CategoriesSectionComponent = ({
     );
   }
 
-
   if (error || !displayCategories || displayCategories.length === 0) {
     return null;
   }
-
 
   return (
     <SectionWrapper>
@@ -83,10 +75,10 @@ const CategoriesSectionComponent = ({
         subtitle={DEFAULT_SUBTITLE}
       />
 
-      {}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
-        {displayCategories.map((category, index) => (
-          <CategoryCard
+      {/* Categories Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 sm:gap-3">
+        {displayCategories.map((category) => (
+          <CategoryGalleryCard
             key={`category-${category.id}`}
             category={category}
             loading="eager"
@@ -94,11 +86,9 @@ const CategoriesSectionComponent = ({
         ))}
       </div>
 
-      {}
       <ViewAllButton href="/categories" text="View All Categories" />
     </SectionWrapper>
   );
 };
-
 
 export const CategoriesSection = React.memo(CategoriesSectionComponent);

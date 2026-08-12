@@ -9,7 +9,7 @@ import {
   setLoadedFilters,
 } from "@/features/main/store/slice/public-product-slice";
 import { usePublicProductState } from "@/features/main/store/state/public-product-state";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Sparkles } from "lucide-react";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { PaginatedProductsGrid } from "@/components/shared/grid/paginated-products-grid";
@@ -202,13 +202,34 @@ export function ProductListPage({
   const isInitialLoad = !mounted || (products.length === 0 && loading.list);
   const noSearch = lockedPromotion ? undefined : search;
 
+  const activeHero = hero || (basePath === "/products" ? (
+    <div className="relative overflow-hidden rounded-[20px] border border-border/80 bg-gradient-to-r from-primary/10 via-card to-primary/5 p-4 sm:p-5 shadow-2xs">
+      <div className="flex items-center gap-3">
+        <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
+          <Sparkles className="h-5 w-5 text-primary" />
+        </div>
+        <div>
+          <h1 className="text-base sm:text-lg md:text-xl font-extrabold tracking-tight text-foreground">
+            Explore Menu & Catalog
+          </h1>
+          <p className="text-xs text-muted-foreground mt-0.5 font-medium">
+            Discover all our available items, search by category or brand, and order directly online.
+          </p>
+        </div>
+      </div>
+    </div>
+  ) : null);
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Ambient background glow */}
+      <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[350px] bg-primary/5 blur-[120px] rounded-full opacity-60" />
+
       {/* Hero Header slot */}
-      {hero && (
-        <div className="relative">
-          <PageContainer className="max-w-8xl pt-2 max sm:pt-4 pb-0">
-            <div className="mb-4">{hero}</div>
+      {activeHero && (
+        <div className="relative z-10">
+          <PageContainer className="max-w-8xl pt-2 sm:pt-4 pb-0">
+            <div className="mb-2 sm:mb-4">{activeHero}</div>
           </PageContainer>
         </div>
       )}
@@ -251,29 +272,31 @@ export function ProductListPage({
                     hasMore={pagination.hasMore}
                     onLoadMore={debouncedLoadMore}
                     isInitialLoading={isInitialLoad}
-                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3"
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3"
                     sectionKey={lockedPromotion ? "promotions" : "products"}
                   />
 
                   {/* End of results message */}
                   {!pagination.hasMore && filteredProducts.length > 0 && !loading.list && (
-                    <div className="flex flex-col items-center justify-center mt-7 py-5">
+                    <div className="flex flex-col items-center justify-center mt-8 py-6 px-4 rounded-2xl border border-border/60 bg-gradient-to-b from-muted/20 via-muted/10 to-background shadow-2xs">
                       <div
-                        className={`flex items-center justify-center w-11 h-11 rounded-full mb-3 ${
-                          lockedPromotion ? "bg-orange-500/10" : "bg-primary/10"
+                        className={`flex items-center justify-center w-10 h-10 rounded-full mb-2.5 shadow-2xs border ${
+                          lockedPromotion
+                            ? "bg-red-500/10 text-red-500 border-red-500/20"
+                            : "bg-primary/10 text-primary border-primary/20"
                         }`}
                       >
                         <CheckCircle2
-                          className={`h-5 w-5 ${lockedPromotion ? "text-orange-500" : "text-primary"}`}
+                          className={`h-5 w-5 ${lockedPromotion ? "text-red-500" : "text-primary"}`}
                         />
                       </div>
-                      <h3 className="text-xs font-semibold mb-1">
-                        {lockedPromotion ? "All deals loaded!" : "You've seen it all!"}
+                      <h3 className="text-xs sm:text-sm font-extrabold text-foreground mb-1 text-center">
+                        {lockedPromotion ? "All deals loaded! 🎉" : "You've seen it all! 🎉"}
                       </h3>
-                      <p className="text-xs text-muted-foreground text-center max-w-md">
+                      <p className="text-xs text-muted-foreground text-center max-w-md font-medium">
                         {lockedPromotion
-                          ? "You've seen all current promotions. Check back later for new deals!"
-                          : "You've reached the end of products. Check back later for new arrivals!"}
+                          ? "You've seen all current promotions. Check back later for new exclusive deals!"
+                          : "You've reached the end of the products catalog. Check back later for new arrivals!"}
                       </p>
                     </div>
                   )}

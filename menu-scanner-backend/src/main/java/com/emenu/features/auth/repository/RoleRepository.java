@@ -21,6 +21,8 @@ public interface RoleRepository extends JpaRepository<Role, UUID>, JpaSpecificat
 
     boolean existsByNameAndIsDeletedFalse(String name);
 
+    Optional<Role> findByNameAndBusinessIdAndIsDeletedFalse(String name, UUID businessId);
+
     boolean existsByNameAndBusinessIdAndIsDeletedFalse(String name, UUID businessId);
 
     boolean existsByNameAndBusinessIdIsNullAndIsDeletedFalse(String name);

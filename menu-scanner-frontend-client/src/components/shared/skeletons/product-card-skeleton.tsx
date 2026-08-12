@@ -1,69 +1,61 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 export const ProductCardSkeleton = ({ compact = false }: { compact?: boolean }) => {
   if (compact) {
-
     return (
-      <div className="bg-card rounded border border-border overflow-hidden">
-        {}
-        <div className="relative aspect-square w-full bg-muted/30 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
-          {}
-          <div className="absolute top-1 left-1">
-            <div className="h-3 w-5 bg-muted/50 rounded animate-pulse" />
+      <div className="bg-card rounded-xl border border-border/80 overflow-hidden shadow-2xs">
+        {/* Compact Product Image */}
+        <div className="relative aspect-square w-full">
+          <Skeleton className="w-full h-full rounded-none" />
+          <div className="absolute top-1.5 left-1.5">
+            <Skeleton className="h-4 w-7 rounded-md" />
           </div>
-          <div className="absolute -top-1 -right-1">
-            <div className="h-3 w-3 bg-muted/50 rounded-full animate-pulse" />
+          <div className="absolute top-1.5 right-1.5">
+            <Skeleton className="h-6 w-6 rounded-full" />
           </div>
         </div>
 
-        {}
-        <div className="p-1 space-y-1">
-          {}
-          <div className="space-y-0.5">
-            <div className="h-2 w-7 bg-muted/50 rounded animate-pulse" />
-            <div className="h-2 w-8 bg-muted/50 rounded animate-pulse" />
+        {/* Compact Product Info */}
+        <div className="p-2 space-y-1.5">
+          <div className="space-y-1">
+            <Skeleton className="h-3 w-3/4 rounded-md" />
+            <Skeleton className="h-2.5 w-1/2 rounded-md" />
           </div>
-
-          {}
-          <div className="h-3 w-full bg-muted/50 rounded animate-pulse" />
+          <Skeleton className="h-4 w-12 rounded-md" />
         </div>
       </div>
     );
   }
 
   return (
-    <Card className="overflow-hidden border">
-      {}
-      <div className="relative aspect-square w-full bg-muted/30 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
-        {}
-        <div className="absolute top-1 left-1">
-          <div className="h-3 w-8 bg-muted/50 rounded animate-pulse" />
+    <Card className="overflow-hidden border border-border/80 rounded-2xl shadow-2xs bg-card">
+      {/* Product Image Skeleton */}
+      <div className="relative aspect-square w-full">
+        <Skeleton className="w-full h-full rounded-none" />
+        <div className="absolute top-2 left-2">
+          <Skeleton className="h-4 w-10 rounded-md" />
         </div>
-        <div className="absolute top-1 right-1">
-          <div className="h-3 w-10 bg-muted/50 rounded animate-pulse" />
+        <div className="absolute top-2 right-2">
+          <Skeleton className="h-7 w-7 rounded-full" />
         </div>
       </div>
 
-      {}
-      <div className="p-2 space-y-2">
-        {}
-        <div className="space-y-1">
-          <div className="h-3 w-full bg-muted/50 rounded animate-pulse" />
-          <div className="h-3 w-3/4 bg-muted/50 rounded animate-pulse" />
+      {/* Product Details Skeleton */}
+      <div className="p-3 space-y-2.5">
+        <div className="space-y-1.5">
+          <Skeleton className="h-3.5 w-full rounded-md" />
+          <Skeleton className="h-3 w-2/3 rounded-md" />
         </div>
 
-        {}
         <div className="space-y-1">
-          <div className="h-4 w-16 bg-muted/50 rounded animate-pulse" />
-          <div className="h-2 w-14 bg-muted/50 rounded animate-pulse" />
+          <Skeleton className="h-4 w-20 rounded-md" />
+          <Skeleton className="h-2.5 w-16 rounded-md" />
         </div>
 
-        {}
-        <div className="h-5 w-full bg-muted/50 rounded animate-pulse" />
+        <Skeleton className="h-8 w-full rounded-xl" />
       </div>
     </Card>
   );

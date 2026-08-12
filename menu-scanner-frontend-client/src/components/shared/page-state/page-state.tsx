@@ -58,56 +58,56 @@ const DEFAULTS: Record<
     title: "Loading…",
     description: "Please wait while we fetch your data.",
     icon: Loader2,
-    iconBg: "bg-primary/10",
+    iconBg: "bg-primary/10 border border-primary/20",
     iconColor: "text-primary",
   },
   empty: {
     title: "Nothing here yet",
     description: "There is no data to display at this time.",
     icon: PackageOpen,
-    iconBg: "bg-muted",
-    iconColor: "text-muted-foreground",
+    iconBg: "bg-primary/10 border border-primary/20 ring-4 ring-primary/5",
+    iconColor: "text-primary",
   },
   error: {
     title: "Something went wrong",
     description: "We couldn't load the content. Please try again.",
     icon: AlertCircle,
-    iconBg: "bg-destructive/10",
+    iconBg: "bg-destructive/10 border border-destructive/20 ring-4 ring-destructive/5",
     iconColor: "text-destructive",
   },
   "no-results": {
     title: "No results found",
     description: "Try adjusting your search terms or filters.",
     icon: Search,
-    iconBg: "bg-muted",
-    iconColor: "text-muted-foreground",
+    iconBg: "bg-primary/10 border border-primary/20 ring-4 ring-primary/5",
+    iconColor: "text-primary",
   },
   "not-found": {
     title: "Page not found",
     description: "The item you're looking for doesn't exist or has been removed.",
     icon: FileQuestion,
-    iconBg: "bg-muted",
+    iconBg: "bg-muted border border-border/60",
     iconColor: "text-muted-foreground",
   },
   maintenance: {
     title: "Under maintenance",
     description: "We're making some improvements. Please check back shortly.",
     icon: Wrench,
-    iconBg: "bg-amber-100 dark:bg-amber-900/20",
+    iconBg: "bg-amber-100 dark:bg-amber-900/20 border border-amber-500/20",
     iconColor: "text-amber-600 dark:text-amber-400",
   },
   unauthorized: {
     title: "Access denied",
     description: "You need to sign in to view this content.",
     icon: Lock,
-    iconBg: "bg-muted",
+    iconBg: "bg-muted border border-border/60",
     iconColor: "text-muted-foreground",
   },
   offline: {
     title: "You're offline",
     description: "Check your internet connection and try again.",
     icon: WifiOff,
-    iconBg: "bg-muted",
+    iconBg: "bg-muted border border-border/60",
     iconColor: "text-muted-foreground",
   },
 };
@@ -129,9 +129,9 @@ const DEFAULT_ACTION_ICONS: Partial<Record<PageStateType, React.ElementType>> = 
 const SIZE_STYLES = {
   sm: {
     container: "py-6",
-    iconWrap: "w-10 h-10 mb-3",
+    iconWrap: "w-11 h-11 mb-3",
     icon: "h-5 w-5",
-    title: "text-xs font-semibold",
+    title: "text-xs font-bold",
     description: "text-xs max-w-xs",
     gap: "gap-2",
   },
@@ -139,15 +139,15 @@ const SIZE_STYLES = {
     container: "py-10",
     iconWrap: "w-14 h-14 mb-4",
     icon: "h-7 w-7",
-    title: "text-sm font-semibold",
+    title: "text-sm font-bold",
     description: "text-xs max-w-sm",
-    gap: "gap-2",
+    gap: "gap-2.5",
   },
   lg: {
     container: "py-14",
     iconWrap: "w-16 h-16 mb-4",
     icon: "h-8 w-8",
-    title: "text-sm font-semibold",
+    title: "text-base font-extrabold",
     description: "text-xs max-w-md",
     gap: "gap-3",
   },
@@ -189,7 +189,7 @@ export function PageState({
       {illustration ?? (
         <div
           className={cn(
-            "flex items-center justify-center rounded-full",
+            "flex items-center justify-center rounded-full shadow-2xs transition-transform duration-300 hover:scale-105",
             s.iconWrap,
             defaults.iconBg
           )}
@@ -207,12 +207,12 @@ export function PageState({
       )}
 
       {/* Title */}
-      <h3 className={cn("text-foreground mb-1", s.title)}>{resolvedTitle}</h3>
+      <h3 className={cn("text-foreground mb-1 tracking-tight font-extrabold", s.title)}>{resolvedTitle}</h3>
 
       {/* Description */}
       <p
         className={cn(
-          "text-muted-foreground mb-5 mx-auto leading-relaxed",
+          "text-muted-foreground mb-5 mx-auto leading-relaxed font-medium",
           s.description
         )}
       >
@@ -224,19 +224,19 @@ export function PageState({
         <div className={cn("flex flex-wrap items-center justify-center", s.gap)}>
           {primaryLabel && (
             actionHref ? (
-              <CustomButton asChild size="sm" className="gap-1.5 h-8 px-4 rounded text-xs">
+              <CustomButton asChild size="sm" className="gap-1.5 h-9 px-5 rounded-xl font-bold text-xs bg-primary hover:bg-primary/90 text-white shadow-2xs hover:shadow-md transition-all cursor-pointer">
                 <Link href={actionHref}>
-                  {PrimaryIcon && <PrimaryIcon className="h-3 w-3" aria-hidden />}
+                  {PrimaryIcon && <PrimaryIcon className="h-3.5 w-3.5" aria-hidden />}
                   {primaryLabel}
                 </Link>
               </CustomButton>
             ) : onAction ? (
               <CustomButton
                 size="sm"
-                className="gap-1.5 h-8 px-4 rounded text-xs"
+                className="gap-1.5 h-9 px-5 rounded-xl font-bold text-xs bg-primary hover:bg-primary/90 text-white shadow-2xs hover:shadow-md transition-all cursor-pointer"
                 onClick={onAction}
               >
-                {PrimaryIcon && <PrimaryIcon className="h-3 w-3" aria-hidden />}
+                {PrimaryIcon && <PrimaryIcon className="h-3.5 w-3.5" aria-hidden />}
                 {primaryLabel}
               </CustomButton>
             ) : null
@@ -248,7 +248,7 @@ export function PageState({
                 asChild
                 size="sm"
                 variant="outline"
-                className="gap-1.5 h-8 px-4 rounded text-xs"
+                className="gap-1.5 h-9 px-5 rounded-xl font-bold text-xs border-border/60 hover:bg-muted/50 transition-all cursor-pointer"
               >
                 <Link href={secondaryActionHref}>
                   {secondaryActionLabel}
@@ -258,7 +258,7 @@ export function PageState({
               <CustomButton
                 size="sm"
                 variant="outline"
-                className="gap-1.5 h-8 px-4 rounded text-xs"
+                className="gap-1.5 h-9 px-5 rounded-xl font-bold text-xs border-border/60 hover:bg-muted/50 transition-all cursor-pointer"
                 onClick={onSecondaryAction}
               >
                 {secondaryActionLabel}
@@ -274,7 +274,7 @@ export function PageState({
     return (
       <div
         className={cn(
-          "w-full rounded-lg border border-dashed border-border bg-card",
+          "w-full rounded-[24px] border border-dashed border-border/80 bg-gradient-to-b from-card via-card to-muted/20 shadow-2xs",
           "flex flex-col items-center justify-center text-center",
           "animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
           "px-6",

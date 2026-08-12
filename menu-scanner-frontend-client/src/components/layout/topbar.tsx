@@ -57,13 +57,15 @@ export function TopBar({ onMenuClick, onFullscreenClick, isFullscreen }: TopBarP
         {isFullscreen && (
           <>
             <div className="flex items-center gap-2 min-w-0 shrink-0">
-              <div className="relative w-6.5 h-6.5 rounded-[6px] overflow-hidden bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="relative h-7 w-7 flex items-center justify-center shrink-0 overflow-hidden rounded-md">
                 <SmartImage
                   src={businessLogoUrl}
                   fallbackSrc={appImages.scanmekhLogo}
                   alt={businessName}
                   fill
-                  className="object-contain p-0.5"
+                  rounded="md"
+                  showSkeleton={false}
+                  className="object-contain rounded-md"
                 />
               </div>
               <span className="font-black text-xs sm:text-sm text-foreground truncate tracking-tight">

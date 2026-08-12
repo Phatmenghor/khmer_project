@@ -19,14 +19,24 @@ export function getProductImageUrl(imageUrl?: string | ImageUrls | null): string
 
 
 export function sanitizeImageUrl(
-  url: string | null | undefined,
+  url: string | { sm?: string; md?: string; o?: string } | null | undefined,
   fallback: string
 ): string {
   if (!url) return fallback;
-  if (UNREACHABLE_IMAGE_DOMAINS.some((domain) => url.includes(domain))) {
+
+  let targetUrl: string | undefined;
+  if (typeof url === "string") {
+    targetUrl = url;
+  } else if (typeof url === "object" && url !== null) {
+    targetUrl = url.sm || url.md || url.o;
+  }
+
+  if (!targetUrl || typeof targetUrl !== "string") return fallback;
+
+  if (UNREACHABLE_IMAGE_DOMAINS.some((domain) => targetUrl!.includes(domain))) {
     return fallback;
   }
-  return url;
+  return targetUrl;
 }
 
 export function toRoman(num: number): string {

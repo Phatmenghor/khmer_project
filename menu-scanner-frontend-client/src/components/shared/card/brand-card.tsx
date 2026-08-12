@@ -3,9 +3,8 @@
 import { memo } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { SmartImage } from "@/components/shared/image/smart-image";
-import { ArrowRight, ShoppingBag } from "lucide-react";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 
 interface BrandCardProps {
@@ -26,33 +25,40 @@ function BrandCardComponent({ brand, className, loading = "lazy" }: BrandCardPro
     >
       <Card
         className={cn(
-          "relative overflow-hidden rounded-[20px] border border-border/60 bg-card p-3.5 sm:p-4 text-center transition-all duration-300 cursor-pointer h-full flex flex-col items-center justify-between gap-3 hover:shadow-md hover:shadow-primary/5 hover:border-primary/30 hover:-translate-y-1 active:scale-[0.97]",
+          "relative overflow-hidden rounded-[20px] border border-border/70 bg-card p-3.5 sm:p-4 text-center transition-all duration-300 cursor-pointer h-full flex flex-col items-center justify-between gap-3 hover:shadow-md hover:shadow-primary/5 hover:border-primary/40 hover:-translate-y-1 active:scale-[0.97]",
           className
         )}
       >
         {/* Subtle background ambient glow on hover */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/0 via-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-        {/* Hero Logo Container */}
-        <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center overflow-hidden rounded-[18px] bg-gradient-to-tr from-primary/10 via-muted/50 to-muted/20 border border-border/60 shadow-2xs group-hover:border-primary/40 group-hover:shadow-md group-hover:ring-2 group-hover:ring-primary/20 transition-all duration-300 shrink-0">
+        {/* Brand Logo Container */}
+        <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center overflow-hidden rounded-[18px] bg-gradient-to-tr from-primary/10 via-muted/40 to-muted/20 border border-border/60 shadow-2xs group-hover:border-primary/40 group-hover:shadow-md group-hover:ring-2 group-hover:ring-primary/20 transition-all duration-300 shrink-0">
           <SmartImage
             src={imageUrl}
             alt={brand.name}
             fill
             rounded="xl"
             loading={loading}
+            sizes="(max-width: 640px) 33vw, 15vw"
             className="object-cover group-hover:scale-110 transition-transform duration-300 ease-out"
           />
         </div>
 
-        {/* Brand Name */}
-        <div className="flex flex-col items-center justify-center w-full z-10">
+        {/* Brand Details */}
+        <div className="flex flex-col items-center justify-center w-full z-10 gap-1">
           <h3
             title={brand.name}
-            className="font-bold text-xs sm:text-sm line-clamp-2 text-foreground group-hover:text-primary transition-colors leading-snug tracking-tight text-center"
+            className="font-extrabold text-xs sm:text-sm line-clamp-2 text-foreground group-hover:text-primary transition-colors leading-snug tracking-tight text-center"
           >
             {brand.name}
           </h3>
+
+          {itemCount > 0 && (
+            <span className="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+              {itemCount} {itemCount === 1 ? "item" : "items"}
+            </span>
+          )}
         </div>
       </Card>
     </Link>

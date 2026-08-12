@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { Messages } from "@/constants/messages";
 import { useEffect, Suspense, useCallback, useRef, useMemo, useState } from "react";
 import { CustomButton } from "@/components/shared/button/custom-button";
@@ -18,6 +19,8 @@ import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GridPageSkeleton } from "@/components/shared/skeletons/grid-page-skeleton";
 
+type LocationTabType = "all" | "primary" | "home" | "work" | "other";
+
 function LocationPageInner() {
   const {
     locations,
@@ -30,6 +33,7 @@ function LocationPageInner() {
     fetchAllWithPagination,
   } = useLocationState();
 
+  const [activeTab, setActiveTab] = useState<LocationTabType>("all");
   const [mounted, setMounted] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLocation, setEditingLocation] =
@@ -189,6 +193,30 @@ function LocationPageInner() {
     }
   };
 
+  const tabCounts = useMemo(() => {
+    const primary = locations.filter((l) => l.isPrimary || l.isDefault).length;
+    const home = locations.filter((l) => l.label?.toLowerCase().includes("home")).length;
+    const work = locations.filter((l) => l.label?.toLowerCase().includes("work") || l.label?.toLowerCase().includes("office")).length;
+    const other = locations.filter((l) => {
+      const label = l.label?.toLowerCase() || "";
+      return !label.includes("home") && !label.includes("work") && !label.includes("office");
+    }).length;
+    return { all: locations.length, primary, home, work, other };
+  }, [locations]);
+
+  const filteredLocations = useMemo(() => {
+    if (activeTab === "primary") return locations.filter((l) => l.isPrimary || l.isDefault);
+    if (activeTab === "home") return locations.filter((l) => l.label?.toLowerCase().includes("home"));
+    if (activeTab === "work") return locations.filter((l) => l.label?.toLowerCase().includes("work") || l.label?.toLowerCase().includes("office"));
+    if (activeTab === "other") {
+      return locations.filter((l) => {
+        const label = l.label?.toLowerCase() || "";
+        return !label.includes("home") && !label.includes("work") && !label.includes("office");
+      });
+    }
+    return locations;
+  }, [locations, activeTab]);
+
   if (isInitialLoading) {
     return (
       <GridPageSkeleton
@@ -199,10 +227,73 @@ function LocationPageInner() {
     );
   }
 
-  if (locations.length === 0) {
-    return (
-      <>
-        <div className="min-h-screen flex flex-col items-center justify-center">
+  return (
+    <div className="min-h-screen bg-background relative">
+      {/* Ambient background glow — matching Brand, Category, Favorites, Profile, and Cart pages */}
+      <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[300px] bg-primary/5 blur-[120px] rounded-full opacity-60" />
+
+      <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5 relative z-10">
+        <PageHeader
+          title="My Locations"
+          icon={MapPin}
+          count={locationCount}
+          countLabel={locationCount === 1 ? "location" : "locations"}
+          subtitle="Manage your saved addresses for quick checkout"
+          actions={
+            <CustomButton
+              onClick={handleAddLocation}
+              size="sm"
+              className="gap-1.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs px-3.5 py-1.5 shadow-2xs cursor-pointer"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Add Location</span>
+            </CustomButton>
+          }
+        />
+
+        {/* Sticky Segmented Tab Bar Pinned Under Navbar */}
+        {locations.length > 0 && (
+          <div className="sticky top-12 z-30 bg-background/95 backdrop-blur-md border-b border-border/60 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-2.5 mb-4 sm:mb-6 transition-all">
+            <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
+              <div className="p-1 rounded-2xl border border-border/80 bg-muted/40 flex items-center gap-1.5 shadow-2xs">
+                {[
+                  { id: "all", label: "All Locations", count: tabCounts.all },
+                  { id: "primary", label: "Primary Default", count: tabCounts.primary },
+                  { id: "home", label: "Home", count: tabCounts.home },
+                  { id: "work", label: "Work", count: tabCounts.work },
+                  { id: "other", label: "Other", count: tabCounts.other },
+                ].map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTab(tab.id as LocationTabType)}
+                      className={cn(
+                        "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap",
+                        isActive
+                          ? "bg-card text-primary font-bold shadow-2xs border border-border/70"
+                          : "text-muted-foreground hover:text-foreground hover:bg-card/50"
+                      )}
+                    >
+                      <span>{tab.label}</span>
+                      <span
+                        className={cn(
+                          "text-[10px] px-1.5 py-0.2 rounded-full font-bold",
+                          isActive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                        )}
+                      >
+                        {tab.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {locations.length === 0 ? (
           <PageState
             type="empty"
             title="No Saved Locations"
@@ -210,8 +301,65 @@ function LocationPageInner() {
             actionLabel="Add Your First Location"
             onAction={handleAddLocation}
             size="lg"
+            className="my-auto py-12"
           />
-        </div>
+        ) : filteredLocations.length === 0 ? (
+          <PageState
+            type="empty"
+            title={`No ${activeTab.toUpperCase()} Locations`}
+            description="No locations match this tab filter."
+            actionLabel="View All Locations"
+            onAction={() => setActiveTab("all")}
+            size="md"
+            className="my-12 py-8"
+          />
+        ) : (
+          <>
+            {/* Locations Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              {filteredLocations.map((location, index) => {
+                const uniqueKey = `location-${location.id}-${index}`;
+                return (
+                  <div
+                    key={uniqueKey}
+                    className="animate-in fade-in slide-in-from-bottom-2 duration-300"
+                    style={{ animationDelay: `${Math.min(index * 40, 300)}ms` }}
+                  >
+                    <LocationCard
+                      location={location}
+                      settingPrimaryId={settingPrimaryId}
+                      onEdit={handleEditLocation}
+                      onDelete={(loc) => setDeletingLocation(loc)}
+                      onSetPrimary={(loc) => handleSetPrimary(loc.id)}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination Load More Skeletons & Loader */}
+            {locationPagination.hasMore && (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
+                  {Array.from({ length: skeletonCount }).map((_, i) => (
+                    <Skeleton key={i} className="h-32 rounded-2xl" />
+                  ))}
+                </div>
+
+                <div className="flex flex-col items-center justify-center mt-4 py-4">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary mb-1" />
+                  <p className="text-xs text-muted-foreground">
+                    Loading more locations...
+                  </p>
+                </div>
+              </>
+            )}
+
+            {locationPagination.hasMore && !isLoading.fetch && (
+              <div ref={sentinelRef} className="h-7 w-full mt-3" />
+            )}
+          </>
+        )}
 
         <LocationModal
           isOpen={isModalOpen}
@@ -219,86 +367,16 @@ function LocationPageInner() {
           editData={editingLocation}
           initialCoords={currentCoords}
         />
-      </>
-    );
-  }
-
-  return (
-    <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5">
-      <PageHeader
-        title="My Locations"
-        icon={MapPin}
-        count={locationCount}
-        countLabel={locationCount === 1 ? "location" : "locations"}
-        subtitle="Manage your saved addresses"
-        actions={
-          <CustomButton
-            onClick={handleAddLocation}
-            size="sm"
-            className="gap-1 h-6 rounded"
-          >
-            <Plus className="h-3 w-3" />
-            <span className="hidden sm:inline">Add Location</span>
-          </CustomButton>
-        }
-      />
-
-      {}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {locations.map((location, index) => {
-          const uniqueKey = `location-${location.id}-${index}`;
-          return (
-          <LocationCard
-            key={uniqueKey}
-            location={location}
-            settingPrimaryId={settingPrimaryId}
-            onEdit={handleEditLocation}
-            onDelete={(loc) => setDeletingLocation(loc)}
-            onSetPrimary={(loc) => handleSetPrimary(loc.id)}
-          />
-          );
-        })}
-      </div>
-
-      {}
-      {locationPagination.hasMore && (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
-            {Array.from({ length: skeletonCount }).map((_, i) => (
-              <Skeleton key={i} className="h-32 rounded" />
-            ))}
-          </div>
-
-          {}
-          <div className="flex flex-col items-center justify-center mt-4 py-4">
-            <Loader2 className="h-4 w-4 animate-spin text-primary mb-1" />
-            <p className="text-xs sm:text-xs text-muted-foreground">
-              Loading more locations...
-            </p>
-          </div>
-        </>
-      )}
-
-      {}
-      {locationPagination.hasMore && !isLoading.fetch && (
-        <div ref={sentinelRef} className="h-7 w-full mt-3" />
-      )}
-
-      <LocationModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        editData={editingLocation}
-        initialCoords={currentCoords}
-      />
-      <DeleteConfirmationModal
-        isOpen={!!deletingLocation}
-        onClose={() => setDeletingLocation(null)}
-        onDelete={handleDeleteLocation}
-        title="Delete Location"
-        description="Are you sure you want to delete this location? This action cannot be undone."
-        variant="critical"
-      />
-    </PageContainer>
+        <DeleteConfirmationModal
+          isOpen={!!deletingLocation}
+          onClose={() => setDeletingLocation(null)}
+          onDelete={handleDeleteLocation}
+          title="Delete Location"
+          description="Are you sure you want to delete this location? This action cannot be undone."
+          variant="critical"
+        />
+      </PageContainer>
+    </div>
   );
 }
 

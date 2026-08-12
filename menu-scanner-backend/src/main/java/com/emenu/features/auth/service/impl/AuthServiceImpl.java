@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -222,7 +223,7 @@ public class AuthServiceImpl implements AuthService {
                         String userTypeLabel = userTypeEnum.name().toLowerCase().replace("_", " ");
                         String capUserTypeLabel = userTypeLabel.substring(0, 1).toUpperCase() + userTypeLabel.substring(1);
                         return new ValidationException(
-                                capUserTypeLabel + " account not found. Please check your email or username and ensure you're using the correct business account."
+                                capUserTypeLabel + " account not found. Please check your user identifier and ensure you're using the correct business account."
                         );
                     });
         }
@@ -232,7 +233,7 @@ public class AuthServiceImpl implements AuthService {
                     log.warn("User login failed - user not found: identifier={}, type={}", userIdentifier, userTypeEnum);
                     String userTypeLabel = userTypeEnum.name().toLowerCase().replace("_", " ");
                     return new ValidationException(
-                            "Account not found as " + userTypeLabel + ". Please check your email or username and ensure you're logging in with the correct account type."
+                            "Account not found as " + userTypeLabel + ". Please check your user identifier and ensure you're logging in with the correct account type."
                     );
                 });
     }
@@ -274,18 +275,7 @@ public class AuthServiceImpl implements AuthService {
         userEntity.setBusinessId(registrationRequestData.getBusinessId());
         userEntity.setPassword(passwordEncoder.encode(registrationRequestData.getPassword()));
 
-        List<Role> customerRoles = roleRepository.findSystemRolesByName("CUSTOMER");
-        if (customerRoles.isEmpty()) {
-            log.warn("Customer registration failed - customer role not found");
-            throw new ValidationException("Customer role not found");
-        }
-        Role customerRoleEntity = customerRoles.get(0);
-
-        if (!customerRoleEntity.isCompatibleWithUserType(UserType.CUSTOMER)) {
-            log.warn("Customer registration failed - customer role not compatible with user type");
-            throw new ValidationException("CUSTOMER role is not properly configured for CUSTOMER user type");
-        }
-
+        Role customerRoleEntity = getOrCreateCustomerRole(registrationRequestData.getBusinessId());
         userEntity.setRoles(List.of(customerRoleEntity));
 
         User savedUserEntity = userRepository.save(userEntity);
@@ -471,5 +461,32 @@ public class AuthServiceImpl implements AuthService {
                     log.warn("Refresh token validation failed - user not found: identifier={}, type={}", userIdentifier, userTypeEnum);
                     return new ValidationException("User not found for refresh token context");
                 });
+    }
+
+    private Role getOrCreateCustomerRole(UUID businessId) {
+        if (businessId != null) {
+            Optional<Role> businessRole = roleRepository.findByNameAndBusinessIdAndIsDeletedFalse("CUSTOMER", businessId);
+            if (businessRole.isPresent()) {
+                return businessRole.get();
+            }
+        }
+
+        List<Role> systemRoles = roleRepository.findSystemRolesByName("CUSTOMER");
+        if (!systemRoles.isEmpty()) {
+            return systemRoles.get(0);
+        }
+
+        Optional<Role> anyRole = roleRepository.findByNameAndIsDeletedFalse("CUSTOMER");
+        if (anyRole.isPresent()) {
+            return anyRole.get();
+        }
+
+        log.info("Auto-creating default CUSTOMER role for business: business_id={}", businessId);
+        Role customerRole = new Role();
+        customerRole.setName("CUSTOMER");
+        customerRole.setDescription("Default Customer Role");
+        customerRole.setUserType(UserType.CUSTOMER);
+        customerRole.setBusinessId(businessId);
+        return roleRepository.save(customerRole);
     }
 }

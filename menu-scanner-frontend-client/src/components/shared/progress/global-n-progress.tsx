@@ -8,6 +8,7 @@ export default function PageProgressBar() {
       color="hsl(var(--primary))"
       height={3}
       showSpinner={false}
+      crawl={false}
       speed={200}
       crawlSpeed={200}
       easing="ease"

@@ -49,7 +49,7 @@ export const AlertMessages = {
   // ================================
   auth: {
     invalidPassword: "Your password is incorrect. Please try again or reset your password if you've forgotten it.",
-    accountNotFound: "Account not found. Please check your email or username.",
+    accountNotFound: "Account not found. Please check your user identifier.",
     invalidRefreshToken: "Invalid or expired refresh token. Please log in again.",
     userTypeRequired: "User type is required. Please specify your account type.",
   },

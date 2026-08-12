@@ -22,21 +22,27 @@ export const SectionHeader = ({
   className,
 }: SectionHeaderProps) => {
   return (
-    <div className={cn("mb-4 sm:mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-border/40 pb-2.5", className)}>
-      <div className="space-y-0.5">
+    <div className={cn("mb-4 sm:mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-border/60 pb-3", className)}>
+      <div className="space-y-1">
         <div className="flex items-center gap-2">
-          {Icon && <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />}
-          <h2 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground">
+          {Icon ? (
+            <div className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
+              <Icon className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+            </div>
+          ) : (
+            <span className="w-1.5 h-5 rounded-full bg-primary shrink-0" />
+          )}
+          <h2 className="text-base sm:text-lg md:text-xl font-extrabold tracking-tight text-foreground">
             {title}
           </h2>
           {badge && (
-            <span className="text-[10px] sm:text-[11px] font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
+            <span className="text-[10px] sm:text-[11px] font-bold bg-primary/10 text-primary px-2.5 py-0.5 rounded-full border border-primary/20 uppercase tracking-wider">
               {badge}
             </span>
           )}
         </div>
         {subtitle && (
-          <p className="text-xs sm:text-xs text-muted-foreground pl-3.5 font-normal">
+          <p className="text-xs text-muted-foreground pl-3.5 font-medium">
             {subtitle}
           </p>
         )}
@@ -55,7 +61,7 @@ export const SectionWrapper = ({
   children,
   className,
 }: SectionWrapperProps) => {
-  return <section className={cn("mb-5 sm:mb-8", className)}>{children}</section>;
+  return <section className={cn("mb-6 sm:mb-9", className)}>{children}</section>;
 };
 
 interface ViewAllButtonProps {
@@ -70,15 +76,15 @@ export const ViewAllButton = ({
   className,
 }: ViewAllButtonProps) => {
   return (
-    <div className={cn("flex justify-center mt-5 sm:mt-6", className)}>
+    <div className={cn("flex justify-center mt-6 sm:mt-7", className)}>
       <Link href={href}>
         <CustomButton
           size="default"
           variant="outline"
-          className="gap-1.5 group rounded-full border border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary shadow-2xs hover:shadow transition-all duration-200 px-5 text-xs font-semibold active:scale-[0.97]"
+          className="gap-2 group rounded-full border border-primary/30 bg-background/80 hover:bg-primary text-primary hover:text-primary-foreground hover:border-primary shadow-xs hover:shadow-md hover:shadow-primary/20 transition-all duration-300 px-6 h-9 text-xs font-bold active:scale-[0.97]"
         >
-          {text}
-          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+          <span>{text}</span>
+          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
         </CustomButton>
       </Link>
     </div>

@@ -99,18 +99,18 @@ function SmartImageComponent({
 }: SmartImageProps) {
   const sanitizedSrc = sanitizeImageUrl(src, fallbackSrc);
   const [loaded, setLoaded] = useState(() => {
-    return !!sanitizedSrc && loadedUrlsCache.has(sanitizedSrc);
+    return !showSkeleton || (!!sanitizedSrc && loadedUrlsCache.has(sanitizedSrc));
   });
   const [errored, setErrored] = useState(false);
 
   const resolvedSrc = errored ? fallbackSrc : sanitizedSrc;
-  const usePlainImg = raw || isLocalPreviewUrl(resolvedSrc);
+  const usePlainImg = raw || unoptimized || isLocalPreviewUrl(resolvedSrc);
 
   useEffect(() => {
-    const isCached = !!sanitizedSrc && loadedUrlsCache.has(sanitizedSrc);
+    const isCached = !showSkeleton || (!!sanitizedSrc && loadedUrlsCache.has(sanitizedSrc));
     setLoaded(isCached);
     setErrored(false);
-  }, [src, sanitizedSrc]);
+  }, [src, sanitizedSrc, showSkeleton]);
 
   const handleLoad = () => {
     if (sanitizedSrc) {
@@ -134,14 +134,14 @@ function SmartImageComponent({
     objectFitClassMap[objectFit],
     roundedClassMap[rounded],
     "transition-opacity duration-300",
-    loaded ? "opacity-100" : "opacity-0",
+    !showSkeleton || loaded ? "opacity-100" : "opacity-0",
     className
   );
 
   return (
     <div
       className={cn(
-        fill ? "relative w-full h-full overflow-hidden" : "relative inline-block overflow-hidden",
+        fill ? "absolute inset-0 w-full h-full overflow-hidden" : "relative inline-block overflow-hidden",
         roundedClassMap[rounded],
         containerClassName
       )}

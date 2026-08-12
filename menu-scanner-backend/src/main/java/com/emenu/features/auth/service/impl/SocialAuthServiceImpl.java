@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -191,17 +192,16 @@ public class SocialAuthServiceImpl implements SocialAuthService {
             case CUSTOMER -> "CUSTOMER";
         };
 
-        List<Role> defaultRoles = roleRepository.findSystemRolesByName(defaultRoleName);
-        if (defaultRoles.isEmpty()) {
-            log.warn("User creation failed - default role not found: role_name={}, user_type={}", defaultRoleName, userTypeEnum);
-            throw new ValidationException("Default role not found: " + defaultRoleName);
-        }
-        Role defaultRoleEntity = defaultRoles.get(0);
-
-        if (!defaultRoleEntity.isCompatibleWithUserType(userTypeEnum)) {
-            log.warn("User creation failed - role incompatible with user type: role={}, user_type={}", defaultRoleName, userTypeEnum);
-            throw new ValidationException(
-                    String.format("Role '%s' is not properly configured for '%s'", defaultRoleName, userTypeEnum));
+        Role defaultRoleEntity;
+        if (userTypeEnum == UserType.CUSTOMER) {
+            defaultRoleEntity = getOrCreateCustomerRole(businessIdValue);
+        } else {
+            List<Role> defaultRoles = roleRepository.findSystemRolesByName(defaultRoleName);
+            if (defaultRoles.isEmpty()) {
+                log.warn("User creation failed - default role not found: role_name={}, user_type={}", defaultRoleName, userTypeEnum);
+                throw new ValidationException("Default role not found: " + defaultRoleName);
+            }
+            defaultRoleEntity = defaultRoles.get(0);
         }
 
         User newUserEntity = new User();
@@ -255,5 +255,32 @@ public class SocialAuthServiceImpl implements SocialAuthService {
             return userRepository.existsByUserIdentifierAndBusinessIdAndIsDeletedFalse(identifier, businessIdValue);
         }
         return userRepository.existsByUserIdentifierAndUserTypeAndIsDeletedFalse(identifier, userTypeEnum);
+    }
+
+    private Role getOrCreateCustomerRole(UUID businessId) {
+        if (businessId != null) {
+            Optional<Role> businessRole = roleRepository.findByNameAndBusinessIdAndIsDeletedFalse("CUSTOMER", businessId);
+            if (businessRole.isPresent()) {
+                return businessRole.get();
+            }
+        }
+
+        List<Role> systemRoles = roleRepository.findSystemRolesByName("CUSTOMER");
+        if (!systemRoles.isEmpty()) {
+            return systemRoles.get(0);
+        }
+
+        Optional<Role> anyRole = roleRepository.findByNameAndIsDeletedFalse("CUSTOMER");
+        if (anyRole.isPresent()) {
+            return anyRole.get();
+        }
+
+        log.info("Auto-creating default CUSTOMER role for business: business_id={}", businessId);
+        Role customerRole = new Role();
+        customerRole.setName("CUSTOMER");
+        customerRole.setDescription("Default Customer Role");
+        customerRole.setUserType(UserType.CUSTOMER);
+        customerRole.setBusinessId(businessId);
+        return roleRepository.save(customerRole);
     }
 }

@@ -9,6 +9,8 @@ import {
   Trash2,
   Star,
   Crown,
+  MapPin,
+  ExternalLink,
 } from "lucide-react";
 import { LocationResponseModel } from "../store/models/response/location-response";
 import {
@@ -73,46 +75,46 @@ export function LocationCard({
   return (
     <div
       className={cn(
-        "group relative rounded border bg-card overflow-hidden transition-all duration-200 shadow-sm hover:shadow-md p-4 flex gap-3 text-left",
+        "group relative rounded-2xl border bg-card overflow-hidden transition-all duration-300 shadow-2xs hover:shadow-md p-4 sm:p-4.5 flex gap-3 text-left",
         isPrimary
-          ? "border-amber-300/70 dark:border-amber-700/50"
-          : "border-border/60"
+          ? "border-amber-400/80 dark:border-amber-600/50 bg-gradient-to-br from-amber-500/5 via-card to-card"
+          : "border-border/80 hover:border-primary/40"
       )}
     >
       {/* Side bar accent */}
       <div
         className={cn(
-          "absolute left-0 top-0 bottom-0 w-1",
+          "absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl",
           isPrimary
             ? "bg-gradient-to-b from-amber-400 to-amber-500"
             : theme
             ? theme.accent
-            : "bg-primary/40"
+            : "bg-primary"
         )}
       />
 
-      {/* Left Icon Block — like the Education thumbnail block */}
+      {/* Left Icon Block */}
       <div
         className={cn(
-          "flex-shrink-0 w-12 h-12 rounded border flex items-center justify-center",
+          "flex-shrink-0 w-12 h-12 rounded-xl border flex items-center justify-center shadow-2xs",
           isPrimary
-            ? "bg-amber-50 border-amber-200 text-amber-600 dark:bg-amber-950/20 dark:border-amber-700/50 dark:text-amber-400"
+            ? "bg-amber-50 border-amber-200 text-amber-600 dark:bg-amber-950/40 dark:border-amber-700/50 dark:text-amber-400"
             : theme
             ? `${theme.bg} border-border/40 ${theme.text}`
-            : "bg-muted border border-border/40 text-muted-foreground"
+            : "bg-primary/10 border border-primary/20 text-primary"
         )}
       >
-        <LabelIcon className="h-6 w-6" strokeWidth={1.5} />
+        <LabelIcon className="h-5 w-5" strokeWidth={2} />
       </div>
 
       {/* Right Content Block */}
       <div className="flex-1 min-w-0">
         {/* Header Row */}
-        <div className="flex items-center justify-between gap-2 mb-1.5">
+        <div className="flex items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-1.5 flex-wrap">
             <span
               className={cn(
-                "text-xs font-bold leading-tight",
+                "text-xs font-extrabold leading-tight",
                 isPrimary
                   ? "text-amber-700 dark:text-amber-400"
                   : "text-foreground"
@@ -121,8 +123,8 @@ export function LocationCard({
               {location.label || "Location"}
             </span>
             {isPrimary && (
-              <Badge className="h-3.5 px-1 text-[9px] font-bold tracking-wide bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-700/50 shrink-0 flex items-center gap-1">
-                <Crown className="h-2 w-2" />
+              <Badge className="h-4 px-2 text-[9px] font-extrabold tracking-wide bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/50 dark:text-amber-400 dark:border-amber-700/60 rounded-full shrink-0 flex items-center gap-1 shadow-2xs">
+                <Crown className="h-2.5 w-2.5" />
                 Default
               </Badge>
             )}
@@ -136,86 +138,91 @@ export function LocationCard({
                 size="sm"
                 onClick={() => onSetPrimary(location)}
                 disabled={isSettingPrimary}
-                className="h-5 text-[10px] gap-1 rounded px-1.5"
+                className="h-6 text-[10px] gap-1 rounded-xl px-2 font-bold border-border/60 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-950/40 cursor-pointer"
               >
-                <Star className="h-2.5 w-2.5" />
+                <Star className="h-3 w-3" />
                 <span>Default</span>
               </CustomButton>
             )}
             <CustomButton
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={() => onEdit(location)}
-              className="h-5 w-5 p-0 rounded"
-              title="Edit"
+              className="h-6 w-6 p-0 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+              title="Edit location"
             >
-              <Edit2 className="h-2.5 w-2.5" />
+              <Edit2 className="h-3.5 w-3.5" />
             </CustomButton>
             <CustomButton
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={() => onDelete(location)}
-              className="h-5 w-5 p-0 rounded text-destructive hover:bg-destructive/10"
-              title="Delete"
+              className="h-6 w-6 p-0 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+              title="Delete location"
             >
-              <Trash2 className="h-2.5 w-2.5" />
+              <Trash2 className="h-3.5 w-3.5" />
             </CustomButton>
           </div>
         </div>
 
-        {/* Structured Grid Info — exactly like Education card */}
-        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[10px]">
-          <div className="flex flex-col gap-0.5">
-            <span className="font-semibold text-muted-foreground">House / Street</span>
-            <span className="text-foreground truncate font-medium">
+        {/* Structured Grid Info */}
+        <div className="grid grid-cols-2 gap-1.5 text-[10px]">
+          <div className="bg-muted/30 border border-border/40 p-1.5 rounded-xl flex flex-col gap-0.5">
+            <span className="font-semibold text-muted-foreground text-[9px] uppercase tracking-wider">House / Street</span>
+            <span className="text-foreground truncate font-extrabold">
               {location.houseNumber && location.streetNumber
                 ? `${location.houseNumber} / ${location.streetNumber}`
                 : location.houseNumber || location.streetNumber || "-"}
             </span>
           </div>
 
-          <div className="flex flex-col gap-0.5">
-            <span className="font-semibold text-muted-foreground">Village</span>
-            <span className="text-foreground truncate font-medium">{location.village || "-"}</span>
+          <div className="bg-muted/30 border border-border/40 p-1.5 rounded-xl flex flex-col gap-0.5">
+            <span className="font-semibold text-muted-foreground text-[9px] uppercase tracking-wider">Village</span>
+            <span className="text-foreground truncate font-extrabold">{location.village || "-"}</span>
           </div>
 
-          <div className="flex flex-col gap-0.5">
-            <span className="font-semibold text-muted-foreground">Commune</span>
-            <span className="text-foreground truncate font-medium">{location.commune || "-"}</span>
+          <div className="bg-muted/30 border border-border/40 p-1.5 rounded-xl flex flex-col gap-0.5">
+            <span className="font-semibold text-muted-foreground text-[9px] uppercase tracking-wider">Commune</span>
+            <span className="text-foreground truncate font-extrabold">{location.commune || "-"}</span>
           </div>
 
-          <div className="flex flex-col gap-0.5">
-            <span className="font-semibold text-muted-foreground">District</span>
-            <span className="text-foreground truncate font-medium">{location.district || "-"}</span>
+          <div className="bg-muted/30 border border-border/40 p-1.5 rounded-xl flex flex-col gap-0.5">
+            <span className="font-semibold text-muted-foreground text-[9px] uppercase tracking-wider">District</span>
+            <span className="text-foreground truncate font-extrabold">{location.district || "-"}</span>
           </div>
 
-          <div className="flex flex-col gap-0.5">
-            <span className="font-semibold text-muted-foreground">Province</span>
-            <span className="text-foreground truncate font-medium">{location.province || "-"}</span>
+          <div className="bg-muted/30 border border-border/40 p-1.5 rounded-xl flex flex-col gap-0.5">
+            <span className="font-semibold text-muted-foreground text-[9px] uppercase tracking-wider">Province</span>
+            <span className="text-foreground truncate font-extrabold">{location.province || "-"}</span>
           </div>
 
-          <div className="flex flex-col gap-0.5">
-            <span className="font-semibold text-muted-foreground">Country</span>
-            <span className="text-foreground truncate font-medium">{location.country || "-"}</span>
+          <div className="bg-muted/30 border border-border/40 p-1.5 rounded-xl flex flex-col gap-0.5">
+            <span className="font-semibold text-muted-foreground text-[9px] uppercase tracking-wider">Country</span>
+            <span className="text-foreground truncate font-extrabold">{location.country || "-"}</span>
           </div>
 
           {location.note && (
-            <div className="flex flex-col gap-0.5 col-span-2">
-              <span className="font-semibold text-muted-foreground">Note</span>
-              <span className="text-foreground font-medium break-words line-clamp-1">{location.note}</span>
+            <div className="bg-muted/30 border border-border/40 p-1.5 rounded-xl flex flex-col gap-0.5 col-span-2">
+              <span className="font-semibold text-muted-foreground text-[9px] uppercase tracking-wider">Note</span>
+              <span className="text-foreground font-bold break-words line-clamp-1">{location.note}</span>
             </div>
           )}
 
           {hasCoordinates && (
-            <div className="col-span-2 pt-1 border-t border-border/40 mt-1">
-              <CustomButton
-                variant="unstyled"
-                size="unstyled"
+            <div className="col-span-2 pt-1.5 border-t border-border/30 mt-1 flex items-center justify-between gap-2">
+              <button
+                type="button"
                 onClick={handleViewMap}
-                className="text-[10px] text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1 font-medium cursor-pointer"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all cursor-pointer group/pin"
+                title="View on Google Maps"
               >
-                <span>View location on Google Maps</span>
-              </CustomButton>
+                <MapPin className="h-3 w-3 text-red-500 fill-red-500/20 shrink-0 group-hover/pin:scale-110 transition-transform" />
+                <span>Map Pin</span>
+                <ExternalLink className="h-2.5 w-2.5 opacity-60 ml-0.5" />
+              </button>
+              <span className="text-[9px] font-mono text-muted-foreground/80 truncate">
+                {location.latitude?.toFixed(4)}, {location.longitude?.toFixed(4)}
+              </span>
             </div>
           )}
         </div>

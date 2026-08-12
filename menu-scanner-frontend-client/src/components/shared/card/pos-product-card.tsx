@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useState } from "react";
 import { useAppSelector } from "@/store";
-import { ShoppingCart, Plus, Minus, Ruler, Package } from "lucide-react";
+import { ShoppingCart, Plus, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import { cn } from "@/lib/utils";
@@ -129,14 +129,12 @@ function POSProductCardComponent({
         {/* Has Sizes or Add-ons Badge */}
         <div className="absolute bottom-1.5 left-1.5 z-10 flex flex-wrap gap-1">
           {product.hasSizes && (
-            <Badge variant="secondary" className="text-[10px] font-bold px-2 py-0.5 shadow-2xs bg-background/90 backdrop-blur-sm gap-1 border-border/60">
-              <Ruler className="h-3 w-3 text-primary" />
-              Options
+            <Badge variant="secondary" className="text-[10px] font-extrabold px-2 py-0.5 shadow-2xs bg-background/90 backdrop-blur-sm border-border/60">
+              Sizes
             </Badge>
           )}
           {product.customizations && product.customizations.length > 0 && (
-            <Badge variant="secondary" className="text-[10px] font-bold px-2 py-0.5 shadow-2xs bg-background/90 backdrop-blur-sm gap-1 border-border/60">
-              <Package className="h-3 w-3 text-emerald-500" />
+            <Badge variant="secondary" className="text-[10px] font-extrabold px-2 py-0.5 shadow-2xs bg-background/90 backdrop-blur-sm border-border/60">
               Add-ons
             </Badge>
           )}

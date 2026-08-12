@@ -42,6 +42,7 @@ export function Navbar() {
 
   const router = useRouter();
   const pathname = usePathname();
+  const isProductDetailPage = pathname.startsWith("/products/") && pathname !== "/products";
   const dispatch = useAppDispatch();
 
   const { isAuthenticated, profile, fullName, email, profileImage } =
@@ -175,7 +176,7 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 w-full h-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm flex items-center">
+      <nav className="sticky top-0 z-50 w-full h-12 border-b border-border/60 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-2xs flex items-center transition-all">
         <PageContainer className="max-w-8xl w-full">
           {/* Mobile: Search or Navigation */}
           {mobileSearchOpen ? (
@@ -223,14 +224,16 @@ export function Navbar() {
               </div>
 
               <div className="flex items-center gap-1">
-                <CustomButton variant="unstyled" size="unstyled"
-                  onClick={() => setMobileSearchOpen(true)}
-                  className="lg:hidden h-6 w-6 hover:text-primary"
-                >
-                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </CustomButton>
+                {!isProductDetailPage && (
+                  <CustomButton variant="unstyled" size="unstyled"
+                    onClick={() => setMobileSearchOpen(true)}
+                    className="lg:hidden h-6 w-6 hover:text-primary"
+                  >
+                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </CustomButton>
+                )}
 
                 <NavbarCart
                   cartItemCount={cartItemCount}
@@ -259,19 +262,17 @@ export function Navbar() {
           <div className="hidden lg:flex h-full w-full items-center justify-between gap-3">
             <div className="flex items-center gap-5">
               {businessName && (
-                <CustomButton variant="unstyled" size="unstyled" onClick={handleNavigateToHome} className="flex items-center gap-1 group">
-                  <div className="relative">
-                    <div className="w-7 h-7 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
-                      <SmartImage
-                        src={businessLogoUrl}
-                        fallbackSrc={appImages.scanmekhLogo}
-                        alt={businessName}
-                        fill
-                        rounded="md"
-                        showSkeleton={false}
-                      />
-                    </div>
-                    <div className="absolute -inset-1 rounded bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <CustomButton variant="unstyled" size="unstyled" onClick={handleNavigateToHome} className="flex items-center gap-1.5 group">
+                  <div className="relative h-8 w-8 flex items-center justify-center shrink-0 overflow-hidden rounded-md">
+                    <SmartImage
+                      src={businessLogoUrl}
+                      fallbackSrc={appImages.scanmekhLogo}
+                      alt={businessName}
+                      fill
+                      rounded="md"
+                      showSkeleton={false}
+                      className="object-contain rounded-md transition-transform duration-300 group-hover:scale-105"
+                    />
                   </div>
                   <div className="hidden md:flex flex-col items-start">
                     <span className="text-foreground font-bold text-xs leading-tight">
@@ -292,15 +293,17 @@ export function Navbar() {
               />
             </div>
 
-            <NavbarSearch
-              mobileSearchOpen={mobileSearchOpen}
-              onMobileSearchOpen={setMobileSearchOpen}
-              searchQuery={searchQuery}
-              onSearchQueryChange={setSearchQuery}
-              searchPlaceholder={searchPlaceholder}
-              onSearchSubmit={handleSearchSubmit}
-              mobileSearchRef={mobileSearchRef}
-            />
+            {!isProductDetailPage && (
+              <NavbarSearch
+                mobileSearchOpen={mobileSearchOpen}
+                onMobileSearchOpen={setMobileSearchOpen}
+                searchQuery={searchQuery}
+                onSearchQueryChange={setSearchQuery}
+                searchPlaceholder={searchPlaceholder}
+                onSearchSubmit={handleSearchSubmit}
+                mobileSearchRef={mobileSearchRef}
+              />
+            )}
 
             <div className="hidden lg:flex items-center gap-1">
               <NavbarCart

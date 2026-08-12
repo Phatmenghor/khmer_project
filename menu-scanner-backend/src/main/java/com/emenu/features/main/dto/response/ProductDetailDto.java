@@ -13,11 +13,9 @@ import java.util.List;
 import java.util.UUID;
 
 import com.emenu.enums.product.PromotionStatus;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductDetailDto extends BaseAuditResponse {
     private String name;
     private String description;

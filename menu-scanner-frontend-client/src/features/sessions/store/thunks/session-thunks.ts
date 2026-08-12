@@ -1,4 +1,3 @@
-import { ConditionalActionButton } from "@/components/shared/button/custom-button";
 import { AllSessionRequest } from "@/features/auth/store/models/request/session-request";
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";

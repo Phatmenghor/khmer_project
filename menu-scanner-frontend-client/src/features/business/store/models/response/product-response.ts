@@ -36,19 +36,19 @@ export interface ProductDetailResponseModel {
   isFavorited: boolean;
   businessId: string;
   businessName: string;
-  categoryId: string;
-  categoryName: string;
-  brandId: string;
-  brandName: string;
-  barcode: string;
-  sku: string;
+  categoryId?: string;
+  categoryName?: string;
+  brandId?: string;
+  brandName?: string;
+  barcode?: string;
+  sku?: string;
 
-  stockStatus: string;
+  stockStatus?: string;
   totalStock: number;
   quantityAvailable: number;
   quantityReserved: number;
   quantityOnHand: number;
-  images: ProductImage[];
+  images?: ProductImage[];
   sizes: ProductSize[];
   customizations: ProductCustomizationDto[];
   isSelected?: boolean;
@@ -57,8 +57,8 @@ export interface ProductDetailResponseModel {
 interface ProductImage {
   id: string;
   image: ImageUrls;
-  displayOrder: number;
-  createdAt: string;
+  displayOrder?: number;
+  createdAt?: string;
 }
 
 export interface ProductSize {

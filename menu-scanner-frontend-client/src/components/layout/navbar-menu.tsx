@@ -78,18 +78,17 @@ function NavbarMenuComponent({
 
           {/* Header */}
           <div className="border-b border-border/60 px-4 py-3 mt-0 bg-gradient-to-br from-primary/5 to-transparent">
-            <div className="flex items-start gap-2">
-              <div className="relative shrink-0">
-                <div className="w-8 h-8 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg overflow-hidden">
-                  <SmartImage
-                    src={businessLogoUrl}
-                    fallbackSrc={appImages.scanmekhLogo}
-                    alt={businessName}
-                    fill
-                    rounded="md"
-                    showSkeleton={false}
-                  />
-                </div>
+            <div className="flex items-center gap-2.5">
+              <div className="relative h-8 w-8 flex items-center justify-center shrink-0 overflow-hidden rounded-md">
+                <SmartImage
+                  src={businessLogoUrl}
+                  fallbackSrc={appImages.scanmekhLogo}
+                  alt={businessName}
+                  fill
+                  rounded="md"
+                  showSkeleton={false}
+                  className="object-contain rounded-md"
+                />
               </div>
 
               <div className="flex-1 min-w-0 pt-1">

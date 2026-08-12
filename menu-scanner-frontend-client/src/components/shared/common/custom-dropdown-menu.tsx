@@ -175,45 +175,46 @@ export function CustomDropdownMenu({
         {trigger}
       </div>
 
-      {}
+      {/* Dropdown Menu */}
       {isOpen && (
         <div
           ref={dropdownRef}
           onMouseEnter={handleDropdownMouseEnter}
           onMouseLeave={handleDropdownMouseLeave}
           className={cn(
-            "absolute top-full mt-1 w-44 bg-background border border-border rounded shadow-lg overflow-hidden z-50",
+            "absolute top-full mt-2 w-52 bg-card/95 backdrop-blur-md border border-border/80 rounded-2xl shadow-xl overflow-hidden z-50 p-1.5 space-y-1",
             "animate-in fade-in-0 zoom-in-95 duration-200",
             align === "right" ? "right-0" : "left-0",
             className
           )}
         >
-          {}
+          {/* Header */}
           {header && (
-            <>
-              <div className="p-2">{header}</div>
-              <div className="h-px bg-border" />
-            </>
+            <div className="p-2.5 bg-muted/40 rounded-xl border border-border/40 mb-1">
+              {header}
+            </div>
           )}
 
-          {}
-          <div className="py-1">
+          {/* Sections */}
+          <div>
             {sections.map((section, sectionIndex) => (
-              <div key={sectionIndex}>
-                {}
+              <div key={sectionIndex} className="space-y-0.5">
+                {/* Section Label */}
                 {section.label && (
-                  <div className="px-2 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <div className="px-2.5 py-1 text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">
                     {section.label}
                   </div>
                 )}
 
-                {}
+                {/* Items */}
                 {section.items.map((item, itemIndex) => (
                   <div key={itemIndex}>
-                    <CustomButton variant="unstyled" size="unstyled"
+                    <CustomButton
+                      variant="unstyled"
+                      size="unstyled"
                       onClick={() => handleItemClick(item.onClick)}
                       className={cn(
-                        "w-full flex items-center px-2 py-1 text-xs transition-colors cursor-pointer",
+                        "w-full flex items-center px-2.5 py-2 text-xs font-semibold rounded-xl transition-all cursor-pointer",
                         "hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary focus:outline-none",
                         item.variant === "destructive"
                           ? "text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive"
@@ -225,23 +226,15 @@ export function CustomDropdownMenu({
                           {item.icon}
                         </span>
                       )}
-                      <span
-                        className={
-                          item.variant === "destructive" ? "font-medium" : ""
-                        }
-                      >
-                        {item.label}
-                      </span>
+                      <span className="font-semibold">{item.label}</span>
                     </CustomButton>
 
-                    {}
-                    {item.separator && <div className="my-1 h-px bg-border" />}
+                    {item.separator && <div className="my-1 h-px bg-border/40" />}
                   </div>
                 ))}
 
-                {}
                 {sectionIndex < sections.length - 1 && (
-                  <div className="my-1 h-px bg-border" />
+                  <div className="my-1 h-px bg-border/40" />
                 )}
               </div>
             ))}

@@ -1,24 +1,23 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 export const BrandCardSkeleton = () => {
   return (
-    <Card className="overflow-hidden border">
-      <CardContent className="p-3 sm:p-3 flex flex-col items-center justify-center space-y-2">
-        {}
-        <div className="relative w-8 h-8 sm:w-10 sm:h-10 bg-muted/50 rounded overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
+    <Card className="overflow-hidden border border-border/80 rounded-2xl shadow-2xs bg-card">
+      <CardContent className="p-3.5 sm:p-4 flex flex-col items-center justify-center space-y-2.5">
+        {/* Brand Icon Skeleton */}
+        <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl" />
+
+        {/* Brand Title Skeletons */}
+        <div className="w-full space-y-1.5 flex flex-col items-center">
+          <Skeleton className="h-3 w-20 rounded-md" />
+          <Skeleton className="h-2.5 w-12 rounded-md" />
         </div>
 
-        {}
-        <div className="w-full space-y-1 flex flex-col items-center">
-          <div className="h-2 w-16 bg-muted/50 rounded animate-pulse" />
-          <div className="h-2 w-11 bg-muted/50 rounded animate-pulse" />
-        </div>
-
-        {}
-        <div className="h-1 w-14 bg-muted/50 rounded animate-pulse" />
+        {/* Subtitle / Counter */}
+        <Skeleton className="h-2 w-14 rounded-full" />
       </CardContent>
     </Card>
   );

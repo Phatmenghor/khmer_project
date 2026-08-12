@@ -169,12 +169,14 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
       <Avatar
         className={`${
           avatarSizes[size].avatar
-        } border-2 border-background dark:border-card shadow-sm group-hover:border-primary/30 transition-all ${
-          imageUrl && enableImagePreview ? "cursor-pointer hover:scale-110" : ""
+        } border-2 border-background dark:border-card shadow-2xs group-hover:border-primary/40 transition-all ${
+          imageUrl && enableImagePreview ? "cursor-pointer hover:scale-105" : ""
         } ${className}`}
       >
-        {imageUrl && <AvatarImage src={imageUrl} alt={name || "User"} />}
-        <AvatarFallback className="bg-primary/10 dark:bg-primary/20 text-primary font-semibold">
+        {imageUrl ? (
+          <AvatarImage src={imageUrl} alt={name || "User"} className="object-cover" />
+        ) : null}
+        <AvatarFallback className="bg-gradient-to-br from-primary/20 via-primary/15 to-primary/5 text-primary border border-primary/25 font-extrabold shadow-2xs select-none">
           {fallbackText}
         </AvatarFallback>
       </Avatar>

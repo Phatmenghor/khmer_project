@@ -5,8 +5,9 @@ import { useRef, useEffect, useCallback } from "react";
 import { AppDispatch } from "@/store";
 import { updateCartItem } from "@/features/main/store/thunks/cart-thunks";
 import { showToast } from "@/components/shared/common/show-toast";
+import { DEBOUNCE_CONSTANTS } from "@/constants/ui-constants";
 
-const DEBOUNCE_DELAY = 400;
+const DEBOUNCE_DELAY = DEBOUNCE_CONSTANTS.CART_DEBOUNCE_MS;
 
 function isAbortError(error: any): boolean {
   return (

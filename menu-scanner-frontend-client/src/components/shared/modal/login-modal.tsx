@@ -1,18 +1,17 @@
 "use client";
 
-import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomButton, CancelButton } from "@/components/shared/button/custom-button";
 import { CustomModal } from "./custom-modal";
 import { Messages } from "@/constants/messages";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Loader2, LogIn } from "lucide-react";
-import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { LogIn } from "lucide-react";
 
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
-import { FormBody } from "@/components/shared/form-field/form-body";
+import { FormHeader } from "@/components/shared/form-field/form-header";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { loginService } from "@/features/auth/store/thunks/auth-thunks";
 import { telegramAuthenticateService } from "@/features/auth/store/thunks/social-auth-thunks";
@@ -22,6 +21,7 @@ import { TelegramAuthData } from "@/features/auth/store/models/request/social-au
 import { AppDefault, SocialAuthConfig } from "@/constants/app-resource/default/default";
 import { useAppSelector } from "@/store";
 import { selectBusinessName } from "@/features/business/store/selectors/business-settings-selector";
+import { RegisterModal } from "./register-modal";
 
 interface LoginModalProps {
   open: boolean;
@@ -30,7 +30,7 @@ interface LoginModalProps {
 }
 
 const loginSchema = z.object({
-  userIdentifier: z.string().min(1, "Email or username is required"),
+  userIdentifier: z.string().min(1, "User Identifier is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -39,6 +39,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isTelegramLoading, setIsTelegramLoading] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   const { isLoading, dispatch } = useAuthState();
   const isSocialLoading = useAppSelector((state) => state.auth.isSocialLoading);
@@ -70,13 +71,12 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
     } catch (err: any) {
       let errorMessage: string = "Login failed. Please check your credentials.";
 
-      // Handle different error formats from Redux thunk
-      if (typeof err === 'string') {
+      if (typeof err === "string") {
         errorMessage = err;
       } else if (err?.message) {
         errorMessage = err.message;
       } else if (err?.payload) {
-        if (typeof err.payload === 'string') {
+        if (typeof err.payload === "string") {
           errorMessage = err.payload;
         } else if (err.payload?.message) {
           errorMessage = err.payload.message;
@@ -126,45 +126,35 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
     }
   };
 
-  // Match admin modal: all interactive elements at h-[32px], compact text,
-  // tight padding. Single token kept so the unified height stays obvious.
-  const fieldHeight = "h-[32px] md:h-[32px]";
-
   return (
-    <CustomModal isOpen={open} onClose={handleClose} size="sm" className="-col gap-0">
-      
-        {/* Header — admin FormHeader style */}
-        <DialogHeader className="px-3 pt-3 pb-2 border-b flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 border border-primary/30 bg-primary/10 rounded shrink-0">
-              <LogIn className="h-4 w-4 text-primary" strokeWidth={2.25} />
-            </div>
-            <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-              <DialogTitle className="text-xs font-semibold leading-tight">
-                Sign In
-              </DialogTitle>
-              <DialogDescription className="text-[11px] leading-snug">
-                {businessName
-                  ? `Welcome back to ${businessName}`
-                  : "Sign in to your account to continue"}
-              </DialogDescription>
-            </div>
-          </div>
-        </DialogHeader>
+    <>
+      <CustomModal isOpen={open && !showRegisterModal} onClose={handleClose} size="sm">
+        {/* Header */}
+        <FormHeader
+          title="Sign In"
+          description={
+            businessName
+              ? `Welcome back to ${businessName}`
+              : "Sign in to your account to continue"
+          }
+          icon={LogIn}
+          showAvatar={false}
+        />
 
-        {/* Body */}
+        {/* Form Body - Native form handles Enter key submit */}
         <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="flex flex-col flex-1">
-          <FormBody contentClassName="px-3 py-3 space-y-3">
+          <div className="p-4 space-y-3.5">
             <TextField
               name="userIdentifier"
-              label="Email or Username"
-              placeholder="name@example.com"
+              label="User Identifier"
+              placeholder="Enter username or email"
               control={loginForm.control}
               error={loginForm.formState.errors.userIdentifier}
               disabled={isAnyLoading}
               required
-              inputClassName={fieldHeight}
+              inputClassName="h-9 text-xs"
             />
+
             <PasswordField
               name="password"
               label="Password"
@@ -175,76 +165,90 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
               required
               showPassword={showPassword}
               onTogglePassword={() => setShowPassword((v) => !v)}
-              inputClassName={fieldHeight}
+              inputClassName="h-9 text-xs"
             />
 
-            {/* Divider */}
-            <div className="relative py-0.5">
+            {/* Social Divider */}
+            <div className="relative py-1">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border/50" />
+                <span className="w-full border-t border-border/60" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-background px-2 text-[10px] text-muted-foreground uppercase tracking-wider">
-                  or continue with
+                <span className="bg-card px-2.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                  Or continue with
                 </span>
               </div>
             </div>
 
-            {/* Telegram — same height as inputs and buttons */}
+            {/* Telegram Login */}
             <TelegramLoginButton
               botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
               botId={SocialAuthConfig.TELEGRAM_BOT_ID}
               onAuth={handleTelegramAuth}
               disabled={isAnyLoading}
               loading={isTelegramLoading}
-              className={`w-full ${fieldHeight} text-xs`}
+              className="w-full h-9 text-xs font-semibold rounded-xl"
             />
-          </FormBody>
+          </div>
 
-          {/* Footer — admin FormFooter style */}
-          <div className="flex flex-col gap-1.5 px-2.5 py-2 border-t bg-muted/30 flex-shrink-0 sm:flex-row sm:items-center sm:justify-between sm:px-3">
-            <p className="text-[11px] text-muted-foreground order-2 sm:order-1">
+          {/* Footer */}
+          <div className="px-4 py-3 border-t border-border/70 bg-gradient-to-r from-muted/50 to-muted/30 flex-shrink-0 flex items-center justify-between gap-3">
+            <p className="text-xs text-muted-foreground">
               No account?{" "}
-              <CustomButton variant="unstyled" size="unstyled"
+              <CustomButton
+                variant="unstyled"
+                size="unstyled"
                 type="button"
                 onClick={() => {
-                  onOpenChange(false);
-                  onRegisterClick?.();
+                  if (onRegisterClick) {
+                    onOpenChange(false);
+                    onRegisterClick();
+                  } else {
+                    setShowRegisterModal(true);
+                  }
                 }}
                 disabled={isAnyLoading}
-                className="text-primary font-semibold hover:underline disabled:opacity-50"
+                className="text-primary font-bold hover:underline disabled:opacity-50"
               >
                 Register
               </CustomButton>
             </p>
-            <div className="flex gap-2 order-1 sm:order-2">
-              <CustomButton
-                type="button"
-                variant="outline"
+
+            <div className="flex items-center gap-2">
+              <CancelButton
                 onClick={handleClose}
                 disabled={isAnyLoading}
-                className={`${fieldHeight} px-3 text-xs`}
-              >
-                Cancel
-              </CustomButton>
+                customText="Cancel"
+                className="h-8 text-xs font-bold"
+              />
               <CustomButton
                 type="submit"
                 disabled={isAnyLoading}
-                className={`${fieldHeight} min-w-[96px] px-3 text-xs`}
+                isLoading={isLoading}
+                className="h-8 min-w-[90px] text-xs font-bold gap-1.5"
               >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  "Sign In"
-                )}
+                <LogIn className="w-3.5 h-3.5" />
+                {isLoading ? "Signing in..." : "Sign In"}
               </CustomButton>
             </div>
           </div>
         </form>
-      
-    </CustomModal>
+      </CustomModal>
+
+      {showRegisterModal && (
+        <RegisterModal
+          open={showRegisterModal}
+          onOpenChange={(isOpen) => {
+            setShowRegisterModal(isOpen);
+            if (!isOpen) {
+              onOpenChange(false);
+            }
+          }}
+          onLoginClick={() => {
+            setShowRegisterModal(false);
+          }}
+        />
+      )}
+    </>
   );
 }

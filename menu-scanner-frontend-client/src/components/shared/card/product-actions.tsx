@@ -22,38 +22,42 @@ function ProductActionsComponent({
   onDecrement,
 }: ProductActionsProps) {
   return (
-    <div>
+    <div className="w-full pt-1">
       {isInCart ? (
-        <div className="flex items-center gap-1 w-full">
+        <div className="flex items-center gap-1 w-full p-0.5 rounded-xl bg-primary/10 border border-primary/20 shadow-2xs">
           <CustomButton
             size="icon"
-            variant="outline"
-            className="h-5 w-5 shrink-0 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+            variant="ghost"
+            className="h-7 w-7 rounded-lg shrink-0 text-primary hover:bg-destructive hover:text-destructive-foreground transition-all duration-200 active:scale-90"
             onClick={onDecrement}
+            aria-label="Decrease quantity"
           >
-            <Minus className="h-2 w-2" />
+            <Minus className="h-3 w-3" />
           </CustomButton>
-          <div className="flex-1 text-center h-5 bg-primary/10 text-primary font-semibold text-xs rounded border border-primary/20 flex items-center justify-center">
+
+          <div className="flex-1 text-center font-extrabold text-xs text-primary tracking-tight">
             {displayQuantity}
           </div>
+
           <CustomButton
             size="icon"
-            variant="outline"
-            className="h-5 w-5 shrink-0 hover:bg-primary hover:text-primary-foreground transition-colors"
+            variant="ghost"
+            className="h-7 w-7 rounded-lg shrink-0 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200 active:scale-90"
             onClick={onIncrement}
+            aria-label="Increase quantity"
           >
-            <Plus className="h-2 w-2" />
+            <Plus className="h-3 w-3" />
           </CustomButton>
         </div>
       ) : (
         <CustomButton
-          className="w-full gap-1 h-5 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+          className="w-full gap-1.5 h-8 text-xs font-bold rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground shadow-2xs hover:shadow-md transition-all duration-200 active:scale-[0.97] disabled:opacity-50"
           onClick={onAddToCart}
           disabled={isOutOfStock}
           size="sm"
         >
-          <ShoppingCart className="h-2.5 w-2.5" />
-          Add to Cart
+          <ShoppingCart className="h-3.5 w-3.5" />
+          <span>Add to Cart</span>
         </CustomButton>
       )}
     </div>

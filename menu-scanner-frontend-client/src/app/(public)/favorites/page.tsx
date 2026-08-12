@@ -161,10 +161,27 @@ function FavoritesPageInner() {
   };
 
 
+  const [movingAllToCart, setMovingAllToCart] = useState(false);
+
+  const handleMoveAllToCart = async () => {
+    if (items.length === 0 || movingAllToCart) return;
+    setMovingAllToCart(true);
+
+    try {
+      for (const item of items) {
+        await cartDispatch(addToCart({ productId: item.id, quantity: 1 })).unwrap();
+      }
+      showToast.success(`Added ${items.length} ${items.length === 1 ? "item" : "items"} to your cart`);
+    } catch {
+      showToast.error("Failed to add all items to cart");
+    } finally {
+      setMovingAllToCart(false);
+    }
+  };
+
   if (!mounted || !authReady || (loading.fetch && !loaded)) {
     return <GridPageSkeleton card={<ProductCardSkeleton />} count={skeletonCount} />;
   }
-
 
   if (!isAuthenticated) {
     return (
@@ -182,15 +199,14 @@ function FavoritesPageInner() {
     );
   }
 
-
   if (items.length === 0) {
     return (
       <PageContainer className="min-h-screen flex flex-col py-8 sm:py-14">
         <PageState
           type="empty"
-          title="No Favorites Yet"
-          description="Save your favorite items to find them quickly later."
-          actionLabel="Start Shopping"
+          title="Your Favorites List is Empty"
+          description="Save your favorite items by tapping the heart icon on any product card for quick access anytime!"
+          actionLabel="Explore Products"
           onAction={() => router.push("/products")}
           size="lg"
         />
@@ -198,36 +214,47 @@ function FavoritesPageInner() {
     );
   }
 
-
   return (
-    <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5">
-      <PageHeader
-        title="My Favorites"
-        icon={Heart}
-        count={totalItems}
-        countLabel={totalItems === 1 ? "item" : "items"}
-        subtitle={`${totalItems} ${totalItems === 1 ? "item" : "items"} saved`}
-        actions={
-          <CustomButton
-            variant="ghost"
-            size="sm"
-            onClick={() => setClearAllModalOpen(true)}
-            disabled={loading.fetch}
-            className="gap-1 text-destructive hover:text-destructive hover:bg-destructive/10 text-xs"
-          >
-            <Trash2 className="h-2.5 w-2.5" />
-            Clear All
-          </CustomButton>
-        }
-      />
+    <div className="min-h-screen bg-background relative">
+      {/* Ambient background glow — matching Brand and Category pages */}
+      <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[300px] bg-primary/5 blur-[120px] rounded-full opacity-60" />
 
-      {}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
-        {items.map((product, index) => {
-          const uniqueKey = `favorites-${product.id}-${index}`;
-          return <ProductCard key={uniqueKey} product={product} />;
-        })}
-      </div>
+      <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5 relative z-10">
+        <PageHeader
+          title="My Favorites"
+          subtitle="Your saved items for quick access anytime!"
+          icon={Heart}
+          count={totalItems}
+          countLabel="items"
+          actions={
+            <CustomButton
+              variant="ghost"
+              size="sm"
+              onClick={() => setClearAllModalOpen(true)}
+              disabled={loading.fetch}
+              className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10 text-xs rounded-xl px-3 py-1.5 font-semibold cursor-pointer"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Clear All
+            </CustomButton>
+          }
+        />
+
+        {/* Grid of Favorited Products */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
+          {items.map((product, index) => {
+            const uniqueKey = `favorites-${product.id}-${index}`;
+            return (
+              <div
+                key={uniqueKey}
+                className="animate-in fade-in slide-in-from-bottom-2 duration-300"
+                style={{ animationDelay: `${Math.min(index * 40, 400)}ms` }}
+              >
+                <ProductCard product={product} />
+              </div>
+            );
+          })}
+        </div>
 
       {}
       {pagination.hasMore && (
@@ -277,6 +304,7 @@ function FavoritesPageInner() {
         variant="critical"
       />
     </PageContainer>
+    </div>
   );
 }
 

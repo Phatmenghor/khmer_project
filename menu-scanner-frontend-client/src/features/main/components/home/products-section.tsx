@@ -31,8 +31,8 @@ const ProductsSectionComponent = ({
   loading,
   error,
   title = "Featured Products",
-  subtitle,
-  showIcon = false,
+  subtitle = "Handpicked products just for you",
+  showIcon = true,
   hasMore,
   onLoadMore,
   isInitialLoading = false,
@@ -73,7 +73,6 @@ const ProductsSectionComponent = ({
         icon={showIcon ? Sparkles : undefined}
       />
 
-      {}
       <PaginatedProductsGrid
         products={products}
         loading={loading}
@@ -84,18 +83,16 @@ const ProductsSectionComponent = ({
         imageLoading={imageLoading}
       />
 
-      {}
       {!hasMore && products.length > 0 && !loading && (
-        <div className="flex flex-col items-center justify-center mt-7 py-5 px-3">
-          <div className="flex items-center justify-center w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-primary/10 mb-3">
-            <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+        <div className="flex flex-col items-center justify-center mt-8 py-6 px-4 rounded-2xl border border-border/60 bg-gradient-to-b from-muted/20 via-muted/10 to-background shadow-2xs">
+          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary border border-primary/20 mb-2.5 shadow-2xs">
+            <CheckCircle2 className="h-5 w-5 text-primary" />
           </div>
-          <h3 className="text-xs sm:text-xs font-semibold mb-1 text-center">
-            You've seen it all!
+          <h3 className="text-xs sm:text-sm font-extrabold text-foreground mb-1 text-center">
+            You've seen it all! 🎉
           </h3>
-          <p className="text-xs sm:text-xs text-muted-foreground text-center max-w-md">
-            You've reached the end of our featured products. Check back later
-            for new arrivals!
+          <p className="text-xs text-muted-foreground text-center max-w-md font-medium">
+            You've reached the end of our featured products list. Check back soon for exciting new arrivals!
           </p>
         </div>
       )}
