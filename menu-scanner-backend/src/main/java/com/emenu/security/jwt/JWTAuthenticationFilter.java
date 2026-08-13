@@ -43,15 +43,22 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         // NOTE: requestId is set by RequestIdFilter at HIGHEST_PRECEDENCE — do NOT touch it here
         try {
-            String token = extractBearerToken(request);
-            if (StringUtils.hasText(token)) {
-                authenticateFromToken(request, response, token);
-                if (response.isCommitted()) return;
+            try {
+                String token = extractBearerToken(request);
+                if (StringUtils.hasText(token)) {
+                    authenticateFromToken(request, response, token);
+                    if (response.isCommitted()) return;
+                }
+            } catch (Exception e) {
+                log.error("Cannot set user authentication: {}", e.getMessage());
             }
-        } catch (Exception e) {
-            log.error("Cannot set user authentication: {}", e.getMessage());
+            filterChain.doFilter(request, response);
+        } finally {
+            AUTHENTICATED_USER.remove();
+            MDC.remove("userId");
+            MDC.remove("userIdentifier");
+            MDC.remove("userType");
         }
-        filterChain.doFilter(request, response);
     }
 
     private void authenticateFromToken(HttpServletRequest request,
