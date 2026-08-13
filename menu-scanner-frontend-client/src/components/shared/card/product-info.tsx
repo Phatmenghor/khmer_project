@@ -5,12 +5,17 @@ import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
 
+import { isPromotionActive } from "@/constants/status/status";
+
 interface ProductInfoProps {
   product: ProductDetailResponseModel;
 }
 
 function ProductInfoComponent({ product }: ProductInfoProps) {
-  const hasPromo = Boolean(product.hasPromotion);
+  const hasPromoPrice =
+    isPromotionActive(product.hasPromotion) &&
+    typeof product.displayOriginPrice === "number" &&
+    product.displayOriginPrice > product.displayPrice;
 
   return (
     <div className="flex flex-col justify-between flex-1 space-y-1.5">
@@ -25,15 +30,15 @@ function ProductInfoComponent({ product }: ProductInfoProps) {
         <span
           className={cn(
             "text-xs font-extrabold tracking-tight",
-            hasPromo ? "text-red-500 dark:text-red-400" : "text-primary font-black"
+            hasPromoPrice ? "text-red-500 dark:text-red-400 font-black" : "text-primary font-black"
           )}
         >
           {formatCurrency(product.displayPrice)}
         </span>
 
-        {hasPromo && product.displayOriginPrice && (
+        {hasPromoPrice && (
           <span className="text-[11px] font-medium text-muted-foreground/80 line-through">
-            {formatCurrency(product.displayOriginPrice)}
+            {formatCurrency(product.displayOriginPrice!)}
           </span>
         )}
       </div>

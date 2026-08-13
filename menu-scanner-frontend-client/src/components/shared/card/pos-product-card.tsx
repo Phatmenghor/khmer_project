@@ -10,7 +10,7 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { getPromotionBadgeText } from "@/utils/common/promotion-format";
 import { CustomButton } from "../button/custom-button";
 import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
-import { PromotionType, PromotionStatus } from "@/constants/status/status";
+import { PromotionType, PromotionStatus, isPromotionActive } from "@/constants/status/status";
 import { selectPOSProductQuantity } from "@/features/business/store/selectors/pos-cart-selectors";
 
 import { appImages } from "@/constants/app-resource/icons/app-images";
@@ -58,14 +58,7 @@ function POSProductCardComponent({
     onQuantityChange(product.id, -1);
   }, [product, onAddClick, onQuantityChange]);
 
-  const businessSettings = useAppSelector((state) => state.businessSettings.data);
-  const isStockEnabled = businessSettings?.enableStock === "ENABLED";
-  const isProductStockTracked = isStockEnabled && product.stockStatus !== "DISABLED";
-
-  const totalStock = product.totalStock ?? 0;
-  const isOutOfStock =
-    product.status === "OUT_OF_STOCK" ||
-    (isProductStockTracked && totalStock <= 0);
+  const isOutOfStock = product.status === "OUT_OF_STOCK";
 
   const handleCardClick = useCallback(() => {
     const hasCustomizations = product.customizations && product.customizations.length > 0;
@@ -81,8 +74,11 @@ function POSProductCardComponent({
   const imageUrl = product.mainImage?.md || product.mainImage?.sm || product.mainImage?.o || "";
   const displayPrice = product.displayPrice || parseFloat(String(product.price || 0));
 
-  // Pure backend PromotionStatus enum check
-  const hasPromotion = product.hasPromotion === PromotionStatus.ACTIVE;
+  // Pure backend PromotionStatus check with price verification
+  const hasPromotion =
+    isPromotionActive(product.hasPromotion) &&
+    typeof product.displayOriginPrice === "number" &&
+    product.displayOriginPrice > displayPrice;
 
   return (
     <div

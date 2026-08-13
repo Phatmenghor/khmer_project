@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Minus, ShoppingCart, AlertTriangle, Layers, Sliders, ShoppingBag } from "lucide-react";
+import { Plus, Minus, ShoppingCart, AlertTriangle, Layers, Sliders, ShoppingBag, Check } from "lucide-react";
+import { formatCurrency } from "@/utils/common/currency-format";
 import {
   ProductDetailResponseModel,
   ProductSize,
@@ -55,20 +56,20 @@ export function ProductPurchasingCard({
     <div className="bg-muted/20 border border-border/60 rounded-2xl p-3.5 sm:p-4 shadow-2xs space-y-3">
       {/* ── STEP 1: Select Size (if available) ── */}
       {hasSizes && product.sizes && product.sizes.length > 0 && (
-        <div className="space-y-2 pb-2.5 border-b border-border/40">
+        <div className="space-y-2 pb-3 border-b border-border/40">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <Layers className="h-3 w-3 text-primary" />
-              1. Select Size
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <Layers className="h-3.5 w-3.5 text-primary" />
+              1. Choose Size
             </span>
             {selectedSize && (
-              <span className="text-[11px] font-semibold text-primary">
-                Selected: {selectedSize.name}
+              <span className="text-[11px] font-bold text-primary truncate">
+                {selectedSize.name}
               </span>
             )}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {product.sizes.map((size) => {
               const isSelected = selectedSize?.id === size.id;
               return (
@@ -78,30 +79,33 @@ export function ProductPurchasingCard({
                   size="unstyled"
                   onClick={() => onSelectSize(size)}
                   className={cn(
-                    "flex flex-col items-start justify-between p-2.5 rounded-xl border text-left transition-all cursor-pointer relative overflow-hidden",
+                    "flex flex-col items-start justify-between p-2.5 rounded-xl border text-left transition-all cursor-pointer relative overflow-hidden shadow-2xs hover:scale-[1.01]",
                     isSelected
-                      ? "border-primary bg-primary/10 ring-1 ring-primary/30 shadow-2xs"
-                      : "border-border/60 bg-card hover:bg-muted/50 hover:border-primary/40",
+                      ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/25 shadow-xs"
+                      : "border-border/60 bg-card hover:bg-muted/50 hover:border-primary/40 text-foreground"
                   )}
                 >
-                  <span className="text-[11px] font-bold text-foreground truncate w-full">
+                  {/* Selected checkmark */}
+                  {isSelected && (
+                    <div className="absolute top-1.5 right-1.5 w-4 h-4 bg-primary rounded-full flex items-center justify-center shadow-2xs z-10">
+                      <Check className="h-2.5 w-2.5 text-white stroke-[3px]" />
+                    </div>
+                  )}
+
+                  <span className="text-xs font-extrabold text-foreground truncate w-full pr-4">
                     {size.name}
                   </span>
 
-                  <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="text-xs font-bold text-primary">
-                      ${size.finalPrice.toFixed(2)}
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className={cn("text-xs font-extrabold", isSelected ? "text-primary" : "text-foreground")}>
+                      {formatCurrency(size.finalPrice)}
                     </span>
                     {size.hasPromotion && size.price > size.finalPrice && (
-                      <span className="text-[9px] text-muted-foreground line-through">
-                        ${size.price.toFixed(2)}
+                      <span className="text-[10px] text-muted-foreground line-through">
+                        {formatCurrency(size.price)}
                       </span>
                     )}
                   </div>
-
-                  {isSelected && (
-                    <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-primary" />
-                  )}
                 </CustomButton>
               );
             })}

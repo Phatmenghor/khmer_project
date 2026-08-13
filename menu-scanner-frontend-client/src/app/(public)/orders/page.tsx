@@ -24,7 +24,7 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { getOrderStatusLabel } from "@/enums/order-status.enum";
+import { getOrderStatusLabel, ORDER_STATUS_BADGE_CONFIG } from "@/enums/order-status.enum";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 
@@ -34,12 +34,13 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { ORDER_STATUS_ADMIN_FILTER, PAYMENT_STATUS_ADMIN_FILTER } from "@/constants/status/filter-status";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { indexDisplay } from "@/utils/common/common";
-import { useAppSelector, useAppDispatch } from "@/store";
+import { useAppDispatch } from "@/store";
 import { SignInRequired } from "@/components/shared/auth/sign-in-required";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useDownloadReceipt } from "@/hooks/use-download-receipt";
 import { PageState } from "@/components/shared/page-state";
+import { Badge } from "@/components/ui/badge";
 
 type Order = OrderResponse;
 
@@ -53,12 +54,7 @@ export default function OrdersPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isAuthenticated, profile, authReady } = useAuthState();
-  const {
-    orders,
-    pagination,
-    loading,
-    error,
-  } = useMyOrdersState();
+  const { orders, pagination, loading, error } = useMyOrdersState();
 
   const [filters, setFilters] = useState<FilterState>({
     status: "",
@@ -93,9 +89,7 @@ export default function OrdersPage() {
     customKey: "orders",
   });
 
-  useEffect(() => {
-    if (!authReady || !isAuthenticated || !mounted) return;
-
+  const fetchOrders = useCallback(() => {
     dispatch(
       fetchMyOrdersService({
         pageNo: currentPage,
@@ -109,17 +103,12 @@ export default function OrdersPage() {
         businessId: profile?.businessId || AppDefault.BUSINESS_ID,
       })
     );
-  }, [
-    authReady,
-    isAuthenticated,
-    mounted,
-    currentPage,
-    debouncedSearch,
-    filters.status,
-    filters.paymentStatus,
-    dispatch,
-    profile?.businessId,
-  ]);
+  }, [dispatch, currentPage, filters.status, filters.paymentStatus, debouncedSearch, profile?.businessId]);
+
+  useEffect(() => {
+    if (!authReady || !isAuthenticated || !mounted) return;
+    fetchOrders();
+  }, [authReady, isAuthenticated, mounted, fetchOrders]);
 
   const handleViewOrder = useCallback((order: Order) => {
     setDetailModalState({ isOpen: true, orderId: order.id });
@@ -149,19 +138,7 @@ export default function OrdersPage() {
       await dispatch(cancelOrderService(orderId)).unwrap();
       showToast.success(Messages.orders.cancelled);
       setCancelModalState({ isOpen: false, orderId: "", orderNumber: "" });
-      dispatch(
-        fetchMyOrdersService({
-          pageNo: currentPage,
-          pageSize: 15,
-          orderStatus: filters.status || undefined,
-          paymentStatus:
-            filters.paymentStatus && filters.paymentStatus !== "ALL"
-              ? filters.paymentStatus
-              : undefined,
-          search: debouncedSearch || undefined,
-          businessId: profile?.businessId || AppDefault.BUSINESS_ID,
-        })
-      );
+      fetchOrders();
     } catch (error: unknown) {
       const errorMessage =
         (error as { message?: string })?.message || "Failed to cancel order. Please try again.";
@@ -192,7 +169,7 @@ export default function OrdersPage() {
       createOrderTableColumns(
         handleViewOrder,
         handleCancelOrder,
-        handleDownloadReceipt,
+        (order) => handleDownloadReceipt(order),
         cancelingOrderId,
         downloadingOrderId,
         pagination
@@ -211,7 +188,7 @@ export default function OrdersPage() {
       <>
         <SignInRequired
           title="My Orders"
-          description="Sign in to view your orders and track deliveries."
+          description="Sign in to view your orders, track progress, and download receipts."
           icon="📦"
           onSignIn={() => setLoginModalOpen(true)}
           browseButtonText="Browse Products"
@@ -230,70 +207,61 @@ export default function OrdersPage() {
         icon={ShoppingBag}
       />
 
-      <div className="mt-5 mb-4 space-y-3">
-        <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-end justify-between w-full">
-          <div className="min-w-0 w-full sm:w-auto sm:max-w-xs">
-            <label className="text-xs font-semibold text-foreground mb-1 block">
-              Search Orders
-            </label>
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search by order number..."
-                value={filters.search}
-                onChange={(e) => {
-                  setFilters((prev) => ({ ...prev, search: e.target.value }));
+      {/* ── CONTROLS: SEARCH & 2 DROPDOWN FILTERS ── */}
+      <div className="mt-5 mb-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 w-full">
+          {/* Search bar following public homepage/products pattern */}
+          <div className="relative flex-1 min-w-0 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+            <Input
+              type="text"
+              placeholder="Search by order number..."
+              value={filters.search}
+              onChange={(e) => {
+                setFilters((prev) => ({ ...prev, search: e.target.value }));
+                setCurrentPage(1);
+              }}
+              className="pl-9 pr-8 h-9 rounded-xl border-border/80 bg-muted/40 hover:bg-muted/60 focus:bg-background text-xs font-medium transition-all"
+            />
+            {filters.search && (
+              <CustomButton
+                variant="unstyled"
+                size="unstyled"
+                onClick={() => {
+                  setFilters((prev) => ({ ...prev, search: "" }));
                   setCurrentPage(1);
                 }}
-                className="pl-7 h-8 rounded border-border/70 bg-background text-xs"
-              />
-              {filters.search && (
-                <CustomButton variant="unstyled" size="unstyled"
-                  onClick={() => {
-                    setFilters((prev) => ({ ...prev, search: "" }));
-                    setCurrentPage(1);
-                  }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <X className="h-3 w-3" />
-                </CustomButton>
-              )}
-            </div>
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-0.5 rounded-full hover:bg-muted"
+              >
+                <X className="h-3.5 w-3.5" />
+              </CustomButton>
+            )}
           </div>
 
-          <div className="flex flex-shrink-0 gap-2 items-end w-full sm:w-auto">
-            <div className="w-auto flex-shrink-0
-              [&>.space-y-1]:!w-auto [&>.space-y-1]:!flex [&>.space-y-1]:!flex-col [&>.space-y-1]:!gap-1
-              [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
-              [&_.w-full]:!w-auto">
+          {/* 2 Select Filters following custom-select pattern */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+            <div className="min-w-[150px] flex-1 sm:flex-initial">
               <CustomSelect
                 options={[
                   { value: "", label: "All Order Status" },
-                  ...ORDER_STATUS_ADMIN_FILTER.filter(opt => opt.value !== "ALL"),
+                  ...ORDER_STATUS_ADMIN_FILTER.filter((opt) => opt.value !== "ALL"),
                 ]}
                 value={filters.status || ""}
-                placeholder="Filter by order status"
+                placeholder="Order Status"
                 onValueChange={handleStatusChange}
-                label="Order Status"
-                size="xl"
+                size="md"
               />
             </div>
 
-            <div className="w-auto flex-shrink-0
-              [&>.space-y-1]:!w-auto [&>.space-y-1]:!flex [&>.space-y-1]:!flex-col [&>.space-y-1]:!gap-1
-              [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
-              [&_.w-full]:!w-auto">
+            <div className="min-w-[150px] flex-1 sm:flex-initial">
               <CustomSelect
                 options={PAYMENT_STATUS_ADMIN_FILTER}
                 value={filters.paymentStatus || "ALL"}
-                placeholder="Filter by payment status"
+                placeholder="Payment Status"
                 onValueChange={handlePaymentStatusChange}
-                label="Payment Status"
-                size="xl"
+                size="md"
               />
             </div>
-
           </div>
         </div>
       </div>
@@ -304,34 +272,20 @@ export default function OrdersPage() {
           title="Error Loading Orders"
           description={error.list}
           actionLabel="Try again"
-          onAction={() =>
-            dispatch(
-              fetchMyOrdersService({
-                pageNo: currentPage,
-                pageSize: 15,
-                orderStatus: filters.status || undefined,
-                paymentStatus:
-                  filters.paymentStatus && filters.paymentStatus !== "ALL"
-                    ? filters.paymentStatus
-                    : undefined,
-                search: debouncedSearch || undefined,
-                businessId: profile?.businessId || AppDefault.BUSINESS_ID,
-              })
-            )
-          }
+          onAction={fetchOrders}
           size="md"
         />
       ) : orders.length === 0 && !loading.list ? (
         <PageState
           type={filters.status || filters.paymentStatus ? "no-results" : "empty"}
-          title={filters.status ? "No Orders Found" : "No Orders Yet"}
+          title={filters.status ? "No Matching Orders" : "No Orders Yet"}
           description={
             filters.status
-              ? `No orders with ${filters.status.toLowerCase()} status. Try a different filter.`
-              : "You haven't placed any orders yet. Start shopping now!"
+              ? `No orders matching status filter "${filters.status.toLowerCase()}".`
+              : "You haven't placed any orders yet. Start ordering your favorite meals now!"
           }
-          actionLabel="Browse Menu"
-          onAction={() => router.push("/menu")}
+          actionLabel="Browse Products"
+          onAction={() => router.push("/products")}
           size="md"
         />
       ) : (
@@ -356,6 +310,7 @@ export default function OrdersPage() {
         orderId={detailModalState.orderId}
         isOpen={detailModalState.isOpen}
         onClose={() => setDetailModalState({ isOpen: false, orderId: "" })}
+        onOrderCancelled={fetchOrders}
       />
 
       <CancelOrderModal
@@ -371,7 +326,6 @@ export default function OrdersPage() {
   );
 }
 
-
 function createOrderTableColumns(
   handleViewOrder: (order: Order) => void,
   handleCancelOrder: (order: Order) => void,
@@ -385,9 +339,9 @@ function createOrderTableColumns(
       key: "index",
       label: "#",
       minWidth: "40px",
-      maxWidth: "60px",
+      maxWidth: "50px",
       render: (_, index) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs font-semibold text-muted-foreground font-mono">
           {indexDisplay(pagination.currentPage || 1, pagination.pageSize || 15, index + 1)}
         </span>
       ),
@@ -395,10 +349,10 @@ function createOrderTableColumns(
     {
       key: "orderNumber",
       label: "Order #",
-      minWidth: "100px",
-      maxWidth: "130px",
+      minWidth: "110px",
+      maxWidth: "140px",
       render: (order) => (
-        <span className="text-xs font-mono font-medium">
+        <span className="text-xs font-mono font-extrabold text-foreground">
           {order?.orderNumber || "---"}
         </span>
       ),
@@ -407,10 +361,10 @@ function createOrderTableColumns(
       key: "items",
       label: "Items",
       minWidth: "80px",
-      maxWidth: "110px",
+      maxWidth: "100px",
       render: (order) => (
-        <span className="text-xs font-medium">
-          {order?.items?.length || 0}
+        <span className="text-xs font-bold text-foreground">
+          {order?.items?.length || 0} item{(order?.items?.length || 0) !== 1 ? "s" : ""}
         </span>
       ),
     },
@@ -418,9 +372,9 @@ function createOrderTableColumns(
       key: "finalTotal",
       label: "Total",
       minWidth: "110px",
-      maxWidth: "140px",
+      maxWidth: "130px",
       render: (order) => (
-        <span className="text-xs font-bold text-green-600 dark:text-green-400">
+        <span className="text-xs font-black text-primary">
           {formatCurrency(order?.pricing?.finalTotal ?? 0)}
         </span>
       ),
@@ -431,32 +385,11 @@ function createOrderTableColumns(
       minWidth: "120px",
       maxWidth: "150px",
       render: (order) => {
-        const getStatusColor = (status: string) => {
-          switch (status) {
-            case "COMPLETED":
-            case "READY":
-            case "DELIVERED":
-              return "text-green-600 dark:text-green-400 font-medium";
-            case "CANCELLED":
-            case "FAILED":
-              return "text-red-600 dark:text-red-400 font-medium";
-            case "PENDING":
-              return "text-yellow-600 dark:text-yellow-400 font-medium";
-            case "PREPARING":
-            case "CONFIRMED":
-            case "PROCESSING":
-              return "text-blue-600 dark:text-blue-400 font-medium";
-            case "SHIPPED":
-            case "IN_TRANSIT":
-              return "text-cyan-600 dark:text-cyan-400 font-medium";
-            default:
-              return "text-gray-600 dark:text-gray-400 font-medium";
-          }
-        };
+        const cfg = ORDER_STATUS_BADGE_CONFIG[order?.orderStatus || "PENDING"] || ORDER_STATUS_BADGE_CONFIG.PENDING;
         return (
-          <span className={`text-xs ${getStatusColor(order?.orderStatus)}`}>
+          <Badge className={cn("text-[11px] font-extrabold px-2.5 py-0.5 rounded-xl border shadow-2xs", cfg.badgeBg, cfg.border)}>
             {getOrderStatusLabel(order?.orderStatus)}
-          </span>
+          </Badge>
         );
       },
     },
@@ -464,52 +397,30 @@ function createOrderTableColumns(
       key: "paymentStatus",
       label: "Payment",
       minWidth: "120px",
-      maxWidth: "160px",
+      maxWidth: "150px",
       render: (order) => {
         const paymentStatus = order?.payment?.paymentStatus;
         const paymentMethod = order?.payment?.paymentMethod;
-        const getPaymentColor = (status: string) => {
-          switch (status) {
-            case "PAID":
-              return "text-green-600 dark:text-green-400 font-medium";
-            case "UNPAID":
-              return "text-orange-600 dark:text-orange-400 font-medium";
-            case "REFUNDED":
-              return "text-red-600 dark:text-red-400 font-medium";
-            default:
-              return "text-gray-600 dark:text-gray-400 font-medium";
-          }
-        };
+        const isPaid = paymentStatus === "PAID";
         return (
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-medium">
-              {paymentMethod || "---"}
+            <span className="text-xs font-bold text-foreground truncate">
+              {paymentMethod || "Cash"}
             </span>
-            <span className={`text-xs ${getPaymentColor(paymentStatus ?? "")}`}>
-              {paymentStatus || "---"}
+            <span className={cn("text-[10px] font-extrabold truncate", isPaid ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400")}>
+              {paymentStatus || "UNPAID"}
             </span>
           </div>
         );
       },
     },
     {
-      key: "deliveryOption",
-      label: "Delivery",
-      minWidth: "120px",
-      maxWidth: "150px",
-      render: (order) => (
-        <span className="text-xs font-medium">
-          {order?.deliveryOption?.name || "---"}
-        </span>
-      ),
-    },
-    {
       key: "createdAt",
-      label: "Created",
+      label: "Date & Time",
       minWidth: "130px",
       maxWidth: "160px",
       render: (order) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-muted-foreground font-medium">
           {dateTimeFormat(order?.createdAt)}
         </span>
       ),
@@ -518,19 +429,21 @@ function createOrderTableColumns(
       key: "actions",
       label: "Actions",
       minWidth: "120px",
-      maxWidth: "160px",
+      maxWidth: "150px",
       render: (order) => (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <ActionButton
-            icon={<Eye className="w-3 h-3" />}
+            icon={<Eye className="w-3.5 h-3.5" />}
             tooltip="View Details"
             onClick={() => handleViewOrder(order)}
           />
           <ActionButton
             icon={
-              downloadingOrderId === order.id
-                ? <Loader2 className="w-3 h-3 animate-spin" />
-                : <Download className="w-3 h-3" />
+              downloadingOrderId === order.id ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Download className="w-3.5 h-3.5" />
+              )
             }
             tooltip="Download Receipt"
             onClick={() => handleDownloadReceipt(order)}
@@ -538,7 +451,7 @@ function createOrderTableColumns(
           />
           {order.orderStatus === "PENDING" && (
             <ActionButton
-              icon={cancelingOrderId === order.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <XCircle className="w-3 h-3" />}
+              icon={cancelingOrderId === order.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
               tooltip="Cancel Order"
               onClick={() => handleCancelOrder(order)}
               variant="destructive"
@@ -554,11 +467,11 @@ function createOrderTableColumns(
 function OrdersPageSkeleton() {
   return (
     <PageContainer className="min-h-screen flex flex-col py-5">
-      <div className="space-y-3">
-        <div className="h-8 bg-muted rounded animate-pulse" />
-        <div className="h-8 bg-muted rounded animate-pulse" />
+      <div className="space-y-4">
+        <div className="h-10 bg-muted rounded-xl animate-pulse w-1/3" />
+        <div className="h-10 bg-muted rounded-xl animate-pulse" />
         {[1, 2, 3].map((i) => (
-          <div key={i} className="rounded border border-border p-3 space-y-2">
+          <div key={i} className="rounded-2xl border border-border p-4 space-y-3">
             <div className="h-4 bg-muted rounded animate-pulse" />
             <div className="h-3 bg-muted rounded animate-pulse" />
           </div>

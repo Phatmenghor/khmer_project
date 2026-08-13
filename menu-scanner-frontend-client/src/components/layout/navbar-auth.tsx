@@ -24,6 +24,13 @@ interface NavbarAuthProps {
   openOnHover: boolean;
 }
 
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return "Good morning";
+  if (hour >= 12 && hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
 function NavbarAuthComponent({
   isAuthenticated,
   fullName,
@@ -82,16 +89,22 @@ function NavbarAuthComponent({
     },
   ];
 
+  const displayName = fullName || profile?.fullName || "User";
+  const greeting = getGreeting();
+
   const dropdownHeader = (
     <div className="flex items-center gap-2">
       <CustomAvatar
         imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
-        name={fullName || profile?.fullName || "User"}
+        name={displayName}
         size="lg"
       />
       <div className="flex flex-col space-y-0.5 flex-1 min-w-0">
-        <p className="text-xs font-semibold line-clamp-1">
-          {fullName || profile?.fullName || "User"}
+        <span className="text-[10px] font-bold text-primary">
+          ☀️ {greeting}!
+        </span>
+        <p className="text-xs font-semibold line-clamp-1 text-foreground">
+          {displayName}
         </p>
         <p className="text-xs text-muted-foreground line-clamp-1">
           {email || profile?.email || ""}
@@ -99,8 +112,6 @@ function NavbarAuthComponent({
       </div>
     </div>
   );
-
-  const displayName = fullName || profile?.fullName || "User";
 
   return (
     <>
@@ -114,9 +125,14 @@ function NavbarAuthComponent({
                 size="md"
               />
             </div>
-            <span className="text-xs font-bold text-foreground truncate max-w-[120px] hidden sm:inline-block">
-              {displayName}
-            </span>
+            <div className="hidden sm:flex flex-col items-start leading-tight text-left">
+              <span className="text-[10px] font-semibold text-muted-foreground tracking-wide">
+                {greeting},
+              </span>
+              <span className="text-xs font-bold text-foreground truncate max-w-[120px]">
+                {displayName}
+              </span>
+            </div>
           </div>
         }
         header={dropdownHeader}

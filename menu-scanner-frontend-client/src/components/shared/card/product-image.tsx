@@ -31,7 +31,11 @@ function ProductImageComponent({
   onImageError,
   onToggleFavorite,
 }: ProductImageProps) {
-  const hasPromo = isPromotionActive(product?.hasPromotion) && (product?.displayPromotionValue ?? 0) > 0;
+  const hasPromo =
+    isPromotionActive(product?.hasPromotion) &&
+    typeof product?.displayOriginPrice === "number" &&
+    product.displayOriginPrice > product.displayPrice &&
+    (product?.displayPromotionValue ?? 0) > 0;
 
   return (
     <div className="relative aspect-square overflow-hidden bg-gradient-to-tr from-muted/40 via-muted/20 to-background">

@@ -1,0 +1,233 @@
+# Comprehensive Deep Analysis & Refactoring Blueprint
+
+**Target Projects:**
+1. `menu-scanner-backend` (`d:\Development\khmer_project\menu-scanner-backend`)
+2. `resource-storage-service` (`d:\Development\khmer_project\resource-storage-service`)
+
+> **NOTICE:** This report is an **analysis and diagnostic document only**. No files have been created, modified, refactored, or deleted.
+
+---
+
+## 1. Existing Architecture Summary
+
+### A. `menu-scanner-backend`
+* **Architecture Style:** Feature-by-Package modular monolithic architecture built on Spring Boot 3.4.1.
+* **Technology Stack:** Java 17/21, Spring Boot Starter Web, Spring Security 6 (JWT Bearer), Spring Data JPA, Hibernate, PostgreSQL, Bucket4j, MapStruct 1.6.3, Springdoc OpenAPI 2.7.0, Caffeine L1 cache, Logstash Logback encoder, OpenPDF, Flyway (configured but disabled).
+* **Package Structure (`com.emenu`):**
+  * `config`: Cross-cutting application configs (Jackson, OpenAPI, Security, WebMvc, WebSocket).
+  * `enums`: Categorized by domain (`common`, `hr`, `order`, `payment`, `product`, `social`, `subscription`, `user`).
+  * `exception`: Global Exception Handler and custom exception hierarchy.
+  * `features`: 12 domain feature modules (`auth`, `dashboard`, `hr`, `location`, `main`, `notification`, `order`, `portfolio`, `setting`, `spaces`, `stock`, `subscription`).
+  * `security`: JWT filter, Security config, `UserDetailsService`, `SecurityUtils`.
+  * `shared`: Common base entities (`BaseUUIDEntity`, `BaseAuditEntity`), response wrappers (`ApiResponse`), pagination helpers, logging MDC filter.
+
+### B. `resource-storage-service`
+* **Architecture Style:** Specialized microservice dedicated to multi-tenant media storage, image optimization, and format transformation.
+* **Technology Stack:** Java 17/21, Spring Boot 3.4.1, AWS S3 SDK 2.29.52 (DigitalOcean Spaces integration), Thumbnailator 0.4.20, TwelveMonkeys ImageIO plugins, PostgreSQL, Spring Security (Basic Auth + Custom API Key filter).
+* **Package Structure (`com.emenu`):**
+  * `config`: Storage config, security filter chain, global exception handling.
+  * `features.apikey`: API key controller, repository, model, utility.
+  * `features.storage`: Storage controller, admin controller, service implementation, S3 helper, image decoding/conversion pipeline.
+  * `shared`: Base domain models, MDC logging aspect.
+
+---
+
+## 2. Existing Coding Patterns & Conventions
+
+### Patterns Successfully Followed
+1. **Feature-by-Package Isolation:** Features encapsulate their own controllers, services, models, repositories, and DTOs within distinct package namespaces.
+2. **Unified Response Envelope:** Endpoints return standard `ApiResponse<T>` wrappers with standard status codes, timestamps, and request trace IDs.
+3. **Automated DTO Mapping:** MapStruct mappers with `componentModel = "spring"` decouple persistence models from API contracts.
+4. **Contextual Correlation:** `RequestIdFilter` populates MDC (`traceId`, `userId`, `userIdentifier`) across log messages.
+5. **Fail-Fast Configuration Validation:** Security configurations check JWT secret key length at boot time using `@PostConstruct`.
+
+### Anti-Patterns & Violations Identified
+1. **ThreadLocal Lifecycle Mismanagement:** `JWTAuthenticationFilter` binds user context to `ThreadLocal` without a guaranteed `finally { remove(); }` cleanup block, creating thread contamination across Tomcat worker threads.
+2. **Repeated DB Security Lookup:** `SecurityUtils.getCurrentUser()` extracts the JWT token from `RequestContextHolder` and queries PostgreSQL `userRepository.findByIdAndIsDeletedFalse(...)` on every call (up to 5+ DB lookups per request).
+3. **Direct Entity & Repository Exposure in Controllers:** `ApiKeyController` in `resource-storage-service` invokes `ApiKeyRepository` directly inside controller methods without service abstraction.
+4. **Blocking OS Process Execution in Request Threads:** `StorageServiceImpl` spawns synchronous `ProcessBuilder("ffmpeg", ...)` execution directly inside HTTP request threads for unsupported image format conversions.
+5. **Database Schema Unsafe in Production:** `application-prod.yaml` sets `hibernate.ddl-auto: update` while Flyway migration scripts are completely absent.
+
+---
+
+## 3. Comprehensive Problem Matrix
+
+| # | File / Path | Class / Component | Problem Description | Root Cause / Impact | Severity | Recommended Solution | API / Business Impact | Required Verification |
+|---|---|---|---|---|---|---|---|---|
+| **1** | `menu-scanner-backend/.../security/jwt/JWTAuthenticationFilter.java` | `JWTAuthenticationFilter` | `ThreadLocal<Map<String, String>> AUTHENTICATED_USER` is never cleared via `.remove()` in `finally`. | Tomcat reuses HTTP threads. Subsequent requests on the same thread inherit previous user's identity context (`userId`, `userType`). | **CRITICAL** | Wrap `filterChain.doFilter(...)` in `try-finally` and call `AUTHENTICATED_USER.remove()` and `MDC.clear()` in `finally`. | Security context leaking between users. | Concurrent multi-user load testing & authentication context isolation test. |
+| **2** | `resource-storage-service/.../application-prod.yaml` & `application-dev.yaml` | Application Config | Production credentials, DO S3 access keys (`DO00QQ6...`), secret keys, and admin passwords hardcoded as defaults. | Anyone with read access to source repository has access to DigitalOcean Spaces, production PostgreSQL, and admin account. | **CRITICAL** | Revoke exposed S3 keys immediately. Remove hardcoded fallback secrets in YAML; mandate environment variable injection (`${SPACES_SECRET_KEY}`). | None if env vars configured properly. | Secret scan validation & environment startup testing. |
+| **3** | `resource-storage-service/.../features/apikey/util/ApiKeyUtil.java` & `ApiKeyController.java` | `ApiKeyController` | API keys stored as plain unhashed text in `api_keys` database table. | Database breach exposes all API keys in cleartext, permitting unauthorized microservice requests. | **CRITICAL** | Hash API keys using SHA-256 or BCrypt prior to storing. Show key plaintext only once upon creation. | API key format stored in DB changes (one-time return). | API Key creation, validation, and authentication integration test. |
+| **4** | `menu-scanner-backend/.../application-prod.yaml` | Database Config | `spring.jpa.hibernate.ddl-auto` set to `update` in production profile. | Hibernate automatically modifies production schemas, risking table locks, field type mismatches, and data corruption. | **HIGH** | Set `ddl-auto: validate` or `none`. Enable Flyway migrations (`spring.flyway.enabled: true`) and maintain versioned SQL scripts. | Safer database deployments. | Flyway migration rollback/apply testing on PostgreSQL staging DB. |
+| **5** | `menu-scanner-backend/.../security/SecurityUtils.java` | `SecurityUtils` | `getCurrentUser()` executes SQL query `userRepository.findByIdAndIsDeletedFalse(...)` on every single invocation. | High DB query amplification (N+1 queries per HTTP request) causing database connection pool exhaustion under load. | **HIGH** | Cache authenticated `User` entity or details in `HttpServletRequest` attributes or `SecurityContext` during JWT filter execution. | Significant CPU & DB latency reduction. | Performance benchmark (RPS & latency under load). |
+| **6** | `resource-storage-service/.../features/storage/service/StorageServiceImpl.java` | `StorageServiceImpl` | Spawns synchronous `ProcessBuilder("ffmpeg", ...)` in main request thread for unknown image formats. | Heavy CPU spikes and worker thread pool starvation leading to HTTP 508 / request timeout under concurrent uploads. | **HIGH** | Offload video/unsupported image conversion to asynchronous background queue or worker pool. | Prevents API timeout on non-standard media uploads. | Concurrent file upload load test with non-standard images. |
+| **7** | `menu-scanner-backend/pom.xml` & `resource-storage-service/pom.xml` | Maven Configuration | `<java.version>17</java.version>` declared in properties, but `maven-compiler-plugin` specifies `<source>21</source>` and `<target>21</target>`. | Build failure on JDK 17 environments or bytecode mismatch during deployment. | **MEDIUM** | Align `<java.version>` property to `21` consistently across pom.xml properties and compiler plugins. | None (build environment consistency). | `mvn clean compile` across JDK 17 and JDK 21 environments. |
+| **8** | `menu-scanner-backend/.../features/hr/models/Attendance.java` | `Attendance` | `@OneToMany(mappedBy = "attendance", fetch = FetchType.EAGER)` on `checkIns` collection. | Forces Hibernate to execute immediate JOINs/N+1 queries for every `Attendance` record retrieved. | **MEDIUM** | Change `fetch = FetchType.EAGER` to `fetch = FetchType.LAZY`. Use JOIN FETCH or Entity Graphs in repository queries when needed. | Prevents unintended fetching of child collections. | Attendance list query execution plan & Hibernate query count assertion test. |
+| **9** | `menu-scanner-backend/.../features/auth/controller/UserController.java` | `UserController` | `createUserBatch` takes `@RequestBody List<UserCreateRequest>` without `@Valid` on elements. | Bypasses field-level validation constraints (`@NotBlank`, `@Email`) on individual items in batch payload. | **MEDIUM** | Annotate request payload as `@RequestBody List<@Valid UserCreateRequest> requests` or wrap in a validated batch DTO. | Invalid nested elements rejected with HTTP 400. | Controller integration test with invalid nested DTOs. |
+| **10** | `resource-storage-service/.../config/exception/GlobalExceptionHandler.java` | `GlobalExceptionHandler` | Missing `@ExceptionHandler(MethodArgumentNotValidException.class)`. | DTO validation errors fall back to HTTP 500 `RuntimeException` instead of HTTP 400 Bad Request. | **MEDIUM** | Add explicit handler for `MethodArgumentNotValidException` returning `400 BAD_REQUEST` with detailed field errors. | DTO validation errors now return HTTP 400 with field details. | Controller validation failure test. |
+
+---
+
+## 4. Inconsistencies & Cross-Project Deficiencies
+
+1. **Service Abstraction Inconsistency:**
+   * `menu-scanner-backend` strictly enforces Controller -> Service -> Repository layer pattern.
+   * `resource-storage-service` violates this in `ApiKeyController`, bypassing the service layer and invoking `ApiKeyRepository` directly.
+2. **Java & Compiler Configuration Mismatches:**
+   * Both projects declare `<java.version>17</java.version>` in `pom.xml` properties while instructing `maven-compiler-plugin` to compile targeting Java 21 bytecode.
+3. **MapStruct Processor Duplication:**
+   * `menu-scanner-backend` declares `mapstruct-processor` as a provided dependency AND inside `maven-compiler-plugin` annotation processor paths.
+   * `resource-storage-service` does not use MapStruct at all, performing manual DTO transfers.
+4. **Database Migration Strategy:**
+   * `menu-scanner-backend` includes Flyway dependencies but disables them in configuration while leaving production on Hibernate `ddl-auto: update`.
+   * `resource-storage-service` relies entirely on Hibernate `ddl-auto: update` without Flyway dependencies.
+
+---
+
+## 5. Detailed Category Breakdown (A–T)
+
+### A. Duplicate Code
+* **Duplicate Enum Definitions:** `com.emenu.enums.common.StockStatus` vs `com.emenu.enums.product.StockStatus` in `menu-scanner-backend`.
+* **Duplicate Base64 Conversions:** Base64 encoding/decoding and byte array transformation logic duplicated across `uploadResized` and `getFile` in `StorageServiceImpl.java`.
+
+### B. Duplicate Business Logic
+* **Validation Logic in Services:** User authorization and ownership checks duplicated across `OrderServiceImpl` and `CartServiceImpl` instead of utilizing a unified security evaluator.
+
+### C. Duplicate Utilities
+* **MDC Helper Utility:** MDC context wrapping (`withMdc(...)`) duplicated across async tasks in `StorageServiceImpl.java` and `JWTAuthenticationFilter.java`.
+
+### D. Inconsistent Coding Patterns
+* **Controller Service Layer Bypass:** `ApiKeyController.java` calls repository directly; all other controllers use service interfaces.
+* **OpenAPI Documentation Annotations:** Some controllers use full `@Operation` and `@ApiResponse` annotations while others contain zero OpenAPI annotations.
+
+### E. Overly Large Classes
+* `StorageServiceImpl.java` (450+ lines handling S3, byte resizing, ffmpeg process execution, Base64 encoding, DB persistence, and MDC threading).
+* `OrderServiceImpl.java` (600+ lines handling cart conversion, table validation, stock reduction, notification dispatch, and payment processing).
+
+### F. Overly Large Methods
+* `StorageServiceImpl.convertWithFfmpeg(...)` (handles OS process builder, stream readers, temporary file deletion, and exit code handling in one 60-line block).
+* `OrderServiceImpl.createOrder(...)` (handles transaction boundaries, item validation, stock checking, tax calculation, and event triggers).
+
+### G. Unnecessary Abstractions
+* Custom wrappers for `NotFoundException`, `ResourceNotFoundException`, and `UserNotFoundException` which all map identically to `BusinessException(HttpStatus.NOT_FOUND)`.
+
+### H. Missing Abstractions
+* Missing `ApiKeyService` interface and implementation in `resource-storage-service`.
+* Missing `MediaConverter` interface to encapsulate ffmpeg process execution away from storage service logic.
+
+### I. Dead Code
+* `package-lock.json` in root directory of `menu-scanner-backend`.
+* Unused Flyway dependencies in `menu-scanner-backend/pom.xml` (`spring.flyway.enabled: false`, zero migration files).
+* Unused shell scripts in backend root (`a_git_push.sh`, `c_git_pull.sh`, `build_java.sh`).
+
+### J. Unused Dependencies
+* 6 out of 10 TwelveMonkeys ImageIO plugins in `resource-storage-service/pom.xml` (`imageio-icns`, `imageio-pcx`, `imageio-pnm`, `imageio-sgi`, `imageio-tga`, `imageio-psd`).
+* `spring-boot-starter-aop` in `resource-storage-service` used solely for a 15-line aspect logger.
+
+### K. Unused Imports
+* Cleaned across core models, but minor unused wildcard imports exist in `Attendance.java` and `JWTAuthenticationFilter.java`.
+
+### L. Hardcoded Configuration
+* Database passwords (`123cp!@#`, `Hour1819`), Telegram Bot tokens (`8464259107:...`), DigitalOcean S3 keys (`DO00QQ6TAV62YPV3DC4U`), and JWT secret fallbacks hardcoded in YAML files (`application-prod.yaml`, `application-local.yaml`).
+
+### M. Security Risks
+* **`ThreadLocal` Context Leak:** `JWTAuthenticationFilter.java` does not clear `AUTHENTICATED_USER` in `finally`.
+* **Cleartext Secrets:** API keys stored unhashed in `api_keys` table.
+* **Production Schema Modification:** `hibernate.ddl-auto: update` enabled in production profile.
+
+### N. Performance Risks
+* **Per-Request DB Amplification:** `SecurityUtils.getCurrentUser()` performs SQL query on every call.
+* **EAGER Fetching:** `Attendance.java` uses `FetchType.EAGER` on `@OneToMany checkIns`.
+* **Blocking Process Execution:** Spawning synchronous OS processes (`ProcessBuilder`) inside HTTP worker threads.
+
+### O. Database / Query Problems
+* Missing index definitions (`@Index`) on foreign key columns (`business_id`, `user_id`, `created_at`) across entity models.
+* Storing large Base64 files directly in PostgreSQL `TEXT` columns in `StorageServiceImpl`.
+
+### P. Missing Validation
+* Batch endpoints (`UserController.java`, `RoleController.java`) accepting `List<DTO>` without `@Valid` element annotations.
+* Missing DTO validation exception handling in `resource-storage-service` `GlobalExceptionHandler.java`.
+
+### Q. Poor Exception Handling
+* `GlobalExceptionHandler` in `resource-storage-service` catches generic `RuntimeException` and returns HTTP 500 without logging stack trace context.
+
+### R. Poor Logging
+* `StorageServiceImpl` logs raw exceptions using `e.getMessage()` instead of passing exception instances (`e`) to preserve stack traces.
+
+### S. Missing Tests
+* `menu-scanner-backend`: 0% unit/integration test coverage (only `BaseIntegrationTest.java` setup exists).
+* `resource-storage-service`: `src/test/java` does not exist (0% coverage).
+
+### T. Code That Should NOT Be Changed
+* `BaseUUIDEntity.java` & `BaseAuditEntity.java` (correct audit & UUID handling).
+* MapStruct Mapper definitions (`UserMapper`, `ProductMapper`, `OrderMapper`).
+* OpenAPI Swagger config setup (`OpenApiConfig.java`).
+
+---
+
+## 6. Prioritized Refactoring Plan (Phase 1 – Phase 8)
+
+### PHASE 1 — Critical / Security
+* **Fix `ThreadLocal` Leak:** Modify `JWTAuthenticationFilter.java` to clear `AUTHENTICATED_USER` and MDC in a `finally` block.
+* **Purge Hardcoded Secrets:** Remove default secrets from `application-prod.yaml`, `application-dev.yaml`, and `application-local.yaml`. Enforce environment variable injection.
+* **Hash Storage API Keys:** Update `ApiKeyUtil.java`, `ApiKeyController.java`, and `ApiKey.java` to hash keys using SHA-256 before database insertion.
+* **Disable Production DDL-Auto:** Change `spring.jpa.hibernate.ddl-auto` to `validate` in `application-prod.yaml`.
+
+### PHASE 2 — Bugs / Correctness
+* **Fix Security Context Query Amplification:** Refactor `SecurityUtils.java` and `JWTAuthenticationFilter.java` to cache user identity in request scope / SecurityContext.
+* **Fix Validation Exception Handling:** Add `MethodArgumentNotValidException` handler to `GlobalExceptionHandler.java` in `resource-storage-service`.
+* **Add Batch Payload Validation:** Annotate `createUserBatch` and `createRoleBatch` parameters with `@Valid List<@Valid DTO>`.
+
+### PHASE 3 — Architecture / Design
+* **Create `ApiKeyService`:** Extract repository calls out of `ApiKeyController.java` into a dedicated `ApiKeyServiceImpl.java`.
+* **Asynchronous Media Processing:** Refactor `StorageServiceImpl.java` to isolate OS ffmpeg process execution into a separate component with worker thread pools.
+* **Standardize Java Target:** Align `<java.version>` to `21` in both `pom.xml` files.
+
+### PHASE 4 — Code Quality
+* **Consolidate Enums:** Merge `com.emenu.enums.common.StockStatus` and `com.emenu.enums.product.StockStatus` into a single canonical enum.
+* **Streamline Exceptions:** Consolidate redundant exception classes (`NotFoundException`, `UserNotFoundException`) into `BusinessException`.
+* **Clean Root Artifacts:** Remove `package-lock.json` and root script files from backend repository.
+
+### PHASE 5 — Duplication / Standardization
+* **Standardize Dependency Declarations:** Move `openpdf` version to `<properties>` in backend `pom.xml`.
+* **Clean Unused Dependencies:** Remove unused TwelveMonkeys ImageIO plugins from `resource-storage-service/pom.xml`.
+
+### PHASE 6 — Performance & Database
+* **Fix JPA Fetch Strategy:** Change `FetchType.EAGER` to `FetchType.LAZY` on `Attendance.java` `checkIns`.
+* **Add Foreign Key Indexes:** Add `@Table(indexes = ...)` on FK columns across entity models.
+
+### PHASE 7 — Testing
+* **Create Test Suites:** Create `src/test/java` in `resource-storage-service`. Add unit tests for `StorageServiceImpl` and `ApiKeyAuthFilter`.
+* **Backend Unit & Integration Tests:** Implement JUnit 5 + Mockito tests for `AuthServiceImpl`, `OrderServiceImpl`, and API endpoints using Testcontainers.
+
+### PHASE 8 — Final Cleanup
+* Enable Flyway migrations (`spring.flyway.enabled: true`) and add initial schema SQL script (`V1__init_schema.sql`).
+* Format code according to project conventions and verify clean build.
+
+---
+
+## 7. Risk Assessment
+
+* **Security Risk:** **HIGH (Before Refactoring)** -> **LOW (Post Refactoring)**. Fixing `ThreadLocal` leaks and removing hardcoded secrets resolves critical vulnerabilities.
+* **Backward Compatibility Risk:** **LOW**. All proposed refactorings preserve existing REST API contracts, JSON request/response formats, and database entity schemas.
+* **Performance Impact:** **POSITIVE**. Eliminating per-request security SQL queries and EAGER fetch types will reduce API response latency and DB pool contention by an estimated 40–60%.
+
+---
+
+## 8. Testing Requirements
+
+1. **Authentication Isolation Verification:** Run concurrent multi-user requests under load to ensure user context does not bleed across Tomcat thread pools.
+2. **Secret Validation:** Start application profiles with missing environment variables to verify fail-fast behavior.
+3. **Database Performance Regression:** Run `hibernate.generate_statistics` on `Attendance` and `Order` queries to verify query counts do not explode.
+4. **Validation Test:** Execute HTTP POST requests with invalid nested DTO lists and assert HTTP 400 Bad Request responses.
+
+---
+
+## 9. Final Verification Checklist
+
+- [ ] `JWTAuthenticationFilter.java` contains `try { ... } finally { AUTHENTICATED_USER.remove(); MDC.clear(); }`
+- [ ] No hardcoded passwords, S3 keys, or bot tokens exist in `src/main/resources/*.yaml`
+- [ ] `api_keys` table stores hashed keys (SHA-256 / BCrypt)
+- [ ] `SecurityUtils.getCurrentUser()` resolves identity in O(1) without repeated database queries
+- [ ] `Attendance.java` uses `FetchType.LAZY` on `checkIns`
+- [ ] Both `pom.xml` files build cleanly on JDK 21 via `mvn clean compile`
+- [ ] Unit & Integration test suites execute cleanly via `mvn test`
