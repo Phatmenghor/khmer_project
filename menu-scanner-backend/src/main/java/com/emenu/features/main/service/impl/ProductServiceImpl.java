@@ -1,5 +1,7 @@
 package com.emenu.features.main.service.impl;
 
+import com.emenu.enums.product.ProductStatus;
+import com.emenu.enums.product.StockStatus;
 import com.emenu.exception.custom.NotFoundException;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.models.User;
@@ -1122,6 +1124,11 @@ public class ProductServiceImpl implements ProductService {
 
                 // Set parent product totalStock as sum of all sizes
                 dto.setTotalStock(totalSizesStock);
+                if (dto.getStatus() == ProductStatus.ACTIVE && dto.getStockStatus() == com.emenu.enums.product.StockStatus.ENABLED) {
+                    if (totalSizesStock <= 0) {
+                        dto.setStatus(ProductStatus.OUT_OF_STOCK);
+                    }
+                }
             } else {
                 dto.setHasSizes(false);
             }
@@ -1137,15 +1144,28 @@ public class ProductServiceImpl implements ProductService {
         productStockRepository.sumOnHandQuantityByProductIds(productIds)
                 .forEach(row -> stockMap.put((UUID) row[0], ((Number) row[1]).intValue()));
 
-        dtoList.forEach(dto -> dto.setTotalStock(stockMap.getOrDefault(dto.getId(), 0)));
+        dtoList.forEach(dto -> {
+            int stock = stockMap.getOrDefault(dto.getId(), 0);
+            dto.setTotalStock(stock);
+            if (dto.getStatus() == ProductStatus.ACTIVE && dto.getStockStatus() == com.emenu.enums.product.StockStatus.ENABLED) {
+                if (stock <= 0) {
+                    dto.setStatus(ProductStatus.OUT_OF_STOCK);
+                }
+            }
+        });
     }
 
     private void enrichTotalStockForDetail(ProductDetailDto dto, UUID productId) {
         List<Object[]> results = productStockRepository.sumOnHandQuantityByProductIds(List.of(productId));
+        int stock = 0;
         if (!results.isEmpty()) {
-            dto.setTotalStock(((Number) results.get(0)[1]).intValue());
-        } else {
-            dto.setTotalStock(0);
+            stock = ((Number) results.get(0)[1]).intValue();
+        }
+        dto.setTotalStock(stock);
+        if (dto.getStatus() == ProductStatus.ACTIVE && dto.getStockStatus() == com.emenu.enums.product.StockStatus.ENABLED) {
+            if (stock <= 0) {
+                dto.setStatus(ProductStatus.OUT_OF_STOCK);
+            }
         }
     }
 
@@ -1157,7 +1177,15 @@ public class ProductServiceImpl implements ProductService {
         productStockRepository.sumOnHandQuantityByProductIds(productIds)
                 .forEach(row -> stockMap.put((UUID) row[0], ((Number) row[1]).intValue()));
 
-        dtoList.forEach(dto -> dto.setTotalStock(stockMap.getOrDefault(dto.getId(), 0)));
+        dtoList.forEach(dto -> {
+            int stock = stockMap.getOrDefault(dto.getId(), 0);
+            dto.setTotalStock(stock);
+            if (dto.getStatus() == ProductStatus.ACTIVE && dto.getStockStatus() == com.emenu.enums.product.StockStatus.ENABLED) {
+                if (stock <= 0) {
+                    dto.setStatus(ProductStatus.OUT_OF_STOCK);
+                }
+            }
+        });
     }
 
     /**

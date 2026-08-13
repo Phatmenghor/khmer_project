@@ -326,8 +326,9 @@ public class OrderServiceImpl implements OrderService {
         if (request.getOrderStatus() != null) {
             order.updateStatus(request.getOrderStatus());
 
-            // Deduct stock via FIFO when order moves to CONFIRMED
-            if (request.getOrderStatus() == OrderStatus.CONFIRMED && previousStatus != OrderStatus.CONFIRMED) {
+            // Deduct stock via FIFO ONLY when order transitions to CONFIRMED or COMPLETED from PENDING
+            if ((request.getOrderStatus() == OrderStatus.CONFIRMED || request.getOrderStatus() == OrderStatus.COMPLETED)
+                    && previousStatus == OrderStatus.PENDING) {
                 deductStockForOrder(order);
             }
         }
@@ -925,7 +926,9 @@ public class OrderServiceImpl implements OrderService {
             Order orderWithItems = orderRepository.findById(savedOrder.getId())
                 .orElseThrow(() -> new NotFoundException("Order not found after item creation"));
 
-            deductStockForOrder(orderWithItems);
+            if (savedOrder.getOrderStatus() == OrderStatus.CONFIRMED || savedOrder.getOrderStatus() == OrderStatus.COMPLETED) {
+                deductStockForOrder(orderWithItems);
+            }
 
             entityManager.flush();
             entityManager.clear();
