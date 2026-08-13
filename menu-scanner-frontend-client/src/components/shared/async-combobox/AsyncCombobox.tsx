@@ -80,7 +80,9 @@ export function AsyncCombobox<T>({
   };
 
   const isSelected = (item: T) =>
-    isItemSelected
+    !item || !value
+      ? false
+      : isItemSelected
       ? isItemSelected(item, value)
       : value !== null && getId(item) === getId(value);
 
@@ -162,6 +164,7 @@ export function AsyncCombobox<T>({
               <CommandEmpty>{emptyMessage}</CommandEmpty>
               <CommandGroup>
                 {data.map((item, index) => {
+                  if (!item) return null;
                   const id = getId(item);
                   const selected = isSelected(item);
                   const labelText = getLabel(item);

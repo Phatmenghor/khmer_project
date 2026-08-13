@@ -2,10 +2,21 @@
 
 import { Messages } from "@/constants/messages";
 import { useEffect, useState, useMemo } from "react";
-import { OrderStatus } from "@/enums/order-status.enum";
 import { OrderFromEnum } from "@/enums/order.enum";
 import { useRouter } from "next/navigation";
-import { MapPin, CreditCard, MessageSquare, Lock, AlertCircle } from "lucide-react";
+import {
+  MapPin,
+  CreditCard,
+  MessageSquare,
+  Lock,
+  AlertCircle,
+  Truck,
+  User,
+  ShoppingBag,
+  CheckCircle2,
+  ChevronRight,
+  ShieldCheck,
+} from "lucide-react";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useCartState } from "@/features/main/store/state/cart-state";
 import { useLocationState } from "@/features/location/store/state/location-state";
@@ -23,8 +34,6 @@ import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { cn } from "@/lib/utils";
-import { sanitizeImageUrl } from "@/utils/common/common";
-import { appImages } from "@/constants/app-resource/icons/app-images";
 import { ComboboxSelectLocation } from "@/components/shared/combobox/combobox-select-location";
 import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-select-delivery-option";
 import { ComboboxSelectPaymentPublic } from "@/components/shared/combobox/combobox-select-payment-public";
@@ -33,6 +42,9 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { SignInRequired } from "@/components/shared/auth/sign-in-required";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { PageState } from "@/components/shared/page-state";
+import { Input } from "@/components/ui/input";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
+import { Badge } from "@/components/ui/badge";
 
 interface CheckoutState {
   selectedAddressId: string | null;
@@ -72,8 +84,8 @@ export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
   const [defaultAddress, setDefaultAddress] = useState<LocationResponse | null>(null);
   const [loadingDefaults, setLoadingDefaults] = useState(false);
-  const [initialOrderStatus, setInitialOrderStatus] = useState<string>("Pending");
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [placedOrder, setPlacedOrder] = useState<OrderResponse | null>(null);
 
   const [checkoutState, setCheckoutState] = useState<CheckoutState>({
     selectedAddressId: null,
@@ -105,17 +117,8 @@ export default function CheckoutPage() {
           }));
         }
       } catch (error: unknown) {
-
-        const axiosError = error as { response?: { status?: number } };
-        const isExpectedError =
-          axiosError?.response?.status === 404 ||
-          (typeof error === "string" && error.includes("No default")) ||
-          (typeof error === "string" && error.includes("not found"));
-
-        if (!isExpectedError) {
-        }
+        // Ignored
       }
-
       setLoadingDefaults(false);
     };
 
@@ -136,12 +139,15 @@ export default function CheckoutPage() {
 
     const fetchPaymentOptions = async () => {
       try {
-        await dispatch(fetchPublicPaymentOptionsService({
-          businessId: AppDefault.BUSINESS_ID,
-          pageNo: 1,
-          pageSize: 100,
-        })).unwrap();
+        await dispatch(
+          fetchPublicPaymentOptionsService({
+            businessId: AppDefault.BUSINESS_ID,
+            pageNo: 1,
+            pageSize: 100,
+          })
+        ).unwrap();
       } catch (error) {
+        // Ignored
       }
     };
 
@@ -196,10 +202,6 @@ export default function CheckoutPage() {
     newQuantity: number
   ) => {
     if (newQuantity < 0) return;
-    if (newQuantity === 0) {
-      dispatch(updateLocalCartItem({ productId, productSizeId, quantity: 0 }));
-      return;
-    }
     dispatch(
       updateLocalCartItem({ productId, productSizeId, quantity: newQuantity })
     );
@@ -237,7 +239,6 @@ export default function CheckoutPage() {
     setCheckoutState((prev) => ({ ...prev, isProcessing: true }));
 
     try {
-
       const checkoutPayload: CheckoutPayload = {
         businessId: AppDefault.BUSINESS_ID,
         addressId: selectedAddress?.id,
@@ -263,13 +264,17 @@ export default function CheckoutPage() {
             status: item.status || "",
             sku: item.sku || "",
             barcode: item.barcode || "",
-            currentPrice: item.currentPrice,
-            finalPrice: item.finalPrice,
-            hasPromotion: Boolean(item.hasPromotion === "ACTIVE" || item.hasPromotion === "FUTURE_PROMOTION" || item.hasPromotion === true),
-            quantity: item.quantity,
+            currentPrice: item.currentPrice ?? item.finalPrice ?? 0,
+            finalPrice: item.finalPrice ?? item.currentPrice ?? 0,
+            hasPromotion: Boolean(
+              item.hasPromotion === "ACTIVE" ||
+                item.hasPromotion === "FUTURE_PROMOTION" ||
+                item.hasPromotion === true
+            ),
+            quantity: Number(item.quantity) || 1,
             totalBeforeDiscount: item.totalBeforeDiscount || 0,
             discountAmount: item.discountAmount || 0,
-            totalPrice: item.totalPrice,
+            totalPrice: item.totalPrice ?? (item.finalPrice ?? item.currentPrice ?? 0) * (Number(item.quantity) || 1),
             promotionType: item.promotionType || "",
             promotionValue: item.promotionValue || 0,
             promotionFromDate: item.promotionFromDate || new Date().toISOString(),
@@ -301,14 +306,9 @@ export default function CheckoutPage() {
       };
 
       const orderResult: OrderResponse = await dispatch(createOrderService(checkoutPayload)).unwrap();
-
+      setPlacedOrder(orderResult);
       showToast.success(Messages.orders.placed);
-
-      setTimeout(() => {
-        router.push("/orders");
-      }, 1500);
     } catch (error: unknown) {
-
       const axiosErr = error as { response?: { data?: { message?: string } }; message?: string };
       const errorMessage =
         axiosErr?.response?.data?.message ||
@@ -321,7 +321,7 @@ export default function CheckoutPage() {
     }
   };
 
-  if (!mounted || !authReady) {
+  if (!mounted || !authReady || loadingDefaults) {
     return <CheckoutPageSkeleton />;
   }
 
@@ -341,7 +341,7 @@ export default function CheckoutPage() {
     );
   }
 
-  if (items.length === 0) {
+  if (items.length === 0 && !placedOrder) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <PageState
@@ -358,7 +358,6 @@ export default function CheckoutPage() {
 
   return (
     <PageContainer className="py-0 pb-28 sm:pb-14 lg:pb-5">
-      {}
       <PageHeader
         title="Checkout"
         subtitle={`${items.length} ${items.length === 1 ? "item" : "items"} • ${totalQuantity} total quantity`}
@@ -367,17 +366,21 @@ export default function CheckoutPage() {
         countLabel="items"
       />
 
-      <div className="grid lg:grid-cols-3 gap-4">
-        {}
+      <div className="grid lg:grid-cols-3 gap-5">
+        {/* ── LEFT 2 COLUMNS: ADDRESS, CONTACT, INSTRUCTIONS & ITEMS ── */}
         <div className="lg:col-span-2 space-y-4">
-          {}
-          <div className="bg-card border border-border rounded p-4 sm:p-5 space-y-4">
-            {}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-foreground flex items-center gap-1">
-                <MapPin className="h-3 w-3 text-primary" />
-                Delivery Address
-                <span className="text-red-500">*</span>
+          {/* Card 1: Delivery & Contact Section */}
+          <div className="bg-card border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs hover:border-primary/30 transition-all space-y-4">
+            {/* Header */}
+            <div className="flex items-center gap-2 pb-3 border-b border-border/50">
+              <MapPin className="h-4 w-4 text-primary" />
+              <h3 className="font-extrabold text-sm text-foreground">Delivery & Contact Details</h3>
+            </div>
+
+            {/* Delivery Address Dropdown */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-foreground flex items-center gap-1">
+                Delivery Address <span className="text-red-500">*</span>
               </label>
               <ComboboxSelectLocation
                 dataSelect={selectedAddress as any}
@@ -396,19 +399,18 @@ export default function CheckoutPage() {
               />
             </div>
 
-            {}
-            <div className="border-t border-border/50" />
-
-            {}
-            <div className="space-y-3">
-              <h4 className="text-xs font-semibold text-foreground">Contact Information</h4>
+            {/* Contact Information */}
+            <div className="space-y-3 pt-2 border-t border-border/50">
+              <div className="flex items-center gap-1.5">
+                <User className="h-3.5 w-3.5 text-primary" />
+                <h4 className="text-xs font-bold text-foreground">Customer Info</h4>
+              </div>
               <div className="grid sm:grid-cols-2 gap-3">
-                {}
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
+                  <label className="text-xs font-bold text-foreground">
                     Full Name <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={checkoutState.customerName}
                     onChange={(e) =>
@@ -418,16 +420,15 @@ export default function CheckoutPage() {
                       }))
                     }
                     placeholder="Your full name"
-                    className="w-full px-2 py-1 rounded border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
+                    className="h-9 rounded-xl border-border/80 bg-muted/30 focus:bg-background text-xs font-normal text-foreground placeholder:text-muted-foreground/70 transition-all"
                   />
                 </div>
 
-                {}
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
+                  <label className="text-xs font-bold text-foreground">
                     Phone Number <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="tel"
                     value={checkoutState.customerPhone}
                     onChange={(e) =>
@@ -437,16 +438,63 @@ export default function CheckoutPage() {
                       }))
                     }
                     placeholder="Your phone number"
-                    className="w-full px-2 py-1 rounded border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
+                    className="h-9 rounded-xl border-border/80 bg-muted/30 focus:bg-background text-xs font-normal text-foreground placeholder:text-muted-foreground/70 transition-all"
                   />
                 </div>
               </div>
             </div>
 
-            {}
-            <div className="space-y-2 pt-3 border-t border-border/50">
-              <label className="text-xs font-semibold text-foreground flex items-center gap-1">
-                <MessageSquare className="h-3 w-3 text-primary" />
+            {/* Delivery Option & Payment Selectors (Mobile + Desktop integrated) */}
+            <div className="grid sm:grid-cols-2 gap-3 pt-3 border-t border-border/50">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-foreground flex items-center gap-1">
+                  <Truck className="h-3.5 w-3.5 text-primary" /> Delivery Method <span className="text-red-500">*</span>
+                </label>
+                <ComboboxSelectDelivery
+                  dataSelect={selectedDeliveryOption as any}
+                  onChangeSelected={(item) => {
+                    if (item) {
+                      setCheckoutState((prev) => ({
+                        ...prev,
+                        selectedDeliveryOptionId: item.id,
+                      }));
+                    }
+                  }}
+                  placeholder="Select delivery method..."
+                  error={!checkoutState.selectedDeliveryOptionId ? "Please select delivery option" : ""}
+                  label=""
+                  businessId={AppDefault.BUSINESS_ID}
+                  statuses={["ACTIVE"]}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-foreground flex items-center gap-1">
+                  <CreditCard className="h-3.5 w-3.5 text-primary" /> Payment Method <span className="text-red-500">*</span>
+                </label>
+                <ComboboxSelectPaymentPublic
+                  dataSelect={selectedPaymentOption as any}
+                  onChangeSelected={(item) => {
+                    if (item) {
+                      setCheckoutState((prev) => ({
+                        ...prev,
+                        selectedPaymentOptionId: item.id,
+                      }));
+                    }
+                  }}
+                  placeholder="Select payment method..."
+                  error={!checkoutState.selectedPaymentOptionId ? "Please select payment method" : ""}
+                  label=""
+                  businessId={AppDefault.BUSINESS_ID}
+                  statuses={["ACTIVE"]}
+                />
+              </div>
+            </div>
+
+            {/* Special Instructions Note */}
+            <div className="space-y-1.5 pt-3 border-t border-border/50">
+              <label className="text-xs font-bold text-foreground flex items-center gap-1">
+                <MessageSquare className="h-3.5 w-3.5 text-primary" />
                 Special Instructions
               </label>
               <textarea
@@ -457,16 +505,16 @@ export default function CheckoutPage() {
                     customerNote: e.target.value.slice(0, 500),
                   }))
                 }
-                placeholder="Add any special requests or notes for your order..."
-                className="w-full h-20 p-3 rounded border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-xs"
+                placeholder="Add any special requests or delivery instructions..."
+                className="w-full h-20 p-3 rounded-xl border border-border/80 bg-muted/30 focus:bg-background placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none text-xs font-normal text-foreground transition-all"
                 maxLength={500}
               />
               <div className="flex justify-between items-center px-1">
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[11px] text-muted-foreground font-medium">
                   {checkoutState.customerNote.length}/500 characters
                 </p>
                 {checkoutState.customerNote.length > 400 && (
-                  <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                  <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
                     ⚠️ Approaching limit
                   </span>
                 )}
@@ -474,14 +522,18 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {}
-          <div className="bg-card border border-border rounded p-4 sm:p-5">
-            <div className="mb-4">
-              <h3 className="font-semibold text-foreground mb-1">Order Items</h3>
-              <p className="text-xs text-muted-foreground">
-                {items.length} {items.length === 1 ? "item" : "items"} • {totalQuantity} total quantity
-              </p>
+          {/* Card 2: Order Items Section */}
+          <div className="bg-card border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3">
+            <div className="flex items-center justify-between pb-3 border-b border-border/50">
+              <div className="flex items-center gap-2">
+                <ShoppingBag className="h-4 w-4 text-primary" />
+                <h3 className="font-extrabold text-sm text-foreground">Order Items</h3>
+              </div>
+              <Badge variant="secondary" className="text-xs font-extrabold rounded-full px-2.5 py-0.5">
+                {items.length} {items.length === 1 ? "Item" : "Items"} ({totalQuantity} Qty)
+              </Badge>
             </div>
+
             <div className="space-y-2">
               {items.map((item) => (
                 <CartItemCard
@@ -513,280 +565,250 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        {}
+        {/* ── RIGHT 1 COLUMN: ORDER SUMMARY SIDEBAR ── */}
         <div className="lg:col-span-1">
-          {}
-          <div className="lg:hidden bg-gradient-to-b from-card to-card/95 border border-border rounded-t-3xl p-4 sm:p-5 space-y-4 mt-5">
-            <div>
-              <h2 className="text-xs font-bold text-foreground mb-4">Order Summary</h2>
-
-              <div className="grid sm:grid-cols-2 gap-3 mb-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
-                    Delivery Option <span className="text-red-500">*</span>
-                  </label>
-                  <ComboboxSelectDelivery
-                    dataSelect={selectedDeliveryOption as any}
-                    onChangeSelected={(item) => {
-                      if (item) {
-                        setCheckoutState((prev) => ({
-                          ...prev,
-                          selectedDeliveryOptionId: item.id,
-                        }));
-                      }
-                    }}
-                    placeholder="Select delivery option..."
-                    error={!checkoutState.selectedDeliveryOptionId ? "Please select delivery option" : ""}
-                    label=""
-                    businessId={AppDefault.BUSINESS_ID}
-                    statuses={["ACTIVE"]}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
-                    Payment Method <span className="text-red-500">*</span>
-                  </label>
-                  <ComboboxSelectPaymentPublic
-                    dataSelect={selectedPaymentOption as any}
-                    onChangeSelected={(item) => {
-                      if (item) {
-                        setCheckoutState((prev) => ({
-                          ...prev,
-                          selectedPaymentOptionId: item.id,
-                        }));
-                      }
-                    }}
-                    placeholder="Select payment method..."
-                    error={!checkoutState.selectedPaymentOptionId ? "Please select payment method" : ""}
-                    label=""
-                    businessId={AppDefault.BUSINESS_ID}
-                    statuses={["ACTIVE"]}
-                  />
-                </div>
-              </div>
-              <div className="border-t border-border/50 mb-3" />
-
-              <div className="space-y-3">
-                {}
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground font-medium">Subtotal</span>
-                  <span className="font-semibold text-foreground">{formatCurrency(subtotal)}</span>
-                </div>
-
-                {}
-                {discountAmount > 0 && (
-                  <div className="flex justify-between text-xs bg-red-50/50 dark:bg-red-950/30 p-2 rounded border border-red-200/50 dark:border-red-800/30">
-                    <span className="text-red-600 dark:text-red-400 font-semibold">Discount</span>
-                    <span className="font-bold text-red-600 dark:text-red-500">-{formatCurrency(discountAmount)}</span>
-                  </div>
-                )}
-
-                {}
-                <div className="flex justify-between text-xs pt-1 border-t border-border/50">
-                  <span className="text-muted-foreground font-medium">Delivery Fee</span>
-                  <span className="font-semibold text-primary">
-                    {deliveryFee > 0 ? `+${formatCurrency(deliveryFee)}` : "Free"}
-                  </span>
-                </div>
-
-                {}
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground font-medium flex items-center gap-1">
-                    Tax
-                    <span className="text-[10px] bg-muted px-1 py-0.5 rounded font-medium">0%</span>
-                  </span>
-                  <span className="font-semibold text-foreground">{formatCurrency(taxAmount)}</span>
-                </div>
-
-                {}
-                <div className="flex justify-between items-center pt-3 border-t-2 border-border">
-                  <span className="font-bold text-xs text-foreground">Total Amount</span>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-primary">{formatCurrency(orderTotal)}</span>
-                  </div>
-                </div>
-
-                {discountAmount > 0 && (
-                  <p className="text-xs text-red-600 dark:text-red-400 text-center font-semibold bg-red-50/50 dark:bg-red-950/30 p-1 rounded">
-                    You save {formatCurrency(discountAmount)}
-                  </p>
-                )}
-              </div>
+          <div className="bg-card border border-border/80 rounded-2xl p-4 sm:p-5 shadow-xs sticky top-20 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-border/50">
+              <h3 className="font-extrabold text-sm text-foreground">Order Summary</h3>
+              <ShieldCheck className="h-4 w-4 text-emerald-500" />
             </div>
 
-            {}
-            {(!checkoutState.selectedAddressId ||
-              !checkoutState.selectedDeliveryOptionId ||
-              !checkoutState.selectedPaymentOptionId) && (
-              <div className="flex gap-2 p-2.5 bg-amber-50/60 dark:bg-amber-950/30 rounded border border-amber-200/60 dark:border-amber-800/40">
-                <AlertCircle className="h-3 w-3 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
-                  Complete all required fields to continue
+            <div className="space-y-3 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground font-medium">Subtotal ({items.length} items)</span>
+                <span className="font-bold text-foreground">{formatCurrency(subtotal)}</span>
+              </div>
+
+              {discountAmount > 0 && (
+                <div className="flex justify-between items-center bg-red-50/60 dark:bg-red-950/40 p-2 rounded-xl border border-red-200/60 dark:border-red-800/40">
+                  <span className="text-red-600 dark:text-red-400 font-extrabold">Discount</span>
+                  <span className="font-extrabold text-red-600 dark:text-red-400">-{formatCurrency(discountAmount)}</span>
+                </div>
+              )}
+
+              <div className="flex justify-between items-center pt-1 border-t border-border/50">
+                <span className="text-muted-foreground font-medium">Delivery Fee</span>
+                <span className="font-extrabold text-primary">
+                  {deliveryFee > 0 ? `+${formatCurrency(deliveryFee)}` : "Free"}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground font-medium flex items-center gap-1">
+                  Tax
+                  <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded-full font-bold">0%</span>
+                </span>
+                <span className="font-bold text-foreground">{formatCurrency(taxAmount)}</span>
+              </div>
+
+              <div className="bg-primary/10 rounded-xl p-3 border border-primary/25 shadow-2xs">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-foreground">Total Amount</span>
+                  <span className="text-base font-extrabold text-primary">{formatCurrency(orderTotal)}</span>
+                </div>
+              </div>
+
+              {discountAmount > 0 && (
+                <p className="text-[11px] text-red-600 dark:text-red-400 text-center font-bold bg-red-50/50 dark:bg-red-950/30 p-1.5 rounded-xl border border-red-200/40">
+                  🎉 Total Savings: {formatCurrency(discountAmount)}
+                </p>
+              )}
+            </div>
+
+            {!canCheckout && (
+              <div className="flex items-start gap-2 p-2.5 bg-amber-50/60 dark:bg-amber-950/30 rounded-xl border border-amber-200/60 dark:border-amber-800/40">
+                <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-700 dark:text-amber-400 font-semibold">
+                  Please complete address, contact details, delivery, and payment method to place your order.
                 </p>
               </div>
             )}
 
-            {}
             <CustomButton
               onClick={handleCheckout}
               disabled={!canCheckout || checkoutState.isProcessing}
               className={cn(
-                "w-full gap-1 h-8 rounded font-bold text-xs shadow-lg hover:shadow-xl transition-all duration-200 mx-0",
+                "w-full gap-2 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs py-2.5 shadow-xs hover:shadow-md transition-all cursor-pointer",
                 !canCheckout && "opacity-50 cursor-not-allowed"
               )}
             >
-              {checkoutState.isProcessing ? "Processing Order" : "Place Order"}
+              <Lock className="h-3.5 w-3.5" />
+              {checkoutState.isProcessing ? "Processing Order..." : "Place Order"}
             </CustomButton>
 
-            <p className="text-xs text-muted-foreground text-center font-medium">
-              🔒 Secure & encrypted checkout
-            </p>
-          </div>
-
-          {}
-          <div className="hidden lg:block bg-card border border-border rounded p-4 sm:p-5 sticky top-16 space-y-4">
-            <div>
-              <h2 className="text-xs font-semibold text-foreground mb-3">Order Summary</h2>
-
-              <div className="grid grid-cols-2 gap-2 mb-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
-                    Delivery Option <span className="text-red-500">*</span>
-                  </label>
-                  <ComboboxSelectDelivery
-                    dataSelect={selectedDeliveryOption as any}
-                    onChangeSelected={(item) => {
-                      if (item) {
-                        setCheckoutState((prev) => ({
-                          ...prev,
-                          selectedDeliveryOptionId: item.id,
-                        }));
-                      }
-                    }}
-                    placeholder="Select delivery option..."
-                    error={!checkoutState.selectedDeliveryOptionId ? "Please select delivery option" : ""}
-                    label=""
-                    businessId={AppDefault.BUSINESS_ID}
-                    statuses={["ACTIVE"]}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
-                    Payment Method <span className="text-red-500">*</span>
-                  </label>
-                  <ComboboxSelectPaymentPublic
-                    dataSelect={selectedPaymentOption as any}
-                    onChangeSelected={(item) => {
-                      if (item) {
-                        setCheckoutState((prev) => ({
-                          ...prev,
-                          selectedPaymentOptionId: item.id,
-                        }));
-                      }
-                    }}
-                    placeholder="Select payment method..."
-                    error={!checkoutState.selectedPaymentOptionId ? "Please select payment method" : ""}
-                    label=""
-                    businessId={AppDefault.BUSINESS_ID}
-                    statuses={["ACTIVE"]}
-                  />
-                </div>
-              </div>
-              <div className="border-t border-border/50 mb-3" />
-
-              <div className="space-y-2.5">
-                {}
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Subtotal ({items.length} {items.length === 1 ? "item" : "items"})</span>
-                  <span className="font-medium text-foreground">{formatCurrency(subtotal)}</span>
-                </div>
-
-                {}
-                {discountAmount > 0 && (
-                  <div className="flex justify-between text-xs">
-                    <span className="text-red-600 dark:text-red-400 font-medium">Discount</span>
-                    <span className="font-semibold text-red-600 dark:text-red-500">-{formatCurrency(discountAmount)}</span>
-                  </div>
-                )}
-
-                {}
-                <div className="flex justify-between text-xs pt-1 border-t border-border/50">
-                  <span className="text-muted-foreground">Delivery Fee</span>
-                  <span className="font-medium text-primary">
-                    {deliveryFee > 0 ? `+${formatCurrency(deliveryFee)}` : "Free"}
-                  </span>
-                </div>
-
-                {}
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground flex items-center gap-1">
-                    Tax
-                    <span className="text-[10px] bg-muted px-1 py-0.5 rounded font-medium">0%</span>
-                  </span>
-                  <span className="font-medium text-foreground">{formatCurrency(taxAmount)}</span>
-                </div>
-
-                {}
-                <div className="flex justify-between items-center pt-2.5 border-t border-border">
-                  <span className="font-semibold text-foreground">Total</span>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-primary">{formatCurrency(orderTotal)}</span>
-                  </div>
-                </div>
-
-                {discountAmount > 0 && (
-                  <p className="text-xs text-red-600 dark:text-red-400 text-right font-medium">
-                    You save {formatCurrency(discountAmount)}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {}
-            {(!checkoutState.selectedAddressId ||
-              !checkoutState.selectedDeliveryOptionId ||
-              !checkoutState.selectedPaymentOptionId) && (
-              <div className="flex gap-2 p-2.5 bg-amber-50/60 dark:bg-amber-950/30 rounded border border-amber-200/60 dark:border-amber-800/40">
-                <AlertCircle className="h-3 w-3 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-amber-700 dark:text-amber-400">
-                  Complete all required fields to continue
-                </p>
-              </div>
-            )}
-
-            {}
-            <CustomButton
-              onClick={handleCheckout}
-              disabled={!canCheckout || checkoutState.isProcessing}
-              className={cn(
-                "w-full gap-1 h-8 rounded font-semibold text-xs",
-                !canCheckout && "opacity-50 cursor-not-allowed"
-              )}
-            >
-              {checkoutState.isProcessing ? "Processing Order" : "Place Order"}
-            </CustomButton>
-
-            <p className="text-xs text-muted-foreground text-center">
-              🔒 Secure & encrypted checkout
+            <p className="text-[11px] text-muted-foreground text-center font-medium flex items-center justify-center gap-1">
+              <span>🔒</span> Secure 256-bit Encrypted Checkout
             </p>
           </div>
         </div>
       </div>
+
+      {/* Order Success Custom Modal */}
+      {placedOrder && (
+        <CustomModal
+          isOpen={!!placedOrder}
+          onClose={() => {
+            setPlacedOrder(null);
+            router.push("/orders");
+          }}
+          size="md"
+          className="p-4"
+        >
+          <div className="py-4 text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-md">
+              <CheckCircle2 className="h-10 w-10 stroke-[2.5px]" />
+            </div>
+
+            <div>
+              <h3 className="text-lg font-extrabold text-foreground">Thank You for Your Order!</h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                Order <span className="font-extrabold text-foreground">#{placedOrder.orderNumber}</span> has been created.
+              </p>
+            </div>
+
+            <div className="bg-muted/40 rounded-xl p-3 border border-border/60 text-left space-y-1.5 text-xs">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground font-medium">Customer:</span>
+                <span className="font-bold text-foreground">{placedOrder.customerName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground font-medium">Total Amount:</span>
+                <span className="font-black text-primary">{formatCurrency(placedOrder.pricing?.finalTotal || orderTotal)}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 pt-2">
+              <CustomButton
+                variant="outline"
+                className="flex-1 rounded-xl text-xs font-bold py-2.5 hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer"
+                onClick={() => router.push("/products")}
+              >
+                Continue Shopping
+              </CustomButton>
+              <CustomButton
+                className="flex-1 rounded-xl text-xs font-extrabold py-2.5 gap-1 hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer"
+                onClick={() => router.push("/orders")}
+              >
+                View My Orders
+                <ChevronRight className="h-3.5 w-3.5" />
+              </CustomButton>
+            </div>
+          </div>
+        </CustomModal>
+      )}
     </PageContainer>
   );
 }
 
 function CheckoutPageSkeleton() {
   return (
-    <PageContainer className="py-0 pb-14">
-      <div className="h-11 border-b mb-4 animate-pulse" />
-      <div className="grid lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 space-y-4">
-          {[1, 2].map((i) => (
-            <div key={i} className="bg-card border rounded h-32 animate-pulse" />
-          ))}
+    <PageContainer className="py-0 pb-28 sm:pb-14 lg:pb-5">
+      {/* Header Skeleton */}
+      <div className="py-4 mb-4 border-b border-border/60 flex items-center justify-between">
+        <div className="space-y-2">
+          <div className="h-6 w-36 bg-muted/60 rounded-lg animate-pulse" />
+          <div className="h-3.5 w-48 bg-muted/40 rounded-md animate-pulse" />
         </div>
-        <div className="bg-card border rounded h-56 animate-pulse" />
+        <div className="h-8 w-24 bg-muted/50 rounded-full animate-pulse" />
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-5">
+        {/* Left Column: Delivery & Items Cards */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* Card 1: Delivery & Contact Skeleton */}
+          <div className="bg-card border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-border/50">
+              <div className="h-4 w-4 bg-muted/60 rounded-full animate-pulse" />
+              <div className="h-4 w-40 bg-muted/60 rounded-md animate-pulse" />
+            </div>
+
+            {/* Address Combobox Skeleton */}
+            <div className="space-y-2">
+              <div className="h-3.5 w-28 bg-muted/50 rounded-md animate-pulse" />
+              <div className="h-9 w-full bg-muted/40 rounded-xl border border-border/60 animate-pulse" />
+            </div>
+
+            {/* Customer Info Inputs Skeleton */}
+            <div className="space-y-3 pt-2 border-t border-border/50">
+              <div className="h-3.5 w-24 bg-muted/50 rounded-md animate-pulse" />
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <div className="h-3 w-16 bg-muted/40 rounded-md animate-pulse" />
+                  <div className="h-9 w-full bg-muted/30 rounded-xl border border-border/60 animate-pulse" />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="h-3 w-20 bg-muted/40 rounded-md animate-pulse" />
+                  <div className="h-9 w-full bg-muted/30 rounded-xl border border-border/60 animate-pulse" />
+                </div>
+              </div>
+            </div>
+
+            {/* Method Selectors Skeleton */}
+            <div className="grid sm:grid-cols-2 gap-3 pt-3 border-t border-border/50">
+              <div className="space-y-1.5">
+                <div className="h-3.5 w-28 bg-muted/50 rounded-md animate-pulse" />
+                <div className="h-9 w-full bg-muted/40 rounded-xl border border-border/60 animate-pulse" />
+              </div>
+              <div className="space-y-1.5">
+                <div className="h-3.5 w-28 bg-muted/50 rounded-md animate-pulse" />
+                <div className="h-9 w-full bg-muted/40 rounded-xl border border-border/60 animate-pulse" />
+              </div>
+            </div>
+
+            {/* Textarea Skeleton */}
+            <div className="space-y-1.5 pt-3 border-t border-border/50">
+              <div className="h-3.5 w-32 bg-muted/50 rounded-md animate-pulse" />
+              <div className="h-20 w-full bg-muted/30 rounded-xl border border-border/60 animate-pulse" />
+            </div>
+          </div>
+
+          {/* Card 2: Order Items Skeleton */}
+          <div className="bg-card border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3">
+            <div className="flex items-center justify-between pb-3 border-b border-border/50">
+              <div className="h-4 w-28 bg-muted/60 rounded-md animate-pulse" />
+              <div className="h-5 w-24 bg-muted/40 rounded-full animate-pulse" />
+            </div>
+
+            <div className="space-y-2.5">
+              {[1, 2].map((i) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-border/60 bg-muted/20">
+                  <div className="w-14 h-14 bg-muted/50 rounded-xl shrink-0 animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3.5 w-3/4 bg-muted/60 rounded-md animate-pulse" />
+                    <div className="h-3 w-1/3 bg-muted/40 rounded-md animate-pulse" />
+                  </div>
+                  <div className="h-7 w-20 bg-muted/50 rounded-xl animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Order Summary Skeleton */}
+        <div className="lg:col-span-1">
+          <div className="bg-card border border-border/80 rounded-2xl p-4 sm:p-5 shadow-xs space-y-4 sticky top-20">
+            <div className="flex items-center justify-between pb-3 border-b border-border/50">
+              <div className="h-4 w-28 bg-muted/60 rounded-md animate-pulse" />
+              <div className="h-4 w-4 bg-muted/50 rounded-full animate-pulse" />
+            </div>
+
+            <div className="space-y-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex justify-between items-center">
+                  <div className="h-3 w-20 bg-muted/40 rounded-md animate-pulse" />
+                  <div className="h-3.5 w-14 bg-muted/60 rounded-md animate-pulse" />
+                </div>
+              ))}
+              <div className="flex justify-between items-center pt-3 border-t-2 border-border/60">
+                <div className="h-4 w-24 bg-muted/70 rounded-md animate-pulse" />
+                <div className="h-5 w-20 bg-muted/80 rounded-md animate-pulse" />
+              </div>
+            </div>
+
+            <div className="h-10 w-full bg-primary/20 rounded-xl animate-pulse" />
+            <div className="h-3 w-40 bg-muted/30 rounded-md mx-auto animate-pulse" />
+          </div>
+        </div>
       </div>
     </PageContainer>
   );

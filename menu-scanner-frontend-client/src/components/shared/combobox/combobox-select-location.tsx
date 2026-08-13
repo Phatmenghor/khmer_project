@@ -34,6 +34,32 @@ interface ComboboxSelectLocationProps {
   hasDefault?: boolean;
 }
 
+export function formatLocationAddress(item: Location | null | undefined): string {
+  if (!item) return "";
+
+  const cleanPart = (val: string | undefined, prefix: string) => {
+    if (!val || !val.trim()) return "";
+    const trimmed = val.trim();
+    if (new RegExp(`^${prefix}\\b`, "i").test(trimmed)) {
+      return trimmed;
+    }
+    return `${prefix} ${trimmed}`;
+  };
+
+  const village = cleanPart(item.village, "Phum");
+  const commune = cleanPart(item.commune, "Sangkat");
+  const district = cleanPart(item.district, "Khan");
+  const province = item.province ? item.province.trim() : "";
+
+  const parts = [village, commune, district, province].filter(Boolean);
+
+  if (parts.length > 0) {
+    return parts.join(", ");
+  }
+
+  return item.fullAddress || "";
+}
+
 export function ComboboxSelectLocation({
   dataSelect,
   onChangeSelected,
@@ -94,18 +120,15 @@ export function ComboboxSelectLocation({
       value={dataSelect}
       onChange={onChangeSelected}
       controller={controller}
-      getId={(item) => item.id}
-      getLabel={(item) => item.fullAddress}
-      renderItem={(item) => (
-        <div className="flex items-center justify-between w-full text-xs">
-          <span className="truncate line-clamp-1 flex-1">{item.fullAddress}</span>
-          {item.note && (
-            <span className="text-xs text-muted-foreground flex-shrink-0 ml-1">
-              ({item.note})
-            </span>
-          )}
-        </div>
-      )}
+      getId={(item) => item?.id ?? ""}
+      getLabel={(item) => formatLocationAddress(item)}
+      renderItem={(item) =>
+        !item ? null : (
+          <div className="flex items-center justify-between w-full text-xs">
+            <span className="truncate line-clamp-1 flex-1">{formatLocationAddress(item)}</span>
+          </div>
+        )
+      }
       label={label}
       required={required}
       placeholder={placeholder}

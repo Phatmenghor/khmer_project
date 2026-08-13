@@ -664,26 +664,29 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setSku(item.getSku() != null ? item.getSku() : product.getSku());
             orderItem.setBarcode(item.getBarcode() != null ? item.getBarcode() : product.getBarcode());
 
-            orderItem.setQuantity(item.getQuantity());
-            BigDecimal basePrice = item.getCurrentPrice() != null ? item.getCurrentPrice() : item.getFinalPrice();
+            int qty = (item.getQuantity() != null && item.getQuantity() > 0) ? item.getQuantity() : 1;
+            orderItem.setQuantity(qty);
+            BigDecimal finalPrice = item.getFinalPrice() != null ? item.getFinalPrice() :
+                    (item.getCurrentPrice() != null ? item.getCurrentPrice() : BigDecimal.ZERO);
+            BigDecimal basePrice = item.getCurrentPrice() != null ? item.getCurrentPrice() : finalPrice;
             if (Boolean.TRUE.equals(item.getHasPromotion()) && item.getPromotionType() != null && item.getPromotionValue() != null && item.getPromotionValue().compareTo(BigDecimal.ZERO) > 0) {
-                if (basePrice.compareTo(item.getFinalPrice()) <= 0) {
+                if (basePrice.compareTo(finalPrice) <= 0) {
                     if ("FIXED_AMOUNT".equalsIgnoreCase(item.getPromotionType())) {
-                        basePrice = item.getFinalPrice().add(item.getPromotionValue());
+                        basePrice = finalPrice.add(item.getPromotionValue());
                     } else if ("PERCENTAGE".equalsIgnoreCase(item.getPromotionType()) && item.getPromotionValue().compareTo(new BigDecimal("100")) < 0) {
                         BigDecimal remainingRatio = BigDecimal.ONE.subtract(item.getPromotionValue().divide(new BigDecimal("100"), 4, java.math.RoundingMode.HALF_UP));
                         if (remainingRatio.compareTo(BigDecimal.ZERO) > 0) {
-                            basePrice = item.getFinalPrice().divide(remainingRatio, 2, java.math.RoundingMode.HALF_UP);
+                            basePrice = finalPrice.divide(remainingRatio, 2, java.math.RoundingMode.HALF_UP);
                         }
                     }
                 }
             }
 
             orderItem.setCurrentPrice(basePrice);
-            orderItem.setUnitPrice(item.getFinalPrice());
-            orderItem.setFinalPrice(item.getFinalPrice());
+            orderItem.setUnitPrice(finalPrice);
+            orderItem.setFinalPrice(finalPrice);
             orderItem.setTotalPrice(item.getTotalPrice() != null ? item.getTotalPrice() :
-                    item.getFinalPrice().multiply(new BigDecimal(item.getQuantity())));
+                    finalPrice.multiply(new BigDecimal(qty)));
 
             // Map promotion details from cart item to order item
             orderItem.setHasPromotion(item.getHasPromotion());
@@ -702,7 +705,7 @@ public class OrderServiceImpl implements OrderService {
                     BigDecimal itemCustomizationTotal = item.getCustomizations().stream()
                         .map(CartItemRequest.CustomizationDetail::getPriceAdjustment)
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
-                        .multiply(new BigDecimal(item.getQuantity()));
+                        .multiply(new BigDecimal(qty));
                     orderItem.setCustomizationTotal(itemCustomizationTotal);
                 } catch (Exception e) {
                     log.warn("Failed to calculate customization total for item {}: {}", item.getProductId(), e.getMessage());

@@ -59,16 +59,20 @@ export function ComboboxSelectDelivery({
       value={dataSelect}
       onChange={onChangeSelected}
       controller={controller}
-      getId={(item) => item.id}
-      getLabel={(item) => item.price > 0 ? `${item.name} (+${formatCurrency(item.price)})` : item.name}
-      renderItem={(item) => (
-        <div className="flex items-center justify-between w-full text-xs">
-          <span className="truncate line-clamp-1 flex-1">{item.name}</span>
-          <span className="text-xs font-semibold text-primary flex-shrink-0 ml-1 whitespace-nowrap">
-            +{formatCurrency(item.price || 0)}
-          </span>
-        </div>
-      )}
+      getId={(item) => item?.id ?? ""}
+      getLabel={(item) =>
+        !item ? "" : item.price > 0 ? `${item.name} (+${formatCurrency(item.price)})` : item.name
+      }
+      renderItem={(item) =>
+        !item ? null : (
+          <div className="flex items-center justify-between w-full text-xs">
+            <span className="truncate line-clamp-1 flex-1">{item.name}</span>
+            <span className="text-xs font-semibold text-primary flex-shrink-0 ml-1 whitespace-nowrap">
+              +{formatCurrency(item.price || 0)}
+            </span>
+          </div>
+        )
+      }
       label={label}
       required={required}
       placeholder={placeholder}
