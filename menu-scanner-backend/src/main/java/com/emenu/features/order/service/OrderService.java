@@ -16,6 +16,7 @@ public interface OrderService {
     // Customer Operations
     OrderResponse createOrderFromCart(OrderCreateRequest request);
     PaginationResponse<OrderResponse> getCustomerOrderHistory(OrderFilterRequest filter);
+    List<OrderResponse> getGuestOrders(List<UUID> orderIds);
     OrderResponse getOrderById(UUID orderId);
 
     // Business Operations

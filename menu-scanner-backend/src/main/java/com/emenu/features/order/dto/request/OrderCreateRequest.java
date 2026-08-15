@@ -27,9 +27,11 @@ public class OrderCreateRequest {
     private String customerPhone;
     private String customerEmail;
 
-    // Delivery address - ID only (fetches from database)
-    @NotNull(message = "Address ID is required")
+    // Delivery address - ID for saved address OR guestAddress for direct input
     private UUID addressId;
+
+    @Valid
+    private GuestAddressRequest guestAddress;
 
     // Delivery option (full object with price)
     @Valid
@@ -79,6 +81,22 @@ public class OrderCreateRequest {
 
         // Final total
         private BigDecimal finalTotal;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class GuestAddressRequest {
+        private String village;
+        private String commune;
+        private String district;
+        private String province;
+        private String streetNumber;
+        private String houseNumber;
+        private String note;
+        private BigDecimal latitude;
+        private BigDecimal longitude;
     }
 }
 

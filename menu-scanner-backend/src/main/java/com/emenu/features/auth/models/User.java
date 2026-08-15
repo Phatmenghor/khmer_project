@@ -134,6 +134,20 @@ public class User extends BaseUUIDEntity {
         return userIdentifier;
     }
 
+    public String getPhoneNumber() {
+        if (profile != null && profile.getPhoneNumber() != null) {
+            return profile.getPhoneNumber();
+        }
+        return null;
+    }
+
+    public String getEmail() {
+        if (profile != null && profile.getEmail() != null) {
+            return profile.getEmail();
+        }
+        return null;
+    }
+
     public boolean isActive() { return AccountStatus.ACTIVE.equals(accountStatus); }
     public boolean isBusinessUser() { return UserType.BUSINESS_USER.equals(userType); }
     public boolean isPlatformUser() { return UserType.PLATFORM_USER.equals(userType); }

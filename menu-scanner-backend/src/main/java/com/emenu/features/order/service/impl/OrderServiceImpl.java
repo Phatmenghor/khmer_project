@@ -2,6 +2,7 @@ package com.emenu.features.order.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import com.emenu.enums.order.OrderStatus;
 import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.exception.custom.NotFoundException;
@@ -118,10 +119,16 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse createOrderFromCart(OrderCreateRequest request) {
         log.info("Starting order creation from cart for business: {}", request.getBusinessId());
 
-        User currentUser = securityUtils.getCurrentUser();
+        Optional<User> currentUserOpt = securityUtils.getCurrentUserOptional();
+        UUID customerId = currentUserOpt.map(User::getId).orElse(null);
+        String actorName = currentUserOpt.map(User::getFullName).orElse(
+                request.getCustomerName() != null && !request.getCustomerName().isBlank()
+                        ? request.getCustomerName()
+                        : "Guest Customer"
+        );
 
         try {
-            Order order = createBaseOrder(request, currentUser.getId());
+            Order order = createBaseOrder(request, customerId);
 
             // Set order status - default to PENDING if not specified
             OrderStatus status = request.getOrderStatus() != null ? request.getOrderStatus() : OrderStatus.PENDING;
@@ -130,21 +137,33 @@ public class OrderServiceImpl implements OrderService {
             Order savedOrder = orderRepository.save(order);
             log.info("Saved new order #{} with ID: {}", savedOrder.getOrderNumber(), savedOrder.getId());
 
-            // Create delivery address snapshot from addressId
-            OrderDeliveryAddress deliveryAddress = createDeliveryAddressSnapshot(savedOrder.getId(), request.getAddressId());
+            // Create delivery address snapshot from addressId OR guestAddress
+            OrderDeliveryAddress deliveryAddress = null;
+            if (request.getAddressId() != null) {
+                deliveryAddress = createDeliveryAddressSnapshot(savedOrder.getId(), request.getAddressId());
+            } else if (request.getGuestAddress() != null) {
+                deliveryAddress = createGuestDeliveryAddressSnapshot(savedOrder.getId(), request.getGuestAddress());
+            }
             if (deliveryAddress != null) {
                 orderDeliveryAddressRepository.save(deliveryAddress);
             }
 
             // Set customer details
-            if (request.getCustomerName() != null) {
-                savedOrder.setCustomerName(request.getCustomerName());
-            }
+            String finalCustomerName = request.getCustomerName() != null && !request.getCustomerName().isBlank()
+                    ? request.getCustomerName()
+                    : currentUserOpt.map(User::getFullName).orElse("Guest Customer");
+            savedOrder.setCustomerName(finalCustomerName);
+
             if (request.getCustomerPhone() != null) {
                 savedOrder.setCustomerPhone(request.getCustomerPhone());
+            } else if (currentUserOpt.isPresent() && currentUserOpt.get().getPhoneNumber() != null) {
+                savedOrder.setCustomerPhone(currentUserOpt.get().getPhoneNumber());
             }
+
             if (request.getCustomerEmail() != null) {
                 savedOrder.setCustomerEmail(request.getCustomerEmail());
+            } else if (currentUserOpt.isPresent() && currentUserOpt.get().getEmail() != null) {
+                savedOrder.setCustomerEmail(currentUserOpt.get().getEmail());
             }
             // Save customer details
             orderRepository.save(savedOrder);
@@ -164,7 +183,7 @@ public class OrderServiceImpl implements OrderService {
             }
 
             // Create initial order status history to track when order was created
-            createInitialOrderStatusHistory(savedOrder, currentUser.getId(), currentUser.getFullName());
+            createInitialOrderStatusHistory(savedOrder, customerId, actorName);
 
             // Create order items from cart summary with customizations
             if (request.getCart() != null && request.getCart().getItems() != null && !request.getCart().getItems().isEmpty()) {
@@ -180,7 +199,9 @@ public class OrderServiceImpl implements OrderService {
 
             createPaymentRecord(savedOrder);
 
-            clearCartAfterOrder(currentUser.getId(), request.getBusinessId());
+            if (customerId != null) {
+                clearCartAfterOrder(customerId, request.getBusinessId());
+            }
 
             log.info("Order created successfully: {} - Fetching full response details...", savedOrder.getOrderNumber());
             OrderResponse response = getOrderById(savedOrder.getId());
@@ -1089,6 +1110,34 @@ public class OrderServiceImpl implements OrderService {
             log.error("Error creating delivery address snapshot: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to create delivery address snapshot", e);
         }
+    }
+
+    private OrderDeliveryAddress createGuestDeliveryAddressSnapshot(UUID orderId, OrderCreateRequest.GuestAddressRequest guestAddr) {
+        if (guestAddr == null) return null;
+        OrderDeliveryAddress deliveryAddress = new OrderDeliveryAddress();
+        deliveryAddress.setOrderId(orderId);
+        deliveryAddress.setVillage(guestAddr.getVillage());
+        deliveryAddress.setCommune(guestAddr.getCommune());
+        deliveryAddress.setDistrict(guestAddr.getDistrict());
+        deliveryAddress.setProvince(guestAddr.getProvince());
+        deliveryAddress.setStreetNumber(guestAddr.getStreetNumber());
+        deliveryAddress.setHouseNumber(guestAddr.getHouseNumber());
+        deliveryAddress.setNote(guestAddr.getNote());
+        deliveryAddress.setLatitude(guestAddr.getLatitude());
+        deliveryAddress.setLongitude(guestAddr.getLongitude());
+        deliveryAddress.setLocationId(null);
+        return deliveryAddress;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getGuestOrders(List<UUID> orderIds) {
+        if (orderIds == null || orderIds.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        List<Order> orders = orderRepository.findAllById(orderIds);
+        batchLoadStatusHistories(orders);
+        return orderMapper.toResponseList(orders);
     }
 
     @Override

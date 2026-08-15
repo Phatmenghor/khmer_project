@@ -39,6 +39,13 @@ public class OrderController {
                 .body(ApiResponse.success("Order created successfully", order));
     }
 
+    @PostMapping("/guest-lookup")
+    public ResponseEntity<ApiResponse<java.util.List<OrderResponse>>> getGuestOrders(@RequestBody java.util.List<UUID> orderIds) {
+        log.info("Endpoint: guest-lookup - retrieving {} guest orders", orderIds != null ? orderIds.size() : 0);
+        java.util.List<OrderResponse> orders = orderService.getGuestOrders(orderIds);
+        return ResponseEntity.ok(ApiResponse.success("Guest orders retrieved successfully", orders));
+    }
+
     @PostMapping("/checkout-from-pos")
     public ResponseEntity<ApiResponse<OrderResponse>> createPOSCheckoutOrder(@Valid @RequestBody POSCheckoutRequest request) {
         log.info("Endpoint: checkout-pos - pos order checkout: business_id={}", request.getBusinessId());
