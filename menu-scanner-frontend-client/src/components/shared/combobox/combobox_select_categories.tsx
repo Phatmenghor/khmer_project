@@ -7,7 +7,7 @@ import { CategoriesResponseModel } from "@/features/master-data/store/models/res
 import { fetchAllCategoriesService } from "@/features/master-data/store/thunks/categories-thunks";
 
 interface ComboboxSelectCategoryProps {
-  dataSelect: CategoriesResponseModel | null;
+  dataSelect?: CategoriesResponseModel | null;
   onChangeSelected: (item: CategoriesResponseModel | null) => void;
   disabled?: boolean;
   label?: string;
@@ -51,11 +51,11 @@ export function ComboboxSelectCategories({
       value={dataSelect}
       onChange={onChangeSelected}
       controller={controller}
-      getId={(item) => item.id}
-      getLabel={(item) => item.name}
-      onSelectInterceptor={(item) => (item.id === "all" ? null : item)}
+      getId={(item) => item?.id ?? ""}
+      getLabel={(item) => item?.name ?? ""}
+      onSelectInterceptor={(item) => (!item || item.id === "all" ? null : item)}
       isItemSelected={(item, value) =>
-        item.id === "all" ? !value : value?.id === item.id
+        item?.id === "all" ? !value : value?.id === item?.id
       }
       label={label}
       required={required}

@@ -6,9 +6,10 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 export interface CustomInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
-  label?: string;
+  label?: React.ReactNode;
   required?: boolean;
   error?: string;
+  helperText?: React.ReactNode;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   onRightIconClick?: () => void;
@@ -22,6 +23,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
       label,
       required,
       error,
+      helperText,
       leftIcon,
       rightIcon,
       onRightIconClick,
@@ -33,7 +35,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
     },
     ref
   ) => {
-    const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
+    const inputId = id || (typeof label === "string" ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
 
     const sizeClasses = {
       sm: "h-8 text-[11px] sm:text-xs rounded-[8px]",
@@ -46,7 +48,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
         {label && (
           <Label
             htmlFor={inputId}
-            className="text-[11px] font-extrabold text-foreground leading-tight flex items-center min-h-[16px]"
+            className="text-[11px] font-extrabold text-foreground leading-tight flex items-center gap-1 min-h-[16px]"
           >
             <span>{label}</span>
             {required && <span className="text-destructive ml-0.5">*</span>}
@@ -84,7 +86,12 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
             </button>
           )}
         </div>
-        {error && <p className="text-[10px] text-destructive font-medium mt-0.5">{error}</p>}
+        {(error || helperText) && (
+          <div className="px-0.5">
+            {error && <p className="text-[10px] text-destructive font-medium mt-0.5">{error}</p>}
+            {!error && helperText && <p className="text-[10px] text-muted-foreground mt-0.5">{helperText}</p>}
+          </div>
+        )}
       </div>
     );
   }

@@ -6,7 +6,7 @@ import { UserResponseModel } from "@/features/auth/store/models/response/users-r
 import { fetchAllUsersService } from "@/features/auth/store/thunks/users-thunks";
 
 interface ComboboxSelectUserProps {
-  dataSelect: UserResponseModel | null;
+  dataSelect?: UserResponseModel | null;
   onChangeSelected: (item: UserResponseModel | null) => void;
   disabled?: boolean;
   label?: string;
@@ -36,20 +36,23 @@ export function ComboboxSelectUser({
       value={dataSelect}
       onChange={onChangeSelected}
       controller={controller}
-      getId={(item) => item.id}
-      getLabel={(item) => item.fullName}
-      renderItem={(item) => (
-        <div className="flex items-center justify-between w-full text-xs">
-          <span>
-            {item.fullName}
-            {item.roles && item.roles.length > 0 && (
-              <span className="text-xs text-muted-foreground ml-1">
-                ({item.roles.join(", ")})
-              </span>
-            )}
-          </span>
-        </div>
-      )}
+      getId={(item) => item?.id ?? ""}
+      getLabel={(item) => item?.fullName ?? ""}
+      renderItem={(item) => {
+        if (!item) return null;
+        return (
+          <div className="flex items-center justify-between w-full text-xs">
+            <span>
+              {item.fullName}
+              {item.roles && item.roles.length > 0 && (
+                <span className="text-xs text-muted-foreground ml-1">
+                  ({item.roles.join(", ")})
+                </span>
+              )}
+            </span>
+          </div>
+        );
+      }}
       label={label}
       required={required}
       placeholder={placeholder}

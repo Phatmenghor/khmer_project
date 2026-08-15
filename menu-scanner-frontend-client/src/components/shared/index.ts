@@ -5,6 +5,8 @@
 export { SpacesImageUpload } from "./form-field/spaces-image-upload";
 
 // Form Components
+export { CustomInput } from "./form-field/custom-input";
+export { CustomTextarea } from "./form-field/custom-textarea";
 export { TextField } from "./form-field/text-field";
 export { TextareaField } from "./form-field/text-area-field";
 export { TimePickerField } from "./form-field/time-picker-field";
@@ -12,6 +14,8 @@ export { PasswordField } from "./form-field/password-field";
 export { DateTimePickerField } from "./form-field/date-picker-field";
 export { SelectField } from "./form-field/select-field";
 export { ClickableImageUpload } from "./form-field/clickable-image-upload";
+export type { CustomInputProps } from "./form-field/custom-input";
+export type { CustomTextareaProps } from "./form-field/custom-textarea";
 export type { BaseFormFieldProps, TextFormFieldProps, TextareaFormFieldProps } from "./form-field/form-field-types";
 
 // Combobox Components & Factories

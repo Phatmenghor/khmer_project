@@ -24,7 +24,7 @@ interface Location {
 }
 
 interface ComboboxSelectLocationProps {
-  dataSelect: Location | null;
+  dataSelect?: Location | null;
   onChangeSelected: (item: Location | null) => void;
   disabled?: boolean;
   label?: string;
@@ -94,18 +94,21 @@ export function ComboboxSelectLocation({
       value={dataSelect}
       onChange={onChangeSelected}
       controller={controller}
-      getId={(item) => item.id}
-      getLabel={(item) => item.fullAddress}
-      renderItem={(item) => (
-        <div className="flex items-center justify-between w-full text-xs">
-          <span className="truncate line-clamp-1 flex-1">{item.fullAddress}</span>
-          {item.note && (
-            <span className="text-xs text-muted-foreground flex-shrink-0 ml-1">
-              ({item.note})
-            </span>
-          )}
-        </div>
-      )}
+      getId={(item) => item?.id ?? ""}
+      getLabel={(item) => item?.fullAddress ?? ""}
+      renderItem={(item) => {
+        if (!item) return null;
+        return (
+          <div className="flex items-center justify-between w-full text-xs">
+            <span className="truncate line-clamp-1 flex-1">{item.fullAddress}</span>
+            {item.note && (
+              <span className="text-xs text-muted-foreground flex-shrink-0 ml-1">
+                ({item.note})
+              </span>
+            )}
+          </div>
+        );
+      }}
       label={label}
       required={required}
       placeholder={placeholder}

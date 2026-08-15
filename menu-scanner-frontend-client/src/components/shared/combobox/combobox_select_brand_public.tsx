@@ -54,8 +54,8 @@ function ComboboxSelectBrandPublicComponent({
         value={value}
         onChange={(item) => onChangeSelected(item ? item.id : "")}
         controller={controller}
-        getId={(item) => item.id}
-        getLabel={(item) => item.name}
+        getId={(item) => item?.id ?? ""}
+        getLabel={(item) => item?.name ?? ""}
         placeholder={placeholder}
         searchPlaceholder="Search brand..."
         emptyMessage="No brand found."

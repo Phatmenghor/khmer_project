@@ -12,7 +12,7 @@ interface PaymentOption {
 }
 
 interface ComboboxSelectPaymentPublicProps {
-  dataSelect: PaymentOption | null;
+  dataSelect?: PaymentOption | null;
   onChangeSelected: (item: PaymentOption | null) => void;
   disabled?: boolean;
   label?: string;
@@ -48,16 +48,19 @@ export function ComboboxSelectPaymentPublic({
       value={dataSelect}
       onChange={onChangeSelected}
       controller={controller}
-      getId={(item) => item.id}
-      getLabel={(item) => item.name}
-      renderItem={(item) => (
-        <div className="flex items-center justify-between w-full text-xs">
-          <span className="truncate line-clamp-1 flex-1">{item.name}</span>
-          <span className="text-xs text-muted-foreground flex-shrink-0 ml-1">
-            ({item.paymentOptionType})
-          </span>
-        </div>
-      )}
+      getId={(item) => item?.id ?? ""}
+      getLabel={(item) => item?.name ?? ""}
+      renderItem={(item) => {
+        if (!item) return null;
+        return (
+          <div className="flex items-center justify-between w-full text-xs">
+            <span className="truncate line-clamp-1 flex-1">{item.name}</span>
+            <span className="text-xs text-muted-foreground flex-shrink-0 ml-1">
+              ({item.paymentOptionType})
+            </span>
+          </div>
+        );
+      }}
       label={label}
       required={required}
       placeholder={placeholder}

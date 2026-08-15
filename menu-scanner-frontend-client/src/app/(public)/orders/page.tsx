@@ -387,9 +387,16 @@ function createOrderTableColumns(
       render: (order) => {
         const cfg = ORDER_STATUS_BADGE_CONFIG[order?.orderStatus || "PENDING"] || ORDER_STATUS_BADGE_CONFIG.PENDING;
         return (
-          <Badge className={cn("text-[11px] font-extrabold px-2.5 py-0.5 rounded-xl border shadow-2xs", cfg.badgeBg, cfg.border)}>
+          <span
+            className={cn(
+              "inline-flex items-center text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border transition-colors duration-150 cursor-default select-none shadow-2xs",
+              cfg.badgeBg,
+              cfg.border,
+              "hover:border-foreground/40 dark:hover:border-foreground/50"
+            )}
+          >
             {getOrderStatusLabel(order?.orderStatus)}
-          </Badge>
+          </span>
         );
       },
     },

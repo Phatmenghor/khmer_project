@@ -7,7 +7,7 @@ import { BrandResponseModel } from "@/features/master-data/store/models/response
 import { fetchAllBrandService } from "@/features/master-data/store/thunks/brand-thunks";
 
 interface ComboboxSelectBrandProps {
-  dataSelect: BrandResponseModel | null;
+  dataSelect?: BrandResponseModel | null;
   onChangeSelected: (item: BrandResponseModel | null) => void;
   disabled?: boolean;
   label?: string;
@@ -51,11 +51,11 @@ export function ComboboxSelectBrand({
       value={dataSelect}
       onChange={onChangeSelected}
       controller={controller}
-      getId={(item) => item.id}
-      getLabel={(item) => item.name}
-      onSelectInterceptor={(item) => (item.id === "all" ? null : item)}
+      getId={(item) => item?.id ?? ""}
+      getLabel={(item) => item?.name ?? ""}
+      onSelectInterceptor={(item) => (!item || item.id === "all" ? null : item)}
       isItemSelected={(item, value) =>
-        item.id === "all" ? !value : value?.id === item.id
+        item?.id === "all" ? !value : value?.id === item?.id
       }
       label={label}
       required={required}

@@ -5,7 +5,22 @@ import { useEffect, useState, useMemo } from "react";
 import { OrderStatus } from "@/enums/order-status.enum";
 import { OrderFromEnum } from "@/enums/order.enum";
 import { useRouter } from "next/navigation";
-import { MapPin, CreditCard, MessageSquare, Lock, AlertCircle } from "lucide-react";
+import {
+  MapPin,
+  CreditCard,
+  MessageSquare,
+  Lock,
+  AlertCircle,
+  User,
+  Phone,
+  Truck,
+  Wallet,
+  ShoppingBag,
+  Receipt,
+  ShieldCheck,
+  Loader2,
+  ArrowRight,
+} from "lucide-react";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useCartState } from "@/features/main/store/state/cart-state";
 import { useLocationState } from "@/features/location/store/state/location-state";
@@ -16,15 +31,14 @@ import { fetchDefaultAddressService } from "@/features/location/store/thunks/loc
 import { fetchPublicPaymentOptionsService } from "@/features/master-data/store/thunks/payment-options-thunks";
 import { createOrderService, CheckoutPayload } from "@/features/main/store/thunks/order-thunks";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
-import { updateLocalCartItem } from "@/features/main/store/slice/cart-slice";
+import { updateLocalCartItem, resetCart } from "@/features/main/store/slice/cart-slice";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomInput, CustomTextarea } from "@/components/shared";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { cn } from "@/lib/utils";
-import { sanitizeImageUrl } from "@/utils/common/common";
-import { appImages } from "@/constants/app-resource/icons/app-images";
 import { ComboboxSelectLocation } from "@/components/shared/combobox/combobox-select-location";
 import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-select-delivery-option";
 import { ComboboxSelectPaymentPublic } from "@/components/shared/combobox/combobox-select-payment-public";
@@ -72,7 +86,6 @@ export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
   const [defaultAddress, setDefaultAddress] = useState<LocationResponse | null>(null);
   const [loadingDefaults, setLoadingDefaults] = useState(false);
-  const [initialOrderStatus, setInitialOrderStatus] = useState<string>("Pending");
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const [checkoutState, setCheckoutState] = useState<CheckoutState>({
@@ -105,7 +118,6 @@ export default function CheckoutPage() {
           }));
         }
       } catch (error: unknown) {
-
         const axiosError = error as { response?: { status?: number } };
         const isExpectedError =
           axiosError?.response?.status === 404 ||
@@ -113,6 +125,7 @@ export default function CheckoutPage() {
           (typeof error === "string" && error.includes("not found"));
 
         if (!isExpectedError) {
+          // Expected when no default address set yet
         }
       }
 
@@ -136,12 +149,15 @@ export default function CheckoutPage() {
 
     const fetchPaymentOptions = async () => {
       try {
-        await dispatch(fetchPublicPaymentOptionsService({
-          businessId: AppDefault.BUSINESS_ID,
-          pageNo: 1,
-          pageSize: 100,
-        })).unwrap();
+        await dispatch(
+          fetchPublicPaymentOptionsService({
+            businessId: AppDefault.BUSINESS_ID,
+            pageNo: 1,
+            pageSize: 100,
+          })
+        ).unwrap();
       } catch (error) {
+        // Handled silently
       }
     };
 
@@ -200,9 +216,7 @@ export default function CheckoutPage() {
       dispatch(updateLocalCartItem({ productId, productSizeId, quantity: 0 }));
       return;
     }
-    dispatch(
-      updateLocalCartItem({ productId, productSizeId, quantity: newQuantity })
-    );
+    dispatch(updateLocalCartItem({ productId, productSizeId, quantity: newQuantity }));
   };
 
   const canCheckout =
@@ -237,7 +251,6 @@ export default function CheckoutPage() {
     setCheckoutState((prev) => ({ ...prev, isProcessing: true }));
 
     try {
-
       const checkoutPayload: CheckoutPayload = {
         businessId: AppDefault.BUSINESS_ID,
         addressId: selectedAddress?.id,
@@ -253,29 +266,51 @@ export default function CheckoutPage() {
         cart: {
           businessId: AppDefault.BUSINESS_ID,
           businessName: "Default Business",
-          items: items.map((item) => ({
-            id: item.id,
-            productId: item.productId,
-            productName: item.productName,
-            productImageUrl: item.productImageUrl,
-            productSizeId: item.productSizeId,
-            sizeName: item.sizeName || "",
-            status: item.status || "",
-            sku: item.sku || "",
-            barcode: item.barcode || "",
-            currentPrice: item.currentPrice,
-            finalPrice: item.finalPrice,
-            hasPromotion: Boolean(item.hasPromotion === "ACTIVE" || item.hasPromotion === "FUTURE_PROMOTION" || item.hasPromotion === true),
-            quantity: item.quantity,
-            totalBeforeDiscount: item.totalBeforeDiscount || 0,
-            discountAmount: item.discountAmount || 0,
-            totalPrice: item.totalPrice,
-            promotionType: item.promotionType || "",
-            promotionValue: item.promotionValue || 0,
-            promotionFromDate: item.promotionFromDate || new Date().toISOString(),
-            promotionToDate: item.promotionToDate || new Date().toISOString(),
-            customizations: item.customizations || [],
-          })),
+          items: items.map((item) => {
+            const itemQty = Number(item.quantity ?? 1) > 0 ? Number(item.quantity ?? 1) : 1;
+            const currentPrice = Number(item.currentPrice ?? item.finalPrice ?? 0);
+            const finalPrice = Number(item.finalPrice ?? item.currentPrice ?? 0);
+            const totalPrice = Number(item.totalPrice ?? finalPrice * itemQty);
+            const totalBeforeDiscount = Number(item.totalBeforeDiscount ?? currentPrice * itemQty);
+            const discountAmount = Number(item.discountAmount ?? Math.max(0, totalBeforeDiscount - totalPrice));
+
+            const isValidUuid = (val?: string | null) =>
+              Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
+
+            const resolvedProductId = isValidUuid(item.productId)
+              ? item.productId
+              : isValidUuid(item.id)
+              ? item.id
+              : item.productId;
+
+            return {
+              id: isValidUuid(item.id) ? item.id : undefined,
+              productId: resolvedProductId,
+              productName: item.productName,
+              productImageUrl: item.productImageUrl || "",
+              productSizeId: isValidUuid(item.productSizeId) ? item.productSizeId : null,
+              sizeName: item.sizeName || "",
+              status: item.status || "",
+              sku: item.sku || "",
+              barcode: item.barcode || "",
+              currentPrice: currentPrice,
+              finalPrice: finalPrice,
+              hasPromotion: Boolean(
+                item.hasPromotion === "ACTIVE" ||
+                  item.hasPromotion === "FUTURE_PROMOTION" ||
+                  item.hasPromotion === true
+              ),
+              quantity: itemQty,
+              totalBeforeDiscount: totalBeforeDiscount,
+              discountAmount: discountAmount,
+              totalPrice: totalPrice,
+              promotionType: item.promotionType || "",
+              promotionValue: Number(item.promotionValue ?? 0),
+              promotionFromDate: item.promotionFromDate || new Date().toISOString(),
+              promotionToDate: item.promotionToDate || new Date().toISOString(),
+              customizations: item.customizations || [],
+            };
+          }),
           totalItems: items.length,
           totalQuantity: totalQuantity,
           subtotalBeforeDiscount: subtotal,
@@ -302,13 +337,15 @@ export default function CheckoutPage() {
 
       const orderResult: OrderResponse = await dispatch(createOrderService(checkoutPayload)).unwrap();
 
+      // Clear cart items immediately on successful order placement
+      dispatch(resetCart());
+
       showToast.success(Messages.orders.placed);
 
       setTimeout(() => {
         router.push("/orders");
-      }, 1500);
+      }, 1200);
     } catch (error: unknown) {
-
       const axiosErr = error as { response?: { data?: { message?: string } }; message?: string };
       const errorMessage =
         axiosErr?.response?.data?.message ||
@@ -343,7 +380,7 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <PageContainer className="min-h-screen flex flex-col py-8 sm:py-14">
         <PageState
           type="empty"
           title="Cart is Empty"
@@ -352,64 +389,70 @@ export default function CheckoutPage() {
           onAction={() => router.push("/products")}
           size="lg"
         />
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <PageContainer className="py-0 pb-28 sm:pb-14 lg:pb-5">
-      {}
-      <PageHeader
-        title="Checkout"
-        subtitle={`${items.length} ${items.length === 1 ? "item" : "items"} • ${totalQuantity} total quantity`}
-        icon={CreditCard}
-        count={items.length}
-        countLabel="items"
-      />
+    <div className="min-h-screen bg-background relative">
+      {/* Ambient background glow — matching Cart and Category pages */}
+      <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[300px] bg-primary/5 blur-[120px] rounded-full opacity-60" />
 
-      <div className="grid lg:grid-cols-3 gap-4">
-        {}
-        <div className="lg:col-span-2 space-y-4">
-          {}
-          <div className="bg-card border border-border rounded p-4 sm:p-5 space-y-4">
-            {}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-foreground flex items-center gap-1">
-                <MapPin className="h-3 w-3 text-primary" />
-                Delivery Address
-                <span className="text-red-500">*</span>
-              </label>
-              <ComboboxSelectLocation
-                dataSelect={selectedAddress as any}
-                onChangeSelected={(item) => {
-                  if (item) {
-                    setCheckoutState((prev) => ({
-                      ...prev,
-                      selectedAddressId: item.id,
-                    }));
-                  }
-                }}
-                placeholder="Select your delivery address..."
-                hasDefault={!!defaultAddress}
-                error={!checkoutState.selectedAddressId ? Messages.delivery.selectAddress : ""}
-                label=""
-              />
-            </div>
+      <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5 pb-28 sm:pb-11 lg:pb-5 relative z-10">
+        <PageHeader
+          title="Checkout"
+          subtitle={`Review your delivery details and place your order (${totalQuantity} total quantity)`}
+          icon={CreditCard}
+          count={items.length}
+          countLabel="items"
+        />
 
-            {}
-            <div className="border-t border-border/50" />
+        <div className="grid lg:grid-cols-3 gap-3 sm:gap-4">
+          {/* Left Side: Delivery Details & Items */}
+          <div className="lg:col-span-2 space-y-3">
+            {/* Card 1: Delivery Address, Contact Info, & Instructions */}
+            <div className="bg-gradient-to-b from-card via-card to-muted/20 border border-border/60 rounded-2xl p-3.5 sm:p-4 shadow-sm space-y-3.5">
+              {/* Header: Delivery Address */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                    <MapPin className="h-3.5 w-3.5 text-primary" />
+                    Delivery Address
+                  </span>
+                  <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                    Required
+                  </span>
+                </div>
 
-            {}
-            <div className="space-y-3">
-              <h4 className="text-xs font-semibold text-foreground">Contact Information</h4>
-              <div className="grid sm:grid-cols-2 gap-3">
-                {}
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
-                    Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
+                <ComboboxSelectLocation
+                  dataSelect={selectedAddress as any}
+                  onChangeSelected={(item) => {
+                    if (item) {
+                      setCheckoutState((prev) => ({
+                        ...prev,
+                        selectedAddressId: item.id,
+                      }));
+                    }
+                  }}
+                  placeholder="Select your delivery address..."
+                  hasDefault={!!defaultAddress}
+                  error={!checkoutState.selectedAddressId ? Messages.delivery.selectAddress : ""}
+                  label=""
+                />
+              </div>
+
+              {/* Contact Information */}
+              <div className="pt-2 border-t border-border/40 space-y-2.5">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                  <User className="h-3.5 w-3.5 text-blue-500" />
+                  Contact Information
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-2.5">
+                  <CustomInput
+                    label="Full Name"
+                    required
+                    leftIcon={<User className="h-3.5 w-3.5 text-muted-foreground" />}
                     value={checkoutState.customerName}
                     onChange={(e) =>
                       setCheckoutState((prev) => ({
@@ -418,17 +461,14 @@ export default function CheckoutPage() {
                       }))
                     }
                     placeholder="Your full name"
-                    className="w-full px-2 py-1 rounded border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
+                    size="sm"
                   />
-                </div>
 
-                {}
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
-                    Phone Number <span className="text-red-500">*</span>
-                  </label>
-                  <input
+                  <CustomInput
+                    label="Phone Number"
+                    required
                     type="tel"
+                    leftIcon={<Phone className="h-3.5 w-3.5 text-muted-foreground" />}
                     value={checkoutState.customerPhone}
                     onChange={(e) =>
                       setCheckoutState((prev) => ({
@@ -437,126 +477,126 @@ export default function CheckoutPage() {
                       }))
                     }
                     placeholder="Your phone number"
-                    className="w-full px-2 py-1 rounded border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
+                    size="sm"
                   />
                 </div>
               </div>
+
+              {/* Special Instructions */}
+              <div className="pt-2 border-t border-border/40">
+                <CustomTextarea
+                  label="Special Instructions"
+                  leftIcon={<MessageSquare className="h-3.5 w-3.5 text-amber-500" />}
+                  value={checkoutState.customerNote}
+                  onChange={(e) =>
+                    setCheckoutState((prev) => ({
+                      ...prev,
+                      customerNote: e.target.value.slice(0, 500),
+                    }))
+                  }
+                  placeholder="Add any special requests or delivery notes for your order..."
+                  maxLength={500}
+                  showCount
+                  rows={2}
+                />
+              </div>
             </div>
 
-            {}
-            <div className="space-y-2 pt-3 border-t border-border/50">
-              <label className="text-xs font-semibold text-foreground flex items-center gap-1">
-                <MessageSquare className="h-3 w-3 text-primary" />
-                Special Instructions
-              </label>
-              <textarea
-                value={checkoutState.customerNote}
-                onChange={(e) =>
-                  setCheckoutState((prev) => ({
-                    ...prev,
-                    customerNote: e.target.value.slice(0, 500),
-                  }))
-                }
-                placeholder="Add any special requests or notes for your order..."
-                className="w-full h-20 p-3 rounded border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-xs"
-                maxLength={500}
-              />
-              <div className="flex justify-between items-center px-1">
-                <p className="text-xs text-muted-foreground">
-                  {checkoutState.customerNote.length}/500 characters
-                </p>
-                {checkoutState.customerNote.length > 400 && (
-                  <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                    ⚠️ Approaching limit
-                  </span>
-                )}
+            {/* Card 2: Order Items */}
+            <div className="bg-card border border-border/80 rounded-2xl p-3.5 sm:p-4 space-y-2.5 shadow-2xs">
+              <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                  <ShoppingBag className="h-3.5 w-3.5 text-emerald-500" />
+                  Order Items
+                </span>
+                <span className="text-[11px] font-semibold text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full border border-border/60">
+                  {items.length} {items.length === 1 ? "item" : "items"} • {totalQuantity} qty
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                {items.map((item) => (
+                  <CartItemCard
+                    key={`${item.productId}-${item.productSizeId ?? "no-size"}-${(item.customizations ?? []).map((c: any) => c.productCustomizationId).sort().join(",")}`}
+                    id={item.id}
+                    productId={item.productId}
+                    productName={item.productName}
+                    productImageUrl={item.productImageUrl}
+                    productSizeId={item.productSizeId}
+                    sizeName={item.sizeName}
+                    currentPrice={item.currentPrice}
+                    finalPrice={item.finalPrice}
+                    quantity={item.quantity}
+                    totalPrice={item.totalPrice}
+                    hasPromotion={item.hasPromotion}
+                    promotionType={item.promotionType}
+                    promotionValue={item.promotionValue}
+                    onQuantityChange={(newQuantity) =>
+                      handleQuantityChange(item.productId, item.productSizeId || null, newQuantity)
+                    }
+                    onRemove={() =>
+                      handleQuantityChange(item.productId, item.productSizeId || null, 0)
+                    }
+                    showLink={false}
+                    showControls={true}
+                  />
+                ))}
               </div>
             </div>
           </div>
 
-          {}
-          <div className="bg-card border border-border rounded p-4 sm:p-5">
-            <div className="mb-4">
-              <h3 className="font-semibold text-foreground mb-1">Order Items</h3>
-              <p className="text-xs text-muted-foreground">
-                {items.length} {items.length === 1 ? "item" : "items"} • {totalQuantity} total quantity
-              </p>
-            </div>
-            <div className="space-y-2">
-              {items.map((item) => (
-                <CartItemCard
-                  key={`${item.productId}-${item.productSizeId ?? "no-size"}-${(item.customizations ?? []).map((c: any) => c.productCustomizationId).sort().join(",")}`}
-                  id={item.id}
-                  productId={item.productId}
-                  productName={item.productName}
-                  productImageUrl={item.productImageUrl}
-                  productSizeId={item.productSizeId}
-                  sizeName={item.sizeName}
-                  currentPrice={item.currentPrice}
-                  finalPrice={item.finalPrice}
-                  quantity={item.quantity}
-                  totalPrice={item.totalPrice}
-                  hasPromotion={item.hasPromotion}
-                  promotionType={item.promotionType}
-                  promotionValue={item.promotionValue}
-                  onQuantityChange={(newQuantity) =>
-                    handleQuantityChange(item.productId, item.productSizeId || null, newQuantity)
-                  }
-                  onRemove={() =>
-                    handleQuantityChange(item.productId, item.productSizeId || null, 0)
-                  }
-                  showLink={false}
-                  showControls={true}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
+          {/* Right Side: Desktop Order Summary Sidebar */}
+          <div className="hidden lg:block lg:col-span-1">
+            <div className="bg-gradient-to-b from-card via-card to-muted/20 border border-border/60 rounded-2xl p-4 sticky top-16 shadow-sm space-y-3">
+              <h2 className="text-xs font-bold flex items-center justify-between pb-2 border-b border-border/40">
+                <span className="flex items-center gap-1.5">
+                  <Receipt className="h-3.5 w-3.5 text-primary" />
+                  Order Summary
+                </span>
+                <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                  {items.length} {items.length === 1 ? "item" : "items"}
+                </span>
+              </h2>
 
-        {}
-        <div className="lg:col-span-1">
-          {}
-          <div className="lg:hidden bg-gradient-to-b from-card to-card/95 border border-border rounded-t-3xl p-4 sm:p-5 space-y-4 mt-5">
-            <div>
-              <h2 className="text-xs font-bold text-foreground mb-4">Order Summary</h2>
-
-              <div className="grid sm:grid-cols-2 gap-3 mb-4">
+              {/* Delivery & Payment Selection Grid */}
+              <div className="grid grid-cols-1 gap-2.5">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
-                    Delivery Option <span className="text-red-500">*</span>
+                  <label className="text-[11px] font-extrabold text-foreground leading-tight flex items-center gap-1 min-h-[16px]">
+                    <Truck className="h-3 w-3 text-primary" />
+                    <span>Delivery Option</span>
+                    <span className="text-destructive">*</span>
                   </label>
                   <ComboboxSelectDelivery
                     dataSelect={selectedDeliveryOption as any}
                     onChangeSelected={(item) => {
-                      if (item) {
-                        setCheckoutState((prev) => ({
-                          ...prev,
-                          selectedDeliveryOptionId: item.id,
-                        }));
-                      }
+                      setCheckoutState((prev) => ({
+                        ...prev,
+                        selectedDeliveryOptionId: item ? item.id : null,
+                      }));
                     }}
-                    placeholder="Select delivery option..."
+                    placeholder="Select delivery..."
                     error={!checkoutState.selectedDeliveryOptionId ? "Please select delivery option" : ""}
                     label=""
                     businessId={AppDefault.BUSINESS_ID}
                     statuses={["ACTIVE"]}
                   />
                 </div>
+
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
-                    Payment Method <span className="text-red-500">*</span>
+                  <label className="text-[11px] font-extrabold text-foreground leading-tight flex items-center gap-1 min-h-[16px]">
+                    <Wallet className="h-3 w-3 text-emerald-500" />
+                    <span>Payment Method</span>
+                    <span className="text-destructive">*</span>
                   </label>
                   <ComboboxSelectPaymentPublic
                     dataSelect={selectedPaymentOption as any}
                     onChangeSelected={(item) => {
-                      if (item) {
-                        setCheckoutState((prev) => ({
-                          ...prev,
-                          selectedPaymentOptionId: item.id,
-                        }));
-                      }
+                      setCheckoutState((prev) => ({
+                        ...prev,
+                        selectedPaymentOptionId: item ? item.id : null,
+                      }));
                     }}
-                    placeholder="Select payment method..."
+                    placeholder="Select payment..."
                     error={!checkoutState.selectedPaymentOptionId ? "Please select payment method" : ""}
                     label=""
                     businessId={AppDefault.BUSINESS_ID}
@@ -564,230 +604,227 @@ export default function CheckoutPage() {
                   />
                 </div>
               </div>
-              <div className="border-t border-border/50 mb-3" />
 
-              <div className="space-y-3">
-                {}
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground font-medium">Subtotal</span>
-                  <span className="font-semibold text-foreground">{formatCurrency(subtotal)}</span>
+              {/* Pricing Breakdown matching Cart Page */}
+              <div className="space-y-2 text-xs pt-1 border-t border-border/40">
+                <div className="bg-muted/40 rounded-xl p-2.5 border border-border/40 space-y-1">
+                  <div className="text-[11px] font-semibold text-muted-foreground">Items Breakdown</div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-foreground">{items.length} unique {items.length === 1 ? "product" : "products"}</span>
+                    <span className="font-bold text-primary">{totalQuantity} qty</span>
+                  </div>
                 </div>
 
-                {}
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="font-bold text-foreground">{formatCurrency(subtotal)}</span>
+                </div>
+
                 {discountAmount > 0 && (
-                  <div className="flex justify-between text-xs bg-red-50/50 dark:bg-red-950/30 p-2 rounded border border-red-200/50 dark:border-red-800/30">
-                    <span className="text-red-600 dark:text-red-400 font-semibold">Discount</span>
-                    <span className="font-bold text-red-600 dark:text-red-500">-{formatCurrency(discountAmount)}</span>
+                  <div className="flex justify-between items-center text-emerald-600 dark:text-emerald-400 font-semibold">
+                    <span>Discount</span>
+                    <span>-{formatCurrency(discountAmount)}</span>
                   </div>
                 )}
 
-                {}
-                <div className="flex justify-between text-xs pt-1 border-t border-border/50">
-                  <span className="text-muted-foreground font-medium">Delivery Fee</span>
+                <div className="flex justify-between items-center pt-1.5 border-t border-border/40">
+                  <span className="text-muted-foreground">Delivery Fee</span>
                   <span className="font-semibold text-primary">
                     {deliveryFee > 0 ? `+${formatCurrency(deliveryFee)}` : "Free"}
                   </span>
                 </div>
 
-                {}
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground font-medium flex items-center gap-1">
-                    Tax
-                    <span className="text-[10px] bg-muted px-1 py-0.5 rounded font-medium">0%</span>
-                  </span>
-                  <span className="font-semibold text-foreground">{formatCurrency(taxAmount)}</span>
-                </div>
-
-                {}
-                <div className="flex justify-between items-center pt-3 border-t-2 border-border">
-                  <span className="font-bold text-xs text-foreground">Total Amount</span>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-primary">{formatCurrency(orderTotal)}</span>
-                  </div>
-                </div>
-
-                {discountAmount > 0 && (
-                  <p className="text-xs text-red-600 dark:text-red-400 text-center font-semibold bg-red-50/50 dark:bg-red-950/30 p-1 rounded">
-                    You save {formatCurrency(discountAmount)}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {}
-            {(!checkoutState.selectedAddressId ||
-              !checkoutState.selectedDeliveryOptionId ||
-              !checkoutState.selectedPaymentOptionId) && (
-              <div className="flex gap-2 p-2.5 bg-amber-50/60 dark:bg-amber-950/30 rounded border border-amber-200/60 dark:border-amber-800/40">
-                <AlertCircle className="h-3 w-3 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
-                  Complete all required fields to continue
-                </p>
-              </div>
-            )}
-
-            {}
-            <CustomButton
-              onClick={handleCheckout}
-              disabled={!canCheckout || checkoutState.isProcessing}
-              className={cn(
-                "w-full gap-1 h-8 rounded font-bold text-xs shadow-lg hover:shadow-xl transition-all duration-200 mx-0",
-                !canCheckout && "opacity-50 cursor-not-allowed"
-              )}
-            >
-              {checkoutState.isProcessing ? "Processing Order" : "Place Order"}
-            </CustomButton>
-
-            <p className="text-xs text-muted-foreground text-center font-medium">
-              🔒 Secure & encrypted checkout
-            </p>
-          </div>
-
-          {}
-          <div className="hidden lg:block bg-card border border-border rounded p-4 sm:p-5 sticky top-16 space-y-4">
-            <div>
-              <h2 className="text-xs font-semibold text-foreground mb-3">Order Summary</h2>
-
-              <div className="grid grid-cols-2 gap-2 mb-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
-                    Delivery Option <span className="text-red-500">*</span>
-                  </label>
-                  <ComboboxSelectDelivery
-                    dataSelect={selectedDeliveryOption as any}
-                    onChangeSelected={(item) => {
-                      if (item) {
-                        setCheckoutState((prev) => ({
-                          ...prev,
-                          selectedDeliveryOptionId: item.id,
-                        }));
-                      }
-                    }}
-                    placeholder="Select delivery option..."
-                    error={!checkoutState.selectedDeliveryOptionId ? "Please select delivery option" : ""}
-                    label=""
-                    businessId={AppDefault.BUSINESS_ID}
-                    statuses={["ACTIVE"]}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
-                    Payment Method <span className="text-red-500">*</span>
-                  </label>
-                  <ComboboxSelectPaymentPublic
-                    dataSelect={selectedPaymentOption as any}
-                    onChangeSelected={(item) => {
-                      if (item) {
-                        setCheckoutState((prev) => ({
-                          ...prev,
-                          selectedPaymentOptionId: item.id,
-                        }));
-                      }
-                    }}
-                    placeholder="Select payment method..."
-                    error={!checkoutState.selectedPaymentOptionId ? "Please select payment method" : ""}
-                    label=""
-                    businessId={AppDefault.BUSINESS_ID}
-                    statuses={["ACTIVE"]}
-                  />
-                </div>
-              </div>
-              <div className="border-t border-border/50 mb-3" />
-
-              <div className="space-y-2.5">
-                {}
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Subtotal ({items.length} {items.length === 1 ? "item" : "items"})</span>
-                  <span className="font-medium text-foreground">{formatCurrency(subtotal)}</span>
-                </div>
-
-                {}
-                {discountAmount > 0 && (
-                  <div className="flex justify-between text-xs">
-                    <span className="text-red-600 dark:text-red-400 font-medium">Discount</span>
-                    <span className="font-semibold text-red-600 dark:text-red-500">-{formatCurrency(discountAmount)}</span>
-                  </div>
-                )}
-
-                {}
-                <div className="flex justify-between text-xs pt-1 border-t border-border/50">
-                  <span className="text-muted-foreground">Delivery Fee</span>
-                  <span className="font-medium text-primary">
-                    {deliveryFee > 0 ? `+${formatCurrency(deliveryFee)}` : "Free"}
-                  </span>
-                </div>
-
-                {}
-                <div className="flex justify-between text-xs">
+                <div className="flex justify-between items-center">
                   <span className="text-muted-foreground flex items-center gap-1">
                     Tax
-                    <span className="text-[10px] bg-muted px-1 py-0.5 rounded font-medium">0%</span>
+                    <span className="text-[10px] bg-muted px-1.5 py-0.2 rounded font-medium">0%</span>
                   </span>
                   <span className="font-medium text-foreground">{formatCurrency(taxAmount)}</span>
                 </div>
 
-                {}
-                <div className="flex justify-between items-center pt-2.5 border-t border-border">
-                  <span className="font-semibold text-foreground">Total</span>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-primary">{formatCurrency(orderTotal)}</span>
+                {/* Total Box */}
+                <div className="bg-primary/10 rounded-xl p-3 border border-primary/25 shadow-2xs">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-foreground">Total Amount</span>
+                    <span className="text-base font-extrabold text-primary">{formatCurrency(orderTotal)}</span>
                   </div>
                 </div>
 
                 {discountAmount > 0 && (
-                  <p className="text-xs text-red-600 dark:text-red-400 text-right font-medium">
-                    You save {formatCurrency(discountAmount)}
-                  </p>
+                  <div className="text-center py-1 px-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg border border-emerald-500/20 text-[11px] font-bold">
+                    🎉 You are saving {formatCurrency(discountAmount)} on this order!
+                  </div>
                 )}
+              </div>
+
+              {(!checkoutState.selectedAddressId ||
+                !checkoutState.selectedDeliveryOptionId ||
+                !checkoutState.selectedPaymentOptionId) && (
+                <div className="flex items-center gap-1.5 p-2 bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded-xl border border-amber-500/20 text-[11px] font-medium">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>Complete all required fields</span>
+                </div>
+              )}
+
+              {/* Checkout Button matching Cart Page */}
+              <CustomButton
+                variant="default"
+                className="w-full gap-2 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs py-2.5 shadow-xs hover:shadow-md transition-all cursor-pointer"
+                onClick={handleCheckout}
+                disabled={!canCheckout || checkoutState.isProcessing}
+              >
+                {checkoutState.isProcessing ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Lock className="h-3.5 w-3.5" />
+                )}
+                {checkoutState.isProcessing
+                  ? "Processing Order..."
+                  : `Place Order • ${formatCurrency(orderTotal)}`}
+                {!checkoutState.isProcessing && <ArrowRight className="h-3.5 w-3.5 ml-auto" />}
+              </CustomButton>
+
+              <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground font-medium pt-0.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
+                <span>256-bit Encrypted & Secure Checkout</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </PageContainer>
+
+      {/* Mobile Bottom Section & Floating Action Bar */}
+      <div className="lg:hidden">
+        {/* Mobile Summary Settings Card */}
+        <div className="px-3 pb-24 space-y-3">
+          <div className="bg-gradient-to-b from-card via-card to-muted/20 border border-border/60 rounded-2xl p-3.5 shadow-sm space-y-3">
+            <h2 className="text-xs font-bold flex items-center justify-between pb-2 border-b border-border/40">
+              <span className="flex items-center gap-1.5">
+                <Receipt className="h-3.5 w-3.5 text-primary" />
+                Delivery & Payment
+              </span>
+              <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                Options
+              </span>
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="space-y-1">
+                <label className="text-[11px] font-extrabold text-foreground leading-tight flex items-center gap-1 min-h-[16px]">
+                  <Truck className="h-3 w-3 text-primary" />
+                  <span>Delivery Option</span>
+                  <span className="text-destructive">*</span>
+                </label>
+                <ComboboxSelectDelivery
+                  dataSelect={selectedDeliveryOption as any}
+                  onChangeSelected={(item) => {
+                    setCheckoutState((prev) => ({
+                      ...prev,
+                      selectedDeliveryOptionId: item ? item.id : null,
+                    }));
+                  }}
+                  placeholder="Select delivery option..."
+                  error={!checkoutState.selectedDeliveryOptionId ? "Please select delivery option" : ""}
+                  label=""
+                  businessId={AppDefault.BUSINESS_ID}
+                  statuses={["ACTIVE"]}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-extrabold text-foreground leading-tight flex items-center gap-1 min-h-[16px]">
+                  <Wallet className="h-3 w-3 text-emerald-500" />
+                  <span>Payment Method</span>
+                  <span className="text-destructive">*</span>
+                </label>
+                <ComboboxSelectPaymentPublic
+                  dataSelect={selectedPaymentOption as any}
+                  onChangeSelected={(item) => {
+                    setCheckoutState((prev) => ({
+                      ...prev,
+                      selectedPaymentOptionId: item ? item.id : null,
+                    }));
+                  }}
+                  placeholder="Select payment method..."
+                  error={!checkoutState.selectedPaymentOptionId ? "Please select payment method" : ""}
+                  label=""
+                  businessId={AppDefault.BUSINESS_ID}
+                  statuses={["ACTIVE"]}
+                />
               </div>
             </div>
 
-            {}
-            {(!checkoutState.selectedAddressId ||
-              !checkoutState.selectedDeliveryOptionId ||
-              !checkoutState.selectedPaymentOptionId) && (
-              <div className="flex gap-2 p-2.5 bg-amber-50/60 dark:bg-amber-950/30 rounded border border-amber-200/60 dark:border-amber-800/40">
-                <AlertCircle className="h-3 w-3 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-amber-700 dark:text-amber-400">
-                  Complete all required fields to continue
-                </p>
+            <div className="space-y-1.5 text-xs pt-2 border-t border-border/40">
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="font-semibold text-foreground">{formatCurrency(subtotal)}</span>
               </div>
-            )}
 
-            {}
+              {discountAmount > 0 && (
+                <div className="flex justify-between items-center text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <span>Discount</span>
+                  <span>-{formatCurrency(discountAmount)}</span>
+                </div>
+              )}
+
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Delivery Fee</span>
+                <span className="font-semibold text-primary">
+                  {deliveryFee > 0 ? `+${formatCurrency(deliveryFee)}` : "Free"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Floating Bottom Bar — matching Cart Page */}
+        <div className="fixed bottom-12 left-2 right-2 z-40 lg:hidden bg-card/95 backdrop-blur-md border border-border/80 rounded-2xl p-3 shadow-xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-[11px] text-muted-foreground font-semibold">
+                {items.length} {items.length === 1 ? "item" : "items"} • {totalQuantity} qty
+              </div>
+              <div className="text-base font-extrabold text-primary">{formatCurrency(orderTotal)}</div>
+            </div>
+
             <CustomButton
+              variant="default"
+              className="gap-1.5 px-5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs py-2.5 shadow-md cursor-pointer"
               onClick={handleCheckout}
               disabled={!canCheckout || checkoutState.isProcessing}
-              className={cn(
-                "w-full gap-1 h-8 rounded font-semibold text-xs",
-                !canCheckout && "opacity-50 cursor-not-allowed"
-              )}
             >
-              {checkoutState.isProcessing ? "Processing Order" : "Place Order"}
+              {checkoutState.isProcessing ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Lock className="h-3.5 w-3.5" />
+              )}
+              {checkoutState.isProcessing ? "Processing..." : "Place Order"}
+              {!checkoutState.isProcessing && <ArrowRight className="h-3.5 w-3.5 ml-1" />}
             </CustomButton>
-
-            <p className="text-xs text-muted-foreground text-center">
-              🔒 Secure & encrypted checkout
-            </p>
           </div>
         </div>
       </div>
-    </PageContainer>
+    </div>
   );
 }
 
 function CheckoutPageSkeleton() {
   return (
-    <PageContainer className="py-0 pb-14">
-      <div className="h-11 border-b mb-4 animate-pulse" />
-      <div className="grid lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 space-y-4">
-          {[1, 2].map((i) => (
-            <div key={i} className="bg-card border rounded h-32 animate-pulse" />
-          ))}
+    <PageContainer className="py-3 sm:py-5 pb-28 sm:pb-5">
+      <div className="mb-4 space-y-2">
+        <div className="h-6 w-36 rounded-lg bg-muted/40 animate-pulse" />
+        <div className="h-3.5 w-56 rounded-md bg-muted/30 animate-pulse" />
+      </div>
+      <div className="grid lg:grid-cols-3 gap-3 sm:gap-4">
+        <div className="lg:col-span-2 space-y-3">
+          <div className="bg-card border border-border/80 rounded-2xl h-48 animate-pulse" />
+          <div className="bg-card border border-border/80 rounded-2xl h-64 animate-pulse" />
         </div>
-        <div className="bg-card border rounded h-56 animate-pulse" />
+        <div className="hidden lg:block">
+          <div className="h-64 w-full rounded-2xl border border-border/80 bg-card animate-pulse" />
+        </div>
       </div>
     </PageContainer>
   );
 }
+

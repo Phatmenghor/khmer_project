@@ -79,10 +79,13 @@ export function AsyncCombobox<T>({
     setOpen(false);
   };
 
-  const isSelected = (item: T) =>
-    isItemSelected
-      ? isItemSelected(item, value)
-      : value !== null && getId(item) === getId(value);
+  const isSelected = (item: T) => {
+    if (isItemSelected) {
+      return isItemSelected(item, value);
+    }
+    if (!value || !item) return false;
+    return getId(item) === getId(value);
+  };
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -162,6 +165,7 @@ export function AsyncCombobox<T>({
               <CommandEmpty>{emptyMessage}</CommandEmpty>
               <CommandGroup>
                 {data.map((item, index) => {
+                  if (!item) return null;
                   const id = getId(item);
                   const selected = isSelected(item);
                   const labelText = getLabel(item);

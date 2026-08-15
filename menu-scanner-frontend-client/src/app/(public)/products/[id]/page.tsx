@@ -211,14 +211,16 @@ export default function ProductDetailPage() {
       addLocalCartItem({
         productId: product.id,
         productName: product.name,
-        productImage: product.mainImage,
+        productImageUrl: product.mainImage?.sm || product.mainImage?.md || product.mainImage?.o || "",
         productSizeId: selectedSize?.id ?? null,
-        productSizeName: selectedSize?.name ?? null,
-        price: displayPrice,
-        originalPrice: originalPrice > 0 ? originalPrice : displayPrice,
+        sizeName: selectedSize?.name ?? null,
+        finalPrice: displayPrice,
+        currentPrice: originalPrice > 0 ? originalPrice : displayPrice,
         quantity: pageQuantity,
+        sku: product.sku || "",
+        barcode: product.barcode || "",
         customizations: formattedCustomizations,
-      }),
+      })
     );
 
     showToast.success(`Added ${pageQuantity} ${product.name} to order!`);

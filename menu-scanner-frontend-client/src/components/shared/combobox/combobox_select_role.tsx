@@ -59,8 +59,8 @@ export function ComboboxSelectRole({
       value={selectedRole}
       onChange={(item) => onValueChange(item ? item.name : "")}
       controller={modifiedController}
-      getId={(item) => item.id}
-      getLabel={(item) => formatEnumValue(item.name)}
+      getId={(item) => item?.id ?? ""}
+      getLabel={(item) => (!item ? "" : formatEnumValue(item.name))}
       label={label}
       required={required}
       placeholder={placeholder}

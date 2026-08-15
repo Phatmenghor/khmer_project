@@ -5,6 +5,7 @@ import {
   clearCart,
   fetchCart,
 } from "../thunks/cart-thunks";
+import { createOrderService } from "../thunks/order-thunks";
 import {
   CartResponseModel,
   CartItemModel,
@@ -182,6 +183,8 @@ const cartSlice = createSlice({
         promotionFromDate?: string | null;
         promotionToDate?: string | null;
         optimisticTimestamp?: number;
+        sku?: string;
+        barcode?: string;
         customizations?: CartItemCustomization[];
       }>
     ) => {
@@ -200,6 +203,8 @@ const cartSlice = createSlice({
         promotionFromDate,
         promotionToDate,
         optimisticTimestamp,
+        sku,
+        barcode,
         customizations,
       } = action.payload;
 
@@ -215,6 +220,8 @@ const cartSlice = createSlice({
       if (existingItem) {
         existingItem.quantity += quantity;
         existingItem.totalPrice = existingItem.finalPrice * existingItem.quantity;
+        if (sku) existingItem.sku = sku;
+        if (barcode) existingItem.barcode = barcode;
         if (optimisticTimestamp) {
           existingItem.lastOptimisticTimestamp = optimisticTimestamp;
         }
@@ -243,6 +250,8 @@ const cartSlice = createSlice({
           totalBeforeDiscount,
           discountAmount,
           lastOptimisticTimestamp: optimisticTimestamp || Date.now(),
+          sku: sku || "",
+          barcode: barcode || "",
           customizations: customizations || [],
         });
       }
@@ -378,6 +387,16 @@ const cartSlice = createSlice({
         state.loading.clear = false;
         if (action.error.message === "canceled" || action.payload === "canceled") return;
         state.error = action.error.message || "Failed to clear cart";
+      })
+      .addCase(createOrderService.fulfilled, (state) => {
+        state.items = [];
+        state.totalItems = 0;
+        state.totalQuantity = 0;
+        state.subtotal = 0;
+        state.discountAmount = 0;
+        state.finalTotal = 0;
+        state.loaded = true;
+        state.error = null;
       });
   },
 });

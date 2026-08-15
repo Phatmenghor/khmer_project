@@ -137,6 +137,8 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
         promotionFromDate: product.displayPromotionFromDate || null,
         promotionToDate: product.displayPromotionToDate || null,
         optimisticTimestamp: ts,
+        sku: product.sku || "",
+        barcode: product.barcode || "",
       })
     );
     debouncedUpdate(key, product.id, null, 1, ts);
@@ -283,6 +285,8 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
             promotionFromDate: size?.promotionFromDate || selectedProduct.displayPromotionFromDate || null,
             promotionToDate: size?.promotionToDate || selectedProduct.displayPromotionToDate || null,
             optimisticTimestamp: timestamp,
+            sku: selectedProduct.sku || "",
+            barcode: selectedProduct.barcode || "",
             customizations: customizationObjects,
           })
         );

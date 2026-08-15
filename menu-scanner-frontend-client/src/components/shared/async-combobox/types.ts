@@ -39,13 +39,13 @@ export interface UseInfiniteComboboxResult<T> {
 export type ComboboxSize = "sm" | "md" | "lg";
 
 export interface AsyncComboboxProps<T> {
-  value: T | null;
+  value?: T | null;
   onChange: (item: T | null) => void;
   controller: UseInfiniteComboboxResult<T>;
   getId: (item: T) => string | number;
   getLabel: (item: T) => string;
   renderItem?: (item: T) => ReactNode;
-  isItemSelected?: (item: T, value: T | null) => boolean;
+  isItemSelected?: (item: T, value: T | null | undefined) => boolean;
   onSelectInterceptor?: (item: T) => T | null;
 
   label?: string;

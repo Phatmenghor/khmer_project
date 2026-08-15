@@ -646,13 +646,20 @@ public class OrderServiceImpl implements OrderService {
         for (CartItemRequest item : cartSummary.getItems()) {
             itemCount++;
 
+            UUID prodId = item.getProductId() != null ? item.getProductId() : item.getId();
+            if (prodId == null) {
+                log.warn("Skipping cart item with missing productId and id: {}", item);
+                continue;
+            }
+
             // Get product for SKU/barcode
-            Product product = productRepository.findById(item.getProductId())
-                    .orElseThrow(() -> new NotFoundException("Product not found: " + item.getProductId()));
+            Product product = productRepository.findById(prodId)
+                    .orElseThrow(() -> new NotFoundException("Product not found: " + prodId));
 
             OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
             orderItem.setOrderId(orderId);
-            orderItem.setProductId(item.getProductId());
+            orderItem.setProductId(prodId);
             orderItem.setProductSizeId(item.getProductSizeId());
             orderItem.setProductName(item.getProductName() != null ? item.getProductName() : product.getName());
             ImageUrls originalImgUrl = product.getMainImage();
@@ -664,26 +671,37 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setSku(item.getSku() != null ? item.getSku() : product.getSku());
             orderItem.setBarcode(item.getBarcode() != null ? item.getBarcode() : product.getBarcode());
 
-            orderItem.setQuantity(item.getQuantity());
-            BigDecimal basePrice = item.getCurrentPrice() != null ? item.getCurrentPrice() : item.getFinalPrice();
+            int quantity = item.getQuantity() != null && item.getQuantity() > 0 ? item.getQuantity() : 1;
+            orderItem.setQuantity(quantity);
+
+            BigDecimal productMasterPrice = product.getPrice() != null ? product.getPrice() : BigDecimal.ZERO;
+            BigDecimal finalPrice = item.getFinalPrice() != null && item.getFinalPrice().compareTo(BigDecimal.ZERO) > 0
+                    ? item.getFinalPrice()
+                    : (item.getCurrentPrice() != null && item.getCurrentPrice().compareTo(BigDecimal.ZERO) > 0
+                        ? item.getCurrentPrice()
+                        : productMasterPrice);
+            BigDecimal basePrice = item.getCurrentPrice() != null && item.getCurrentPrice().compareTo(BigDecimal.ZERO) > 0
+                    ? item.getCurrentPrice()
+                    : finalPrice;
+
             if (Boolean.TRUE.equals(item.getHasPromotion()) && item.getPromotionType() != null && item.getPromotionValue() != null && item.getPromotionValue().compareTo(BigDecimal.ZERO) > 0) {
-                if (basePrice.compareTo(item.getFinalPrice()) <= 0) {
+                if (basePrice.compareTo(finalPrice) <= 0) {
                     if ("FIXED_AMOUNT".equalsIgnoreCase(item.getPromotionType())) {
-                        basePrice = item.getFinalPrice().add(item.getPromotionValue());
+                        basePrice = finalPrice.add(item.getPromotionValue());
                     } else if ("PERCENTAGE".equalsIgnoreCase(item.getPromotionType()) && item.getPromotionValue().compareTo(new BigDecimal("100")) < 0) {
                         BigDecimal remainingRatio = BigDecimal.ONE.subtract(item.getPromotionValue().divide(new BigDecimal("100"), 4, java.math.RoundingMode.HALF_UP));
                         if (remainingRatio.compareTo(BigDecimal.ZERO) > 0) {
-                            basePrice = item.getFinalPrice().divide(remainingRatio, 2, java.math.RoundingMode.HALF_UP);
+                            basePrice = finalPrice.divide(remainingRatio, 2, java.math.RoundingMode.HALF_UP);
                         }
                     }
                 }
             }
 
             orderItem.setCurrentPrice(basePrice);
-            orderItem.setUnitPrice(item.getFinalPrice());
-            orderItem.setFinalPrice(item.getFinalPrice());
+            orderItem.setUnitPrice(finalPrice);
+            orderItem.setFinalPrice(finalPrice);
             orderItem.setTotalPrice(item.getTotalPrice() != null ? item.getTotalPrice() :
-                    item.getFinalPrice().multiply(new BigDecimal(item.getQuantity())));
+                    finalPrice.multiply(BigDecimal.valueOf(quantity)));
 
             // Map promotion details from cart item to order item
             orderItem.setHasPromotion(item.getHasPromotion());
@@ -693,19 +711,19 @@ public class OrderServiceImpl implements OrderService {
                 orderItem.setPromotionFromDate(item.getPromotionFromDate());
                 orderItem.setPromotionToDate(item.getPromotionToDate());
                 log.info("Item {} has promotion: type={}, value={}",
-                    item.getProductId(), item.getPromotionType(), item.getPromotionValue());
+                    prodId, item.getPromotionType(), item.getPromotionValue());
             }
 
             // Process customizations - store total but don't create objects yet
             if (item.getCustomizations() != null && !item.getCustomizations().isEmpty()) {
                 try {
                     BigDecimal itemCustomizationTotal = item.getCustomizations().stream()
-                        .map(CartItemRequest.CustomizationDetail::getPriceAdjustment)
+                        .map(c -> c.getPriceAdjustment() != null ? c.getPriceAdjustment() : BigDecimal.ZERO)
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
-                        .multiply(new BigDecimal(item.getQuantity()));
+                        .multiply(BigDecimal.valueOf(quantity));
                     orderItem.setCustomizationTotal(itemCustomizationTotal);
                 } catch (Exception e) {
-                    log.warn("Failed to calculate customization total for item {}: {}", item.getProductId(), e.getMessage());
+                    log.warn("Failed to calculate customization total for item {}: {}", prodId, e.getMessage());
                     orderItem.setCustomizationTotal(BigDecimal.ZERO);
                 }
             } else {
@@ -734,8 +752,11 @@ public class OrderServiceImpl implements OrderService {
 
         // Now save customizations with the order item IDs
         for (CartItemRequest item : cartSummary.getItems()) {
+            UUID prodId = item.getProductId() != null ? item.getProductId() : item.getId();
+            if (prodId == null) continue;
+
             OrderItem savedItem = order.getItems().stream()
-                .filter(oi -> oi.getProductId().equals(item.getProductId()) &&
+                .filter(oi -> oi.getProductId() != null && oi.getProductId().equals(prodId) &&
                              (oi.getProductSizeId() == null ? item.getProductSizeId() == null : oi.getProductSizeId().equals(item.getProductSizeId())))
                 .findFirst()
                 .orElse(null);
@@ -754,10 +775,10 @@ public class OrderServiceImpl implements OrderService {
                         .toList();
                     orderItemCustomizationRepository.saveAll(customizations);
                 } catch (Exception e) {
-                    log.warn("Failed to save customizations for item {}: {}", item.getProductId(), e.getMessage());
+                    log.warn("Failed to save customizations for item {}: {}", prodId, e.getMessage());
                 }
             } else if (savedItem == null) {
-                log.warn("No matching orderItem found for productId={}, sizeId={}", item.getProductId(), item.getProductSizeId());
+                log.warn("No matching orderItem found for productId={}, sizeId={}", prodId, item.getProductSizeId());
             }
         }
     }
@@ -1026,6 +1047,10 @@ public class OrderServiceImpl implements OrderService {
      * Stores complete address details + location images for order history preservation
      */
     private OrderDeliveryAddress createDeliveryAddressSnapshot(UUID orderId, UUID addressId) {
+        if (addressId == null) {
+            log.info("No addressId provided for delivery address snapshot, skipping.");
+            return null;
+        }
         try {
             // Fetch location from database
             Location location = locationRepository.findById(addressId)
