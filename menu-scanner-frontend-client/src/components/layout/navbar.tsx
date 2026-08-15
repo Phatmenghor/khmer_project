@@ -23,6 +23,16 @@ import { NavbarCart } from "./navbar-cart";
 import { NavbarLinks } from "./navbar-links";
 import { NavbarMenu } from "./navbar-menu";
 
+import {
+  getActiveTableSession,
+  detectAndSaveTableSessionFromUrl,
+  clearActiveTableSession,
+  appendTableParamToUrl,
+  ActiveTableSession,
+} from "@/utils/table/table-session";
+import { showToast } from "@/components/shared/common/show-toast";
+import { Utensils, X } from "lucide-react";
+
 const navigationLinks = [
   { name: "Home", href: "/" },
   { name: "Products", href: "/products" },
@@ -88,6 +98,14 @@ export function Navbar() {
     prevCartCount.current = cartItemCount;
   }, [cartItemCount]);
 
+  const [activeTable, setActiveTable] = useState<ActiveTableSession | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const session = detectAndSaveTableSessionFromUrl();
+    setActiveTable(session);
+  }, [pathname]);
+
   useEffect(() => {
     if (mobileSearchOpen) {
       setTimeout(() => mobileSearchRef.current?.focus(), 50);
@@ -109,7 +127,7 @@ export function Navbar() {
     navigatingRef.current = true;
     setMobileSearchOpen(false);
     dispatch(clearProducts());
-    router.push("/");
+    router.push(appendTableParamToUrl("/"));
   };
 
   const handleSwitchToRegister = () => {
@@ -127,7 +145,7 @@ export function Navbar() {
     setMobileSearchOpen(false);
     setSearchQuery("");
     dispatch(clearProducts());
-    router.push(href);
+    router.push(appendTableParamToUrl(href));
   };
 
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
@@ -255,10 +273,10 @@ export function Navbar() {
                   favoriteItemCount={favoriteItemCount}
                   favoriteAnimating={favoriteAnimating}
                   cartAnimating={cartAnimating}
-                  onFavoritesClick={() => router.push("/favorites")}
-                  onCartClick={() => router.push("/cart")}
-                  onOrdersClick={() => router.push("/orders")}
-                  showOrdersIcon={!isAuthenticated}
+                  onFavoritesClick={() => router.push(appendTableParamToUrl("/favorites"))}
+                  onCartClick={() => router.push(appendTableParamToUrl("/cart"))}
+                  onOrdersClick={() => router.push(appendTableParamToUrl("/orders"))}
+                  showOrdersIcon={false}
                   isMobile={true}
                 />
 
@@ -329,10 +347,10 @@ export function Navbar() {
                 favoriteItemCount={favoriteItemCount}
                 favoriteAnimating={favoriteAnimating}
                 cartAnimating={cartAnimating}
-                onFavoritesClick={() => router.push("/favorites")}
-                onCartClick={() => router.push("/cart")}
-                onOrdersClick={() => router.push("/orders")}
-                showOrdersIcon={!isAuthenticated}
+                onFavoritesClick={() => router.push(appendTableParamToUrl("/favorites"))}
+                onCartClick={() => router.push(appendTableParamToUrl("/cart"))}
+                onOrdersClick={() => router.push(appendTableParamToUrl("/orders"))}
+                showOrdersIcon={false}
               />
 
               <NavbarAuth

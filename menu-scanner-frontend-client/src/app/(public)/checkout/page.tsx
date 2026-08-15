@@ -2,25 +2,8 @@
 
 import { Messages } from "@/constants/messages";
 import { useEffect, useState, useMemo } from "react";
-import { OrderStatus } from "@/enums/order-status.enum";
-import { OrderFromEnum } from "@/enums/order.enum";
 import { useRouter } from "next/navigation";
-import {
-  MapPin,
-  CreditCard,
-  MessageSquare,
-  Lock,
-  AlertCircle,
-  User,
-  Phone,
-  Truck,
-  Wallet,
-  ShoppingBag,
-  Receipt,
-  ShieldCheck,
-  Loader2,
-  ArrowRight,
-} from "lucide-react";
+import { CreditCard, ShoppingBag, Receipt } from "lucide-react";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useCartState } from "@/features/main/store/state/cart-state";
 import { useLocationState } from "@/features/location/store/state/location-state";
@@ -32,23 +15,22 @@ import { fetchPublicPaymentOptionsService } from "@/features/master-data/store/t
 import { fetchPublicDeliveryOptionsService } from "@/features/master-data/store/thunks/delivery-options-thunks";
 import { createOrderService, CheckoutPayload } from "@/features/main/store/thunks/order-thunks";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
+import { OrderFromEnum } from "@/enums/order.enum";
 import { updateLocalCartItem, resetCart, loadCartFromStorage } from "@/features/main/store/slice/cart-slice";
-import { CustomButton } from "@/components/shared/button/custom-button";
-import { CustomInput, CustomTextarea } from "@/components/shared";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
-import { Skeleton } from "@/components/ui/skeleton";
-import { formatCurrency } from "@/utils/common/currency-format";
-import { cn } from "@/lib/utils";
-import { ComboboxSelectLocation } from "@/components/shared/combobox/combobox-select-location";
-import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-select-delivery-option";
-import { ComboboxSelectPaymentPublic } from "@/components/shared/combobox/combobox-select-payment-public";
+import { getActiveTableSession, appendTableParamToUrl } from "@/utils/table/table-session";
 import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { OrderSuccessModal } from "@/components/shared/modal/order-success-modal";
 import { PageState } from "@/components/shared/page-state";
+import { CheckoutSkeleton } from "@/components/checkout/checkout-skeleton";
+import { CheckoutTableServiceCard } from "@/components/checkout/checkout-table-service-card";
+import { CheckoutCustomerSection } from "@/components/checkout/checkout-customer-section";
+import { CheckoutSummarySection } from "@/components/checkout/checkout-summary-section";
+import { getOrderContext } from "@/utils/order/order-context";
 
 interface CheckoutState {
   selectedAddressId: string | null;
@@ -58,62 +40,49 @@ interface CheckoutState {
   customerPhone: string;
   customerEmail: string;
   customerNote: string;
-  guestStreet: string;
-  guestHouse: string;
-  guestCity: string;
-  guestNote: string;
   isProcessing: boolean;
-}
-
-interface LocationResponse {
-  id: string;
-  village: string;
-  commune: string;
-  district: string;
-  province: string;
-  streetNumber: string;
-  houseNumber: string;
-  note: string;
-  latitude: number;
-  longitude: number;
-  fullAddress: string;
-  isDefault: boolean;
 }
 
 export default function CheckoutPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { isAuthenticated, profile, authReady } = useAuthState();
-  const { items, finalTotal, subtotal, discountAmount, totalQuantity, loaded: cartLoaded } = useCartState();
-  const { locations: addresses } = useLocationState();
-  const { deliveryOptionsContent: deliveryOptions } = useDeliveryOptionsState();
-  const { paymentOptionsContent: paymentOptions } = usePaymentOptionsState();
 
+  const { isAuthenticated, profile, authReady } = useAuthState();
+  const { items, totalQuantity, subtotal, discountAmount, finalTotal, loaded: cartLoaded } = useCartState();
+  const { locations } = useLocationState();
+  const { paymentOptionsData } = usePaymentOptionsState();
+  const { deliveryOptionsData } = useDeliveryOptionsState();
+
+  const addresses = locations || [];
+  const paymentOptions = paymentOptionsData?.content || [];
+  const deliveryOptions = deliveryOptionsData?.content || [];
+
+  const [defaultAddress, setDefaultAddress] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
-  const [defaultAddress, setDefaultAddress] = useState<LocationResponse | null>(null);
-  const [loadingDefaults, setLoadingDefaults] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [successOrder, setSuccessOrder] = useState<OrderResponse | null>(null);
+  const [activeTableSession, setActiveTableSessionState] = useState<any>(null);
 
   const [checkoutState, setCheckoutState] = useState<CheckoutState>({
     selectedAddressId: null,
     selectedDeliveryOptionId: null,
     selectedPaymentOptionId: null,
-    customerName: "Guest Customer",
+    customerName: "",
     customerPhone: "",
     customerEmail: "",
     customerNote: "",
-    guestStreet: "",
-    guestHouse: "",
-    guestCity: "Phnom Penh",
-    guestNote: "",
     isProcessing: false,
   });
 
   useEffect(() => {
     setMounted(true);
+    if (typeof window !== "undefined") {
+      setActiveTableSessionState(getActiveTableSession());
+    }
   }, []);
+
+  const orderContext = getOrderContext(isAuthenticated, activeTableSession);
 
   useEffect(() => {
     if (!authReady) return;
@@ -126,7 +95,6 @@ export default function CheckoutPage() {
     if (!mounted || !authReady || !isAuthenticated) return;
 
     const fetchDefaults = async () => {
-      setLoadingDefaults(true);
       try {
         const defaultAddr = await dispatch(fetchDefaultAddressService()).unwrap();
         setDefaultAddress(defaultAddr);
@@ -136,76 +104,40 @@ export default function CheckoutPage() {
             selectedAddressId: defaultAddr.id,
           }));
         }
-      } catch (error: unknown) {
-        const axiosError = error as { response?: { status?: number } };
-        const isExpectedError =
-          axiosError?.response?.status === 404 ||
-          (typeof error === "string" && error.includes("No default")) ||
-          (typeof error === "string" && error.includes("not found"));
-
-        if (!isExpectedError) {
-          // Expected when no default address set yet
-        }
-      }
-
-      setLoadingDefaults(false);
+      } catch {}
     };
 
     fetchDefaults();
   }, [mounted, authReady, isAuthenticated, dispatch]);
 
   useEffect(() => {
-    if (deliveryOptions && deliveryOptions.length > 0 && !checkoutState.selectedDeliveryOptionId) {
-      setCheckoutState((prev) => ({
-        ...prev,
-        selectedDeliveryOptionId: deliveryOptions[0].id || null,
-      }));
-    }
-  }, [deliveryOptions, checkoutState.selectedDeliveryOptionId]);
+    if (!mounted) return;
+    dispatch(fetchPublicPaymentOptionsService({ businessId: AppDefault.BUSINESS_ID, pageNo: 1, pageSize: 15 }));
+    dispatch(fetchPublicDeliveryOptionsService({ businessId: AppDefault.BUSINESS_ID, pageNo: 1, pageSize: 15, statuses: ["ACTIVE"] }));
+  }, [mounted, dispatch]);
 
   useEffect(() => {
-    if (!mounted) return;
-
-    const fetchPublicOptions = async () => {
-      try {
-        await Promise.all([
-          dispatch(
-            fetchPublicPaymentOptionsService({
-              businessId: AppDefault.BUSINESS_ID,
-              pageNo: 1,
-              pageSize: 15,
-            })
-          ).unwrap(),
-          dispatch(
-            fetchPublicDeliveryOptionsService({
-              businessId: AppDefault.BUSINESS_ID,
-              pageNo: 1,
-              pageSize: 15,
-              statuses: ["ACTIVE"],
-            })
-          ).unwrap(),
-        ]);
-      } catch (error) {
-        // Handled silently
-      }
-    };
-
-    fetchPublicOptions();
-  }, [mounted, dispatch]);
+    if (deliveryOptions && deliveryOptions.length > 0 && !checkoutState.selectedDeliveryOptionId) {
+      setCheckoutState((prev) => ({ ...prev, selectedDeliveryOptionId: deliveryOptions[0].id || null }));
+    }
+  }, [deliveryOptions, checkoutState.selectedDeliveryOptionId]);
 
   useEffect(() => {
     if (paymentOptions && paymentOptions.length > 0 && !checkoutState.selectedPaymentOptionId) {
       const cashOption = paymentOptions.find((opt) => opt.paymentOptionType === "CASH");
       const defaultOption = cashOption || paymentOptions[0];
-      setCheckoutState((prev) => ({
-        ...prev,
-        selectedPaymentOptionId: defaultOption.id || null,
-      }));
+      setCheckoutState((prev) => ({ ...prev, selectedPaymentOptionId: defaultOption.id || null }));
     }
   }, [paymentOptions, checkoutState.selectedPaymentOptionId]);
 
   useEffect(() => {
-    if (profile && mounted && authReady) {
+    if (orderContext.isTable) {
+      setCheckoutState((prev) => ({
+        ...prev,
+        customerName: orderContext.tableName || "Table 01",
+        customerPhone: prev.customerPhone || "Table Service",
+      }));
+    } else if (profile && mounted && authReady) {
       setCheckoutState((prev) => ({
         ...prev,
         customerName: prev.customerName || profile?.fullName || "",
@@ -213,200 +145,158 @@ export default function CheckoutPage() {
         customerEmail: prev.customerEmail || profile?.email || "",
       }));
     }
-  }, [profile, mounted, authReady]);
+  }, [orderContext.isTable, orderContext.tableName, profile, mounted, authReady]);
 
   const selectedAddress = useMemo(
-    () => addresses?.find((addr) => addr.id === checkoutState.selectedAddressId) || defaultAddress,
+    () => addresses?.find((addr: any) => addr.id === checkoutState.selectedAddressId) || defaultAddress,
     [addresses, checkoutState.selectedAddressId, defaultAddress]
   );
 
   const selectedDeliveryOption = useMemo(
-    () => deliveryOptions?.find((opt) => opt.id === checkoutState.selectedDeliveryOptionId),
+    () => deliveryOptions?.find((opt: any) => opt.id === checkoutState.selectedDeliveryOptionId),
     [deliveryOptions, checkoutState.selectedDeliveryOptionId]
   );
 
   const selectedPaymentOption = useMemo(
-    () => paymentOptions?.find((opt) => opt.id === checkoutState.selectedPaymentOptionId),
+    () => paymentOptions?.find((opt: any) => opt.id === checkoutState.selectedPaymentOptionId),
     [paymentOptions, checkoutState.selectedPaymentOptionId]
   );
 
-  const deliveryFee = selectedDeliveryOption?.price || 0;
-  const taxRate = 0;
-  const taxAmount = (finalTotal + deliveryFee) * taxRate;
-  const orderTotal = finalTotal + deliveryFee + taxAmount;
+  const deliveryFee = orderContext.isTable ? 0 : (selectedDeliveryOption?.price || 0);
+  const orderTotal = finalTotal + deliveryFee;
 
-  const handleQuantityChange = (
-    productId: string,
-    productSizeId: string | null,
-    newQuantity: number
-  ) => {
+  const handleQuantityChange = (productId: string, productSizeId: string | null, newQuantity: number) => {
     if (newQuantity < 0) return;
-    if (newQuantity === 0) {
-      dispatch(updateLocalCartItem({ productId, productSizeId, quantity: 0 }));
-      return;
-    }
     dispatch(updateLocalCartItem({ productId, productSizeId, quantity: newQuantity }));
   };
 
   const canCheckout = useMemo(() => {
     if (items.length === 0) return false;
+    if (orderContext.isTable) return true;
     if (!checkoutState.selectedPaymentOptionId) return false;
     if (!checkoutState.customerName.trim()) return false;
     if (!checkoutState.customerPhone.trim()) return false;
-    if (isAuthenticated) {
-      return Boolean(checkoutState.selectedAddressId || defaultAddress);
-    }
+    if (isAuthenticated) return Boolean(checkoutState.selectedAddressId || defaultAddress);
     return true;
-  }, [items.length, checkoutState.selectedPaymentOptionId, checkoutState.customerName, checkoutState.customerPhone, isAuthenticated, checkoutState.selectedAddressId, defaultAddress]);
+  }, [items.length, orderContext.isTable, checkoutState.selectedPaymentOptionId, checkoutState.customerName, checkoutState.customerPhone, isAuthenticated, checkoutState.selectedAddressId, defaultAddress]);
 
   const handleCheckout = async () => {
     if (!canCheckout) {
-      if (!checkoutState.customerPhone.trim()) {
-        showToast.error("Please enter your phone number to complete order.");
-      } else {
-        showToast.error(Messages.validation.requiredFields);
-      }
-      return;
-    }
-
-    if (isAuthenticated && !selectedAddress) {
-      showToast.error(Messages.delivery.selectAddress);
-      return;
-    }
-
-    if (!selectedDeliveryOption) {
-      showToast.error(Messages.delivery.selectOption);
-      return;
-    }
-
-    if (!selectedPaymentOption) {
-      showToast.error(Messages.payment.selectMethod);
+      showToast.error("Please fill in required fields to complete order.");
       return;
     }
 
     setCheckoutState((prev) => ({ ...prev, isProcessing: true }));
 
     try {
+      const isValidUuid = (val?: string | null) =>
+        Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
+
+      const isValidIsoDate = (val?: string | null) =>
+        Boolean(val && typeof val === "string" && val.trim() !== "" && !isNaN(Date.parse(val)));
+
+      const rawPaymentMethod = String(selectedPaymentOption?.paymentOptionType || "CASH");
+      const validPaymentMethod =
+        rawPaymentMethod === "BANK" || rawPaymentMethod === "BANK_TRANSFER" ? "BANK" : "CASH";
+
+      const validAddressId =
+        !orderContext.isTable && isAuthenticated && isValidUuid(selectedAddress?.id)
+          ? selectedAddress.id
+          : undefined;
+
       const checkoutPayload: CheckoutPayload = {
         businessId: AppDefault.BUSINESS_ID,
-        addressId: isAuthenticated ? selectedAddress?.id : undefined,
-        guestAddress: undefined,
+        orderFrom: OrderFromEnum.CUSTOMER,
+        addressId: validAddressId,
         deliveryOption: {
-          name: selectedDeliveryOption.name || "",
-          description: selectedDeliveryOption.description || "",
-          imageUrl: selectedDeliveryOption.image?.sm || selectedDeliveryOption.image?.md || "",
-          price: selectedDeliveryOption.price || 0,
+          name: orderContext.isTable ? "Table Dine-In Service" : (selectedDeliveryOption?.name || "Standard Delivery"),
+          description: orderContext.isTable ? `Served to ${orderContext.tableName}` : (selectedDeliveryOption?.description || "Dine-in or direct delivery"),
+          imageUrl: selectedDeliveryOption?.image?.sm || selectedDeliveryOption?.image?.md || "",
+          price: deliveryFee,
         },
-        customerName: checkoutState.customerName?.trim() || "Guest Customer",
-        customerPhone: checkoutState.customerPhone?.trim() || undefined,
+        customerName: orderContext.isTable ? orderContext.tableName : (checkoutState.customerName?.trim() || "Guest Customer"),
+        customerPhone: orderContext.isTable ? (checkoutState.customerPhone?.trim() || "Table Service") : (checkoutState.customerPhone?.trim() || undefined),
         customerEmail: checkoutState.customerEmail?.trim() || undefined,
         cart: {
           businessId: AppDefault.BUSINESS_ID,
           businessName: "Default Business",
-          items: items.map((item) => {
-            const itemQty = Number(item.quantity ?? 1) > 0 ? Number(item.quantity ?? 1) : 1;
-            const currentPrice = Number(item.currentPrice ?? item.finalPrice ?? 0);
-            const finalPrice = Number(item.finalPrice ?? item.currentPrice ?? 0);
-            const totalPrice = Number(item.totalPrice ?? finalPrice * itemQty);
-            const totalBeforeDiscount = Number(item.totalBeforeDiscount ?? currentPrice * itemQty);
-            const discountAmount = Number(item.discountAmount ?? Math.max(0, totalBeforeDiscount - totalPrice));
+          items: items.map((item: any) => {
+            const validItemUuid = isValidUuid(item.id) ? item.id : undefined;
+            const validProductUuid = isValidUuid(item.productId) ? item.productId : item.productId;
+            const validSizeUuid = isValidUuid(item.productSizeId) ? item.productSizeId : null;
 
-            const isValidUuid = (val?: string | null) =>
-              Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
-
-            const resolvedProductId = isValidUuid(item.productId)
-              ? item.productId
-              : isValidUuid(item.id)
-              ? item.id
-              : item.productId;
+            const sanitizedCustomizations = (item.customizations ?? [])
+              .filter((c: any) => isValidUuid(c.productCustomizationId))
+              .map((c: any) => ({
+                productCustomizationId: c.productCustomizationId,
+                name: c.name || "",
+                priceAdjustment: Number(c.priceAdjustment ?? 0),
+              }));
 
             return {
-              id: isValidUuid(item.id) ? item.id : undefined,
-              productId: resolvedProductId,
-              productName: item.productName,
+              id: validItemUuid,
+              productId: validProductUuid,
+              productName: item.productName || "Product Item",
               productImageUrl: item.productImageUrl || "",
-              productSizeId: isValidUuid(item.productSizeId) ? item.productSizeId : null,
+              productSizeId: validSizeUuid,
               sizeName: item.sizeName || "",
-              status: item.status || "",
+              status: item.status || "ACTIVE",
               sku: item.sku || "",
               barcode: item.barcode || "",
-              currentPrice: currentPrice,
-              finalPrice: finalPrice,
-              hasPromotion: Boolean(
-                item.hasPromotion === "ACTIVE" ||
-                  item.hasPromotion === "FUTURE_PROMOTION" ||
-                  item.hasPromotion === true
-              ),
-              quantity: itemQty,
-              totalBeforeDiscount: totalBeforeDiscount,
-              discountAmount: discountAmount,
-              totalPrice: totalPrice,
-              promotionType: item.promotionType || "",
-              promotionValue: Number(item.promotionValue ?? 0),
-              promotionFromDate: item.promotionFromDate || new Date().toISOString(),
-              promotionToDate: item.promotionToDate || new Date().toISOString(),
-              customizations: item.customizations || [],
+              currentPrice: Number(item.currentPrice ?? 0),
+              finalPrice: Number(item.finalPrice ?? 0),
+              hasPromotion: Boolean(item.hasPromotion),
+              promotionType: item.promotionType || undefined,
+              promotionValue: item.promotionValue ? Number(item.promotionValue) : undefined,
+              promotionFromDate: isValidIsoDate(item.promotionFromDate) ? item.promotionFromDate : undefined,
+              promotionToDate: isValidIsoDate(item.promotionToDate) ? item.promotionToDate : undefined,
+              quantity: Number(item.quantity ?? 1),
+              totalBeforeDiscount: Number(item.totalBeforeDiscount ?? 0),
+              discountAmount: Number(item.discountAmount ?? 0),
+              totalPrice: Number(item.totalPrice ?? 0),
+              customizations: sanitizedCustomizations,
             };
-          }),
+          }) as any,
           totalItems: items.length,
           totalQuantity: totalQuantity,
-          subtotalBeforeDiscount: subtotal,
+          subtotalBeforeDiscount: subtotal + discountAmount,
           subtotal: subtotal,
           customizationTotal: 0,
           totalDiscount: discountAmount,
           finalTotal: finalTotal,
         },
         pricing: {
-          subtotal: subtotal,
-          deliveryFee: deliveryFee,
+          subtotal,
+          deliveryFee,
           taxPercentage: 0,
           taxAmount: 0,
-          discountAmount: discountAmount,
+          discountAmount,
           finalTotal: orderTotal,
         },
         payment: {
-          paymentMethod: selectedPaymentOption.paymentOptionType,
+          paymentMethod: validPaymentMethod as any,
           paymentStatus: "UNPAID" as const,
         },
-        customerNote: checkoutState.customerNote,
-        orderFrom: OrderFromEnum.CUSTOMER,
+        customerNote: orderContext.isTable
+          ? checkoutState.customerNote ? `[${orderContext.tableName}] ${checkoutState.customerNote}` : `[${orderContext.tableName}]`
+          : checkoutState.customerNote,
       };
 
-      const orderResult: OrderResponse = await dispatch(createOrderService(checkoutPayload)).unwrap();
-
-      // Clear cart items immediately on successful order placement
+      const orderResult = await dispatch(createOrderService(checkoutPayload)).unwrap();
       dispatch(resetCart());
-
-      // Save to local guest tracking
-      if (!isAuthenticated && orderResult?.id) {
-        try {
-          const existingGuestOrders = JSON.parse(localStorage.getItem("guest_orders") || "[]");
-          const updated = Array.from(new Set([orderResult.id, ...existingGuestOrders]));
-          localStorage.setItem("guest_orders", JSON.stringify(updated));
-        } catch {
-          // ignore storage error
-        }
-      }
 
       setSuccessOrder(orderResult);
       setSuccessModalOpen(true);
       showToast.success(Messages.orders.placed);
     } catch (error: unknown) {
       const axiosErr = error as { response?: { data?: { message?: string } }; message?: string };
-      const errorMessage =
-        axiosErr?.response?.data?.message ||
-        axiosErr?.message ||
-        "Failed to complete checkout. Please try again.";
-
-      showToast.error(errorMessage);
+      showToast.error(axiosErr?.response?.data?.message || axiosErr?.message || "Failed to complete checkout.");
     } finally {
       setCheckoutState((prev) => ({ ...prev, isProcessing: false }));
     }
   };
 
-  if (!mounted || !authReady || !cartLoaded) {
-    return <CheckoutPageSkeleton />;
-  }
+  if (!mounted || !authReady || !cartLoaded) return <CheckoutSkeleton />;
 
   if (items.length === 0 && !successModalOpen && !successOrder) {
     return (
@@ -416,7 +306,7 @@ export default function CheckoutPage() {
           title="Cart is Empty"
           description="Add items to your cart before checking out."
           actionLabel="Browse Products"
-          onAction={() => router.push("/products")}
+          onAction={() => router.push(appendTableParamToUrl("/products"))}
           size="lg"
         />
       </PageContainer>
@@ -425,13 +315,12 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Ambient background glow — matching Cart and Category pages */}
       <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[300px] bg-primary/5 blur-[120px] rounded-full opacity-60" />
 
       <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5 pb-28 sm:pb-11 lg:pb-5 relative z-10">
         <PageHeader
           title="Checkout"
-          subtitle={`Review your delivery details and place your order (${totalQuantity} total quantity)`}
+          subtitle={`Review your details and place your order (${totalQuantity} total quantity)`}
           icon={CreditCard}
           count={items.length}
           countLabel="items"
@@ -440,119 +329,32 @@ export default function CheckoutPage() {
         />
 
         <div className="grid lg:grid-cols-3 gap-3 sm:gap-4">
-          {/* Left Side: Delivery Details & Items */}
           <div className="lg:col-span-2 space-y-3">
-            {/* Card 1: Customer Details & Delivery */}
-            <div className="bg-gradient-to-b from-card via-card to-muted/20 border border-border/60 rounded-2xl p-3.5 sm:p-4 shadow-sm space-y-3.5">
-              {/* Delivery Address for Authenticated users */}
-              {isAuthenticated ? (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between pb-2 border-b border-border/40">
-                    <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-                      <MapPin className="h-3.5 w-3.5 text-primary" />
-                      Delivery Address
-                    </span>
-                    <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
-                      Saved Address
-                    </span>
-                  </div>
+            {/* Table Service Card */}
+            <CheckoutTableServiceCard
+              orderContext={orderContext}
+              itemsCount={items.length}
+              totalQuantity={totalQuantity}
+            />
 
-                  <ComboboxSelectLocation
-                    dataSelect={selectedAddress as any}
-                    onChangeSelected={(item) => {
-                      if (item) {
-                        setCheckoutState((prev) => ({
-                          ...prev,
-                          selectedAddressId: item.id,
-                        }));
-                      }
-                    }}
-                    placeholder="Select your delivery address..."
-                    hasDefault={!!defaultAddress}
-                    error={!checkoutState.selectedAddressId ? Messages.delivery.selectAddress : ""}
-                    label=""
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-between pb-2 border-b border-border/40">
-                  <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-                    <User className="h-3.5 w-3.5 text-blue-500" />
-                    Customer Information
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setLoginModalOpen(true)}
-                    className="text-[11px] font-semibold text-primary hover:underline cursor-pointer"
-                  >
-                    Have an account? Sign in
-                  </button>
-                </div>
-              )}
+            {/* Customer & Location Form Section */}
+            <CheckoutCustomerSection
+              orderContext={orderContext}
+              isAuthenticated={isAuthenticated}
+              selectedAddress={selectedAddress}
+              defaultAddress={defaultAddress}
+              selectedAddressId={checkoutState.selectedAddressId}
+              onAddressSelect={(id) => setCheckoutState((prev) => ({ ...prev, selectedAddressId: id }))}
+              customerName={checkoutState.customerName}
+              customerPhone={checkoutState.customerPhone}
+              customerNote={checkoutState.customerNote}
+              onNameChange={(val) => setCheckoutState((prev) => ({ ...prev, customerName: val }))}
+              onPhoneChange={(val) => setCheckoutState((prev) => ({ ...prev, customerPhone: val }))}
+              onNoteChange={(val) => setCheckoutState((prev) => ({ ...prev, customerNote: val }))}
+              onSignInClick={() => setLoginModalOpen(true)}
+            />
 
-              {/* Contact Information */}
-              <div className={cn("space-y-2.5", isAuthenticated && "pt-2 border-t border-border/40")}>
-                {isAuthenticated && (
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-                    <User className="h-3.5 w-3.5 text-blue-500" />
-                    Contact Information
-                  </div>
-                )}
-
-                <div className="grid sm:grid-cols-2 gap-2.5">
-                  <CustomInput
-                    label="Full Name"
-                    required
-                    leftIcon={<User className="h-3.5 w-3.5 text-muted-foreground" />}
-                    value={checkoutState.customerName}
-                    onChange={(e) =>
-                      setCheckoutState((prev) => ({
-                        ...prev,
-                        customerName: e.target.value,
-                      }))
-                    }
-                    placeholder="Your full name"
-                    size="sm"
-                  />
-
-                  <CustomInput
-                    label="Phone Number"
-                    required
-                    type="tel"
-                    leftIcon={<Phone className="h-3.5 w-3.5 text-muted-foreground" />}
-                    value={checkoutState.customerPhone}
-                    onChange={(e) =>
-                      setCheckoutState((prev) => ({
-                        ...prev,
-                        customerPhone: e.target.value,
-                      }))
-                    }
-                    placeholder="Your phone number"
-                    size="sm"
-                  />
-                </div>
-              </div>
-
-              {/* Special Instructions */}
-              <div className="pt-2 border-t border-border/40">
-                <CustomTextarea
-                  label="Special Instructions"
-                  leftIcon={<MessageSquare className="h-3.5 w-3.5 text-amber-500" />}
-                  value={checkoutState.customerNote}
-                  onChange={(e) =>
-                    setCheckoutState((prev) => ({
-                      ...prev,
-                      customerNote: e.target.value.slice(0, 500),
-                    }))
-                  }
-                  placeholder="Add any special requests or delivery notes for your order..."
-                  maxLength={500}
-                  showCount
-                  rows={2}
-                />
-              </div>
-            </div>
-
-            {/* Card 2: Order Items */}
+            {/* Cart Items Summary List */}
             <div className="bg-card border border-border/80 rounded-2xl p-3.5 sm:p-4 space-y-2.5 shadow-2xs">
               <div className="flex items-center justify-between pb-2 border-b border-border/40">
                 <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
@@ -581,12 +383,8 @@ export default function CheckoutPage() {
                     hasPromotion={item.hasPromotion}
                     promotionType={item.promotionType}
                     promotionValue={item.promotionValue}
-                    onQuantityChange={(newQuantity) =>
-                      handleQuantityChange(item.productId, item.productSizeId || null, newQuantity)
-                    }
-                    onRemove={() =>
-                      handleQuantityChange(item.productId, item.productSizeId || null, 0)
-                    }
+                    onQuantityChange={(newQty) => handleQuantityChange(item.productId, item.productSizeId || null, newQty)}
+                    onRemove={() => handleQuantityChange(item.productId, item.productSizeId || null, 0)}
                     showLink={false}
                     showControls={true}
                   />
@@ -595,406 +393,39 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Right Side: Desktop Order Summary Sidebar */}
+          {/* Sidebar Order Summary Section */}
           <div className="hidden lg:block lg:col-span-1">
-            <div className="bg-gradient-to-b from-card via-card to-muted/20 border border-border/60 rounded-2xl p-4 sticky top-16 shadow-sm space-y-3">
-              <h2 className="text-xs font-bold flex items-center justify-between pb-2 border-b border-border/40">
-                <span className="flex items-center gap-1.5">
-                  <Receipt className="h-3.5 w-3.5 text-primary" />
-                  Order Summary
-                </span>
-                <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
-                  {items.length} {items.length === 1 ? "item" : "items"}
-                </span>
-              </h2>
-
-              {/* Delivery & Payment Selection Grid */}
-              <div className="grid grid-cols-1 gap-2.5">
-                <div className="space-y-1">
-                  <label className="text-[11px] font-extrabold text-foreground leading-tight flex items-center gap-1 min-h-[16px]">
-                    <Truck className="h-3 w-3 text-primary" />
-                    <span>Delivery Option</span>
-                    <span className="text-destructive">*</span>
-                  </label>
-                  <ComboboxSelectDelivery
-                    dataSelect={selectedDeliveryOption as any}
-                    onChangeSelected={(item) => {
-                      setCheckoutState((prev) => ({
-                        ...prev,
-                        selectedDeliveryOptionId: item ? item.id : null,
-                      }));
-                    }}
-                    placeholder="Select delivery..."
-                    error={!checkoutState.selectedDeliveryOptionId ? "Please select delivery option" : ""}
-                    label=""
-                    businessId={AppDefault.BUSINESS_ID}
-                    statuses={["ACTIVE"]}
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[11px] font-extrabold text-foreground leading-tight flex items-center gap-1 min-h-[16px]">
-                    <Wallet className="h-3 w-3 text-emerald-500" />
-                    <span>Payment Method</span>
-                    <span className="text-destructive">*</span>
-                  </label>
-                  <ComboboxSelectPaymentPublic
-                    dataSelect={selectedPaymentOption as any}
-                    onChangeSelected={(item) => {
-                      setCheckoutState((prev) => ({
-                        ...prev,
-                        selectedPaymentOptionId: item ? item.id : null,
-                      }));
-                    }}
-                    placeholder="Select payment..."
-                    error={!checkoutState.selectedPaymentOptionId ? "Please select payment method" : ""}
-                    label=""
-                    businessId={AppDefault.BUSINESS_ID}
-                    statuses={["ACTIVE"]}
-                  />
-                </div>
-              </div>
-
-              {/* Pricing Breakdown matching Cart Page */}
-              <div className="space-y-2 text-xs pt-1 border-t border-border/40">
-                <div className="bg-muted/40 rounded-xl p-2.5 border border-border/40 space-y-1">
-                  <div className="text-[11px] font-semibold text-muted-foreground">Items Breakdown</div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium text-foreground">{items.length} unique {items.length === 1 ? "product" : "products"}</span>
-                    <span className="font-bold text-primary">{totalQuantity} qty</span>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-bold text-foreground">{formatCurrency(subtotal)}</span>
-                </div>
-
-                {discountAmount > 0 && (
-                  <div className="flex justify-between items-center text-emerald-600 dark:text-emerald-400 font-semibold">
-                    <span>Discount</span>
-                    <span>-{formatCurrency(discountAmount)}</span>
-                  </div>
-                )}
-
-                <div className="flex justify-between items-center pt-1.5 border-t border-border/40">
-                  <span className="text-muted-foreground">Delivery Fee</span>
-                  <span className="font-semibold text-primary">
-                    {deliveryFee > 0 ? `+${formatCurrency(deliveryFee)}` : "Free"}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground flex items-center gap-1">
-                    Tax
-                    <span className="text-[10px] bg-muted px-1.5 py-0.2 rounded font-medium">0%</span>
-                  </span>
-                  <span className="font-medium text-foreground">{formatCurrency(taxAmount)}</span>
-                </div>
-
-                {/* Total Box */}
-                <div className="bg-primary/10 rounded-xl p-3 border border-primary/25 shadow-2xs">
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-foreground">Total Amount</span>
-                    <span className="text-base font-extrabold text-primary">{formatCurrency(orderTotal)}</span>
-                  </div>
-                </div>
-
-                {discountAmount > 0 && (
-                  <div className="text-center py-1 px-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg border border-emerald-500/20 text-[11px] font-bold">
-                    🎉 You are saving {formatCurrency(discountAmount)} on this order!
-                  </div>
-                )}
-              </div>
-
-              {(!checkoutState.selectedAddressId ||
-                !checkoutState.selectedDeliveryOptionId ||
-                !checkoutState.selectedPaymentOptionId) && (
-                <div className="flex items-center gap-1.5 p-2 bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded-xl border border-amber-500/20 text-[11px] font-medium">
-                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                  <span>Complete all required fields</span>
-                </div>
-              )}
-
-              {/* Checkout Button matching Cart Page */}
-              <CustomButton
-                variant="default"
-                className="w-full gap-2 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs py-2.5 shadow-xs hover:shadow-md transition-all cursor-pointer"
-                onClick={handleCheckout}
-                disabled={!canCheckout || checkoutState.isProcessing}
-              >
-                {checkoutState.isProcessing ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Lock className="h-3.5 w-3.5" />
-                )}
-                {checkoutState.isProcessing
-                  ? "Processing Order..."
-                  : `Place Order • ${formatCurrency(orderTotal)}`}
-                {!checkoutState.isProcessing && <ArrowRight className="h-3.5 w-3.5 ml-auto" />}
-              </CustomButton>
-
-              <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground font-medium pt-0.5">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-                <span>256-bit Encrypted & Secure Checkout</span>
-              </div>
-            </div>
+            <CheckoutSummarySection
+              orderContext={orderContext}
+              itemsCount={items.length}
+              totalQuantity={totalQuantity}
+              subtotal={subtotal}
+              discountAmount={discountAmount}
+              deliveryFee={deliveryFee}
+              orderTotal={orderTotal}
+              selectedDeliveryOption={selectedDeliveryOption}
+              selectedPaymentOption={selectedPaymentOption}
+              selectedDeliveryOptionId={checkoutState.selectedDeliveryOptionId}
+              selectedPaymentOptionId={checkoutState.selectedPaymentOptionId}
+              onDeliveryChange={(id) => setCheckoutState((prev) => ({ ...prev, selectedDeliveryOptionId: id }))}
+              onPaymentChange={(id) => setCheckoutState((prev) => ({ ...prev, selectedPaymentOptionId: id }))}
+              isProcessing={checkoutState.isProcessing}
+              canCheckout={canCheckout}
+              onPlaceOrder={handleCheckout}
+            />
           </div>
         </div>
       </PageContainer>
-
-      {/* Mobile Bottom Section & Floating Action Bar */}
-      <div className="lg:hidden">
-        {/* Mobile Summary Settings Card */}
-        <div className="px-3 pb-24 space-y-3">
-          <div className="bg-gradient-to-b from-card via-card to-muted/20 border border-border/60 rounded-2xl p-3.5 shadow-sm space-y-3">
-            <h2 className="text-xs font-bold flex items-center justify-between pb-2 border-b border-border/40">
-              <span className="flex items-center gap-1.5">
-                <Receipt className="h-3.5 w-3.5 text-primary" />
-                Delivery & Payment
-              </span>
-              <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
-                Options
-              </span>
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <div className="space-y-1">
-                <label className="text-[11px] font-extrabold text-foreground leading-tight flex items-center gap-1 min-h-[16px]">
-                  <Truck className="h-3 w-3 text-primary" />
-                  <span>Delivery Option</span>
-                  <span className="text-destructive">*</span>
-                </label>
-                <ComboboxSelectDelivery
-                  dataSelect={selectedDeliveryOption as any}
-                  onChangeSelected={(item) => {
-                    setCheckoutState((prev) => ({
-                      ...prev,
-                      selectedDeliveryOptionId: item ? item.id : null,
-                    }));
-                  }}
-                  placeholder="Select delivery option..."
-                  error={!checkoutState.selectedDeliveryOptionId ? "Please select delivery option" : ""}
-                  label=""
-                  businessId={AppDefault.BUSINESS_ID}
-                  statuses={["ACTIVE"]}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[11px] font-extrabold text-foreground leading-tight flex items-center gap-1 min-h-[16px]">
-                  <Wallet className="h-3 w-3 text-emerald-500" />
-                  <span>Payment Method</span>
-                  <span className="text-destructive">*</span>
-                </label>
-                <ComboboxSelectPaymentPublic
-                  dataSelect={selectedPaymentOption as any}
-                  onChangeSelected={(item) => {
-                    setCheckoutState((prev) => ({
-                      ...prev,
-                      selectedPaymentOptionId: item ? item.id : null,
-                    }));
-                  }}
-                  placeholder="Select payment method..."
-                  error={!checkoutState.selectedPaymentOptionId ? "Please select payment method" : ""}
-                  label=""
-                  businessId={AppDefault.BUSINESS_ID}
-                  statuses={["ACTIVE"]}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5 text-xs pt-2 border-t border-border/40">
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-semibold text-foreground">{formatCurrency(subtotal)}</span>
-              </div>
-
-              {discountAmount > 0 && (
-                <div className="flex justify-between items-center text-emerald-600 dark:text-emerald-400 font-semibold">
-                  <span>Discount</span>
-                  <span>-{formatCurrency(discountAmount)}</span>
-                </div>
-              )}
-
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Delivery Fee</span>
-                <span className="font-semibold text-primary">
-                  {deliveryFee > 0 ? `+${formatCurrency(deliveryFee)}` : "Free"}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Floating Bottom Bar — matching Cart Page */}
-        <div className="fixed bottom-12 left-2 right-2 z-40 lg:hidden bg-card/95 backdrop-blur-md border border-border/80 rounded-2xl p-3 shadow-xl">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-[11px] text-muted-foreground font-semibold">
-                {items.length} {items.length === 1 ? "item" : "items"} • {totalQuantity} qty
-              </div>
-              <div className="text-base font-extrabold text-primary">{formatCurrency(orderTotal)}</div>
-            </div>
-
-            <CustomButton
-              variant="default"
-              className="gap-1.5 px-5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs py-2.5 shadow-md cursor-pointer"
-              onClick={handleCheckout}
-              disabled={!canCheckout || checkoutState.isProcessing}
-            >
-              {checkoutState.isProcessing ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Lock className="h-3.5 w-3.5" />
-              )}
-              {checkoutState.isProcessing ? "Processing..." : "Place Order"}
-              {!checkoutState.isProcessing && <ArrowRight className="h-3.5 w-3.5 ml-1" />}
-            </CustomButton>
-          </div>
-        </div>
-      </div>
 
       <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
-      <OrderSuccessModal
-        open={successModalOpen}
-        onClose={() => {
-          setSuccessModalOpen(false);
-          router.push("/orders");
-        }}
-        order={successOrder}
-      />
+
+      {successModalOpen && successOrder && (
+        <OrderSuccessModal
+          open={successModalOpen}
+          onClose={() => setSuccessModalOpen(false)}
+          order={successOrder}
+        />
+      )}
     </div>
   );
 }
-
-function CheckoutPageSkeleton() {
-  return (
-    <div className="min-h-screen bg-background relative">
-      <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[300px] bg-primary/5 blur-[120px] rounded-full opacity-60" />
-
-      <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5 pb-28 sm:pb-11 lg:pb-5 relative z-10">
-        {/* Header Skeleton */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-5 pb-3 sm:pb-4 border-b border-border/60">
-          <div className="flex items-center gap-3">
-            <Skeleton className="h-10 w-10 rounded-xl" />
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <Skeleton className="h-6 w-32 rounded-lg" />
-                <Skeleton className="h-5 w-16 rounded-full" />
-              </div>
-              <Skeleton className="h-3.5 w-64 rounded-md" />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-3 sm:gap-4">
-          {/* Left Column Skeletons */}
-          <div className="lg:col-span-2 space-y-3">
-            {/* Card 1: Customer Info Skeleton */}
-            <div className="bg-card border border-border/80 rounded-2xl p-3.5 sm:p-4 shadow-2xs space-y-3.5">
-              <div className="flex items-center justify-between pb-2 border-b border-border/40">
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-4 w-4 rounded-full" />
-                  <Skeleton className="h-4 w-36 rounded-md" />
-                </div>
-                <Skeleton className="h-4 w-28 rounded-full" />
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-2.5">
-                <div className="space-y-1.5">
-                  <Skeleton className="h-3 w-16 rounded" />
-                  <Skeleton className="h-9 w-full rounded-xl" />
-                </div>
-                <div className="space-y-1.5">
-                  <Skeleton className="h-3 w-20 rounded" />
-                  <Skeleton className="h-9 w-full rounded-xl" />
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-border/40 space-y-1.5">
-                <Skeleton className="h-3 w-28 rounded" />
-                <Skeleton className="h-16 w-full rounded-xl" />
-              </div>
-            </div>
-
-            {/* Card 2: Order Items Skeleton */}
-            <div className="bg-card border border-border/80 rounded-2xl p-3.5 sm:p-4 shadow-2xs space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b border-border/40">
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-4 w-4 rounded-full" />
-                  <Skeleton className="h-4 w-24 rounded-md" />
-                </div>
-                <Skeleton className="h-5 w-20 rounded-full" />
-              </div>
-
-              <div className="space-y-2.5">
-                {[1, 2].map((i) => (
-                  <div key={i} className="flex gap-3 items-center p-2.5 rounded-xl border border-border/60 bg-muted/20">
-                    <Skeleton className="w-[60px] h-[60px] rounded-xl flex-shrink-0" />
-                    <div className="flex-1 space-y-1.5">
-                      <Skeleton className="h-4 w-3/4 rounded-md" />
-                      <Skeleton className="h-3 w-1/3 rounded-md" />
-                      <div className="flex items-center justify-between pt-1">
-                        <Skeleton className="h-4 w-16 rounded-md" />
-                        <Skeleton className="h-6 w-20 rounded-lg" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Order Summary Skeleton */}
-          <div className="hidden lg:block lg:col-span-1">
-            <div className="bg-card border border-border/80 rounded-2xl p-4 shadow-2xs space-y-3.5">
-              <div className="flex items-center justify-between pb-2 border-b border-border/40">
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-4 w-4 rounded-full" />
-                  <Skeleton className="h-4 w-28 rounded-md" />
-                </div>
-                <Skeleton className="h-5 w-16 rounded-full" />
-              </div>
-
-              {/* Delivery Option Skeleton */}
-              <div className="space-y-1.5">
-                <Skeleton className="h-3 w-24 rounded" />
-                <Skeleton className="h-9 w-full rounded-xl" />
-              </div>
-
-              {/* Payment Option Skeleton */}
-              <div className="space-y-1.5">
-                <Skeleton className="h-3 w-28 rounded" />
-                <Skeleton className="h-9 w-full rounded-xl" />
-              </div>
-
-              {/* Breakdown Rows */}
-              <div className="pt-2 border-t border-border/40 space-y-2">
-                <div className="flex justify-between">
-                  <Skeleton className="h-3 w-16 rounded" />
-                  <Skeleton className="h-3 w-12 rounded" />
-                </div>
-                <div className="flex justify-between">
-                  <Skeleton className="h-3 w-20 rounded" />
-                  <Skeleton className="h-3 w-10 rounded" />
-                </div>
-                <div className="flex justify-between pt-1 border-t border-border/30">
-                  <Skeleton className="h-4 w-20 rounded" />
-                  <Skeleton className="h-5 w-24 rounded" />
-                </div>
-              </div>
-
-              {/* CTA Button Skeleton */}
-              <Skeleton className="h-11 w-full rounded-xl" />
-              <div className="flex justify-center pt-1">
-                <Skeleton className="h-3 w-40 rounded" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </PageContainer>
-    </div>
-  );
-}
-

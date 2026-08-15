@@ -7,6 +7,7 @@ import { CustomButton } from "@/components/shared/button/custom-button";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { CustomDropdownMenu } from "../shared/common/custom-dropdown-menu";
 import { SignoutModal } from "@/components/shared/modal/signout-modal";
+import { getActiveTableSession } from "@/utils/table/table-session";
 import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 
 interface NavbarAuthProps {
@@ -43,6 +44,7 @@ function NavbarAuthComponent({
 }: NavbarAuthProps) {
   const router = useRouter();
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
+  const activeTable = getActiveTableSession();
 
   if (!isAuthenticated) {
     return (
@@ -57,25 +59,31 @@ function NavbarAuthComponent({
     );
   }
 
+  const mainItems = [
+    {
+      label: "My Profile",
+      icon: <User className="h-3 w-3" />,
+      onClick: () => router.push("/profile"),
+    },
+    {
+      label: "My Orders",
+      icon: <ShoppingBag className="h-3 w-3" />,
+      onClick: () => router.push("/orders"),
+    },
+  ];
+
+  // Hide Location link when checked into a table
+  if (!activeTable) {
+    mainItems.push({
+      label: "Location",
+      icon: <MapPin className="h-3 w-3" />,
+      onClick: () => router.push("/location"),
+    });
+  }
+
   const dropdownSections = [
     {
-      items: [
-        {
-          label: "My Profile",
-          icon: <User className="h-3 w-3" />,
-          onClick: () => router.push("/profile"),
-        },
-        {
-          label: "My Orders",
-          icon: <ShoppingBag className="h-3 w-3" />,
-          onClick: () => router.push("/orders"),
-        },
-        {
-          label: "Location",
-          icon: <MapPin className="h-3 w-3" />,
-          onClick: () => router.push("/location"),
-        },
-      ],
+      items: mainItems,
     },
     {
       items: [
@@ -93,23 +101,32 @@ function NavbarAuthComponent({
   const greeting = getGreeting();
 
   const dropdownHeader = (
-    <div className="flex items-center gap-2">
-      <CustomAvatar
-        imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
-        name={displayName}
-        size="lg"
-      />
-      <div className="flex flex-col space-y-0.5 flex-1 min-w-0">
-        <span className="text-[10px] font-bold text-primary">
-          ☀️ {greeting}!
-        </span>
-        <p className="text-xs font-semibold line-clamp-1 text-foreground">
-          {displayName}
-        </p>
-        <p className="text-xs text-muted-foreground line-clamp-1">
-          {email || profile?.email || ""}
-        </p>
+    <div className="flex flex-col space-y-1.5">
+      <div className="flex items-center gap-2">
+        <CustomAvatar
+          imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
+          name={displayName}
+          size="lg"
+        />
+        <div className="flex flex-col space-y-0.5 flex-1 min-w-0">
+          <span className="text-[10px] font-bold text-primary">
+            ☀️ {greeting}!
+          </span>
+          <p className="text-xs font-semibold line-clamp-1 text-foreground">
+            {displayName}
+          </p>
+          <p className="text-xs text-muted-foreground line-clamp-1">
+            {email || profile?.email || ""}
+          </p>
+        </div>
       </div>
+
+      {activeTable && (
+        <div className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-extrabold flex items-center gap-1.5 shadow-2xs">
+          <span className="w-4 h-4 rounded-full bg-emerald-500/15 flex items-center justify-center text-[10px] shrink-0">🪑</span>
+          <span className="truncate">{activeTable.tableName} Active</span>
+        </div>
+      )}
     </div>
   );
 

@@ -11,6 +11,8 @@ import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useState, useEffect, useRef } from "react";
 import { LoginModal } from "../shared/modal/login-modal";
 
+import { appendTableParamToUrl } from "@/utils/table/table-session";
+
 const tabs = [
   { name: "Home", href: "/", icon: Home },
   { name: "Shop", href: "/products", icon: ShoppingBag },
@@ -41,7 +43,7 @@ export function BottomNav() {
       setLoginModalOpen(true);
       return;
     }
-    router.push(href);
+    router.push(appendTableParamToUrl(href));
   };
 
   const isActive = (href: string) => {
@@ -66,7 +68,7 @@ export function BottomNav() {
                 onClick={() =>
                   needsAuth
                     ? handleProtectedTab(tab.href)
-                    : router.push(tab.href)
+                    : router.push(appendTableParamToUrl(tab.href))
                 }
                 className={cn(
                   "flex-1 flex flex-col items-center justify-center gap-0.5 py-1 transition-colors duration-150 active:opacity-70",

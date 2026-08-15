@@ -24,7 +24,7 @@ export default function DashboardLayout({
   const isMobile = useIsMobile();
   const pathname = usePathname();
 
-  const isPosPage = pathname.includes("/pos");
+  const isPosPage = pathname === "/admin/pos" || pathname === "/admin/pos/";
 
   // Restore fullscreen state from URL on client mount
   useEffect(() => {

@@ -13,6 +13,7 @@ import { toggleFavorite } from "@/features/main/store/thunks/favorite-thunks";
 import { showToast } from "../common/show-toast";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { appImages } from "@/constants/app-resource/icons/app-images";
+import { appendTableParamToUrl } from "@/utils/table/table-session";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { useFavoriteState } from "@/features/main/store/state/favorite-state";
 import {
@@ -325,7 +326,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
         </div>
 
         {/* Clickable area — image + info only */}
-        <Link href={`/products/${product.id}`} className="flex flex-col flex-1 cursor-pointer">
+        <Link href={appendTableParamToUrl(`/products/${product.id}`)} className="flex flex-col flex-1 cursor-pointer">
           <ProductImage
             product={product}
             imageUrl={imageUrl}

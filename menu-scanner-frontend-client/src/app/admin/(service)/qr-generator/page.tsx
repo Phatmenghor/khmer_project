@@ -35,6 +35,21 @@ export default function QRGeneratorPage() {
     }
   }, [dispatch, businessSettings]);
 
+  // Read pre-selected table parameter from URL if opened from Table Monitoring
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const tableNum = params.get("tableNumber") || params.get("table") || params.get("tableId");
+    if (tableNum) {
+      const cleanNum = decodeURIComponent(tableNum).replace(/^table-?/i, "").trim();
+      setConfig((prev) => ({
+        ...prev,
+        type: "table",
+        tableNumber: cleanNum,
+      }));
+    }
+  }, []);
+
   // Pre-fill cardTitle from businessName when business settings arrive
   useEffect(() => {
     if (businessName) {

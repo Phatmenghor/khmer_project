@@ -9,12 +9,19 @@ import {
   clearAllFavorites,
 } from "../thunks/favorite-thunks";
 
+import { getActiveTableSession } from "@/utils/table/table-session";
+
 const GUEST_FAVORITES_STORAGE_KEY = "guest_favorites";
+
+const getFavoriteStorageKey = () => {
+  const activeTable = getActiveTableSession();
+  return activeTable?.tableId ? `table_favorites_${activeTable.tableId}` : GUEST_FAVORITES_STORAGE_KEY;
+};
 
 const saveGuestFavorites = (items: ProductDetailResponseModel[]) => {
   if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(GUEST_FAVORITES_STORAGE_KEY, JSON.stringify(items));
+    localStorage.setItem(getFavoriteStorageKey(), JSON.stringify(items));
   } catch {
     // ignore localStorage errors
   }
@@ -23,7 +30,7 @@ const saveGuestFavorites = (items: ProductDetailResponseModel[]) => {
 const loadGuestFavorites = (): ProductDetailResponseModel[] => {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(GUEST_FAVORITES_STORAGE_KEY);
+    const raw = localStorage.getItem(getFavoriteStorageKey());
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];

@@ -20,6 +20,8 @@ interface OrderTableOptions {
   data: AllOrderResponseModel | null;
   handlers: OrderTableHandlers;
   downloadingOrderId?: string | null;
+  hideDelivery?: boolean;
+  hidePayment?: boolean;
 }
 
 const getStatusVariant = (status: string) => {
@@ -56,10 +58,12 @@ export const orderAdminTableColumns = ({
   data,
   handlers,
   downloadingOrderId,
+  hideDelivery = false,
+  hidePayment = false,
 }: OrderTableOptions): TableColumn<OrderResponse>[] => {
   const { handleViewOrder, handleEditOrder, handleDeleteOrder, handleDownloadReceipt } = handlers;
 
-  return [
+  const cols: TableColumn<OrderResponse>[] = [
     {
       key: "index",
       label: "#",
@@ -87,15 +91,46 @@ export const orderAdminTableColumns = ({
       label: "Type",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (order) => (
-        <span className="text-xs font-medium">
-          {order?.source === "PUBLIC" ? "Public" : "POS"}
-        </span>
-      ),
+      render: (order) => {
+        const name = order?.customerName || "";
+        const phone = order?.customerPhone || "";
+        const note = order?.customerNote || "";
+        const isTable = phone === "Table Service" || name.startsWith("Table ") || note.includes("[Table ");
+
+        if (isTable) {
+          return (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+              🪑 TABLE
+            </span>
+          );
+        }
+
+        if (order?.source === "POS" || (order as any)?.orderFrom === "BUSINESS") {
+          return (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30">
+              🖥️ POS
+            </span>
+          );
+        }
+
+        if (order?.customerId) {
+          return (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30">
+              👤 CUSTOMER
+            </span>
+          );
+        }
+
+        return (
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+            🛵 GUEST
+          </span>
+        );
+      },
     },
     {
       key: "customerName",
-      label: "Customer",
+      label: "Customer / Table",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
@@ -146,7 +181,10 @@ export const orderAdminTableColumns = ({
         );
       },
     },
-    {
+  ];
+
+  if (!hidePayment) {
+    cols.push({
       key: "paymentStatus",
       label: "Payment",
       minWidth: "10px",
@@ -175,8 +213,11 @@ export const orderAdminTableColumns = ({
           </div>
         );
       },
-    },
-    {
+    });
+  }
+
+  if (!hideDelivery) {
+    cols.push({
       key: "deliveryOption",
       label: "Delivery",
       minWidth: "10px",
@@ -186,7 +227,10 @@ export const orderAdminTableColumns = ({
           {order?.deliveryOption?.name || "---"}
         </span>
       ),
-    },
+    });
+  }
+
+  cols.push(
     {
       key: "createdAt",
       label: "Created",
@@ -230,6 +274,8 @@ export const orderAdminTableColumns = ({
           />
         </div>
       ),
-    },
-  ];
+    }
+  );
+
+  return cols;
 };

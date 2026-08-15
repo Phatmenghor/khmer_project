@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { showToast } from "@/components/shared/common/show-toast";
 import { QRDisplay } from "./qr-display";
 import { QRDownloadButton } from "./qr-download-button";
+import { saveCustomTableQr } from "@/utils/table/table-qr-storage";
 
 export interface QRGeneratorActionsProps {
   downloading: boolean;
@@ -292,6 +293,14 @@ export function QRGenerator({
         },
       });
 
+      try {
+        const dataUrl = snapshot.toDataURL("image/png");
+        const match = link.match(/\/table\/([^/?#]+)/i) || link.match(/[?&]table=([^&#]+)/i);
+        if (match && match[1]) {
+          saveCustomTableQr(match[1], dataUrl);
+        }
+      } catch {}
+
       await new Promise<void>((resolve) => {
         snapshot.toBlob((blob) => {
           if (!blob) {
@@ -306,7 +315,7 @@ export function QRGenerator({
           a.click();
           document.body.removeChild(a);
           URL.revokeObjectURL(dlUrl);
-          showToast.success("Card downloaded!");
+          showToast.success("Card downloaded & saved to Table QR history!");
           resolve();
         }, `image/png`);
       });

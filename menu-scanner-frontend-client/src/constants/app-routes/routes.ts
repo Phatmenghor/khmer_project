@@ -50,6 +50,8 @@ export const ROUTES = {
     ORDERS_PENDING: "/admin/orders/pending",
     POS: "/admin/pos",
     TABLE_MONITORING: "/admin/pos/table-monitoring",
+    TABLE_ORDERS: "/admin/pos/table-orders",
+    TABLE_PENDING_ORDERS: "/admin/pos/table-pending",
     BUSINESS_SETTINGS: "/admin/manage-business-settings",
     QR_GENERATOR: "/admin/qr-generator",
     PORTFOLIO: "/admin/portfolio",
@@ -143,6 +145,14 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "Table Monitoring",
         href: ROUTES.ADMIN.TABLE_MONITORING,
+      },
+      {
+        title: "Table Live Orders",
+        href: ROUTES.ADMIN.TABLE_ORDERS,
+      },
+      {
+        title: "Table Pending Orders",
+        href: ROUTES.ADMIN.TABLE_PENDING_ORDERS,
       },
     ],
   },

@@ -12,12 +12,19 @@ import {
   CartItemCustomization,
 } from "../models/response/cart-response";
 
+import { getActiveTableSession } from "@/utils/table/table-session";
+
 const GUEST_CART_STORAGE_KEY = "guest_cart";
+
+const getCartStorageKey = () => {
+  const activeTable = getActiveTableSession();
+  return activeTable?.tableId ? `table_cart_${activeTable.tableId}` : GUEST_CART_STORAGE_KEY;
+};
 
 const saveGuestCart = (items: CartItemModel[]) => {
   if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(GUEST_CART_STORAGE_KEY, JSON.stringify(items));
+    localStorage.setItem(getCartStorageKey(), JSON.stringify(items));
   } catch {
     // ignore storage error
   }
@@ -26,7 +33,7 @@ const saveGuestCart = (items: CartItemModel[]) => {
 const loadGuestCart = (): CartItemModel[] => {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(GUEST_CART_STORAGE_KEY);
+    const raw = localStorage.getItem(getCartStorageKey());
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];

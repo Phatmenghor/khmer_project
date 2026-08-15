@@ -266,6 +266,23 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
       config.headers = config.headers || {};
       config.headers["X-Request-ID"] = requestId;
 
+      if (typeof window !== "undefined") {
+        try {
+          const rawTableSession = localStorage.getItem("active_table_session");
+          if (rawTableSession) {
+            const parsedTable = JSON.parse(rawTableSession);
+            if (parsedTable?.tableId) {
+              config.headers["X-Table-Id"] = parsedTable.tableId;
+            }
+            if (parsedTable?.tableName) {
+              config.headers["X-Table-Name"] = parsedTable.tableName;
+            }
+          }
+        } catch {
+          // ignore table header parsing error
+        }
+      }
+
       if (config.data instanceof FormData) {
         delete config.headers["Content-Type"];
       }

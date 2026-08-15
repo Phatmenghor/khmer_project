@@ -8,10 +8,12 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 import { useTableWebSocket } from "@/hooks/use-table-websocket";
+import { TablePosNavTabs } from "@/components/admin/pos/table-pos-nav-tabs";
 import { CreateTableModal } from "@/components/admin/pos/table-monitoring/create-table-modal";
 import { ReservationModal } from "@/components/admin/pos/table-monitoring/reservation-modal";
 import { SettleBillModal } from "@/components/admin/pos/table-monitoring/settle-bill-modal";
 import { TableOrderDetailModal } from "@/components/admin/pos/table-monitoring/table-order-detail-modal";
+import { TableQrModal } from "@/components/admin/pos/table-monitoring/table-qr-modal";
 import { tableMonitoringColumns } from "@/features/business/table/table-monitoring-table";
 import {
   setSelectedZone,
@@ -59,6 +61,7 @@ export default function TableMonitoringPage() {
   } = useAppSelector((state) => state.tableMonitoring);
 
   const [reservationModalTable, setReservationModalTable] = useState<TableMonitoringItem | null>(null);
+  const [qrModalTable, setQrModalTable] = useState<TableMonitoringItem | null>(null);
 
   // ── Pagination State for DataTable ──
   const [currentPage, setCurrentPage] = useState(1);
@@ -217,6 +220,10 @@ export default function TableMonitoringPage() {
     [dispatch]
   );
 
+  const handleOpenQrModal = useCallback((table: TableMonitoringItem) => {
+    setQrModalTable(table);
+  }, []);
+
   const columns = useMemo(
     () =>
       tableMonitoringColumns({
@@ -228,9 +235,10 @@ export default function TableMonitoringPage() {
           handleDownloadReceipt,
           handleClearTable,
           handleViewDetails,
+          handleOpenQrModal,
         },
       }),
-    [currentPage, pageSize, handleStatusChange, handlePayBill, handleDownloadReceipt, handleClearTable, handleViewDetails]
+    [currentPage, pageSize, handleStatusChange, handlePayBill, handleDownloadReceipt, handleClearTable, handleViewDetails, handleOpenQrModal]
   );
 
   const filterConfig: FilterPanelConfig = useMemo(
@@ -300,11 +308,12 @@ export default function TableMonitoringPage() {
   }, [dispatch, selectedTable]);
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-1 pb-6 pt-2">
-      <CollapsibleFilterPanel
-        config={filterConfig}
-        essentialFilterIds={["zone", "status"]}
-      />
+    <div className="flex flex-1 flex-col gap-3 px-1">
+      <div className="space-y-3">
+        <CollapsibleFilterPanel
+          config={filterConfig}
+          essentialFilterIds={["zone", "status"]}
+        />
 
       {/* ── KPI Analytics Summary ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -365,6 +374,7 @@ export default function TableMonitoringPage() {
         onPageSizeChange={setPageSize}
         getRowKey={(item) => item.id}
       />
+      </div>
 
       {/* ── Standalone Modals ── */}
       <CreateTableModal
@@ -394,6 +404,12 @@ export default function TableMonitoringPage() {
         onClose={() => dispatch(setIsDetailModalOpen(false))}
         selectedTable={selectedTable}
         onDownloadReceipt={handleDownloadReceipt}
+      />
+
+      <TableQrModal
+        isOpen={!!qrModalTable}
+        onClose={() => setQrModalTable(null)}
+        table={qrModalTable}
       />
     </div>
   );

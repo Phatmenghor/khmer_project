@@ -44,6 +44,7 @@ import { PageHeader } from "@/components/shared/common/page-header";
 import { GENDER_OPTIONS } from "@/constants/form-options";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { formatEnumLabel } from "@/utils/common/common";
+import { getActiveTableSession, clearActiveTableSession } from "@/utils/table/table-session";
 
 
 const customerProfileSchema = z.object({
@@ -77,6 +78,7 @@ export default function PublicProfilePage() {
   const [isProfilePictureModalOpen, setIsProfilePictureModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [profileImageKeys, setProfileImageKeys] = useState<SpacesMultiSizeResult | undefined>();
+  const activeTableSession = getActiveTableSession();
 
   const {
     control,
@@ -304,6 +306,12 @@ export default function PublicProfilePage() {
                       {userProfile?.userType && (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-muted border border-border/60 text-muted-foreground text-[11px] font-semibold">
                           {formatEnumLabel(userProfile.userType)}
+                        </span>
+                      )}
+                      {activeTableSession && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-extrabold shadow-2xs">
+                          <span className="w-4 h-4 rounded-full bg-emerald-500/15 flex items-center justify-center text-[10px] shrink-0">🪑</span>
+                          <span>{activeTableSession.tableName} (Dine-In Session Active)</span>
                         </span>
                       )}
                     </div>

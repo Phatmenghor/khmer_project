@@ -13,8 +13,6 @@ interface QRInputPanelProps {
   businessNameFromSettings?: string;
 }
 
-const PRESET_TABLES = ["1", "2", "3", "4", "5", "6", "8", "10", "12", "15", "20"];
-
 export function QRInputPanel({ config, onUpdate, businessNameFromSettings }: QRInputPanelProps) {
   const typeOptions = QR_TYPE_OPTIONS.map((opt) => ({
     value: opt.value,
@@ -60,26 +58,6 @@ export function QRInputPanel({ config, onUpdate, businessNameFromSettings }: QRI
               leftIcon={<UtensilsCrossed className="w-3.5 h-3.5 text-primary" />}
               size="sm"
             />
-            {/* Quick table pills */}
-            <div className="space-y-1">
-              <span className="text-[10px] font-semibold text-muted-foreground">Quick Table Select:</span>
-              <div className="flex flex-wrap gap-1">
-                {PRESET_TABLES.map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => onUpdate({ tableNumber: t })}
-                    className={`px-2 py-0.5 rounded text-[10px] font-medium border transition-colors ${
-                      config.tableNumber === t
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-background text-foreground border-border hover:border-primary/50"
-                    }`}
-                  >
-                    T-{t}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         )}
 

@@ -39,12 +39,14 @@ export const QR_TYPE_OPTIONS: Array<{
 
 export function generateQRUrl(config: QRConfig): string {
   const { type, tableNumber } = config;
-  const base = (typeof window !== "undefined" ? window.location.origin : "https://emenu.kh").replace(/\/$/, "");
+  const base = (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000").replace(/\/$/, "");
   switch (type) {
     case "shop":
       return base;
-    case "table":
-      return tableNumber ? `${base}/table/${tableNumber}` : `${base}/table/1`;
+    case "table": {
+      const cleanNum = (tableNumber || "1").toString().replace(/^table-?/i, "").replace(/^#/i, "").trim();
+      return `${base}/?table=${cleanNum}`;
+    }
     default:
       return base;
   }

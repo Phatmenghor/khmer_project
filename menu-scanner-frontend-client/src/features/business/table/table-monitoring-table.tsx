@@ -1,6 +1,6 @@
 import React from "react";
 import { TableColumn } from "@/components/shared/common/data-table";
-import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomButton, ActionButton } from "@/components/shared/button/custom-button";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { indexDisplay } from "@/utils/common/common";
@@ -16,7 +16,10 @@ import {
   Check,
   Download,
   UserCheck,
+  QrCode,
 } from "lucide-react";
+
+import { getCustomTableQr } from "@/utils/table/table-qr-storage";
 
 export const STATUS_SELECT_OPTIONS = [
   { value: "AVAILABLE", label: "🟢 Available" },
@@ -31,6 +34,7 @@ export interface TableMonitoringTableHandlers {
   handleDownloadReceipt: (table: TableMonitoringItem) => void;
   handleClearTable: (table: TableMonitoringItem) => void;
   handleViewDetails: (table: TableMonitoringItem) => void;
+  handleOpenQrModal?: (table: TableMonitoringItem) => void;
 }
 
 export interface TableMonitoringTableOptions {
@@ -50,6 +54,7 @@ export const tableMonitoringColumns = ({
     handleDownloadReceipt,
     handleClearTable,
     handleViewDetails,
+    handleOpenQrModal,
   } = handlers;
 
   return [
@@ -66,10 +71,23 @@ export const tableMonitoringColumns = ({
     {
       key: "number",
       label: "Table Code",
-      width: "120px",
-      render: (table) => (
-        <span className="font-bold text-xs text-foreground">#{table.number}</span>
-      ),
+      width: "130px",
+      render: (table) => {
+        const hasCustomQr = Boolean(getCustomTableQr(table.number) || getCustomTableQr(table.id));
+        return (
+          <div className="flex items-center gap-1.5">
+            <span className="font-extrabold text-xs text-foreground">#{table.number}</span>
+            {hasCustomQr && (
+              <span
+                className="px-1.5 py-0.2 rounded text-[9px] font-black bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                title="Custom Designed QR Saved"
+              >
+                QR
+              </span>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "zone",
@@ -150,7 +168,7 @@ export const tableMonitoringColumns = ({
         const isOrderPaid = table.activeOrder?.paymentStatus === "PAID";
 
         return (
-          <div className="flex items-center gap-1.5 justify-end">
+          <div className="flex items-center gap-1.5 justify-start">
             {isReserved && (
               <CustomButton
                 variant="primary"
@@ -158,7 +176,7 @@ export const tableMonitoringColumns = ({
                 className="h-7 text-[11px] font-bold gap-1 bg-red-600 hover:bg-red-700 text-white shrink-0"
                 onClick={() => handleStatusChange(table, "OCCUPIED")}
               >
-                <UserCheck className="w-3 h-3" /> Seat Guest
+                <UserCheck className="w-3.5 h-3.5" /> Seat Guest
               </CustomButton>
             )}
 
@@ -166,42 +184,41 @@ export const tableMonitoringColumns = ({
               <CustomButton
                 variant="primary"
                 size="sm"
-                className="h-7 text-[11px] font-bold gap-1 bg-amber-500 hover:bg-amber-600 text-white"
+                className="h-7 text-[11px] font-bold gap-1 bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
                 onClick={() => handlePayBill(table)}
               >
-                <CreditCard className="w-3 h-3" /> Pay {formatCurrency(table.activeOrder.totalAmount)}
+                <CreditCard className="w-3.5 h-3.5" /> Pay {formatCurrency(table.activeOrder.totalAmount)}
               </CustomButton>
             )}
 
             {isOccupied && isOrderPaid && (
               <>
-                <CustomButton
-                  variant="secondary"
-                  size="sm"
-                  className="h-7 text-[11px] font-bold gap-1 text-blue-600 bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20"
+                <ActionButton
+                  icon={<Download className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
+                  tooltip="Download Receipt"
                   onClick={() => handleDownloadReceipt(table)}
-                >
-                  <Download className="w-3 h-3" /> Receipt
-                </CustomButton>
-                <CustomButton
-                  variant="outline"
-                  size="sm"
-                  className="h-7 text-[11px] font-bold text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/10"
+                />
+                <ActionButton
+                  icon={<Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                  tooltip="Clear & Reset Table"
                   onClick={() => handleClearTable(table)}
-                >
-                  <Check className="w-3 h-3" /> Clear
-                </CustomButton>
+                />
               </>
             )}
 
-            <CustomButton
-              variant="secondary"
-              size="sm"
-              className="h-7 text-[11px] font-semibold px-2"
+            {handleOpenQrModal && (
+              <ActionButton
+                icon={<QrCode className="w-3.5 h-3.5 text-primary" />}
+                tooltip="View Table QR & Link"
+                onClick={() => handleOpenQrModal(table)}
+              />
+            )}
+
+            <ActionButton
+              icon={<Eye className="w-3.5 h-3.5" />}
+              tooltip="View Live Dining Details"
               onClick={() => handleViewDetails(table)}
-            >
-              <Eye className="w-3 h-3" />
-            </CustomButton>
+            />
           </div>
         );
       },
