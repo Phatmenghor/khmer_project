@@ -39,6 +39,8 @@ export { LoginModal } from "./modal/login-modal";
 export { RegisterModal } from "./modal/register-modal";
 export { default as ChangePasswordModal } from "./modal/change-password-modal";
 export { DeleteConfirmationModal } from "./modal/delete-confirmation-modal";
+export { SignoutModal } from "./modal/signout-modal";
+export type { SignoutModalProps } from "./modal/signout-modal";
 export { CustomModal } from "./modal/custom-modal";
 export type { CustomModalProps, ModalSize } from "./modal/custom-modal";
 export type { FormDialogBaseProps } from "./modal/form-dialog-base";

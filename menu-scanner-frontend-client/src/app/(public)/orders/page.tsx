@@ -41,6 +41,7 @@ import { useDebounce } from "@/utils/debounce/debounce";
 import { useDownloadReceipt } from "@/hooks/use-download-receipt";
 import { PageState } from "@/components/shared/page-state";
 import { Badge } from "@/components/ui/badge";
+import { lookupGuestOrdersService } from "@/features/main/store/thunks/order-thunks";
 
 type Order = OrderResponse;
 
@@ -64,6 +65,9 @@ export default function OrdersPage() {
 
   const [mounted, setMounted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [guestOrders, setGuestOrders] = useState<Order[]>([]);
+  const [guestLoading, setGuestLoading] = useState(false);
+
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
     orderId: "",
@@ -105,10 +109,32 @@ export default function OrdersPage() {
     );
   }, [dispatch, currentPage, filters.status, filters.paymentStatus, debouncedSearch, profile?.businessId]);
 
+  const fetchGuestOrders = useCallback(async () => {
+    try {
+      setGuestLoading(true);
+      const raw = localStorage.getItem("guest_orders");
+      const ids: string[] = raw ? JSON.parse(raw) : [];
+      if (ids && ids.length > 0) {
+        const results = await dispatch(lookupGuestOrdersService(ids)).unwrap();
+        setGuestOrders(results || []);
+      } else {
+        setGuestOrders([]);
+      }
+    } catch {
+      setGuestOrders([]);
+    } finally {
+      setGuestLoading(false);
+    }
+  }, [dispatch]);
+
   useEffect(() => {
-    if (!authReady || !isAuthenticated || !mounted) return;
-    fetchOrders();
-  }, [authReady, isAuthenticated, mounted, fetchOrders]);
+    if (!authReady || !mounted) return;
+    if (isAuthenticated) {
+      fetchOrders();
+    } else {
+      fetchGuestOrders();
+    }
+  }, [authReady, isAuthenticated, mounted, fetchOrders, fetchGuestOrders]);
 
   const handleViewOrder = useCallback((order: Order) => {
     setDetailModalState({ isOpen: true, orderId: order.id });
@@ -138,7 +164,11 @@ export default function OrdersPage() {
       await dispatch(cancelOrderService(orderId)).unwrap();
       showToast.success(Messages.orders.cancelled);
       setCancelModalState({ isOpen: false, orderId: "", orderNumber: "" });
-      fetchOrders();
+      if (isAuthenticated) {
+        fetchOrders();
+      } else {
+        fetchGuestOrders();
+      }
     } catch (error: unknown) {
       const errorMessage =
         (error as { message?: string })?.message || "Failed to cancel order. Please try again.";
@@ -164,6 +194,31 @@ export default function OrdersPage() {
     setCurrentPage(1);
   };
 
+  const filteredGuestOrders = useMemo(() => {
+    return guestOrders.filter((order) => {
+      if (filters.status && order.orderStatus !== filters.status) return false;
+      if (filters.paymentStatus && filters.paymentStatus !== "ALL" && order.paymentStatus !== filters.paymentStatus) return false;
+      if (debouncedSearch) {
+        const query = debouncedSearch.toLowerCase();
+        const matchesNumber = order.orderNumber?.toLowerCase().includes(query);
+        const matchesCustomer = order.customerName?.toLowerCase().includes(query);
+        if (!matchesNumber && !matchesCustomer) return false;
+      }
+      return true;
+    });
+  }, [guestOrders, filters.status, filters.paymentStatus, debouncedSearch]);
+
+  const effectivePagination = useMemo(() => {
+    if (isAuthenticated) return pagination;
+    return {
+      pageNo: 1,
+      pageSize: 50,
+      totalElements: filteredGuestOrders.length,
+      totalPages: 1,
+      last: true,
+    };
+  }, [isAuthenticated, pagination, filteredGuestOrders.length]);
+
   const tableColumns = useMemo(
     () =>
       createOrderTableColumns(
@@ -172,30 +227,34 @@ export default function OrdersPage() {
         (order) => handleDownloadReceipt(order),
         cancelingOrderId,
         downloadingOrderId,
-        pagination
+        effectivePagination
       ),
-    [handleViewOrder, handleCancelOrder, handleDownloadReceipt, cancelingOrderId, downloadingOrderId, pagination]
+    [handleViewOrder, handleCancelOrder, handleDownloadReceipt, cancelingOrderId, downloadingOrderId, effectivePagination]
   );
 
-  const totalOrders = pagination.totalElements;
+  const displayedOrders = isAuthenticated ? orders : filteredGuestOrders;
+  const totalOrders = isAuthenticated ? pagination.totalElements : filteredGuestOrders.length;
+  const isPageLoading = isAuthenticated ? (loading && !orders.length) : guestLoading;
 
-  if (!mounted || !authReady) {
+  if (!mounted || !authReady || isPageLoading) {
     return <OrdersPageSkeleton />;
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && guestOrders.length === 0) {
     return (
-      <>
-        <SignInRequired
-          title="My Orders"
-          description="Sign in to view your orders, track progress, and download receipts."
-          icon="📦"
-          onSignIn={() => setLoginModalOpen(true)}
-          browseButtonText="Browse Products"
-          onBrowse={() => router.push("/products")}
+      <PageContainer className="min-h-screen flex flex-col py-8 sm:py-14">
+        <PageState
+          type="empty"
+          title="No Recent Guest Orders"
+          description="You haven't placed any guest orders on this device yet. Start shopping or sign in to access your saved account orders."
+          actionLabel="Browse Products"
+          onAction={() => router.push("/products")}
+          secondaryActionLabel="Sign In"
+          onSecondaryAction={() => setLoginModalOpen(true)}
+          size="lg"
         />
         <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
-      </>
+      </PageContainer>
     );
   }
 
@@ -266,7 +325,7 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {error.list ? (
+      {error.list && isAuthenticated ? (
         <PageState
           type="error"
           title="Error Loading Orders"
@@ -275,13 +334,13 @@ export default function OrdersPage() {
           onAction={fetchOrders}
           size="md"
         />
-      ) : orders.length === 0 && !loading.list ? (
+      ) : displayedOrders.length === 0 && !isPageLoading ? (
         <PageState
-          type={filters.status || filters.paymentStatus ? "no-results" : "empty"}
-          title={filters.status ? "No Matching Orders" : "No Orders Yet"}
+          type={filters.status || filters.paymentStatus || debouncedSearch ? "no-results" : "empty"}
+          title={filters.status || filters.paymentStatus || debouncedSearch ? "No Matching Orders" : "No Orders Yet"}
           description={
-            filters.status
-              ? `No orders matching status filter "${filters.status.toLowerCase()}".`
+            filters.status || filters.paymentStatus || debouncedSearch
+              ? "No orders match your current search and filter criteria."
               : "You haven't placed any orders yet. Start ordering your favorite meals now!"
           }
           actionLabel="Browse Products"
@@ -290,14 +349,14 @@ export default function OrdersPage() {
         />
       ) : (
         <DataTableWithPagination
-          data={orders}
+          data={displayedOrders}
           columns={tableColumns}
-          loading={loading.list}
+          loading={isPageLoading}
           emptyMessage="No orders found"
           getRowKey={(order) => order.id}
           currentPage={currentPage}
-          totalElements={pagination.totalElements}
-          totalPages={pagination.totalPages}
+          totalElements={totalOrders}
+          totalPages={effectivePagination.totalPages}
           onPageChange={handlePageChange}
           pageSize={15}
           pageSizeOptions={[15]}

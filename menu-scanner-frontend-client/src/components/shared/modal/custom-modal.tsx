@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 export const SIZE_CLASSES = {
@@ -26,6 +26,7 @@ export interface CustomModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  title?: string;
   size?: ModalSize;
   className?: string;
   hideCloseButton?: boolean;
@@ -36,6 +37,7 @@ export function CustomModal({
   isOpen,
   onClose,
   children,
+  title,
   size = "default",
   className,
   hideCloseButton = false,
@@ -56,6 +58,7 @@ export function CustomModal({
         }}
         disableScrollWrapper={disableScrollWrapper}
       >
+        {title && <DialogTitle className="sr-only">{title}</DialogTitle>}
         {children}
       </DialogContent>
     </Dialog>

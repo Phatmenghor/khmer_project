@@ -6,7 +6,7 @@ import { User, LogOut, MapPin, ShoppingBag } from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { CustomDropdownMenu } from "../shared/common/custom-dropdown-menu";
-import { SignoutModal } from "@/components/shared/common/signout-modal";
+import { SignoutModal } from "@/components/shared/modal/signout-modal";
 import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 
 interface NavbarAuthProps {

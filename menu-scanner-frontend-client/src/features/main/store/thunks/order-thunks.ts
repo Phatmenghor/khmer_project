@@ -10,8 +10,19 @@ import { OrderFromEnum } from "@/enums/order.enum";
 
 export interface CheckoutPayload {
   businessId: string;
-  addressId: string;
-  deliveryOption: {
+  addressId?: string;
+  guestAddress?: {
+    village?: string;
+    commune?: string;
+    district?: string;
+    province?: string;
+    streetNumber?: string;
+    houseNumber?: string;
+    note?: string;
+    latitude?: number;
+    longitude?: number;
+  };
+  deliveryOption?: {
     name: string;
     description: string;
     imageUrl: string;
@@ -101,6 +112,17 @@ export const fetchOrderByIdService = createApiThunk<OrderResponse, string>(
   async (id) => {
     const response = await axiosClientWithAuth.get(
       `/api/v1/orders/${id}`
+    );
+    return response.data.data;
+  }
+);
+
+export const lookupGuestOrdersService = createApiThunk<OrderResponse[], string[]>(
+  "order/guestLookup",
+  async (orderIds) => {
+    const response = await axiosClientWithAuth.post(
+      "/api/v1/orders/guest-lookup",
+      orderIds
     );
     return response.data.data;
   }

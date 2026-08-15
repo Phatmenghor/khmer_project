@@ -20,7 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { showToast } from "@/components/shared/common/show-toast";
 import { clearCart, fetchCart, searchCartItems } from "@/features/main/store/thunks/cart-thunks";
-import { updateLocalCartItem } from "@/features/main/store/slice/cart-slice";
+import { updateLocalCartItem, resetCart } from "@/features/main/store/slice/cart-slice";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
@@ -129,11 +129,9 @@ function CartPage() {
 
   useEffect(() => setMounted(true), []);
 
-
   useEffect(() => {
     if (!authReady) return;
-    if (!isAuthenticated) return;
-    if (!loaded && !loading.fetch) {
+    if (isAuthenticated && !loaded && !loading.fetch) {
       dispatch(fetchCart());
     }
   }, [authReady, isAuthenticated, loaded, loading.fetch, dispatch]);
@@ -143,9 +141,11 @@ function CartPage() {
       const key = cartItemKey(productId, productSizeId);
       const timestamp = Date.now();
       dispatch(updateLocalCartItem({ productId, productSizeId, quantity: newQuantity, optimisticTimestamp: timestamp }));
-      debouncedUpdate(key, productId, productSizeId, newQuantity, timestamp);
+      if (isAuthenticated) {
+        debouncedUpdate(key, productId, productSizeId, newQuantity, timestamp);
+      }
     },
-    [dispatch, debouncedUpdate],
+    [dispatch, debouncedUpdate, isAuthenticated],
   );
 
   const handleRemoveItem = useCallback(
@@ -153,13 +153,23 @@ function CartPage() {
       const key = cartItemKey(productId, productSizeId);
       const timestamp = Date.now();
       dispatch(updateLocalCartItem({ productId, productSizeId, quantity: 0, optimisticTimestamp: timestamp }));
-      immediateUpdate(key, productId, productSizeId, 0, timestamp);
+      if (isAuthenticated) {
+        immediateUpdate(key, productId, productSizeId, 0, timestamp);
+      }
     },
-    [dispatch, immediateUpdate],
+    [dispatch, immediateUpdate, isAuthenticated],
   );
 
   const handleClearCart = async () => {
-    await dispatch(clearCart()).unwrap();
+    if (isAuthenticated) {
+      try {
+        await dispatch(clearCart()).unwrap();
+      } catch {
+        dispatch(resetCart());
+      }
+    } else {
+      dispatch(resetCart());
+    }
     showToast.success(Messages.cart.cleared);
     setClearCartModalOpen(false);
   };
@@ -169,32 +179,16 @@ function CartPage() {
     router.push("/checkout");
   };
 
-  if (!mounted || !authReady || (loading.fetch && !loaded)) return <CartPageSkeleton />;
+  if (!mounted || !authReady || (loading.fetch && !loaded && isAuthenticated)) return <CartPageSkeleton />;
 
-  if (!isAuthenticated) {
+  if (items.length === 0) {
     return (
-      <>
-        <SignInRequired
-          title="Your Cart"
-          description="Please sign in to view your cart and start shopping."
-          icon="🛒"
-          onSignIn={() => setLoginModalOpen(true)}
-          browseButtonText="Browse Products"
-          onBrowse={() => router.push("/products")}
-        />
-        <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
-      </>
-    );
-  }
-
-  if (items.length === 0 && loaded) {
-    return (
-      <PageContainer className="min-h-screen flex flex-col py-8 sm:py-14">
+      <PageContainer className="py-8 sm:py-14 min-h-[60vh] flex flex-col items-center justify-center">
         <PageState
           type="empty"
-          title="Your Shopping Cart is Empty"
-          description="Explore our menu and add your favorite items to get started!"
-          actionLabel="Start Shopping"
+          title="Your Cart is Empty"
+          description="Looks like you haven't added anything to your cart yet. Explore our delicious menu items!"
+          actionLabel="Browse Products"
           onAction={() => router.push("/products")}
           size="lg"
         />

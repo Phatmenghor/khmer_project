@@ -56,6 +56,10 @@ interface CheckoutState {
   customerPhone: string;
   customerEmail: string;
   customerNote: string;
+  guestStreet: string;
+  guestHouse: string;
+  guestCity: string;
+  guestNote: string;
   isProcessing: boolean;
 }
 
@@ -92,10 +96,14 @@ export default function CheckoutPage() {
     selectedAddressId: null,
     selectedDeliveryOptionId: null,
     selectedPaymentOptionId: null,
-    customerName: "",
+    customerName: "Guest Customer",
     customerPhone: "",
     customerEmail: "",
     customerNote: "",
+    guestStreet: "",
+    guestHouse: "",
+    guestCity: "Phnom Penh",
+    guestNote: "",
     isProcessing: false,
   });
 
@@ -219,21 +227,28 @@ export default function CheckoutPage() {
     dispatch(updateLocalCartItem({ productId, productSizeId, quantity: newQuantity }));
   };
 
-  const canCheckout =
-    items.length > 0 &&
-    checkoutState.selectedAddressId &&
-    checkoutState.selectedDeliveryOptionId &&
-    checkoutState.selectedPaymentOptionId &&
-    checkoutState.customerName.trim() &&
-    checkoutState.customerPhone.trim();
+  const canCheckout = useMemo(() => {
+    if (items.length === 0) return false;
+    if (!checkoutState.selectedPaymentOptionId) return false;
+    if (!checkoutState.customerName.trim()) return false;
+    if (!checkoutState.customerPhone.trim()) return false;
+    if (isAuthenticated) {
+      return Boolean(checkoutState.selectedAddressId || defaultAddress);
+    }
+    return true;
+  }, [items.length, checkoutState.selectedPaymentOptionId, checkoutState.customerName, checkoutState.customerPhone, isAuthenticated, checkoutState.selectedAddressId, defaultAddress]);
 
   const handleCheckout = async () => {
     if (!canCheckout) {
-      showToast.error(Messages.validation.requiredFields);
+      if (!checkoutState.customerPhone.trim()) {
+        showToast.error("Please enter your phone number to complete order.");
+      } else {
+        showToast.error(Messages.validation.requiredFields);
+      }
       return;
     }
 
-    if (!selectedAddress) {
+    if (isAuthenticated && !selectedAddress) {
       showToast.error(Messages.delivery.selectAddress);
       return;
     }
@@ -253,16 +268,24 @@ export default function CheckoutPage() {
     try {
       const checkoutPayload: CheckoutPayload = {
         businessId: AppDefault.BUSINESS_ID,
-        addressId: selectedAddress?.id,
+        addressId: isAuthenticated ? selectedAddress?.id : undefined,
+        guestAddress: !isAuthenticated && (checkoutState.guestStreet || checkoutState.guestHouse || checkoutState.guestCity)
+          ? {
+              streetNumber: checkoutState.guestStreet || undefined,
+              houseNumber: checkoutState.guestHouse || undefined,
+              province: checkoutState.guestCity || "Phnom Penh",
+              note: checkoutState.guestNote || undefined,
+            }
+          : undefined,
         deliveryOption: {
           name: selectedDeliveryOption.name || "",
           description: selectedDeliveryOption.description || "",
           imageUrl: selectedDeliveryOption.image?.sm || selectedDeliveryOption.image?.md || "",
           price: selectedDeliveryOption.price || 0,
         },
-        customerName: checkoutState.customerName,
-        customerPhone: checkoutState.customerPhone,
-        customerEmail: checkoutState.customerEmail,
+        customerName: checkoutState.customerName?.trim() || "Guest Customer",
+        customerPhone: checkoutState.customerPhone?.trim() || undefined,
+        customerEmail: checkoutState.customerEmail?.trim() || undefined,
         cart: {
           businessId: AppDefault.BUSINESS_ID,
           businessName: "Default Business",
@@ -340,6 +363,17 @@ export default function CheckoutPage() {
       // Clear cart items immediately on successful order placement
       dispatch(resetCart());
 
+      // Save to local guest tracking
+      if (!isAuthenticated && orderResult?.id) {
+        try {
+          const existingGuestOrders = JSON.parse(localStorage.getItem("guest_orders") || "[]");
+          const updated = Array.from(new Set([orderResult.id, ...existingGuestOrders]));
+          localStorage.setItem("guest_orders", JSON.stringify(updated));
+        } catch {
+          // ignore storage error
+        }
+      }
+
       showToast.success(Messages.orders.placed);
 
       setTimeout(() => {
@@ -360,22 +394,6 @@ export default function CheckoutPage() {
 
   if (!mounted || !authReady) {
     return <CheckoutPageSkeleton />;
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <>
-        <SignInRequired
-          title="Checkout"
-          description="Please sign in to continue with your checkout."
-          icon="🔒"
-          onSignIn={() => setLoginModalOpen(true)}
-          browseButtonText="Continue Shopping"
-          onBrowse={() => router.push("/products")}
-        />
-        <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
-      </>
-    );
   }
 
   if (items.length === 0) {
@@ -419,26 +437,80 @@ export default function CheckoutPage() {
                     <MapPin className="h-3.5 w-3.5 text-primary" />
                     Delivery Address
                   </span>
-                  <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
-                    Required
-                  </span>
+                  {!isAuthenticated && (
+                    <button
+                      type="button"
+                      onClick={() => setLoginModalOpen(true)}
+                      className="text-[11px] font-semibold text-primary hover:underline"
+                    >
+                      Have an account? Sign in
+                    </button>
+                  )}
+                  {isAuthenticated && (
+                    <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                      Saved Address
+                    </span>
+                  )}
                 </div>
 
-                <ComboboxSelectLocation
-                  dataSelect={selectedAddress as any}
-                  onChangeSelected={(item) => {
-                    if (item) {
-                      setCheckoutState((prev) => ({
-                        ...prev,
-                        selectedAddressId: item.id,
-                      }));
-                    }
-                  }}
-                  placeholder="Select your delivery address..."
-                  hasDefault={!!defaultAddress}
-                  error={!checkoutState.selectedAddressId ? Messages.delivery.selectAddress : ""}
-                  label=""
-                />
+                {isAuthenticated ? (
+                  <ComboboxSelectLocation
+                    dataSelect={selectedAddress as any}
+                    onChangeSelected={(item) => {
+                      if (item) {
+                        setCheckoutState((prev) => ({
+                          ...prev,
+                          selectedAddressId: item.id,
+                        }));
+                      }
+                    }}
+                    placeholder="Select your delivery address..."
+                    hasDefault={!!defaultAddress}
+                    error={!checkoutState.selectedAddressId ? Messages.delivery.selectAddress : ""}
+                    label=""
+                  />
+                ) : (
+                  <div className="space-y-2.5">
+                    <div className="grid sm:grid-cols-2 gap-2.5">
+                      <CustomInput
+                        label="Street / Landmark"
+                        placeholder="e.g. St. 2004, near Super Duper"
+                        value={checkoutState.guestStreet}
+                        onChange={(e) =>
+                          setCheckoutState((prev) => ({
+                            ...prev,
+                            guestStreet: e.target.value,
+                          }))
+                        }
+                        size="sm"
+                      />
+                      <CustomInput
+                        label="House / Building / Floor"
+                        placeholder="e.g. House #12A, Floor 2"
+                        value={checkoutState.guestHouse}
+                        onChange={(e) =>
+                          setCheckoutState((prev) => ({
+                            ...prev,
+                            guestHouse: e.target.value,
+                          }))
+                        }
+                        size="sm"
+                      />
+                    </div>
+                    <CustomInput
+                      label="Delivery Directions / Address Note"
+                      placeholder="e.g. Call when arrived, leave at front gate"
+                      value={checkoutState.guestNote}
+                      onChange={(e) =>
+                        setCheckoutState((prev) => ({
+                          ...prev,
+                          guestNote: e.target.value,
+                        }))
+                      }
+                      size="sm"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Contact Information */}

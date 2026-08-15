@@ -16,7 +16,7 @@ import {
 import { ROUTES } from "@/constants/app-routes/routes";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useLogout } from "@/hooks/use-logout";
-import { SignoutModal } from "@/components/shared/common/signout-modal";
+import { SignoutModal } from "@/components/shared/modal/signout-modal";
 
 interface CustomProfileDropdownProps {
   className?: string;
