@@ -1,6 +1,10 @@
+"use client";
+
 import React from "react";
-import { LucideIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { LucideIcon, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CustomButton } from "../button/custom-button";
 
 export interface PageHeaderProps {
   title: string;
@@ -12,6 +16,9 @@ export interface PageHeaderProps {
   actions?: React.ReactNode;
   variant?: "hero" | "line";
   className?: string;
+  showBackButton?: boolean;
+  onBack?: () => void;
+  backHref?: string;
 }
 
 export function PageHeader({
@@ -24,7 +31,24 @@ export function PageHeader({
   actions,
   variant = "hero",
   className,
+  showBackButton = false,
+  onBack,
+  backHref,
 }: PageHeaderProps) {
+  const router = useRouter();
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else if (backHref) {
+      router.push(backHref);
+    } else {
+      router.back();
+    }
+  };
+
+  const shouldShowBack = Boolean(showBackButton);
+
   if (variant === "hero") {
     const displayBadge =
       badgeText ||
@@ -40,7 +64,19 @@ export function PageHeader({
         )}
       >
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+            {shouldShowBack && (
+              <CustomButton
+                variant="outline"
+                size="icon"
+                className="h-8.5 w-8.5 rounded-xl shrink-0 border-border/80 bg-background/80 hover:bg-primary/10 hover:text-primary transition-all cursor-pointer shadow-2xs"
+                onClick={handleBack}
+                title="Go back"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </CustomButton>
+            )}
+
             {Icon && (
               <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
                 <Icon className="h-5 w-5 text-primary fill-primary/20" />
@@ -78,7 +114,18 @@ export function PageHeader({
     >
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2.5">
-          <span className="w-1.5 h-5 sm:h-6 rounded-full bg-primary inline-block shrink-0" />
+          {shouldShowBack && (
+            <CustomButton
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 rounded-xl shrink-0 border-border/80 bg-background/80 hover:bg-primary/10 hover:text-primary transition-all cursor-pointer shadow-2xs"
+              onClick={handleBack}
+              title="Go back"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </CustomButton>
+          )}
+          {!shouldShowBack && <span className="w-1.5 h-5 sm:h-6 rounded-full bg-primary inline-block shrink-0" />}
           {Icon && <Icon className="h-5 w-5 text-primary shrink-0" />}
           <h1 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-foreground truncate">
             {title}

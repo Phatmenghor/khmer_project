@@ -3,7 +3,7 @@
 
 import React from "react";
 import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
-import { Sparkles, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import {
   SectionHeader,
   SectionWrapper,
@@ -32,7 +32,7 @@ const ProductsSectionComponent = ({
   error,
   title = "Featured Products",
   subtitle = "Handpicked products just for you",
-  showIcon = true,
+  showIcon = false,
   hasMore,
   onLoadMore,
   isInitialLoading = false,
@@ -70,7 +70,6 @@ const ProductsSectionComponent = ({
       <SectionHeader
         title={title}
         subtitle={subtitle}
-        icon={showIcon ? Sparkles : undefined}
       />
 
       <PaginatedProductsGrid

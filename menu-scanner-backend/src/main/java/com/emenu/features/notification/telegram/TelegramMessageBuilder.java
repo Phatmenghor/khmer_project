@@ -20,265 +20,192 @@ public final class TelegramMessageBuilder {
     private TelegramMessageBuilder() {}
 
     public static String newCustomerOrder(Order order) {
-        return buildCleanReceiptMessage(order);
+        return buildCleanReceiptMessage(order, "🛍️ <b>NEW CUSTOMER ORDER RECEIVED</b>");
     }
 
     public static String newPOSOrder(Order order) {
-        return buildCleanReceiptMessage(order);
+        return buildCleanReceiptMessage(order, "⚡ <b>NEW POS ORDER CREATED</b>");
     }
 
     public static String orderStatusChanged(Order order) {
-        return buildCleanReceiptMessage(order);
+        String statusLabel = order.getOrderStatus() != null ? order.getOrderStatus().name() : "UPDATED";
+        String statusEmoji = getStatusEmoji(order.getOrderStatus());
+        return buildCleanReceiptMessage(order, statusEmoji + " <b>ORDER STATUS UPDATED: " + statusLabel + "</b>");
     }
 
     public static String newStaff(String name, String position, String phone,
                                    String email, List<String> roles) {
-        final int w = 42;
         StringBuilder sb = new StringBuilder();
-        sb.append("<pre>\n");
-        sb.append("NEW STAFF ADDED\n");
-        sb.append(solidLine(w)).append("\n");
-        if (hasText(name))     sb.append(alignRow("Name:", name, w)).append("\n");
-        if (hasText(position)) sb.append(alignRow("Position:", position, w)).append("\n");
-        if (hasText(phone))    sb.append(alignRow("Phone:", phone, w)).append("\n");
-        if (hasText(email))    sb.append(alignRow("Email:", email, w)).append("\n");
+        sb.append("👤 <b>NEW STAFF ADDED</b>\n\n");
+        if (hasText(name))     sb.append("• <b>Name:</b> ").append(escapeHtml(name)).append("\n");
+        if (hasText(position)) sb.append("• <b>Position:</b> ").append(escapeHtml(position)).append("\n");
+        if (hasText(phone))    sb.append("• <b>Phone:</b> ").append(escapeHtml(phone)).append("\n");
+        if (hasText(email))    sb.append("• <b>Email:</b> ").append(escapeHtml(email)).append("\n");
         if (roles != null && !roles.isEmpty()) {
-            sb.append(alignRow("Roles:", String.join(", ", roles), w)).append("\n");
+            sb.append("• <b>Roles:</b> ").append(escapeHtml(String.join(", ", roles))).append("\n");
         }
-        sb.append("</pre>");
         return sb.toString();
     }
 
     public static String businessOwnerRegistered(String ownerName, String businessName,
                                                   String planName, String expiryDate) {
-        final int w = 42;
-        return "<pre>\n" +
-            "NEW BUSINESS OWNER REGISTERED\n" +
-            solidLine(w) + "\n" +
-            alignRow("Owner:", ownerName, w) + "\n" +
-            alignRow("Business:", businessName, w) + "\n" +
-            alignRow("Plan:", planName, w) + "\n" +
-            alignRow("Expiry:", expiryDate, w) + "\n" +
-            "</pre>";
+        return "🏢 <b>NEW BUSINESS OWNER REGISTERED</b>\n\n" +
+                "• <b>Owner:</b> " + escapeHtml(ownerName) + "\n" +
+                "• <b>Business:</b> " + escapeHtml(businessName) + "\n" +
+                "• <b>Plan:</b> " + escapeHtml(planName) + "\n" +
+                "• <b>Expiry Date:</b> " + escapeHtml(expiryDate);
     }
 
     public static String subscriptionExpiringSoon(String businessName, long daysRemaining, String expiryDate) {
-        final int w = 42;
-        return "<pre>\n" +
-            "SUBSCRIPTION EXPIRING SOON\n" +
-            solidLine(w) + "\n" +
-            alignRow("Business:", businessName, w) + "\n" +
-            alignRow("Days Remaining:", String.valueOf(daysRemaining), w) + "\n" +
-            alignRow("Expiry:", expiryDate, w) + "\n" +
-            "</pre>";
+        return "⚠️ <b>SUBSCRIPTION EXPIRING SOON</b>\n\n" +
+                "• <b>Business:</b> " + escapeHtml(businessName) + "\n" +
+                "• <b>Days Remaining:</b> " + daysRemaining + " day(s)\n" +
+                "• <b>Expiry Date:</b> " + escapeHtml(expiryDate);
     }
 
     public static String subscriptionRenewed(String businessName, String planName, String newExpiryDate) {
-        final int w = 42;
-        return "<pre>\n" +
-            "SUBSCRIPTION RENEWED\n" +
-            solidLine(w) + "\n" +
-            alignRow("Business:", businessName, w) + "\n" +
-            alignRow("Plan:", planName, w) + "\n" +
-            alignRow("New Expiry:", newExpiryDate, w) + "\n" +
-            "</pre>";
+        return "🎉 <b>SUBSCRIPTION RENEWED</b>\n\n" +
+                "• <b>Business:</b> " + escapeHtml(businessName) + "\n" +
+                "• <b>Plan:</b> " + escapeHtml(planName) + "\n" +
+                "• <b>New Expiry:</b> " + escapeHtml(newExpiryDate);
     }
 
     public static String subscriptionCancelled(String businessName) {
-        final int w = 42;
-        return "<pre>\n" +
-            "SUBSCRIPTION CANCELLED\n" +
-            solidLine(w) + "\n" +
-            alignRow("Business:", businessName, w) + "\n" +
-            "</pre>";
+        return "🚫 <b>SUBSCRIPTION CANCELLED</b>\n\n" +
+                "• <b>Business:</b> " + escapeHtml(businessName);
     }
 
     public static String subscriptionPlanChanged(String businessName, String oldPlanName,
                                                   String newPlanName, String newExpiryDate) {
-        final int w = 42;
-        return "<pre>\n" +
-            "SUBSCRIPTION PLAN CHANGED\n" +
-            solidLine(w) + "\n" +
-            alignRow("Business:", businessName, w) + "\n" +
-            alignRow("Old Plan:", oldPlanName, w) + "\n" +
-            alignRow("New Plan:", newPlanName, w) + "\n" +
-            alignRow("New Expiry:", newExpiryDate, w) + "\n" +
-            "</pre>";
+        return "🔄 <b>SUBSCRIPTION PLAN CHANGED</b>\n\n" +
+                "• <b>Business:</b> " + escapeHtml(businessName) + "\n" +
+                "• <b>Old Plan:</b> " + escapeHtml(oldPlanName) + "\n" +
+                "• <b>New Plan:</b> " + escapeHtml(newPlanName) + "\n" +
+                "• <b>New Expiry:</b> " + escapeHtml(newExpiryDate);
     }
 
     public static String testMessage() {
-        final int w = 42;
-        return "<pre>\n" +
-            "TEST MESSAGE\n" +
-            solidLine(w) + "\n" +
-            "Telegram monitoring is working.\n" +
-            "You will receive order alerts.\n" +
-            "</pre>";
+        return "✅ <b>TELEGRAM NOTIFICATION TEST</b>\n\n" +
+                "Telegram order alert integration is active and running normally.";
     }
 
     public static String groupLinked(String businessName) {
-        final int w = 42;
-        return "<pre>\n" +
-            "GROUP LINKED\n" +
-            solidLine(w) + "\n" +
-            "Monitoring: " + businessName + "\n" +
-            "</pre>";
+        return "🔗 <b>TELEGRAM GROUP LINKED</b>\n\n" +
+                "This group is now connected to <b>" + escapeHtml(businessName) + "</b> for live order alerts.";
     }
 
-    // ── Dynamic Width Monospaced Receipt ──────────────────────────────────────
+    // ── Clean Normal Responsive HTML Order Message ────────────────────────────────
 
     public static String buildCleanReceiptMessage(Order order) {
-        int dynamicW = 42;
-        if (order.getItems() != null) {
-            for (OrderItem item : order.getItems()) {
-                if (item.getProductName() != null) {
-                    dynamicW = Math.max(dynamicW, Math.min(item.getProductName().length() + 22, 48));
+        return buildCleanReceiptMessage(order, "📄 <b>ORDER RECEIPT</b>");
+    }
+
+    public static String buildCleanReceiptMessage(Order order, String headerTitle) {
+        StringBuilder sb = new StringBuilder();
+
+        // 1. Header
+        sb.append(headerTitle).append("\n\n");
+
+        // 2. Order Metadata
+        String fullOrderNum = order.getOrderNumber() != null ? order.getOrderNumber() : "";
+        sb.append("• <b>Order ID:</b> <code>#").append(escapeHtml(fullOrderNum)).append("</code>\n");
+        if (order.getCreatedAt() != null) {
+            sb.append("• <b>Date/Time:</b> ").append(order.getCreatedAt().format(DATE_FMT)).append("\n");
+        }
+        if (order.getOrderStatus() != null) {
+            sb.append("• <b>Status:</b> ").append(getStatusEmoji(order.getOrderStatus())).append(" <b>").append(order.getOrderStatus().name()).append("</b>\n");
+        }
+        if (hasText(order.getSource())) {
+            sb.append("• <b>Source:</b> ").append(escapeHtml(order.getSource().toUpperCase())).append("\n");
+        }
+
+        // 3. Customer Info
+        if (hasText(order.getCustomerName()) || hasText(order.getCustomerPhone()) || order.getDeliveryAddress() != null) {
+            sb.append("\n👤 <b>Customer Info:</b>\n");
+            if (hasText(order.getCustomerName())) {
+                sb.append("• <b>Name:</b> ").append(escapeHtml(order.getCustomerName())).append("\n");
+            }
+            if (hasText(order.getCustomerPhone())) {
+                sb.append("• <b>Contact:</b> ").append(escapeHtml(order.getCustomerPhone())).append("\n");
+            }
+            if (order.getDeliveryAddress() != null) {
+                String addr = formatAddress(order.getDeliveryAddress());
+                if (hasText(addr)) {
+                    sb.append("• <b>Address:</b> ").append(escapeHtml(addr)).append("\n");
                 }
             }
         }
-        final int lineW = dynamicW;
-        final int qtyColW = 4;
-        final int priceColW = 7;
-        final int discColW = 6;
-        final int totalColW = 7;
-        final int itemColW = Math.max(12, lineW - (qtyColW + priceColW + discColW + totalColW));
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("<pre>\n");
-
-        // 1. Metadata Block
-        String fullOrderNum = order.getOrderNumber() != null ? order.getOrderNumber() : "";
-        sb.append(alignRow("TRANS ID:", fullOrderNum, lineW)).append("\n");
-        if (order.getCreatedAt() != null) {
-            sb.append(alignRow("DATE/TIME:", order.getCreatedAt().format(DATE_FMT), lineW)).append("\n");
-        }
-        if (hasText(order.getCustomerName())) {
-            sb.append(alignRow("CUSTOMER:", order.getCustomerName(), lineW)).append("\n");
-        }
-        if (hasText(order.getCustomerPhone())) {
-            sb.append(alignRow("CONTACT:", order.getCustomerPhone(), lineW)).append("\n");
-        }
-        if (order.getDeliveryAddress() != null) {
-            String addr = formatAddress(order.getDeliveryAddress());
-            if (hasText(addr)) {
-                sb.append(alignRow("ADDRESS:", addr, lineW)).append("\n");
-            }
-        }
-        if (hasText(order.getSource())) {
-            sb.append(alignRow("SOURCE:", order.getSource().toUpperCase(), lineW)).append("\n");
-        }
-        if (order.getOrderStatus() != null) {
-            sb.append(alignRow("STATUS:", order.getOrderStatus().name(), lineW)).append("\n");
-        }
-
-        sb.append(dashedLine(lineW)).append("\n");
-
-        // 2. Items Table Header
-        sb.append(padRight("ITEM", itemColW))
-          .append(padLeft("QTY", qtyColW))
-          .append(padLeft("PRICE", priceColW))
-          .append(padLeft("DISC", discColW))
-          .append(padLeft("TOTAL", totalColW)).append("\n");
-        sb.append(dashedLine(lineW)).append("\n");
-
+        // 4. Order Items List
         if (order.getItems() != null && !order.getItems().isEmpty()) {
+            sb.append("\n🛒 <b>Ordered Items</b> (").append(order.getItems().size()).append(" item").append(order.getItems().size() > 1 ? "s" : "").append("):\n");
             int idx = 1;
             for (OrderItem item : order.getItems()) {
                 String name = item.getProductName() != null ? item.getProductName() : "Product";
-                String title = idx++ + "." + name;
-
                 BigDecimal lineTotal = item.getTotalPrice() != null ? item.getTotalPrice() :
-                    (item.getFinalPrice() != null ? item.getFinalPrice().multiply(new BigDecimal(item.getQuantity())) : BigDecimal.ZERO);
+                        (item.getFinalPrice() != null ? item.getFinalPrice().multiply(new BigDecimal(item.getQuantity())) : BigDecimal.ZERO);
 
-                // Original Base Price before promotion discount
-                BigDecimal displayOriginalPrice = item.getCurrentPrice() != null && item.getCurrentPrice().compareTo(BigDecimal.ZERO) > 0
-                        ? item.getCurrentPrice()
-                        : (item.getFinalPrice() != null ? item.getFinalPrice() : item.getUnitPrice());
+                sb.append(idx++).append(". <b>").append(escapeHtml(name)).append("</b> × ").append(item.getQuantity())
+                  .append(" — <b>$").append(fmt(lineTotal)).append("</b>\n");
 
-                String discStr = "-";
-                if (Boolean.TRUE.equals(item.getHasPromotion()) && item.getPromotionType() != null) {
-                    discStr = "PERCENTAGE".equals(item.getPromotionType())
-                            ? fmt(item.getPromotionValue()) + "%"
-                            : "$" + fmt(item.getPromotionValue());
-                }
-
-                // Wrap item title smoothly for column
-                List<String> titleLines = wrapText(title, itemColW);
-                sb.append(padRight(titleLines.get(0), itemColW))
-                  .append(padLeft(String.valueOf(item.getQuantity()), qtyColW))
-                  .append(padLeft("$" + fmt(displayOriginalPrice), priceColW))
-                  .append(padLeft(discStr, discColW))
-                  .append(padLeft("$" + fmt(lineTotal), totalColW)).append("\n");
-
-                for (int l = 1; l < titleLines.size(); l++) {
-                    sb.append(padRight(titleLines.get(l), itemColW)).append("\n");
-                }
-
-                // Size Sub-row
+                // Size info
                 if (hasText(item.getSizeName()) && !"Standard".equalsIgnoreCase(item.getSizeName()) && !"null".equalsIgnoreCase(item.getSizeName())) {
-                    sb.append("  (").append(item.getSizeName()).append(")\n");
+                    sb.append("   <i>Size: ").append(escapeHtml(item.getSizeName())).append("</i>\n");
                 }
 
-                // Add-ons Sub-rows
+                // Add-ons / Customizations
                 Set<OrderItemCustomization> customs = item.getItemCustomizations();
                 if (customs != null && !customs.isEmpty()) {
                     for (OrderItemCustomization c : customs) {
                         BigDecimal adj = c.getPriceAdjustment() != null ? c.getPriceAdjustment() : BigDecimal.ZERO;
-                        sb.append("  + ").append(c.getName());
+                        sb.append("   <i>+ ").append(escapeHtml(c.getName()));
                         if (adj.compareTo(BigDecimal.ZERO) > 0) {
                             sb.append(" (+$").append(fmt(adj)).append(")");
                         }
-                        sb.append("\n");
+                        sb.append("</i>\n");
                     }
                 }
             }
         }
 
-        sb.append(dashedLine(lineW)).append("\n");
-
-        // 3. Summary Breakdown
+        // 5. Payment Summary
+        sb.append("\n💳 <b>Payment Summary:</b>\n");
         if (order.getSubtotal() != null) {
-            sb.append(alignRow("Subtotal", "$" + fmt(order.getSubtotal()), lineW)).append("\n");
+            sb.append("• <b>Subtotal:</b> $").append(fmt(order.getSubtotal())).append("\n");
         }
         if (order.getCustomizationTotal() != null && order.getCustomizationTotal().compareTo(BigDecimal.ZERO) > 0) {
-            sb.append(alignRow("Add-ons", "+$" + fmt(order.getCustomizationTotal()), lineW)).append("\n");
+            sb.append("• <b>Add-ons Total:</b> +$").append(fmt(order.getCustomizationTotal())).append("\n");
         }
         if (order.getDeliveryFee() != null || order.getDeliveryOption() != null) {
             String delLabel = order.getDeliveryOption() != null && hasText(order.getDeliveryOption().getName())
                     ? "Delivery (" + order.getDeliveryOption().getName() + ")"
-                    : "Delivery";
+                    : "Delivery Fee";
             BigDecimal delFee = order.getDeliveryFee() != null ? order.getDeliveryFee() :
-                (order.getDeliveryOption() != null && order.getDeliveryOption().getPrice() != null ? order.getDeliveryOption().getPrice() : BigDecimal.ZERO);
-            sb.append(alignRow(delLabel, "+$" + fmt(delFee), lineW)).append("\n");
+                    (order.getDeliveryOption() != null && order.getDeliveryOption().getPrice() != null ? order.getDeliveryOption().getPrice() : BigDecimal.ZERO);
+            sb.append("• <b>").append(escapeHtml(delLabel)).append(":</b> +$").append(fmt(delFee)).append("\n");
         }
-        if (order.getTaxAmount() != null || order.getTaxPercentage() != null) {
-            String taxLabel = "Tax (" + (order.getTaxPercentage() != null ? fmt(order.getTaxPercentage()) : "0") + "%)";
-            sb.append(alignRow(taxLabel, "+$" + fmt(order.getTaxAmount() != null ? order.getTaxAmount() : BigDecimal.ZERO), lineW)).append("\n");
+        if (order.getDiscountAmount() != null && order.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
+            sb.append("• <b>Discount:</b> -$").append(fmt(order.getDiscountAmount())).append("\n");
         }
+
         String paymentMode = hasText(order.getCustomerPaymentMethod())
                 ? order.getCustomerPaymentMethod()
                 : (order.getPaymentMethod() != null ? order.getPaymentMethod().name() : null);
         if (paymentMode != null) {
-            sb.append(alignRow("Payment Mode", paymentMode, lineW)).append("\n");
-        }
-        if (order.getPaymentStatus() != null) {
-            sb.append(alignRow("Payment Status", order.getPaymentStatus().name(), lineW)).append("\n");
-        }
-        if (order.getDiscountAmount() != null && order.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
-            String discLabel = "Discount";
-            if (hasText(order.getDiscountType())) {
-                discLabel = "PERCENTAGE".equalsIgnoreCase(order.getDiscountType()) ? "Discount (%)" : "Discount (Fixed)";
+            String payStatus = order.getPaymentStatus() != null ? order.getPaymentStatus().name() : "";
+            sb.append("• <b>Payment Method:</b> ").append(escapeHtml(paymentMode));
+            if (hasText(payStatus)) {
+                sb.append(" (").append(escapeHtml(payStatus)).append(")");
             }
-            sb.append(alignRow(discLabel, "-$" + fmt(order.getDiscountAmount()), lineW)).append("\n");
+            sb.append("\n");
         }
 
-        sb.append(thickSolidLine(lineW)).append("\n");
+        sb.append("------------------------------------------\n");
         if (order.getTotalAmount() != null) {
-            sb.append(alignRow("TOTAL AMOUNT", "$" + fmt(order.getTotalAmount()), lineW)).append("\n");
+            sb.append("💰 <b>TOTAL AMOUNT:</b> <b>$").append(fmt(order.getTotalAmount())).append("</b>\n");
         }
-        sb.append(thickSolidLine(lineW)).append("\n");
 
-        // Notes & Remarks (Deduplicated)
+        // Remarks / Notes
         if (hasText(order.getBusinessNote())) {
             String[] parts = order.getBusinessNote().split("\\|");
             Set<String> cleanParts = new LinkedHashSet<>();
@@ -289,84 +216,27 @@ public final class TelegramMessageBuilder {
                 }
             }
             if (!cleanParts.isEmpty()) {
-                sb.append("Remarks:\n");
+                sb.append("\n📝 <b>Remarks:</b>\n");
                 for (String cp : cleanParts) {
-                    sb.append("  • ").append(cp).append("\n");
+                    sb.append("• ").append(escapeHtml(cp)).append("\n");
                 }
-                sb.append(dashedLine(lineW)).append("\n");
             }
         }
 
-        sb.append("</pre>");
         return sb.toString();
     }
 
-    // ── Formatting Helpers ───────────────────────────────────────────────────
+    // ── Helpers ─────────────────────────────────────────────────────────────
 
-    private static String alignRow(String label, String value, int width) {
-        if (value == null) value = "";
-        int valLen = value.length();
-        int labelLen = label.length();
-        if (labelLen + valLen + 1 > width) {
-            return label + " " + value;
+    private static String getStatusEmoji(OrderStatus status) {
+        if (status == null) return "📌";
+        switch (status) {
+            case PENDING: return "🟡";
+            case CONFIRMED: return "🔵";
+            case COMPLETED: return "🟢";
+            case CANCELLED: return "🔴";
+            default: return "📌";
         }
-        int spaces = width - labelLen - valLen;
-        return label + " ".repeat(Math.max(1, spaces)) + value;
-    }
-
-    private static String padRight(String s, int width) {
-        if (s == null) s = "";
-        if (s.length() >= width) return s.substring(0, width);
-        return s + " ".repeat(width - s.length());
-    }
-
-    private static String padLeft(String s, int width) {
-        if (s == null) s = "";
-        if (s.length() >= width) return s.substring(0, width);
-        return " ".repeat(width - s.length()) + s;
-    }
-
-    private static List<String> wrapText(String text, int width) {
-        List<String> result = new ArrayList<>();
-        if (text == null || text.isBlank()) {
-            result.add("");
-            return result;
-        }
-
-        String[] words = text.split("\\s+");
-        StringBuilder currentLine = new StringBuilder();
-
-        for (String word : words) {
-            if (currentLine.length() == 0) {
-                if (word.length() <= width) {
-                    currentLine.append(word);
-                } else {
-                    result.add(word.substring(0, width));
-                    currentLine.append(word.substring(width));
-                }
-            } else if (currentLine.length() + 1 + word.length() <= width) {
-                currentLine.append(" ").append(word);
-            } else {
-                result.add(currentLine.toString());
-                currentLine = new StringBuilder(word);
-            }
-        }
-        if (currentLine.length() > 0) {
-            result.add(currentLine.toString());
-        }
-        return result;
-    }
-
-    private static String dashedLine(int width) {
-        return "-".repeat(width);
-    }
-
-    private static String solidLine(int width) {
-        return "_".repeat(width);
-    }
-
-    private static String thickSolidLine(int width) {
-        return "=".repeat(width);
     }
 
     private static String formatAddress(OrderDeliveryAddress a) {
@@ -382,15 +252,16 @@ public final class TelegramMessageBuilder {
     }
 
     private static String fmt(BigDecimal amount) {
-        if (amount == null) return "0";
-        BigDecimal stripped = amount.stripTrailingZeros();
-        if (stripped.scale() <= 0) {
-            return stripped.toBigInteger().toString();
-        }
+        if (amount == null) return "0.00";
         return String.format("%.2f", amount);
     }
 
     private static boolean hasText(String s) {
         return s != null && !s.isBlank();
+    }
+
+    private static String escapeHtml(String text) {
+        if (text == null) return "";
+        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 }

@@ -21,6 +21,7 @@ interface BannerSectionProps {
   banners: BannerResponseModel[];
   loading: boolean;
   error: string | null;
+  isInitialLoading?: boolean;
 }
 
 

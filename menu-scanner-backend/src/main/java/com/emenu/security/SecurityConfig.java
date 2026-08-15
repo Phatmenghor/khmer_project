@@ -82,6 +82,7 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/orders/checkout").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/orders/guest-lookup").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/orders/*").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/v1/orders/*/cancel").permitAll()
                         .requestMatchers("/api/v1/orders/*/receipt/pdf").permitAll()
 
                         // ── Telegram webhook (HMAC-validated in controller) ──

@@ -222,22 +222,12 @@ export default function OrderDetailPage() {
 
   return (
     <PageContainer className="min-h-screen flex flex-col py-4 sm:py-5">
-      {}
-      <div className="mb-4">
-        <CustomButton
-          variant="ghost"
-          className="gap-1 h-7 px-3 rounded"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-3 w-3" />
-          Back to Orders
-        </CustomButton>
-      </div>
-
-      {}
       <PageHeader
         title="Order Details"
+        subtitle={`Order #${order.orderNumber || orderId}`}
         icon={Package}
+        showBackButton={true}
+        backHref="/orders"
       />
 
       {}

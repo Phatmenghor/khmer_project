@@ -6,6 +6,7 @@ import { AppDispatch } from "@/store";
 import { updateCartItem } from "@/features/main/store/thunks/cart-thunks";
 import { showToast } from "@/components/shared/common/show-toast";
 import { DEBOUNCE_CONSTANTS } from "@/constants/ui-constants";
+import { getToken } from "@/utils/local-storage/token";
 
 const DEBOUNCE_DELAY = DEBOUNCE_CONSTANTS.CART_DEBOUNCE_MS;
 
@@ -60,6 +61,12 @@ export function useCartDebounce(dispatch: AppDispatch) {
       if (!args) return;
 
       pendingUpdatesRef.current.delete(key);
+
+      if (!getToken()) {
+        isProcessingRef.current.delete(key);
+        return;
+      }
+
       isProcessingRef.current.set(key, true);
 
       const { productId, productSizeId, quantity, customizationIds, optimisticTimestamp } = args;

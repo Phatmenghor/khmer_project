@@ -8,6 +8,7 @@ import {
   createDeliveryOptionsService,
   deleteDeliveryOptionsService,
   fetchAllDeliveryOptionsService,
+  fetchPublicDeliveryOptionsService,
   fetchMyBusinessDeliveryOptionsService,
   fetchDeliveryOptionsByIdService,
   updateDeliveryOptionsService,
@@ -81,6 +82,20 @@ const deliveryOptionsSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(fetchAllDeliveryOptionsService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.isLoading = false;
+      });
+
+    builder
+      .addCase(fetchPublicDeliveryOptionsService.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchPublicDeliveryOptionsService.fulfilled, (state, action) => {
+        state.data = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchPublicDeliveryOptionsService.rejected, (state, action) => {
         state.error = action.payload as string;
         state.isLoading = false;
       });

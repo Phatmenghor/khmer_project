@@ -1,7 +1,7 @@
 
 
 
-import { axiosClientWithAuth } from "@/utils/axios";
+import { axiosClient, axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
 import {
   AllDeliveryOptionsRequest,
@@ -9,6 +9,29 @@ import {
 } from "../models/request/delivery-options-request";
 import { CreateDeliveryOptionsData } from "../models/schema/delivery-options-schema";
 
+export const fetchPublicDeliveryOptionsService = createApiThunk<
+  any,
+  AllDeliveryOptionsRequest
+>("delivery-options/fetchPublic", async (params, signal) => {
+  const response = await axiosClient.post(
+    "/api/v1/public/delivery-options/all",
+    params,
+    { signal }
+  );
+  return response.data.data;
+});
+
+export const fetchPublicDeliveryOptionsDataService = createApiThunk<
+  any,
+  { businessId?: string }
+>("delivery-options/fetchPublicData", async (params, signal) => {
+  const response = await axiosClient.post(
+    "/api/v1/public/delivery-options/all-data",
+    params,
+    { signal }
+  );
+  return response.data.data;
+});
 
 export const fetchAllDeliveryOptionsService = createApiThunk<
   any,

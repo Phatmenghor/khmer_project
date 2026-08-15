@@ -9,6 +9,8 @@ import { useCartState } from "@/features/main/store/state/cart-state";
 import { useFavoriteState } from "@/features/main/store/state/favorite-state";
 import { fetchCart } from "@/features/main/store/thunks/cart-thunks";
 import { fetchFavoriteList } from "@/features/main/store/thunks/favorite-thunks";
+import { loadFavoritesFromStorage } from "@/features/main/store/slice/favorite-slice";
+import { loadCartFromStorage } from "@/features/main/store/slice/cart-slice";
 
 export default function PublicLayout({
   children,
@@ -27,9 +29,15 @@ export default function PublicLayout({
     loading: favoriteLoading,
   } = useFavoriteState();
 
-
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!isAuthenticated) {
+      if (!cartLoaded) {
+        cartDispatch(loadCartFromStorage());
+      }
+      if (!favoriteLoaded) {
+        favoriteDispatch(loadFavoritesFromStorage());
+      }
+    } else {
       if (!cartLoaded && !cartLoading.fetch) {
         cartDispatch(fetchCart());
       }

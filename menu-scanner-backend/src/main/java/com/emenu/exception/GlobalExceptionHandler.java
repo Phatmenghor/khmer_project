@@ -239,13 +239,16 @@ public class GlobalExceptionHandler {
     // HTTP protocol errors
     // =========================================================================
 
-    @ExceptionHandler(NoHandlerFoundException.class)
+    @ExceptionHandler({NoHandlerFoundException.class, org.springframework.web.servlet.resource.NoResourceFoundException.class})
     public ResponseEntity<ApiResponse<Object>> handleNoHandler(
-            NoHandlerFoundException ex) {
+            Exception ex, HttpServletRequest request) {
+        log.warn("Resource/endpoint not found for URI: {}", request.getRequestURI());
+        tagResponse("Resource not found");
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.failure("The requested endpoint was not found.",
-                        Map.of("errorCode", "ENDPOINT_NOT_FOUND",
-                               "method", ex.getHttpMethod())));
+                .body(ApiResponse.failure(
+                        String.format("Endpoint or resource '%s' was not found", request.getRequestURI()),
+                        Map.of("errorCode", "NOT_FOUND",
+                                "method", request.getMethod())));
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

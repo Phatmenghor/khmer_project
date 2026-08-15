@@ -115,30 +115,30 @@ export default function LoginPage() {
       <div className="relative z-10 w-full min-h-screen flex items-center justify-center p-4 lg:w-1/2 lg:bg-background">
         <div className="relative z-10 w-full max-w-sm flex flex-col items-center gap-4">
 
-        <Card className="w-full shadow-2xl border border-border/60 rounded overflow-hidden bg-background">
+        <Card className="w-full shadow-2xl border border-border/70 rounded-3xl overflow-hidden bg-background/95 dark:bg-card/95 backdrop-blur-xl transition-all duration-300">
           {/* Card header */}
-          <div className="bg-primary/5 border-b border-border/50 px-4 pt-4 pb-3">
+          <div className="bg-gradient-to-b from-primary/10 via-primary/5 to-transparent border-b border-border/50 px-6 pt-6 pb-4 rounded-t-3xl">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded bg-primary flex items-center justify-center shadow-sm shrink-0">
-                <ShieldCheck className="h-3 w-3 text-primary-foreground" />
+              <div className="w-6 h-6 rounded-xl bg-primary flex items-center justify-center shadow-xs shrink-0">
+                <ShieldCheck className="h-3.5 w-3.5 text-primary-foreground" />
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary">
                 Admin Panel
               </span>
             </div>
-            <h1 className="text-lg font-bold text-foreground leading-tight mt-1.5">
+            <h1 className="text-xl font-black text-foreground leading-tight mt-2 tracking-tight">
               Welcome back
             </h1>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5 font-medium">
               Sign in to your account to continue
             </p>
           </div>
 
           {/* Card body */}
-          <CardContent className="px-4 py-4 space-y-3">
+          <CardContent className="px-6 py-5 space-y-4">
 
             {/* Credentials form */}
-            <form onSubmit={form.handleSubmit(handleLoginSubmit)} className="space-y-3">
+            <form onSubmit={form.handleSubmit(handleLoginSubmit)} className="space-y-3.5">
               <TextField
                 name="userIdentifier"
                 label="Email or Username"
@@ -147,6 +147,7 @@ export default function LoginPage() {
                 error={form.formState.errors.userIdentifier}
                 disabled={isAnyLoading}
                 required
+                inputClassName="h-9 text-xs rounded-xl"
               />
 
               <PasswordField
@@ -159,16 +160,17 @@ export default function LoginPage() {
                 required
                 showPassword={showPassword}
                 onTogglePassword={() => setShowPassword((v) => !v)}
+                inputClassName="h-9 text-xs rounded-xl"
               />
 
               <CustomButton
                 type="submit"
-                className="w-full font-semibold"
+                className="w-full h-9 rounded-xl text-xs font-bold shadow-xs hover:shadow transition-all cursor-pointer"
                 disabled={isAnyLoading}
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                     Signing in...
                   </>
                 ) : (
@@ -178,12 +180,12 @@ export default function LoginPage() {
             </form>
 
             {/* Divider */}
-            <div className="relative py-0.5">
+            <div className="relative py-1">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border" />
+                <span className="w-full border-t border-border/70" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-background px-2 text-[10px] text-muted-foreground uppercase tracking-wider">
+                <span className="bg-background px-3 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                   or continue with
                 </span>
               </div>
@@ -201,10 +203,10 @@ export default function LoginPage() {
 
             {/* Sign up link */}
             <div className="text-center text-xs pt-1">
-              <span className="text-muted-foreground">Don't have an account? </span>
+              <span className="text-muted-foreground font-medium">Don't have an account? </span>
               <Link
                 href="/(auth)/signup"
-                className="text-primary hover:underline font-semibold"
+                className="text-primary hover:underline font-bold"
               >
                 Sign up
               </Link>

@@ -432,11 +432,11 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           }
 
           if (typeof window !== "undefined") {
+            const isProtected = admin
+              ? window.location.pathname.startsWith("/admin") && !window.location.pathname.includes("/login")
+              : window.location.pathname.startsWith("/profile");
 
-            const isOnLoginPage = window.location.pathname.includes("/login");
-            const isOnPublicHome = window.location.pathname === "/";
-
-            if (!isOnLoginPage && !isOnPublicHome && hadToken) {
+            if (isProtected && hadToken) {
               toast.error("Session expired. Please login again.");
 
               setTimeout(() => {
@@ -481,11 +481,11 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           else clearAllTokens();
 
           if (typeof window !== "undefined") {
+            const isProtected = admin
+              ? window.location.pathname.startsWith("/admin") && !window.location.pathname.includes("/login")
+              : window.location.pathname.startsWith("/profile");
 
-            const isOnLoginPage = window.location.pathname.includes("/login");
-            const isOnPublicHome = window.location.pathname === "/";
-
-            if (!isOnLoginPage && !isOnPublicHome && hadToken) {
+            if (isProtected && hadToken) {
               toast.error("Session expired. Please login again.");
 
               setTimeout(() => {
@@ -532,11 +532,11 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           else clearAllTokens();
 
           if (typeof window !== "undefined") {
+            const isProtected = admin
+              ? window.location.pathname.startsWith("/admin") && !window.location.pathname.includes("/login")
+              : window.location.pathname.startsWith("/profile");
 
-            const isOnLoginPage = window.location.pathname.includes("/login");
-            const isOnPublicHome = window.location.pathname === "/";
-
-            if (!isOnLoginPage && !isOnPublicHome && hadToken) {
+            if (isProtected && hadToken) {
               toast.error("Session expired. Please login again.");
 
               setTimeout(() => {

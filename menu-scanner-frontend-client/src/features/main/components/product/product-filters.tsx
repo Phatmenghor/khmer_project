@@ -178,7 +178,7 @@ function ProductFiltersComponent({
               updateFilter("categoryId", categoryId)
             }
             label="Category"
-            size="md"
+            size="sm"
             placeholder="All Categories"
           />
 
@@ -186,7 +186,7 @@ function ProductFiltersComponent({
             selectedBrand={selectedBrand}
             onChangeSelected={(brandId) => updateFilter("brandId", brandId)}
             label="Brand"
-            size="md"
+            size="sm"
             placeholder="All Brands"
           />
         </div>
@@ -226,7 +226,7 @@ function ProductFiltersComponent({
                   setMinPrice(val);
                 }
               }}
-              className="h-8 pl-6 text-xs rounded-lg bg-muted/20 border-border/60 focus:bg-background transition-colors"
+              className="h-8 pl-6 text-xs rounded-[10px] bg-muted/20 border-border/60 focus:bg-background transition-colors"
             />
           </div>
           <div className="relative flex items-center">
@@ -242,7 +242,7 @@ function ProductFiltersComponent({
                   setMaxPrice(val);
                 }
               }}
-              className="h-8 pl-6 text-xs rounded-lg bg-muted/20 border-border/60 focus:bg-background transition-colors"
+              className="h-8 pl-6 text-xs rounded-[10px] bg-muted/20 border-border/60 focus:bg-background transition-colors"
             />
           </div>
         </div>
@@ -253,7 +253,7 @@ function ProductFiltersComponent({
   return (
     <>
       {/* Desktop Sidebar Filter Card */}
-      <div className="hidden lg:flex w-52 flex-shrink-0">
+      <div className="hidden lg:flex w-60 flex-shrink-0">
         <div className="sticky top-16 h-[calc(100vh-7rem)] w-full">
           <div className="bg-card border border-border/70 rounded-[18px] shadow-2xs h-full flex flex-col overflow-hidden">
             {/* Filter Header */}

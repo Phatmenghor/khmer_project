@@ -15,7 +15,7 @@ import {
   SpacesMultiSizeResult,
 } from "@/services/spaces-service";
 
-type AspectRatio = "square" | "banner" | "portrait" | "auto";
+type AspectRatio = "square" | "banner" | "portrait" | "auto" | "1:1" | "16:9" | "4:3";
 type UploadState = "idle" | "uploading" | "done" | "error";
 
 interface BaseProps {

@@ -114,7 +114,7 @@ export function AsyncCombobox<T>({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between min-w-[150px] shadow-2xs font-normal transition-all duration-200",
+              "w-full justify-between min-w-0 shadow-2xs font-normal transition-all duration-200",
               SIZE_CLASSES[size],
               !value && "text-muted-foreground/75",
               open && "bg-background border-primary text-foreground ring-2 ring-primary/25",

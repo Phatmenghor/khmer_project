@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { TextField } from "@/components/shared/form-field/text-field";
+import { CustomInput } from "@/components/shared/form-field/custom-input";
 import { CustomTextarea } from "@/components/shared/form-field/custom-textarea";
 import { CustomDateTimePicker } from "@/components/shared/common/custom-date-picker";
 import { CustomButton } from "@/components/shared/button/custom-button";
@@ -96,7 +96,7 @@ export function ReservationModal({
       />
 
       <form onSubmit={handleSubmit} className="p-5 space-y-4">
-        <TextField
+        <CustomInput
           label="Guest / Customer Name"
           required
           placeholder="e.g. Phat Menghor"
@@ -118,7 +118,7 @@ export function ReservationModal({
             />
           </div>
 
-          <TextField
+          <CustomInput
             label="Party Size (Guests)"
             required
             placeholder="e.g. 4"
@@ -127,7 +127,7 @@ export function ReservationModal({
           />
         </div>
 
-        <TextField
+        <CustomInput
           label="Phone Number (Optional)"
           placeholder="e.g. 012 345 678"
           value={phone}

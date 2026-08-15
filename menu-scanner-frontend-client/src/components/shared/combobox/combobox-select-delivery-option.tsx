@@ -3,7 +3,7 @@
 import { formatCurrency } from "@/utils/common/currency-format";
 import { AsyncCombobox } from "@/components/shared/async-combobox";
 import { useReduxCombobox } from "@/components/shared/async-combobox/useReduxCombobox";
-import { fetchAllDeliveryOptionsService } from "@/features/master-data/store/thunks/delivery-options-thunks";
+import { fetchPublicDeliveryOptionsService } from "@/features/master-data/store/thunks/delivery-options-thunks";
 
 interface DeliveryOption {
   id: string;
@@ -45,8 +45,8 @@ export function ComboboxSelectDelivery({
   statuses = ["ACTIVE"],
 }: ComboboxSelectDeliveryProps) {
   const controller = useReduxCombobox<DeliveryOption>({
-    cacheKey: `deliveryOptions-${businessId || "default"}`,
-    thunkService: fetchAllDeliveryOptionsService,
+    cacheKey: `deliveryOptions-public-${businessId || "default"}`,
+    thunkService: fetchPublicDeliveryOptionsService,
     extraParams: {
       ...(businessId && { businessId }),
       ...(statuses && { statuses }),

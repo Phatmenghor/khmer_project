@@ -3,9 +3,12 @@
 import { useRef, useEffect, useCallback } from "react";
 import { AppDispatch } from "@/store";
 import { toggleFavorite } from "@/features/main/store/thunks/favorite-thunks";
+import { toggleLocalFavorite } from "@/features/main/store/slice/favorite-slice";
 import { showToast } from "@/components/shared/common/show-toast";
 import { Messages } from "@/constants/messages";
 import { DEBOUNCE_CONSTANTS } from "@/constants/ui-constants";
+import { getToken } from "@/utils/local-storage/token";
+import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
 
 const DEBOUNCE_DELAY = DEBOUNCE_CONSTANTS.FAVORITE_DEBOUNCE_MS;
 
@@ -22,20 +25,36 @@ export function useFavoriteDebounce(dispatch: AppDispatch) {
   }, []);
 
   const debouncedToggleFavorite = useCallback(
-    (productId: string, currentIsFavorited: boolean, onStateChange?: (newState: boolean) => void) => {
+    (
+      productOrId: ProductDetailResponseModel | { id: string; [key: string]: any } | string,
+      currentIsFavorited: boolean,
+      onStateChange?: (newState: boolean) => void
+    ) => {
+      const productId = typeof productOrId === "string" ? productOrId : productOrId?.id;
       if (!productId) return;
+
+      const product = typeof productOrId === "string" ? ({ id: productId } as any) : productOrId;
 
       const existing = pendingUpdatesRef.current.get(productId);
       const initialState = existing ? existing.initialState : currentIsFavorited;
       const nextState = !currentIsFavorited;
 
-      // Update local state immediately for fast UI feedback
+      // Update Redux state and local storage immediately
+      dispatch(toggleLocalFavorite(product as ProductDetailResponseModel));
+
+      // Update local hook state immediately for fast UI feedback
       pendingUpdatesRef.current.set(productId, {
         initialState,
         currentState: nextState,
       });
 
       onStateChange?.(nextState);
+
+      const hasAuth = !!getToken();
+
+      if (!hasAuth) {
+        return;
+      }
 
       // Reset timer so rapidly clicking only triggers 1 final API request
       const existingTimer = timersRef.current.get(productId);
@@ -56,6 +75,8 @@ export function useFavoriteDebounce(dispatch: AppDispatch) {
             dispatch(toggleFavorite({ productId, isFavorited: initial }))
               .unwrap()
               .catch((error: unknown) => {
+                // Revert state if backend rejected
+                dispatch(toggleLocalFavorite(product as ProductDetailResponseModel));
                 onStateChange?.(initial);
                 showToast.error((error as { message?: string })?.message || Messages.favorites.updateFailed);
               });

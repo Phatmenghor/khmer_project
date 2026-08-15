@@ -40,6 +40,7 @@ export const Messages = {
   },
 
   favorites: {
+    added: "Added to favorites",
     removed: "Removed from favorites",
     removeFailed: "Failed to remove from favorites",
     allCleared: "All favorites cleared",

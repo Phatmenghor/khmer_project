@@ -92,23 +92,13 @@ export default function PortfolioReviewsPage() {
 
   const filterConfig: FilterPanelConfig = {
     title: "Customer Reviews",
-    search: {
-      value: filters.search,
-      onChange: (value) => dispatch(setSearchFilter(value)),
-      placeholder: "Search by customer name, phone number, rating score, or comment...",
-    },
-    onReset: () => {
+    searchValue: filters.search,
+    searchPlaceholder: "Search by customer name, phone number, rating score, or comment...",
+    onSearchChange: (e) => dispatch(setSearchFilter(e.target.value)),
+    filters: [],
+    onClearAll: () => {
       dispatch(setSearchFilter(""));
       dispatch(setPageNo(1));
-    },
-    onRefresh: () => {
-      dispatch(
-        fetchPortfolioReviewsThunk({
-          pageNo: filters.pageNo,
-          pageSize: globalPageSize,
-          search: debouncedSearch || undefined,
-        })
-      );
     },
   };
 

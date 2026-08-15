@@ -1,4 +1,7 @@
-import { useAppDispatch, useAppSelector } from "@/store";
+import { useAppDispatch, useAppSelector, RootState } from "@/store";
+
+export const selectIsProductFavorited = (state: RootState, productId: string) =>
+  state.favorites.items.some((item) => item.id === productId);
 
 export const useFavoriteState = () => {
   const dispatch = useAppDispatch();

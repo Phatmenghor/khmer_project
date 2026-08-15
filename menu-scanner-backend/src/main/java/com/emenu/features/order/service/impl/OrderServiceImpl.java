@@ -505,6 +505,53 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
+    public OrderResponse cancelOrder(UUID orderId) {
+        log.info("Cancelling order: id={}", orderId);
+        Order order = orderRepository.findByIdWithDetails(orderId)
+                .orElseThrow(() -> new NotFoundException("Order not found with id: " + orderId));
+
+        OrderStatus previousStatus = order.getOrderStatus();
+        order.setOrderStatus(OrderStatus.CANCELLED);
+
+        try {
+            User currentUser = null;
+            try {
+                currentUser = securityUtils.getCurrentUser();
+            } catch (Exception ignored) {}
+
+            OrderStatusHistory history = new OrderStatusHistory();
+            history.setOrderId(order.getId());
+            history.setOrderStatus(OrderStatus.CANCELLED);
+            history.setChangedByUserId(currentUser != null ? currentUser.getId() : null);
+            history.setChangedByName(currentUser != null ? currentUser.getFullName() : "Customer");
+            history.setNote("Order cancelled by customer");
+            history.setOrder(order);
+            history.setPaymentMethod(order.getPaymentMethod());
+            history.setPaymentStatus(order.getPaymentStatus());
+            OrderStatusHistory savedHistory = orderStatusHistoryRepository.save(history);
+            if (order.getStatusHistory() != null) {
+                order.getStatusHistory().add(savedHistory);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to save status history snapshot during order cancellation: {}", e.getMessage());
+        }
+
+        Order updatedOrder = orderRepository.save(order);
+
+        if (updatedOrder.getOrderStatus() != previousStatus) {
+            try {
+                telegramNotificationService.notifyOrderStatusChanged(updatedOrder);
+                webSocketNotificationService.notifyOrderStatusChanged(updatedOrder);
+            } catch (Exception e) {
+                log.warn("Failed to send notification for order cancellation: {}", e.getMessage());
+            }
+        }
+
+        return orderMapper.toResponse(updatedOrder);
+    }
+
+    @Override
     public OrderResponse deleteOrder(UUID orderId) {
         User currentUser = securityUtils.getCurrentUser();
 

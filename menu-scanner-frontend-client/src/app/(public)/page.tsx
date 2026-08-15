@@ -44,13 +44,7 @@ export default function HomePage() {
   });
 
   const getPageSize = useMemo(() => {
-    return () => {
-      if (typeof window === "undefined") return 20;
-      const width = window.innerWidth;
-      if (width >= 1280) return 36;
-      if (width >= 768) return 20;
-      return 15;
-    };
+    return () => 15;
   }, []);
 
   const sectionsRef = useRef({
@@ -90,8 +84,8 @@ export default function HomePage() {
       const pageSize = getPageSize();
       Promise.all([
         !s.bannersLoaded ? dispatch(fetchHomeBanners({})) : Promise.resolve(),
-        !sectionsRef.current.categoriesLoaded ? dispatch(fetchHomeCategories({ pageSize: 12 })) : Promise.resolve(),
-        !sectionsRef.current.promotionsLoaded ? dispatch(fetchHomePromotionProducts({ pageSize: 24 })) : Promise.resolve(),
+        !sectionsRef.current.categoriesLoaded ? dispatch(fetchHomeCategories({ pageSize: 15 })) : Promise.resolve(),
+        !sectionsRef.current.promotionsLoaded ? dispatch(fetchHomePromotionProducts({ pageSize: 15 })) : Promise.resolve(),
         !sectionsRef.current.featuredLoaded ? dispatch(fetchHomeFeaturedProducts({ pageNo: 1, pageSize })) : Promise.resolve(),
       ]).then(() => {
         dispatch(setInitialLoadComplete());
@@ -128,14 +122,28 @@ export default function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Save cache snapshot whenever home state updates
+  useEffect(() => {
+    if (banners.length > 0 || categories.length > 0 || featuredProducts.length > 0) {
+      saveHomeSnapshot({
+        banners,
+        categories,
+        promotionProducts,
+        featuredProducts,
+        brands: [],
+        featuredPagination,
+      });
+    }
+  }, [banners, categories, promotionProducts, featuredProducts, featuredPagination]);
+
   // Fetch all sections concurrently in parallel on mount
   useEffect(() => {
     const run = async () => {
       const pageSize = getPageSize();
       await Promise.all([
         dispatch(fetchHomeBanners({})),
-        dispatch(fetchHomeCategories({ pageSize: 12 })),
-        dispatch(fetchHomePromotionProducts({ pageSize: 24 })),
+        dispatch(fetchHomeCategories({ pageSize: 15 })),
+        dispatch(fetchHomePromotionProducts({ pageSize: 15 })),
         dispatch(fetchHomeFeaturedProducts({ pageNo: 1, pageSize })),
       ]);
       dispatch(setInitialLoadComplete());

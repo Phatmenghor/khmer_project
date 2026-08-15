@@ -105,27 +105,27 @@ export default function SignupPage() {
           <p className="text-xs text-white/70">Admin Control Panel</p>
         </div>
 
-        <Card className="w-full shadow-2xl border border-border/60 rounded overflow-hidden bg-background/95 backdrop-blur-md">
+        <Card className="w-full shadow-2xl border border-border/70 rounded-3xl overflow-hidden bg-background/95 dark:bg-card/95 backdrop-blur-xl transition-all duration-300">
           {/* Card header */}
-          <div className="bg-primary/5 border-b border-border/50 px-5 pt-5 pb-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded bg-primary flex items-center justify-center shadow-sm">
-                <ShieldCheck className="h-3 w-3 text-primary-foreground" />
+          <div className="bg-gradient-to-b from-primary/10 via-primary/5 to-transparent border-b border-border/50 px-6 pt-6 pb-4 rounded-t-3xl">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-6 h-6 rounded-xl bg-primary flex items-center justify-center shadow-xs">
+                <ShieldCheck className="h-3.5 w-3.5 text-primary-foreground" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary">
                 Admin Panel
               </span>
             </div>
-            <h1 className="text-xs font-bold text-foreground leading-tight">
+            <h1 className="text-xl font-black text-foreground leading-tight tracking-tight">
               Create your account
             </h1>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-0.5 font-medium">
               Register your business and get started
             </p>
           </div>
 
           {/* Card body */}
-          <CardContent className="px-5 py-5 space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto">
+          <CardContent className="px-6 py-5 space-y-3.5 max-h-[calc(100vh-300px)] overflow-y-auto">
 
             {/* Registration form */}
             <form onSubmit={form.handleSubmit(handleSignupSubmit)} className="space-y-3">

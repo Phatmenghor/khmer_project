@@ -29,10 +29,18 @@ export function TextField<T extends FieldValues = FieldValues>({
 }: TextFormFieldProps<T>) {
   return (
     <div className={`flex flex-col gap-1 w-full ${className}`}>
-      <Label htmlFor={name} className={cn("text-xs font-semibold text-foreground leading-tight flex items-center min-h-[16px]", labelClassName)}>
-        <span>{label}</span>
-        {required && <span className="text-destructive ml-0.5">*</span>}
-      </Label>
+      {label && (
+        <Label
+          htmlFor={name}
+          className={cn(
+            "text-xs font-semibold text-foreground leading-tight flex items-center min-h-[16px]",
+            labelClassName,
+          )}
+        >
+          <span>{label}</span>
+          {required && <span className="text-destructive ml-0.5">*</span>}
+        </Label>
+      )}
       <Controller
         control={control}
         name={name}
@@ -69,7 +77,11 @@ export function TextField<T extends FieldValues = FieldValues>({
                     onCustomChange?.(raw);
                   }
                 }
-              } else if (type === "number" || step === "0.01" || step === 0.01) {
+              } else if (
+                type === "number" ||
+                step === "0.01" ||
+                step === 0.01
+              ) {
                 if (raw === "" || /^\d*\.?\d{0,2}$/.test(raw)) {
                   field.onChange(raw === "" ? undefined : raw);
                   onCustomChange?.(raw);
@@ -90,12 +102,16 @@ export function TextField<T extends FieldValues = FieldValues>({
             className={cn(
               disabled && "bg-muted/50",
               error && "border-destructive focus:border-destructive",
-              inputClassName
+              inputClassName,
             )}
           />
         )}
       />
-      {error?.message && <p className="text-xs text-destructive font-medium mt-1">{error.message}</p>}
+      {error?.message && (
+        <p className="text-xs text-destructive font-medium mt-1">
+          {error.message}
+        </p>
+      )}
     </div>
   );
 }

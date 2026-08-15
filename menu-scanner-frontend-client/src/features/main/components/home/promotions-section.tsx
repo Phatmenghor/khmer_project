@@ -16,6 +16,7 @@ interface PromotionsSectionProps {
   loading: boolean;
   error: string | null;
   title?: string;
+  isInitialLoading?: boolean;
 }
 
 

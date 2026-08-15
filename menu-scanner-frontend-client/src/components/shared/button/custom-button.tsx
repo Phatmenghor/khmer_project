@@ -99,6 +99,7 @@ export interface SubmitButtonProps {
   className?: string;
   disabled?: boolean;
   onClick?: (e?: any) => void;
+  variant?: ButtonProps["variant"];
 }
 
 export function SubmitButton({
@@ -114,6 +115,7 @@ export function SubmitButton({
   className,
   disabled,
   onClick,
+  variant = "default",
 }: SubmitButtonProps) {
   const isCreation = isCreate || !isEdit;
   const defaultText = customText || (isCreation ? (createText || "Create Item") : (updateText || "Save Changes"));
@@ -125,7 +127,7 @@ export function SubmitButton({
       type="submit"
       disabled={isSubmitting || !isDirty || disabled}
       isLoading={isSubmitting}
-      variant="default"
+      variant={variant}
       onClick={onClick}
       className={cn("min-w-[120px]", className)}
     >
@@ -377,50 +379,65 @@ export function ExportButton({
 
 export interface DownloadTemplateButtonProps {
   onDownload?: () => void;
+  onClick?: () => void;
   isDownloading?: boolean;
   label?: string;
+  children?: React.ReactNode;
+  className?: string;
 }
 
 export function DownloadTemplateButton({
   onDownload,
+  onClick,
   isDownloading = false,
   label = "Download Template",
+  children,
+  className,
 }: DownloadTemplateButtonProps) {
   return (
     <CustomButton
       type="button"
       variant="outline"
       size="sm"
-      onClick={onDownload}
+      onClick={onDownload || onClick}
       isLoading={isDownloading}
       icon={<Download className="h-4 w-4 text-primary" />}
-      className="font-semibold"
+      className={cn("font-semibold", className)}
     >
-      {label}
+      {children || label}
     </CustomButton>
   );
 }
 
 export interface ImportSpreadsheetButtonProps {
   onImport?: (file: File) => void;
+  onClick?: () => void;
   isImporting?: boolean;
   label?: string;
+  title?: string;
+  children?: React.ReactNode;
+  className?: string;
 }
 
 export function ImportSpreadsheetButton({
+  onClick,
   isImporting = false,
   label = "Import Excel",
+  title,
+  children,
+  className,
 }: ImportSpreadsheetButtonProps) {
   return (
     <CustomButton
       type="button"
       variant="outline"
       size="sm"
+      onClick={onClick}
       isLoading={isImporting}
       icon={<FileSpreadsheet className="h-4 w-4 text-emerald-600" />}
-      className="border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300 text-emerald-700 font-semibold"
+      className={cn("border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300 text-emerald-700 font-semibold", className)}
     >
-      {label}
+      {children || title || label}
     </CustomButton>
   );
 }

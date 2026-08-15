@@ -1,24 +1,21 @@
 "use client";
 
-import { CustomButton } from "@/components/shared/button/custom-button";
-import { CustomModal } from "./custom-modal";
-import { Messages } from "@/constants/messages";
-import React, { useEffect, useState } from "react";
-
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { AlertTriangle } from "lucide-react";
-
-import { FormHeader } from "@/components/shared/form-field/form-header";
-import { FormBody } from "@/components/shared/form-field/form-body";
-import { FormFooter } from "@/components/shared/form-field/form-footer";
+import { AlertTriangle, AlertCircle } from "lucide-react";
+import { CustomModal } from "./custom-modal";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-
+import { Messages } from "@/constants/messages";
 
 const cancelOrderSchema = z.object({
-  customerNote: z.string().max(500, "Note cannot exceed 500 characters").optional().default(""),
+  customerNote: z
+    .string()
+    .max(500, "Note cannot exceed 500 characters")
+    .optional()
+    .default(""),
 });
 
 type CancelOrderFormData = z.infer<typeof cancelOrderSchema>;
@@ -45,7 +42,7 @@ export function CancelOrderModal({
     control,
     handleSubmit,
     reset,
-    formState: { errors, isDirty },
+    formState: { errors },
   } = useForm<CancelOrderFormData>({
     resolver: zodResolver(cancelOrderSchema),
     defaultValues: {
@@ -54,13 +51,21 @@ export function CancelOrderModal({
     mode: "onChange",
   });
 
-
   useEffect(() => {
     if (isOpen) {
       reset();
       setError(null);
+      setIsSubmitting(false);
     }
   }, [isOpen, reset]);
+
+  const handleClose = () => {
+    if (isSubmitting) return;
+    reset();
+    setError(null);
+    setIsSubmitting(false);
+    onClose();
+  };
 
   const onSubmit = async (data: CancelOrderFormData) => {
     try {
@@ -82,95 +87,83 @@ export function CancelOrderModal({
     }
   };
 
-  const handleClose = () => {
-    reset();
-    setError(null);
-    setIsSubmitting(false);
-    onClose();
-  };
-
   return (
-    <CustomModal isOpen={isOpen} onClose={handleClose} size="lg" className="max-h-[92vh] -col">
-      
-        {}
-        <FormHeader
-          title="Cancel Order"
-          description={`You are about to cancel order #${orderNumber}`}
-          showAvatar={false}
-          isCreate={false}
-        />
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="sm">
+      {/* ── Compact Header ── */}
+      <div className="flex items-center gap-3 p-3.5 px-4 sm:px-5 border-b border-border/60 bg-gradient-to-r from-background via-card to-background shrink-0">
+        <div className="p-2.5 rounded-2xl bg-destructive/10 text-destructive border border-destructive/20 shrink-0 shadow-2xs">
+          <AlertTriangle className="w-5 h-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-extrabold text-base text-foreground leading-tight">Cancel Order</h3>
+          <p className="text-xs text-muted-foreground mt-0.5 font-medium truncate">
+            Order #{orderNumber}
+          </p>
+        </div>
+      </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col flex-1 overflow-visible"
-        >
-          {}
-          <FormBody>
-            {}
-            <div className="space-y-2 p-3 bg-muted rounded border border-muted-foreground/20">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Order Number:</span>
-                <span className="text-xs font-semibold text-foreground">#{orderNumber}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">New Status:</span>
-                <span className="text-xs font-semibold px-1 py-1 rounded bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-300 border border-red-300 dark:border-red-800">
-                  CANCELLED
-                </span>
-              </div>
+      {/* ── Form Body ── */}
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
+        <div className="p-3.5 px-4 sm:px-5 space-y-3 bg-card/40">
+          {/* Order Details Summary Row */}
+          <div className="p-3 bg-muted/40 rounded-xl border border-border/80 text-xs space-y-1.5 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground font-semibold">Order Number:</span>
+              <span className="font-mono font-bold text-foreground">#{orderNumber}</span>
             </div>
-
-            {}
-            {error && (
-              <Alert variant="destructive">
-                <AlertTriangle className="h-3 w-3" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            {}
-            <div className="space-y-1">
-              <TextareaField
-                control={control}
-                name="customerNote"
-                label="Cancellation Note (Optional)"
-                placeholder="Please tell us why you're cancelling this order (max 500 characters)..."
-                disabled={isSubmitting}
-                rows={4}
-                error={errors.customerNote}
-              />
+            <div className="flex items-center justify-between pt-1 border-t border-border/50">
+              <span className="text-muted-foreground font-semibold">New Status:</span>
+              <span className="px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-bold border border-red-500/20">
+                CANCELLED
+              </span>
             </div>
-          </FormBody>
+          </div>
 
-          {}
-          <FormFooter
-            isSubmitting={isSubmitting}
-            isDirty={isDirty}
-            isCreate={false}
-            createMessage=""
-            updateMessage="Cancelling order..."
+          {/* Error Alert */}
+          {error && (
+            <div className="p-2.5 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive flex items-center gap-2 text-xs font-semibold">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Cancellation Note */}
+          <div className="space-y-1">
+            <TextareaField
+              control={control}
+              name="customerNote"
+              label="Cancellation Note (Optional)"
+              placeholder="Please tell us why you are cancelling this order..."
+              disabled={isSubmitting}
+              rows={3}
+              error={errors.customerNote}
+            />
+          </div>
+        </div>
+
+        {/* ── Compact Footer ── */}
+        <div className="p-3 px-4 sm:px-5 border-t border-border/60 bg-muted/20 flex items-center justify-end gap-2.5 shrink-0">
+          <CustomButton
+            type="button"
+            variant="outline"
+            onClick={handleClose}
+            disabled={isSubmitting}
+            className="h-9 px-4 text-xs font-bold rounded-xl border-border/80 hover:bg-muted/50 transition-all cursor-pointer"
           >
-            <CustomButton
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={isSubmitting}
-              className="flex-1 sm:flex-initial"
-            >
-              Keep Order
-            </CustomButton>
+            Cancel
+          </CustomButton>
 
-            <CustomButton
-              type="submit"
-              variant="destructive"
-              disabled={isSubmitting}
-              className="flex-1 sm:flex-initial bg-red-600 hover:bg-red-700 focus:ring-red-600"
-            >
-              {isSubmitting ? "Cancelling..." : "Cancel Order"}
-            </CustomButton>
-          </FormFooter>
-        </form>
-      
+          <CustomButton
+            type="submit"
+            variant="destructive"
+            isLoading={isSubmitting}
+            disabled={isSubmitting}
+            className="h-9 px-5 text-xs font-bold rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-xs transition-all cursor-pointer"
+          >
+            {isSubmitting ? "Cancelling..." : "Confirm"}
+          </CustomButton>
+        </div>
+      </form>
     </CustomModal>
   );
 }

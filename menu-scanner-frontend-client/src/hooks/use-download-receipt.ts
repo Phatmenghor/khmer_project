@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { showToast } from "@/components/shared/common/show-toast";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
-import { axiosClientWithAuth } from "@/utils/axios";
+import { axiosClient } from "@/utils/axios";
 
 export function useDownloadReceipt() {
   const [downloadingOrderId, setDownloadingOrderId] = useState<string | null>(null);
@@ -17,7 +17,7 @@ export function useDownloadReceipt() {
     setDownloadingOrderId(order.id);
 
     try {
-      const response = await axiosClientWithAuth.get(`/api/v1/orders/${order.id}/receipt/pdf`, {
+      const response = await axiosClient.get(`/api/v1/orders/${order.id}/receipt/pdf`, {
         responseType: "blob",
       });
 
@@ -45,7 +45,7 @@ export function useDownloadReceipt() {
     setPrintingOrderId(order.id);
 
     try {
-      const response = await axiosClientWithAuth.get(`/api/v1/orders/${order.id}/receipt/pdf`, {
+      const response = await axiosClient.get(`/api/v1/orders/${order.id}/receipt/pdf`, {
         responseType: "blob",
       });
 

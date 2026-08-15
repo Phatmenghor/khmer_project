@@ -12,6 +12,27 @@ import {
   CartItemCustomization,
 } from "../models/response/cart-response";
 
+const GUEST_CART_STORAGE_KEY = "guest_cart";
+
+const saveGuestCart = (items: CartItemModel[]) => {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(GUEST_CART_STORAGE_KEY, JSON.stringify(items));
+  } catch {
+    // ignore storage error
+  }
+};
+
+const loadGuestCart = (): CartItemModel[] => {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(GUEST_CART_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
 interface CartState {
   items: CartItemModel[];
   totalItems: number;
@@ -48,57 +69,25 @@ const initialState: CartState = {
   needsRefetch: false,
 };
 
+const recalculateTotals = (state: CartState) => {
+  state.totalItems = state.items.length;
+  state.totalQuantity = state.items.reduce((sum, i) => sum + i.quantity, 0);
 
-const updateCartFromResponse = (
-  state: CartState,
-  response: CartResponseModel,
-  optimisticTimestamp?: number
-) => {
-  const checkTimestamp = optimisticTimestamp || 0;
-
-  const currentItemsByKey = new Map(
-    state.items.map((i) => [`${i.productId}_${i.productSizeId}`, i])
+  const subtotalBeforeDiscount = state.items.reduce(
+    (sum, i) => sum + i.currentPrice * i.quantity,
+    0
   );
 
-  const newItems = response.items || [];
-  const processedItems: CartItemModel[] = [];
-  const processedKeys = new Set<string>();
+  state.finalTotal = state.items.reduce((sum, i) => sum + i.totalPrice, 0);
+  state.subtotal = state.finalTotal;
+  state.discountAmount = subtotalBeforeDiscount - state.finalTotal;
 
-  for (const newItem of newItems) {
-    const key = `${newItem.productId}_${newItem.productSizeId}`;
-    processedKeys.add(key);
-    const localItem = currentItemsByKey.get(key);
-
-    if (localItem && (localItem.lastOptimisticTimestamp || 0) > checkTimestamp) {
-      processedItems.push({
-        ...newItem,
-        quantity: localItem.quantity,
-        totalPrice: newItem.finalPrice * localItem.quantity,
-        lastOptimisticTimestamp: localItem.lastOptimisticTimestamp,
-      });
-    } else {
-      processedItems.push(newItem);
-    }
-  }
-
-  state.items.forEach((localItem) => {
-    const key = `${localItem.productId}_${localItem.productSizeId}`;
-    if (!processedKeys.has(key)) {
-      if ((localItem.lastOptimisticTimestamp || 0) > checkTimestamp) {
-        processedItems.push(localItem);
-      }
-    }
-  });
-
-  state.items = processedItems;
-  recalculateTotals(state);
+  saveGuestCart(state.items);
 };
 
-// Used for add/update mutations: keeps local quantities (never overwrites with API qty),
-// only syncs the server-assigned id and server-calculated prices.
 const syncMetaFromResponse = (
   state: CartState,
-  response: CartResponseModel,
+  response: CartResponseModel
 ) => {
   const apiItemsByKey = new Map(
     (response.items || []).map((i) => [`${i.productId}_${i.productSizeId}`, i])
@@ -111,44 +100,17 @@ const syncMetaFromResponse = (
 
     return {
       ...localItem,
-      // Replace temp_xxx id with real server id
-      id: localItem.id.startsWith('temp_') ? apiItem.id : localItem.id,
-      // Sync server-calculated price fields (promotions, discounts)
+      id: localItem.id.startsWith("temp_") ? apiItem.id : localItem.id,
       finalPrice: apiItem.finalPrice,
       currentPrice: apiItem.currentPrice,
       hasPromotion: apiItem.hasPromotion,
       promotionType: apiItem.promotionType,
       promotionValue: apiItem.promotionValue,
-      // Recalculate totalPrice using LOCAL quantity × server finalPrice
       totalPrice: apiItem.finalPrice * localItem.quantity,
     };
   });
 
   recalculateTotals(state);
-};
-
-
-const recalculateTotals = (state: CartState) => {
-
-  state.totalItems = state.items.length;
-
-
-  state.totalQuantity = state.items.reduce((sum, i) => sum + i.quantity, 0);
-
-
-  const subtotalBeforeDiscount = state.items.reduce(
-    (sum, i) => sum + (i.currentPrice * i.quantity),
-    0
-  );
-
-
-  state.finalTotal = state.items.reduce((sum, i) => sum + i.totalPrice, 0);
-
-
-  state.subtotal = state.finalTotal;
-
-
-  state.discountAmount = subtotalBeforeDiscount - state.finalTotal;
 };
 
 const cartSlice = createSlice({
@@ -163,6 +125,15 @@ const cartSlice = createSlice({
       state.discountAmount = 0;
       state.finalTotal = 0;
       state.loaded = false;
+      state.error = null;
+      saveGuestCart([]);
+    },
+
+    loadCartFromStorage: (state) => {
+      const stored = loadGuestCart();
+      state.items = stored;
+      recalculateTotals(state);
+      state.loaded = true;
       state.error = null;
     },
 
@@ -209,10 +180,16 @@ const cartSlice = createSlice({
       } = action.payload;
 
       // Match by productId + productSizeId + exact customization set
-      const incomingCustomIds = (customizations || []).map((c) => c.productCustomizationId).sort();
+      const incomingCustomIds = (customizations || [])
+        .map((c) => c.productCustomizationId)
+        .sort();
+
       const existingItem = state.items.find((i) => {
-        if (i.productId !== productId || i.productSizeId !== (productSizeId || null)) return false;
-        const itemCustomIds = (i.customizations || []).map((c) => c.productCustomizationId).sort();
+        if (i.productId !== productId || i.productSizeId !== (productSizeId || null))
+          return false;
+        const itemCustomIds = (i.customizations || [])
+          .map((c) => c.productCustomizationId)
+          .sort();
         if (itemCustomIds.length !== incomingCustomIds.length) return false;
         return incomingCustomIds.every((id, idx) => id === itemCustomIds[idx]);
       });
@@ -226,9 +203,9 @@ const cartSlice = createSlice({
           existingItem.lastOptimisticTimestamp = optimisticTimestamp;
         }
       } else {
-        const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
         const totalBeforeDiscount = currentPrice * quantity;
-        const discountAmount = totalBeforeDiscount - (finalPrice * quantity);
+        const discountAmount = totalBeforeDiscount - finalPrice * quantity;
 
         state.items.push({
           id: tempId,
@@ -256,8 +233,10 @@ const cartSlice = createSlice({
         });
       }
 
+      state.loaded = true;
       recalculateTotals(state);
     },
+
     updateLocalCartItem: (
       state,
       action: PayloadAction<{
@@ -268,14 +247,22 @@ const cartSlice = createSlice({
         customizationIds?: string[];
       }>
     ) => {
-      const { productId, productSizeId, quantity, optimisticTimestamp, customizationIds } = action.payload;
+      const {
+        productId,
+        productSizeId,
+        quantity,
+        optimisticTimestamp,
+        customizationIds,
+      } = action.payload;
 
-      // Match by productId + productSizeId + customizations (if provided)
       const sortedCustomIds = (customizationIds || []).sort();
       const item = state.items.find((i) => {
-        if (i.productId !== productId || i.productSizeId !== (productSizeId || null)) return false;
+        if (i.productId !== productId || i.productSizeId !== (productSizeId || null))
+          return false;
         if (sortedCustomIds.length > 0) {
-          const itemCustomIds = (i.customizations || []).map((c) => c.productCustomizationId).sort();
+          const itemCustomIds = (i.customizations || [])
+            .map((c) => c.productCustomizationId)
+            .sort();
           if (itemCustomIds.length !== sortedCustomIds.length) return false;
           return sortedCustomIds.every((id, idx) => id === itemCustomIds[idx]);
         }
@@ -284,70 +271,35 @@ const cartSlice = createSlice({
 
       if (item) {
         if (quantity <= 0) {
-
           state.items = state.items.filter((i) => i.id !== item.id);
         } else {
-
           item.quantity = quantity;
           item.totalPrice = item.finalPrice * quantity;
           if (optimisticTimestamp) {
             item.lastOptimisticTimestamp = optimisticTimestamp;
           }
         }
-
         recalculateTotals(state);
       }
+    },
 
+    removeLocalCartItem: (state, action: PayloadAction<string>) => {
+      const idOrProductId = action.payload;
+      state.items = state.items.filter(
+        (i) => i.id !== idOrProductId && i.productId !== idOrProductId
+      );
+      recalculateTotals(state);
+    },
+
+    clearLocalCart: (state) => {
+      state.items = [];
+      recalculateTotals(state);
+      state.loaded = true;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
-
-      .addCase(addToCart.pending, (state) => {
-        state.loading.add = true;
-        state.error = null;
-      })
-      .addCase(
-        addToCart.fulfilled,
-        (state, action) => {
-          state.loading.add = false;
-          // Keep local quantities — only sync server id + prices
-          syncMetaFromResponse(state, action.payload);
-          state.loaded = true;
-          state.error = null;
-        }
-      )
-      .addCase(addToCart.rejected, (state, action) => {
-        state.loading.add = false;
-        const payload = action.payload as any;
-        if (payload?.aborted || payload === "canceled" || action.error.message === "canceled") return;
-        state.needsRefetch = true;
-        state.error = action.error.message || "Failed to add item to cart";
-      })
-
-
-      .addCase(updateCartItem.pending, (state) => {
-        state.loading.update = true;
-        state.error = null;
-      })
-      .addCase(
-        updateCartItem.fulfilled,
-        (state, action) => {
-          state.loading.update = false;
-          // Keep local quantities — only sync server id + prices
-          syncMetaFromResponse(state, action.payload);
-          state.error = null;
-        }
-      )
-      .addCase(updateCartItem.rejected, (state, action) => {
-        state.loading.update = false;
-        const payload = action.payload as any;
-        if (payload?.aborted || payload === "canceled" || action.error.message === "canceled") return;
-        state.needsRefetch = true;
-        state.error = action.error.message || "Failed to update cart item";
-      })
-
-
       .addCase(fetchCart.pending, (state) => {
         state.loading.fetch = true;
         state.error = null;
@@ -356,12 +308,20 @@ const cartSlice = createSlice({
         fetchCart.fulfilled,
         (state, action: PayloadAction<CartResponseModel>) => {
           state.loading.fetch = false;
-
-          state.items = action.payload.items || [];
-          recalculateTotals(state);
+          const serverItems = action.payload.items || [];
+          if (serverItems.length > 0 || state.items.length === 0) {
+            state.items = serverItems;
+          }
+          state.totalItems = action.payload.totalItems || state.items.length;
+          state.totalQuantity =
+            action.payload.totalQuantity ||
+            state.items.reduce((s, i) => s + i.quantity, 0);
+          state.subtotal = action.payload.subtotal || 0;
+          state.discountAmount = action.payload.discountAmount || 0;
+          state.finalTotal = action.payload.finalTotal || 0;
           state.loaded = true;
-          state.needsRefetch = false;
           state.error = null;
+          saveGuestCart(state.items);
         }
       )
       .addCase(fetchCart.rejected, (state, action) => {
@@ -369,6 +329,50 @@ const cartSlice = createSlice({
         state.error = action.error.message || "Failed to fetch cart";
       })
 
+      .addCase(addToCart.pending, (state) => {
+        state.loading.add = true;
+        state.error = null;
+      })
+      .addCase(addToCart.fulfilled, (state, action) => {
+        state.loading.add = false;
+        syncMetaFromResponse(state, action.payload);
+        state.loaded = true;
+        state.error = null;
+      })
+      .addCase(addToCart.rejected, (state, action) => {
+        state.loading.add = false;
+        const payload = action.payload as any;
+        if (
+          payload?.aborted ||
+          payload === "canceled" ||
+          action.error.message === "canceled"
+        )
+          return;
+        state.needsRefetch = true;
+        state.error = action.error.message || "Failed to add item to cart";
+      })
+
+      .addCase(updateCartItem.pending, (state) => {
+        state.loading.update = true;
+        state.error = null;
+      })
+      .addCase(updateCartItem.fulfilled, (state, action) => {
+        state.loading.update = false;
+        syncMetaFromResponse(state, action.payload);
+        state.error = null;
+      })
+      .addCase(updateCartItem.rejected, (state, action) => {
+        state.loading.update = false;
+        const payload = action.payload as any;
+        if (
+          payload?.aborted ||
+          payload === "canceled" ||
+          action.error.message === "canceled"
+        )
+          return;
+        state.needsRefetch = true;
+        state.error = action.error.message || "Failed to update cart item";
+      })
 
       .addCase(clearCart.pending, (state) => {
         state.loading.clear = true;
@@ -382,12 +386,18 @@ const cartSlice = createSlice({
         state.discountAmount = 0;
         state.finalTotal = 0;
         state.error = null;
+        saveGuestCart([]);
       })
       .addCase(clearCart.rejected, (state, action) => {
         state.loading.clear = false;
-        if (action.error.message === "canceled" || action.payload === "canceled") return;
+        if (
+          action.error.message === "canceled" ||
+          action.payload === "canceled"
+        )
+          return;
         state.error = action.error.message || "Failed to clear cart";
       })
+
       .addCase(createOrderService.fulfilled, (state) => {
         state.items = [];
         state.totalItems = 0;
@@ -397,9 +407,18 @@ const cartSlice = createSlice({
         state.finalTotal = 0;
         state.loaded = true;
         state.error = null;
+        saveGuestCart([]);
       });
   },
 });
 
-export const { resetCart, addLocalCartItem, updateLocalCartItem } = cartSlice.actions;
+export const {
+  resetCart,
+  loadCartFromStorage,
+  addLocalCartItem,
+  updateLocalCartItem,
+  removeLocalCartItem,
+  clearLocalCart,
+} = cartSlice.actions;
+
 export default cartSlice.reducer;

@@ -13,7 +13,6 @@ import { useFavoriteState } from "@/features/main/store/state/favorite-state";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { addLocalCartItem } from "@/features/main/store/slice/cart-slice";
 import { toggleFavorite } from "@/features/main/store/thunks/favorite-thunks";
-import { LoginModal } from "@/components/shared/modal/login-modal";
 import { showToast } from "@/components/shared/common/show-toast";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { PageState } from "@/components/shared/page-state";
@@ -59,7 +58,6 @@ export default function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [selectedCustomizations, setSelectedCustomizations] = useState<ProductCustomizationDto[]>([]);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   // Quantity state
@@ -158,13 +156,9 @@ export default function ProductDetailPage() {
 
   // Handlers
   const handleToggleFavorite = () => {
-    if (!isAuthenticated) {
-      setShowLoginModal(true);
-      return;
-    }
     if (!product) return;
 
-    debouncedToggleFavorite(product.id, isFavorited, (newState) => {
+    debouncedToggleFavorite(product, isFavorited, (newState) => {
       setIsFavorited(newState);
     });
   };
@@ -192,10 +186,6 @@ export default function ProductDetailPage() {
   };
 
   const handleAddToCart = () => {
-    if (!isAuthenticated) {
-      setShowLoginModal(true);
-      return;
-    }
     if (!product || isOutOfStock) return;
     setIsAddingToCart(true);
 
@@ -376,14 +366,6 @@ export default function ProductDetailPage() {
         isAddingToCart={isAddingToCart}
         onAddToCart={handleAddToCart}
       />
-
-      {/* Login Modal */}
-      {showLoginModal && (
-        <LoginModal
-          open={showLoginModal}
-          onOpenChange={setShowLoginModal}
-        />
-      )}
     </div>
   );
 }

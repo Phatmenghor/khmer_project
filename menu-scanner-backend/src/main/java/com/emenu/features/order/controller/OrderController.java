@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -40,9 +41,9 @@ public class OrderController {
     }
 
     @PostMapping("/guest-lookup")
-    public ResponseEntity<ApiResponse<java.util.List<OrderResponse>>> getGuestOrders(@RequestBody java.util.List<UUID> orderIds) {
+    public ResponseEntity<ApiResponse<List<OrderResponse>>> getGuestOrders(@RequestBody List<UUID> orderIds) {
         log.info("Endpoint: guest-lookup - retrieving {} guest orders", orderIds != null ? orderIds.size() : 0);
-        java.util.List<OrderResponse> orders = orderService.getGuestOrders(orderIds);
+        List<OrderResponse> orders = orderService.getGuestOrders(orderIds);
         return ResponseEntity.ok(ApiResponse.success("Guest orders retrieved successfully", orders));
     }
 
@@ -91,6 +92,13 @@ public class OrderController {
         log.info("Endpoint: update-order - order update: id={}", id);
         OrderResponse order = orderService.updateOrder(id, request);
         return ResponseEntity.ok(ApiResponse.success("Order updated successfully", order));
+    }
+
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<ApiResponse<OrderResponse>> cancelOrder(@PathVariable UUID id) {
+        log.info("Endpoint: cancel-order - order cancellation: id={}", id);
+        OrderResponse order = orderService.cancelOrder(id);
+        return ResponseEntity.ok(ApiResponse.success("Order cancelled successfully", order));
     }
 
     @DeleteMapping("/{id}")

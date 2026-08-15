@@ -73,6 +73,21 @@ export function Navbar() {
     prevFavoriteCount.current = favoriteItemCount;
   }, [favoriteItemCount]);
 
+  const [cartAnimating, setCartAnimating] = useState(false);
+  const prevCartCount = useRef(cartItemCount);
+
+  useEffect(() => {
+    if (
+      prevCartCount.current !== cartItemCount &&
+      cartItemCount > 0
+    ) {
+      setCartAnimating(true);
+      const timer = setTimeout(() => setCartAnimating(false), 300);
+      return () => clearTimeout(timer);
+    }
+    prevCartCount.current = cartItemCount;
+  }, [cartItemCount]);
+
   useEffect(() => {
     if (mobileSearchOpen) {
       setTimeout(() => mobileSearchRef.current?.focus(), 50);
@@ -239,8 +254,11 @@ export function Navbar() {
                   cartItemCount={cartItemCount}
                   favoriteItemCount={favoriteItemCount}
                   favoriteAnimating={favoriteAnimating}
+                  cartAnimating={cartAnimating}
                   onFavoritesClick={() => router.push("/favorites")}
                   onCartClick={() => router.push("/cart")}
+                  onOrdersClick={() => router.push("/orders")}
+                  showOrdersIcon={!isAuthenticated}
                   isMobile={true}
                 />
 
@@ -310,8 +328,11 @@ export function Navbar() {
                 cartItemCount={cartItemCount}
                 favoriteItemCount={favoriteItemCount}
                 favoriteAnimating={favoriteAnimating}
+                cartAnimating={cartAnimating}
                 onFavoritesClick={() => router.push("/favorites")}
                 onCartClick={() => router.push("/cart")}
+                onOrdersClick={() => router.push("/orders")}
+                showOrdersIcon={!isAuthenticated}
               />
 
               <NavbarAuth

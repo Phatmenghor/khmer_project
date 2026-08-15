@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useCartState } from "@/features/main/store/state/cart-state";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { LoginModal } from "../shared/modal/login-modal";
 
 const tabs = [
@@ -24,9 +24,20 @@ export function BottomNav() {
   const { totalItems: cartCount } = useCartState();
   const { isAuthenticated } = useAuthState();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [cartAnimating, setCartAnimating] = useState(false);
+  const prevCartCount = useRef(cartCount);
+
+  useEffect(() => {
+    if (prevCartCount.current !== cartCount && cartCount > 0) {
+      setCartAnimating(true);
+      const timer = setTimeout(() => setCartAnimating(false), 300);
+      return () => clearTimeout(timer);
+    }
+    prevCartCount.current = cartCount;
+  }, [cartCount]);
 
   const handleProtectedTab = (href: string) => {
-    if ((href === "/cart" || href === "/profile") && !isAuthenticated) {
+    if (href === "/profile" && !isAuthenticated) {
       setLoginModalOpen(true);
       return;
     }
@@ -46,7 +57,7 @@ export function BottomNav() {
             const active = isActive(tab.href);
             const Icon = tab.icon;
             const isCart = tab.href === "/cart";
-            const needsAuth = tab.href === "/cart" || tab.href === "/profile";
+            const needsAuth = tab.href === "/profile";
 
             return (
               <CustomButton variant="unstyled" size="unstyled"
@@ -73,7 +84,10 @@ export function BottomNav() {
                   {isCart && cartCount > 0 && (
                     <Badge
                       variant="destructive"
-                      className="absolute -top-1 -right-1 h-3 min-w-[16px] px-0.5 flex items-center justify-center text-[10px] leading-none"
+                      className={cn(
+                        "absolute -top-1 -right-1 h-3 min-w-[16px] px-0.5 flex items-center justify-center text-[10px] leading-none transition-transform duration-300",
+                        cartAnimating && "animate-slide-down"
+                      )}
                     >
                       {cartCount > 99 ? "99+" : cartCount}
                     </Badge>

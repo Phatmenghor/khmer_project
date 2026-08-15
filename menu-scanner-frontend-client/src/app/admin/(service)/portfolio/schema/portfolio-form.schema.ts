@@ -20,6 +20,7 @@ export const portfolioFormSchema = z.object({
       })
     ).optional(),
     telegram: z.string().optional(),
+    whatsapp: z.string().optional(),
     address: z.string().optional(),
     mapLink: z.string().optional(),
   }).optional(),

@@ -5,7 +5,6 @@ import { useEffect, Suspense, useCallback, useMemo, useRef, useState } from "rea
 import { useRouter } from "next/navigation";
 import { Heart, ShoppingCart, Trash2, CheckCircle2, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/common/page-header";
-import { SignInRequired } from "@/components/shared/auth/sign-in-required";
 import { useFavoriteState } from "@/features/main/store/state/favorite-state";
 import { useCartState } from "@/features/main/store/state/cart-state";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
@@ -14,7 +13,14 @@ import {
   toggleFavorite,
   clearAllFavorites,
 } from "@/features/main/store/thunks/favorite-thunks";
-import { addToCart } from "@/features/main/store/thunks/cart-thunks";
+import {
+  clearLocalFavorites,
+  loadFavoritesFromStorage,
+  removeLocalFavorite,
+} from "@/features/main/store/slice/favorite-slice";
+import { addLocalCartItem } from "@/features/main/store/slice/cart-slice";
+import { appImages } from "@/constants/app-resource/icons/app-images";
+import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
 import { ProductCard } from "@/components/shared/card/product-card";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { GridPageSkeleton } from "@/components/shared/skeletons/grid-page-skeleton";
@@ -39,11 +45,9 @@ function FavoritesPageInner() {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-
   useEffect(() => {
     setMounted(true);
   }, []);
-
 
   const calculateSkeletonCount = useCallback(() => {
     const width = window.innerWidth;
@@ -54,13 +58,11 @@ function FavoritesPageInner() {
     else setSkeletonCount(6);
   }, []);
 
-
   useEffect(() => {
     calculateSkeletonCount();
     window.addEventListener("resize", calculateSkeletonCount);
     return () => window.removeEventListener("resize", calculateSkeletonCount);
   }, [calculateSkeletonCount]);
-
 
   const pageSize = 15;
 
@@ -69,17 +71,22 @@ function FavoritesPageInner() {
     items.length === 0 &&
     !loaded;
 
-
   useEffect(() => {
     if (!authReady) return;
-    if (isAuthenticated && !loaded) {
-      dispatch(fetchFavoritePaginated({ pageNo: 1, pageSize }));
+    if (isAuthenticated) {
+      if (!loaded) {
+        dispatch(fetchFavoritePaginated({ pageNo: 1, pageSize }));
+      }
+    } else {
+      if (!loaded) {
+        dispatch(loadFavoritesFromStorage());
+      }
     }
   }, [authReady, isAuthenticated, loaded, dispatch, pageSize]);
 
-
   const handleLoadMore = useCallback(() => {
     if (
+      isAuthenticated &&
       pagination.hasMore &&
       !loading.fetch &&
       items.length > 0
@@ -87,15 +94,13 @@ function FavoritesPageInner() {
       const nextPage = pagination.currentPage + 1;
       dispatch(fetchFavoritePaginated({ pageNo: nextPage, pageSize }));
     }
-  }, [dispatch, pagination.hasMore, pagination.currentPage, loading.fetch, items.length, pageSize]);
-
+  }, [isAuthenticated, dispatch, pagination.hasMore, pagination.currentPage, loading.fetch, items.length, pageSize]);
 
   const { handleLoadMore: debouncedLoadMore } = usePaginationLoadMore(
     handleLoadMore,
     pagination.hasMore && !loading.fetch,
     [pagination.hasMore, loading.fetch, handleLoadMore]
   );
-
 
   useEffect(() => {
     if (!pagination.hasMore || !sentinelRef.current) {
@@ -126,40 +131,46 @@ function FavoritesPageInner() {
     };
   }, [pagination.hasMore, debouncedLoadMore]);
 
-  const handleRemoveOne = (productId: string) => {
-    dispatch(toggleFavorite({ productId, isFavorited: true }))
-      .unwrap()
-      .then(() => {
-        showToast.success(Messages.favorites.removed);
-      })
-      .catch((error: unknown) => {
-        showToast.error((error as { message?: string })?.message || Messages.favorites.removeFailed);
-      });
-  };
-
   const handleClearAll = async () => {
+    if (!isAuthenticated) {
+      dispatch(clearLocalFavorites());
+      showToast.success(Messages.favorites.allCleared);
+      setClearAllModalOpen(false);
+      return;
+    }
     try {
       await dispatch(clearAllFavorites()).unwrap();
       showToast.success(Messages.favorites.allCleared);
     } catch (error: unknown) {
       showToast.error((error as { message?: string })?.message || Messages.favorites.clearFailed);
+    } finally {
+      setClearAllModalOpen(false);
     }
   };
 
-  const handleMoveToCart = (productId: string) => {
-    cartDispatch(addToCart({ productId, quantity: 1 }))
-      .unwrap()
-      .then(() => {
-        return dispatch(toggleFavorite({ productId, isFavorited: true })).unwrap();
+  const handleMoveToCart = async (item: ProductDetailResponseModel) => {
+    cartDispatch(
+      addLocalCartItem({
+        productId: item.id,
+        productSizeId: null,
+        quantity: 1,
+        productName: item.name,
+        productImageUrl: item.mainImage?.sm || item.mainImage?.md || item.mainImage?.o || appImages.noImage,
+        sizeName: null,
+        finalPrice: item.displayPrice ?? item.price ?? 0,
+        currentPrice: item.displayOriginPrice ?? item.price ?? 0,
+        hasPromotion: item.hasPromotion,
+        promotionType: item.displayPromotionType || null,
+        promotionValue: item.displayPromotionValue || null,
       })
-      .then(() => {
-        showToast.success(Messages.cart.movedToCart);
-      })
-      .catch((error: unknown) => {
-        showToast.error((error as { message?: string })?.message || Messages.cart.moveToCartFailed);
-      });
+    );
+    if (!isAuthenticated) {
+      dispatch(removeLocalFavorite(item.id));
+    } else {
+      await dispatch(toggleFavorite({ productId: item.id, isFavorited: true })).unwrap().catch(() => {});
+    }
+    showToast.success(Messages.cart.movedToCart);
   };
-
 
   const [movingAllToCart, setMovingAllToCart] = useState(false);
 
@@ -169,7 +180,21 @@ function FavoritesPageInner() {
 
     try {
       for (const item of items) {
-        await cartDispatch(addToCart({ productId: item.id, quantity: 1 })).unwrap();
+        cartDispatch(
+          addLocalCartItem({
+            productId: item.id,
+            productSizeId: null,
+            quantity: 1,
+            productName: item.name,
+            productImageUrl: item.mainImage?.sm || item.mainImage?.md || item.mainImage?.o || appImages.noImage,
+            sizeName: null,
+            finalPrice: item.displayPrice ?? item.price ?? 0,
+            currentPrice: item.displayOriginPrice ?? item.price ?? 0,
+            hasPromotion: item.hasPromotion,
+            promotionType: item.displayPromotionType || null,
+            promotionValue: item.displayPromotionValue || null,
+          })
+        );
       }
       showToast.success(`Added ${items.length} ${items.length === 1 ? "item" : "items"} to your cart`);
     } catch {
@@ -183,22 +208,6 @@ function FavoritesPageInner() {
     return <GridPageSkeleton card={<ProductCardSkeleton />} count={skeletonCount} />;
   }
 
-  if (!isAuthenticated) {
-    return (
-      <>
-        <SignInRequired
-          title="My Favorites"
-          description="Sign in to save and view your favorite items."
-          icon="❤️"
-          onSignIn={() => setLoginModalOpen(true)}
-          browseButtonText="Browse Products"
-          onBrowse={() => router.push("/products")}
-        />
-        <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
-      </>
-    );
-  }
-
   if (items.length === 0) {
     return (
       <PageContainer className="min-h-screen flex flex-col py-8 sm:py-14">
@@ -208,8 +217,11 @@ function FavoritesPageInner() {
           description="Save your favorite items by tapping the heart icon on any product card for quick access anytime!"
           actionLabel="Explore Products"
           onAction={() => router.push("/products")}
+          secondaryActionLabel={!isAuthenticated ? "Sign In to Sync" : undefined}
+          onSecondaryAction={!isAuthenticated ? () => setLoginModalOpen(true) : undefined}
           size="lg"
         />
+        <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
       </PageContainer>
     );
   }

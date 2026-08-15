@@ -13,7 +13,6 @@ import { toggleFavorite } from "@/features/main/store/thunks/favorite-thunks";
 import { showToast } from "../common/show-toast";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { appImages } from "@/constants/app-resource/icons/app-images";
-import { LoginModal } from "../modal/login-modal";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { useFavoriteState } from "@/features/main/store/state/favorite-state";
 import {
@@ -46,27 +45,20 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
   const { dispatch: favoriteDispatch, items: favoriteItems, loaded: favLoaded } = useFavoriteState();
   const { isAuthenticated } = useAuthState();
 
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const [sizePickerProduct, setSizePickerProduct] = useState<ProductDetailResponseModel | null>(null);
 
-
   const [localQuantity, setLocalQuantity] = useState<number | null>(null);
-
 
   const quantity = useAppSelector((state) => selectProductQuantityInCart(state, product.id, null));
   const totalQuantity = useAppSelector((state) => selectProductTotalQuantity(state, product.id));
 
-
   const displayQuantityValue = localQuantity !== null ? localQuantity : quantity;
-
 
   useEffect(() => {
     if (localQuantity !== null && localQuantity === quantity) {
-
       setLocalQuantity(null);
     }
   }, [quantity, localQuantity]);
-
 
   const isFavoritedFromStore = favLoaded
     ? favoriteItems.some((item) => item.id === product.id)
@@ -94,11 +86,6 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
   const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
-    if (!isAuthenticated) {
-      setShowLoginModal(true);
-      return;
-    }
 
     const hasSizes = product.hasSizes && product.sizes && product.sizes.length > 0;
     const hasCustomizations = product.customizations && product.customizations.length > 0;
@@ -196,12 +183,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
     e.preventDefault();
     e.stopPropagation();
 
-    if (!isAuthenticated) {
-      setShowLoginModal(true);
-      return;
-    }
-
-    debouncedToggleFavorite(product.id, isFavorited, (newState) => {
+    debouncedToggleFavorite(product, isFavorited, (newState) => {
       setOptimisticFavorite(newState);
     });
   };
@@ -369,7 +351,6 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
         </div>
       </div>
 
-      <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
       <SizePickerModal
         product={sizePickerProduct}
         open={!!sizePickerProduct}

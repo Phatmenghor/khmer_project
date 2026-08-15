@@ -20,7 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { showToast } from "@/components/shared/common/show-toast";
 import { clearCart, fetchCart, searchCartItems } from "@/features/main/store/thunks/cart-thunks";
-import { updateLocalCartItem, resetCart } from "@/features/main/store/slice/cart-slice";
+import { updateLocalCartItem, resetCart, loadCartFromStorage } from "@/features/main/store/slice/cart-slice";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
@@ -28,7 +28,6 @@ import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
 import { PageState } from "@/components/shared/page-state";
-import { SignInRequired } from "@/components/shared/auth/sign-in-required";
 
 function CartItemSkeleton() {
   return (
@@ -131,8 +130,14 @@ function CartPage() {
 
   useEffect(() => {
     if (!authReady) return;
-    if (isAuthenticated && !loaded && !loading.fetch) {
-      dispatch(fetchCart());
+    if (isAuthenticated) {
+      if (!loaded && !loading.fetch) {
+        dispatch(fetchCart());
+      }
+    } else {
+      if (!loaded) {
+        dispatch(loadCartFromStorage());
+      }
     }
   }, [authReady, isAuthenticated, loaded, loading.fetch, dispatch]);
 
@@ -208,6 +213,8 @@ function CartPage() {
           icon={ShoppingCart}
           count={totalItems}
           countLabel="items"
+          showBackButton={true}
+          backHref="/products"
           actions={
             <CustomButton
               variant="ghost"

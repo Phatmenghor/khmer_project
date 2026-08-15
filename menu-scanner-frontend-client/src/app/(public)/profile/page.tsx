@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Edit, Loader2, Trash2, Lock, User, Camera } from "lucide-react";
+import { Edit, Loader2, Trash2, Lock, User, Camera, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { SmartImage } from "@/components/shared/image/smart-image";
@@ -384,6 +384,16 @@ export default function PublicProfilePage() {
             >
               <Lock className="h-3.5 w-3.5" />
               <span>Security & Accounts</span>
+            </CustomButton>
+
+            <CustomButton
+              variant="unstyled"
+              size="unstyled"
+              onClick={() => router.push("/orders")}
+              className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-extrabold transition-all cursor-pointer text-muted-foreground hover:text-foreground hover:bg-card/50"
+            >
+              <ShoppingBag className="h-3.5 w-3.5" />
+              <span>My Orders</span>
             </CustomButton>
           </div>
 

@@ -9,6 +9,7 @@ export interface PortfolioContactDto {
   email?: string;
   phone?: string;
   phones?: PortfolioPhoneDto[];
+  whatsapp?: string;
   telegram?: string;
   address?: string;
   mapLink?: string;

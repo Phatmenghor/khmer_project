@@ -35,7 +35,6 @@ import { ORDER_STATUS_ADMIN_FILTER, PAYMENT_STATUS_ADMIN_FILTER } from "@/consta
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { indexDisplay } from "@/utils/common/common";
 import { useAppDispatch } from "@/store";
-import { SignInRequired } from "@/components/shared/auth/sign-in-required";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useDownloadReceipt } from "@/hooks/use-download-receipt";
@@ -197,7 +196,7 @@ export default function OrdersPage() {
   const filteredGuestOrders = useMemo(() => {
     return guestOrders.filter((order) => {
       if (filters.status && order.orderStatus !== filters.status) return false;
-      if (filters.paymentStatus && filters.paymentStatus !== "ALL" && order.paymentStatus !== filters.paymentStatus) return false;
+      if (filters.paymentStatus && filters.paymentStatus !== "ALL" && order.payment?.paymentStatus !== filters.paymentStatus) return false;
       if (debouncedSearch) {
         const query = debouncedSearch.toLowerCase();
         const matchesNumber = order.orderNumber?.toLowerCase().includes(query);

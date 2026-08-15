@@ -29,14 +29,16 @@ import { useDeliveryOptionsState } from "@/features/master-data/store/state/deli
 import { useAppDispatch } from "@/store";
 import { fetchDefaultAddressService } from "@/features/location/store/thunks/location-thunks";
 import { fetchPublicPaymentOptionsService } from "@/features/master-data/store/thunks/payment-options-thunks";
+import { fetchPublicDeliveryOptionsService } from "@/features/master-data/store/thunks/delivery-options-thunks";
 import { createOrderService, CheckoutPayload } from "@/features/main/store/thunks/order-thunks";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
-import { updateLocalCartItem, resetCart } from "@/features/main/store/slice/cart-slice";
+import { updateLocalCartItem, resetCart, loadCartFromStorage } from "@/features/main/store/slice/cart-slice";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { CustomInput, CustomTextarea } from "@/components/shared";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { cn } from "@/lib/utils";
 import { ComboboxSelectLocation } from "@/components/shared/combobox/combobox-select-location";
@@ -44,8 +46,8 @@ import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-se
 import { ComboboxSelectPaymentPublic } from "@/components/shared/combobox/combobox-select-payment-public";
 import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { SignInRequired } from "@/components/shared/auth/sign-in-required";
 import { LoginModal } from "@/components/shared/modal/login-modal";
+import { OrderSuccessModal } from "@/components/shared/modal/order-success-modal";
 import { PageState } from "@/components/shared/page-state";
 
 interface CheckoutState {
@@ -82,7 +84,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isAuthenticated, profile, authReady } = useAuthState();
-  const { items, finalTotal, subtotal, discountAmount, totalQuantity } = useCartState();
+  const { items, finalTotal, subtotal, discountAmount, totalQuantity, loaded: cartLoaded } = useCartState();
   const { locations: addresses } = useLocationState();
   const { deliveryOptionsContent: deliveryOptions } = useDeliveryOptionsState();
   const { paymentOptionsContent: paymentOptions } = usePaymentOptionsState();
@@ -91,6 +93,8 @@ export default function CheckoutPage() {
   const [defaultAddress, setDefaultAddress] = useState<LocationResponse | null>(null);
   const [loadingDefaults, setLoadingDefaults] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [successOrder, setSuccessOrder] = useState<OrderResponse | null>(null);
 
   const [checkoutState, setCheckoutState] = useState<CheckoutState>({
     selectedAddressId: null,
@@ -110,6 +114,13 @@ export default function CheckoutPage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!authReady) return;
+    if (!isAuthenticated && !cartLoaded) {
+      dispatch(loadCartFromStorage());
+    }
+  }, [authReady, isAuthenticated, cartLoaded, dispatch]);
 
   useEffect(() => {
     if (!mounted || !authReady || !isAuthenticated) return;
@@ -155,21 +166,31 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (!mounted) return;
 
-    const fetchPaymentOptions = async () => {
+    const fetchPublicOptions = async () => {
       try {
-        await dispatch(
-          fetchPublicPaymentOptionsService({
-            businessId: AppDefault.BUSINESS_ID,
-            pageNo: 1,
-            pageSize: 100,
-          })
-        ).unwrap();
+        await Promise.all([
+          dispatch(
+            fetchPublicPaymentOptionsService({
+              businessId: AppDefault.BUSINESS_ID,
+              pageNo: 1,
+              pageSize: 15,
+            })
+          ).unwrap(),
+          dispatch(
+            fetchPublicDeliveryOptionsService({
+              businessId: AppDefault.BUSINESS_ID,
+              pageNo: 1,
+              pageSize: 15,
+              statuses: ["ACTIVE"],
+            })
+          ).unwrap(),
+        ]);
       } catch (error) {
         // Handled silently
       }
     };
 
-    fetchPaymentOptions();
+    fetchPublicOptions();
   }, [mounted, dispatch]);
 
   useEffect(() => {
@@ -269,14 +290,7 @@ export default function CheckoutPage() {
       const checkoutPayload: CheckoutPayload = {
         businessId: AppDefault.BUSINESS_ID,
         addressId: isAuthenticated ? selectedAddress?.id : undefined,
-        guestAddress: !isAuthenticated && (checkoutState.guestStreet || checkoutState.guestHouse || checkoutState.guestCity)
-          ? {
-              streetNumber: checkoutState.guestStreet || undefined,
-              houseNumber: checkoutState.guestHouse || undefined,
-              province: checkoutState.guestCity || "Phnom Penh",
-              note: checkoutState.guestNote || undefined,
-            }
-          : undefined,
+        guestAddress: undefined,
         deliveryOption: {
           name: selectedDeliveryOption.name || "",
           description: selectedDeliveryOption.description || "",
@@ -374,11 +388,9 @@ export default function CheckoutPage() {
         }
       }
 
+      setSuccessOrder(orderResult);
+      setSuccessModalOpen(true);
       showToast.success(Messages.orders.placed);
-
-      setTimeout(() => {
-        router.push("/orders");
-      }, 1200);
     } catch (error: unknown) {
       const axiosErr = error as { response?: { data?: { message?: string } }; message?: string };
       const errorMessage =
@@ -392,11 +404,11 @@ export default function CheckoutPage() {
     }
   };
 
-  if (!mounted || !authReady) {
+  if (!mounted || !authReady || !cartLoaded) {
     return <CheckoutPageSkeleton />;
   }
 
-  if (items.length === 0) {
+  if (items.length === 0 && !successModalOpen && !successOrder) {
     return (
       <PageContainer className="min-h-screen flex flex-col py-8 sm:py-14">
         <PageState
@@ -423,37 +435,28 @@ export default function CheckoutPage() {
           icon={CreditCard}
           count={items.length}
           countLabel="items"
+          showBackButton={true}
+          backHref="/cart"
         />
 
         <div className="grid lg:grid-cols-3 gap-3 sm:gap-4">
           {/* Left Side: Delivery Details & Items */}
           <div className="lg:col-span-2 space-y-3">
-            {/* Card 1: Delivery Address, Contact Info, & Instructions */}
+            {/* Card 1: Customer Details & Delivery */}
             <div className="bg-gradient-to-b from-card via-card to-muted/20 border border-border/60 rounded-2xl p-3.5 sm:p-4 shadow-sm space-y-3.5">
-              {/* Header: Delivery Address */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between pb-2 border-b border-border/40">
-                  <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-                    <MapPin className="h-3.5 w-3.5 text-primary" />
-                    Delivery Address
-                  </span>
-                  {!isAuthenticated && (
-                    <button
-                      type="button"
-                      onClick={() => setLoginModalOpen(true)}
-                      className="text-[11px] font-semibold text-primary hover:underline"
-                    >
-                      Have an account? Sign in
-                    </button>
-                  )}
-                  {isAuthenticated && (
+              {/* Delivery Address for Authenticated users */}
+              {isAuthenticated ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                    <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                      <MapPin className="h-3.5 w-3.5 text-primary" />
+                      Delivery Address
+                    </span>
                     <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
                       Saved Address
                     </span>
-                  )}
-                </div>
+                  </div>
 
-                {isAuthenticated ? (
                   <ComboboxSelectLocation
                     dataSelect={selectedAddress as any}
                     onChangeSelected={(item) => {
@@ -469,56 +472,31 @@ export default function CheckoutPage() {
                     error={!checkoutState.selectedAddressId ? Messages.delivery.selectAddress : ""}
                     label=""
                   />
-                ) : (
-                  <div className="space-y-2.5">
-                    <div className="grid sm:grid-cols-2 gap-2.5">
-                      <CustomInput
-                        label="Street / Landmark"
-                        placeholder="e.g. St. 2004, near Super Duper"
-                        value={checkoutState.guestStreet}
-                        onChange={(e) =>
-                          setCheckoutState((prev) => ({
-                            ...prev,
-                            guestStreet: e.target.value,
-                          }))
-                        }
-                        size="sm"
-                      />
-                      <CustomInput
-                        label="House / Building / Floor"
-                        placeholder="e.g. House #12A, Floor 2"
-                        value={checkoutState.guestHouse}
-                        onChange={(e) =>
-                          setCheckoutState((prev) => ({
-                            ...prev,
-                            guestHouse: e.target.value,
-                          }))
-                        }
-                        size="sm"
-                      />
-                    </div>
-                    <CustomInput
-                      label="Delivery Directions / Address Note"
-                      placeholder="e.g. Call when arrived, leave at front gate"
-                      value={checkoutState.guestNote}
-                      onChange={(e) =>
-                        setCheckoutState((prev) => ({
-                          ...prev,
-                          guestNote: e.target.value,
-                        }))
-                      }
-                      size="sm"
-                    />
-                  </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                    <User className="h-3.5 w-3.5 text-blue-500" />
+                    Customer Information
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setLoginModalOpen(true)}
+                    className="text-[11px] font-semibold text-primary hover:underline cursor-pointer"
+                  >
+                    Have an account? Sign in
+                  </button>
+                </div>
+              )}
 
               {/* Contact Information */}
-              <div className="pt-2 border-t border-border/40 space-y-2.5">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-                  <User className="h-3.5 w-3.5 text-blue-500" />
-                  Contact Information
-                </div>
+              <div className={cn("space-y-2.5", isAuthenticated && "pt-2 border-t border-border/40")}>
+                {isAuthenticated && (
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                    <User className="h-3.5 w-3.5 text-blue-500" />
+                    Contact Information
+                  </div>
+                )}
 
                 <div className="grid sm:grid-cols-2 gap-2.5">
                   <CustomInput
@@ -876,27 +854,147 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
+      <OrderSuccessModal
+        open={successModalOpen}
+        onClose={() => {
+          setSuccessModalOpen(false);
+          router.push("/orders");
+        }}
+        order={successOrder}
+      />
     </div>
   );
 }
 
 function CheckoutPageSkeleton() {
   return (
-    <PageContainer className="py-3 sm:py-5 pb-28 sm:pb-5">
-      <div className="mb-4 space-y-2">
-        <div className="h-6 w-36 rounded-lg bg-muted/40 animate-pulse" />
-        <div className="h-3.5 w-56 rounded-md bg-muted/30 animate-pulse" />
-      </div>
-      <div className="grid lg:grid-cols-3 gap-3 sm:gap-4">
-        <div className="lg:col-span-2 space-y-3">
-          <div className="bg-card border border-border/80 rounded-2xl h-48 animate-pulse" />
-          <div className="bg-card border border-border/80 rounded-2xl h-64 animate-pulse" />
+    <div className="min-h-screen bg-background relative">
+      <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[300px] bg-primary/5 blur-[120px] rounded-full opacity-60" />
+
+      <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5 pb-28 sm:pb-11 lg:pb-5 relative z-10">
+        {/* Header Skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-5 pb-3 sm:pb-4 border-b border-border/60">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-10 w-10 rounded-xl" />
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-6 w-32 rounded-lg" />
+                <Skeleton className="h-5 w-16 rounded-full" />
+              </div>
+              <Skeleton className="h-3.5 w-64 rounded-md" />
+            </div>
+          </div>
         </div>
-        <div className="hidden lg:block">
-          <div className="h-64 w-full rounded-2xl border border-border/80 bg-card animate-pulse" />
+
+        <div className="grid lg:grid-cols-3 gap-3 sm:gap-4">
+          {/* Left Column Skeletons */}
+          <div className="lg:col-span-2 space-y-3">
+            {/* Card 1: Customer Info Skeleton */}
+            <div className="bg-card border border-border/80 rounded-2xl p-3.5 sm:p-4 shadow-2xs space-y-3.5">
+              <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-4 w-4 rounded-full" />
+                  <Skeleton className="h-4 w-36 rounded-md" />
+                </div>
+                <Skeleton className="h-4 w-28 rounded-full" />
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-2.5">
+                <div className="space-y-1.5">
+                  <Skeleton className="h-3 w-16 rounded" />
+                  <Skeleton className="h-9 w-full rounded-xl" />
+                </div>
+                <div className="space-y-1.5">
+                  <Skeleton className="h-3 w-20 rounded" />
+                  <Skeleton className="h-9 w-full rounded-xl" />
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-border/40 space-y-1.5">
+                <Skeleton className="h-3 w-28 rounded" />
+                <Skeleton className="h-16 w-full rounded-xl" />
+              </div>
+            </div>
+
+            {/* Card 2: Order Items Skeleton */}
+            <div className="bg-card border border-border/80 rounded-2xl p-3.5 sm:p-4 shadow-2xs space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-4 w-4 rounded-full" />
+                  <Skeleton className="h-4 w-24 rounded-md" />
+                </div>
+                <Skeleton className="h-5 w-20 rounded-full" />
+              </div>
+
+              <div className="space-y-2.5">
+                {[1, 2].map((i) => (
+                  <div key={i} className="flex gap-3 items-center p-2.5 rounded-xl border border-border/60 bg-muted/20">
+                    <Skeleton className="w-[60px] h-[60px] rounded-xl flex-shrink-0" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-4 w-3/4 rounded-md" />
+                      <Skeleton className="h-3 w-1/3 rounded-md" />
+                      <div className="flex items-center justify-between pt-1">
+                        <Skeleton className="h-4 w-16 rounded-md" />
+                        <Skeleton className="h-6 w-20 rounded-lg" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Order Summary Skeleton */}
+          <div className="hidden lg:block lg:col-span-1">
+            <div className="bg-card border border-border/80 rounded-2xl p-4 shadow-2xs space-y-3.5">
+              <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-4 w-4 rounded-full" />
+                  <Skeleton className="h-4 w-28 rounded-md" />
+                </div>
+                <Skeleton className="h-5 w-16 rounded-full" />
+              </div>
+
+              {/* Delivery Option Skeleton */}
+              <div className="space-y-1.5">
+                <Skeleton className="h-3 w-24 rounded" />
+                <Skeleton className="h-9 w-full rounded-xl" />
+              </div>
+
+              {/* Payment Option Skeleton */}
+              <div className="space-y-1.5">
+                <Skeleton className="h-3 w-28 rounded" />
+                <Skeleton className="h-9 w-full rounded-xl" />
+              </div>
+
+              {/* Breakdown Rows */}
+              <div className="pt-2 border-t border-border/40 space-y-2">
+                <div className="flex justify-between">
+                  <Skeleton className="h-3 w-16 rounded" />
+                  <Skeleton className="h-3 w-12 rounded" />
+                </div>
+                <div className="flex justify-between">
+                  <Skeleton className="h-3 w-20 rounded" />
+                  <Skeleton className="h-3 w-10 rounded" />
+                </div>
+                <div className="flex justify-between pt-1 border-t border-border/30">
+                  <Skeleton className="h-4 w-20 rounded" />
+                  <Skeleton className="h-5 w-24 rounded" />
+                </div>
+              </div>
+
+              {/* CTA Button Skeleton */}
+              <Skeleton className="h-11 w-full rounded-xl" />
+              <div className="flex justify-center pt-1">
+                <Skeleton className="h-3 w-40 rounded" />
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </PageContainer>
+      </PageContainer>
+    </div>
   );
 }
 

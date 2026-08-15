@@ -55,9 +55,6 @@ export function ComboboxSelectPaymentPublic({
         return (
           <div className="flex items-center justify-between w-full text-xs">
             <span className="truncate line-clamp-1 flex-1">{item.name}</span>
-            <span className="text-xs text-muted-foreground flex-shrink-0 ml-1">
-              ({item.paymentOptionType})
-            </span>
           </div>
         );
       }}

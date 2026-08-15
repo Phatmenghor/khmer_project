@@ -12,11 +12,13 @@ import { cn } from "@/lib/utils";
 
 type FormHeaderVariant = "default" | "destructive";
 
-interface FormHeaderProps {
+export interface FormHeaderProps {
   title: string;
   description?: string;
+  subtitle?: string;
   avatarName?: string;
   avatarImageUrl?: string;
+  avatarIcon?: React.ReactNode;
   showAvatar?: boolean;
   isCreate?: boolean;
   icon?: LucideIcon;
@@ -27,8 +29,10 @@ interface FormHeaderProps {
 export function FormHeader({
   title,
   description,
+  subtitle,
   avatarName,
   avatarImageUrl,
+  avatarIcon,
   showAvatar = false,
   isCreate = true,
   icon,
@@ -36,6 +40,7 @@ export function FormHeader({
   className,
 }: FormHeaderProps) {
   const Icon = icon ?? (isCreate ? Plus : Edit);
+  const displayDescription = description ?? subtitle;
 
   const isDestructive = variant === "destructive";
   const iconBoxClass = isDestructive
@@ -51,13 +56,23 @@ export function FormHeader({
       )}
     >
       <div className="flex items-center gap-3">
-        {}
         {showAvatar ? (
-          <CustomAvatar size="xl" name={avatarName} imageUrl={avatarImageUrl} />
+          avatarIcon ? (
+            <div
+              className={cn(
+                "flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg shrink-0 border",
+                iconBoxClass,
+              )}
+            >
+              {avatarIcon}
+            </div>
+          ) : (
+            <CustomAvatar size="xl" name={avatarName} imageUrl={avatarImageUrl} />
+          )
         ) : (
           <div
             className={cn(
-              "flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg shrink-0",
+              "flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg shrink-0 border",
               iconBoxClass,
             )}
           >
@@ -68,14 +83,13 @@ export function FormHeader({
           </div>
         )}
 
-        {}
         <div className="flex flex-col gap-0.5 flex-1 min-w-0">
           <DialogTitle className="text-sm md:text-base font-semibold leading-tight text-foreground">
             {title}
           </DialogTitle>
-          {description && (
+          {displayDescription && (
             <DialogDescription className="text-xs text-muted-foreground leading-snug">
-              {description}
+              {displayDescription}
             </DialogDescription>
           )}
         </div>

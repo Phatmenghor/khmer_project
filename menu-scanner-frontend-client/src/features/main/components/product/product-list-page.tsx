@@ -106,10 +106,6 @@ export function ProductListPage({
 
 
   const getPageSize = useCallback(() => {
-    if (typeof window === "undefined") return 20;
-    const width = window.innerWidth;
-    if (width >= 1280) return 36;
-    if (width >= 768) return 20;
     return 15;
   }, []);
 

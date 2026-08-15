@@ -36,7 +36,7 @@ export interface CheckoutPayload {
     businessId: string;
     businessName: string;
     items: Array<{
-      id: string;
+      id?: string;
       productId: string;
       productName: string;
       productImageUrl: string;

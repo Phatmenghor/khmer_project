@@ -15,6 +15,7 @@ interface CategoriesSectionProps {
   loading: boolean;
   error: string | null;
   title?: string;
+  isInitialLoading?: boolean;
 }
 
 const DEFAULT_TITLE = "Shop by Category";

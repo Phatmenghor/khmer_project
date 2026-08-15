@@ -21,8 +21,8 @@ interface DocumentsCardProps {
   fields: any[];
   documentUploads: any;
   businessId?: string;
-  watch: (name: string) => any;
-  setValue: (name: string, value: any, options?: any) => void;
+  watch: (name: any) => any;
+  setValue: (name: any, value: any, options?: any) => void;
   onAppend: () => void;
   onRemove: (index: number) => void;
 }

@@ -152,7 +152,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
               error={loginForm.formState.errors.userIdentifier}
               disabled={isAnyLoading}
               required
-              inputClassName="h-9 text-xs"
+              inputClassName="h-9 text-xs rounded-xl"
             />
 
             <PasswordField
@@ -165,7 +165,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
               required
               showPassword={showPassword}
               onTogglePassword={() => setShowPassword((v) => !v)}
-              inputClassName="h-9 text-xs"
+              inputClassName="h-9 text-xs rounded-xl"
             />
 
             {/* Social Divider */}
@@ -187,7 +187,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
               onAuth={handleTelegramAuth}
               disabled={isAnyLoading}
               loading={isTelegramLoading}
-              className="w-full h-9 text-xs font-semibold rounded-xl"
+              className="w-full h-9 text-xs font-bold rounded-xl"
             />
           </div>
 
@@ -219,13 +219,13 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
                 onClick={handleClose}
                 disabled={isAnyLoading}
                 customText="Cancel"
-                className="h-8 text-xs font-bold"
+                className="h-9 text-xs font-bold rounded-xl px-4"
               />
               <CustomButton
                 type="submit"
                 disabled={isAnyLoading}
                 isLoading={isLoading}
-                className="h-8 min-w-[90px] text-xs font-bold gap-1.5"
+                className="h-9 min-w-[95px] text-xs font-bold rounded-xl gap-1.5 px-4"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 {isLoading ? "Signing in..." : "Sign In"}

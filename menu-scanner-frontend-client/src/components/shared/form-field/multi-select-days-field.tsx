@@ -70,7 +70,7 @@ export function MultiSelectDaysField<T extends FieldValues = FieldValues>({
 
 interface MultiSelectDaysContentProps {
   field: ControllerRenderProps<FieldValues>;
-  label: string;
+  label?: string;
   hasError: boolean;
   errorMessage: string;
   disabled?: boolean;

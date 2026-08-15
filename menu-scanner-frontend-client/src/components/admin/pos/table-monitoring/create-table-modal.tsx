@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAppDispatch } from "@/store";
-import { TextField } from "@/components/shared/form-field/text-field";
+import { CustomInput } from "@/components/shared/form-field/custom-input";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { CustomModal } from "@/components/shared/modal/custom-modal";
@@ -95,14 +95,14 @@ export function CreateTableModal({ isOpen, onClose }: CreateTableModalProps) {
 
       <form onSubmit={handleSubmit} className="p-5 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <TextField
+          <CustomInput
             label="Table Number / Code"
             required
             placeholder="e.g. T-01 or VIP-1"
             value={number}
             onChange={(e) => setNumber(e.target.value)}
           />
-          <TextField
+          <CustomInput
             label="Seating Capacity"
             required
             placeholder="e.g. 4"
