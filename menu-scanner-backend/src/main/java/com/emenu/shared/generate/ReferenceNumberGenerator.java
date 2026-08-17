@@ -22,7 +22,8 @@ public class ReferenceNumberGenerator {
         ORDER("ORD"),
         LEAVE("LEV"),
         ATTENDANCE("ATT"),
-        CHECK_IN("CHK");
+        CHECK_IN("CHK"),
+        TABLE_SESSION("SESS");
 
         private final String prefix;
 
@@ -39,7 +40,6 @@ public class ReferenceNumberGenerator {
     public String generateReferenceNumber(EntityType entityType) {
         LocalDate today = LocalDate.now();
 
-        // Get or create counter for entity type and date
         ReferenceCounter counter = referenceCounterRepository
                 .findByEntityTypeAndCounterDate(entityType.name(), today)
                 .orElseGet(() -> {
@@ -50,7 +50,6 @@ public class ReferenceNumberGenerator {
                     return referenceCounterRepository.save(newCounter);
                 });
 
-        // Increment counter
         counter.setCounterValue(counter.getCounterValue() + 1);
         ReferenceCounter savedCounter = referenceCounterRepository.save(counter);
 
@@ -61,6 +60,11 @@ public class ReferenceNumberGenerator {
     @Transactional
     public String generateOrderNumber() {
         return generateReferenceNumber(EntityType.ORDER);
+    }
+
+    @Transactional
+    public String generateTableSessionNumber() {
+        return generateReferenceNumber(EntityType.TABLE_SESSION);
     }
 
     @Transactional

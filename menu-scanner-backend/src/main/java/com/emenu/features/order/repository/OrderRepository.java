@@ -33,6 +33,18 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
            "WHERE o.id = :id AND o.isDeleted = false")
     Optional<Order> findByIdWithDetails(@Param("id") UUID id);
 
+    @Query("SELECT DISTINCT o FROM Order o " +
+           "LEFT JOIN FETCH o.items oi " +
+           "LEFT JOIN FETCH oi.product p " +
+           "LEFT JOIN FETCH oi.productSize ps " +
+           "LEFT JOIN FETCH oi.itemCustomizations " +
+           "LEFT JOIN FETCH o.business " +
+           "LEFT JOIN FETCH o.customer " +
+           "LEFT JOIN FETCH o.deliveryAddress " +
+           "LEFT JOIN FETCH o.deliveryOption " +
+           "WHERE o.orderNumber = :orderNumber AND o.isDeleted = false")
+    Optional<Order> findByOrderNumberWithDetails(@Param("orderNumber") String orderNumber);
+
     @Query("SELECT h FROM OrderStatusHistory h " +
            "LEFT JOIN FETCH h.changedByUser " +
            "WHERE h.orderId = :orderId " +
@@ -59,7 +71,4 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
            "WHERE o.customerId = :customerId AND o.isDeleted = false " +
            "ORDER BY o.createdAt DESC")
     Page<Order> findByCustomerIdAndIsDeletedFalseOrderByCreatedAtDesc(@Param("customerId") UUID customerId, Pageable pageable);
-
-
 }
-

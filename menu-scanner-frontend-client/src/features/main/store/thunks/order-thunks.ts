@@ -10,6 +10,8 @@ import { OrderFromEnum } from "@/enums/order.enum";
 
 export interface CheckoutPayload {
   businessId: string;
+  tableId?: string;
+  tableNumber?: string;
   addressId?: string;
   guestAddress?: {
     village?: string;

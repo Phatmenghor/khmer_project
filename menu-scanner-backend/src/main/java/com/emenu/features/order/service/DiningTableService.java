@@ -3,7 +3,7 @@ package com.emenu.features.order.service;
 import com.emenu.features.order.dto.request.CreateTableRequest;
 import com.emenu.features.order.dto.request.UpdateTableStatusRequest;
 import com.emenu.features.order.dto.response.DiningTableResponse;
-import com.emenu.features.order.enums.TableStatus;
+import com.emenu.enums.order.TableStatus;
 
 import java.util.List;
 import java.util.UUID;

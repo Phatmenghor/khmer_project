@@ -1,6 +1,6 @@
 package com.emenu.features.order.repository;
 
-import com.emenu.features.order.enums.TableStatus;
+import com.emenu.enums.order.TableStatus;
 import com.emenu.features.order.models.DiningTable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -15,4 +15,5 @@ public interface DiningTableRepository extends JpaRepository<DiningTable, UUID>,
     List<DiningTable> findByBusinessIdAndIsDeletedFalse(UUID businessId);
     List<DiningTable> findByBusinessIdAndStatusAndIsDeletedFalse(UUID businessId, TableStatus status);
     Optional<DiningTable> findByIdAndBusinessIdAndIsDeletedFalse(UUID id, UUID businessId);
+    boolean existsByBusinessIdAndNumberAndIsDeletedFalse(UUID businessId, String number);
 }

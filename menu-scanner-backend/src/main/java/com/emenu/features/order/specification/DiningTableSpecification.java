@@ -1,6 +1,6 @@
 package com.emenu.features.order.specification;
 
-import com.emenu.features.order.enums.TableStatus;
+import com.emenu.enums.order.TableStatus;
 import com.emenu.features.order.models.DiningTable;
 import org.springframework.data.jpa.domain.Specification;
 

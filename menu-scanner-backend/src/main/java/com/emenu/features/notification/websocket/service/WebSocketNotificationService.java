@@ -10,5 +10,6 @@ public interface WebSocketNotificationService {
     void notifyOrderStatusChanged(Order order);
     void notifyStockUpdated(UUID businessId, UUID productId);
     void notifyPlatformEvent(String type, Map<String, Object> payload);
+    void notifyTableEvent(UUID businessId, String eventType, Map<String, Object> payload);
     void notifyImportProgress(String importId, int progress, int processed, int total, int successCount, int errorCount, boolean done, Map<String, Object> lastResult);
 }

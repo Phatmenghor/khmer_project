@@ -84,7 +84,25 @@ public class WebSocketNotificationServiceImpl implements WebSocketNotificationSe
     @Override
     @Async("taskExecutor")
     public void notifyPlatformEvent(String type, Map<String, Object> payload) {
-        // Platform events disabled — frontend no longer uses WebSocket real-time except Dashboard
+        // Platform events disabled
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void notifyTableEvent(UUID businessId, String eventType, Map<String, Object> payload) {
+        if (businessId == null) return;
+        String bid = businessId.toString();
+        try {
+            Map<String, Object> data = new java.util.HashMap<>();
+            data.put("type", eventType != null ? eventType : "TABLE_STATUS_UPDATED");
+            if (payload != null) {
+                data.putAll(payload);
+            }
+            messagingTemplate.convertAndSend("/topic/" + bid + "/tables", data);
+            log.info("[WS] Table event {} sent for business {}", eventType, bid);
+        } catch (Exception e) {
+            log.error("[WS] Failed to send table event for business {}: {}", bid, e.getMessage());
+        }
     }
 
     @Override

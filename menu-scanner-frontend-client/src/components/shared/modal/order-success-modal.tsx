@@ -119,7 +119,7 @@ export function OrderSuccessModal({
           <div className="flex items-center justify-between pt-2.5 border-t border-border/60">
             <span className="font-extrabold text-foreground">Total Amount</span>
             <span className="font-black text-primary text-base">
-              {formatCurrency(order.pricing?.finalTotal || 0)}
+              {formatCurrency(order.pricing?.finalTotal ?? (order as any).totalAmount ?? (order as any).subtotal ?? 0)}
             </span>
           </div>
         </div>

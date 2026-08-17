@@ -47,7 +47,7 @@ export function CustomModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         className={cn(
-          "w-full max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden",
+          "w-full max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden rounded-[28px] border border-border/80 bg-background/95 backdrop-blur-xl shadow-2xl transition-all",
           SIZE_CLASSES[size],
           className
         )}
@@ -58,7 +58,7 @@ export function CustomModal({
         }}
         disableScrollWrapper={disableScrollWrapper}
       >
-        {title && <DialogTitle className="sr-only">{title}</DialogTitle>}
+        <DialogTitle className="sr-only">{title || "Modal Dialog"}</DialogTitle>
         {children}
       </DialogContent>
     </Dialog>

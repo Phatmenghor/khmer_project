@@ -10,6 +10,8 @@ import com.emenu.features.notification.telegram.repository.TelegramMessageLogRep
 import com.emenu.features.notification.telegram.service.TelegramNotificationService;
 import com.emenu.features.notification.telegram.util.PdfReceiptGenerator;
 import com.emenu.features.order.models.Order;
+import com.emenu.features.order.models.TableSession;
+import com.emenu.features.order.models.TableSessionItem;
 import com.emenu.features.spaces.service.SpacesService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -150,6 +152,38 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
         processAndSendOrderNotification("ORDER_STATUS_CHANGED", TelegramMessageBuilder.orderStatusChanged(order), order);
     }
 
+    // ── Table Session notifications (Async Text-Only) ─────────────────────────
+
+    @Override
+    @Async("taskExecutor")
+    public void notifyTableSessionItemAdded(TableSession session, TableSessionItem newItem) {
+        if (!enabled || session == null || session.getBusinessId() == null) return;
+        log.info("[Telegram Service] Preparing text notification for table session item addition: session={}, table={}",
+                session.getSessionNumber(), session.getTableNumber());
+        String msg = TelegramMessageBuilder.newTableSessionItem(session, newItem);
+        sendByBusinessId(session.getBusinessId(), msg, "HTML", null, null, null);
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void notifyTableSessionRoundAdded(TableSession session, int orderRound, List<TableSessionItem> addedItems) {
+        if (!enabled || session == null || session.getBusinessId() == null) return;
+        log.info("[Telegram Service] Preparing text notification for table session round addition: session={}, table={}, round={}, items_count={}",
+                session.getSessionNumber(), session.getTableNumber(), orderRound, addedItems != null ? addedItems.size() : 0);
+        String msg = TelegramMessageBuilder.newTableSessionRound(session, orderRound, addedItems);
+        sendByBusinessId(session.getBusinessId(), msg, "HTML", null, null, null);
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void notifyTableSessionSettled(TableSession session, Order order) {
+        if (!enabled || session == null || session.getBusinessId() == null) return;
+        log.info("[Telegram Service] Preparing text notification for settled table session: session={}, order={}",
+                session.getSessionNumber(), order.getOrderNumber());
+        String msg = TelegramMessageBuilder.tableSessionSettled(session, order);
+        sendByBusinessId(session.getBusinessId(), msg, "HTML", null, null, null);
+    }
+
     // ── Staff notifications (Async) ───────────────────────────────────────────
 
     @Override
@@ -199,6 +233,18 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
                                               String oldPlanName, String newPlanName, String newExpiryDate) {
         sendAdminAlert(TelegramMessageBuilder.subscriptionPlanChanged(businessName, oldPlanName, newPlanName, newExpiryDate));
         log.info("[Telegram Service] Subscription plan change alert sent for: {} (from {} to {})", businessName, oldPlanName, newPlanName);
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void notifyTableReset(UUID businessId, String tableNumber) {
+        String msg = "<b>🔄 TABLE RESET NOTIFICATION</b>\n\n" +
+                "<b>Table #:</b> " + tableNumber + "\n" +
+                "<b>Status:</b> 🟢 AVAILABLE\n" +
+                "<b>Notice:</b> Table session and active dining orders cleared.\n" +
+                "<b>Time:</b> " + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        sendHtmlToGroup(businessId, msg);
+        log.info("[Telegram Service] Table reset notification sent for businessId: {}, tableNumber: {}", businessId, tableNumber);
     }
 
     // ── Bot events ────────────────────────────────────────────────────────────

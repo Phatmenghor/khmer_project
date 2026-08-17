@@ -79,6 +79,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/business-owners/register").permitAll()
                         .requestMatchers("/api/images/**").permitAll()
                         .requestMatchers("/api/v1/spaces/**").permitAll()
+                        .requestMatchers("/api/v1/table-sessions/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/orders/checkout").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/orders/guest-lookup").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/orders/*").permitAll()

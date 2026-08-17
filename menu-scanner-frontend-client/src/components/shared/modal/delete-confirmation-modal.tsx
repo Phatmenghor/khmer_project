@@ -78,7 +78,7 @@ export function DeleteConfirmationModal({
   const IconComponent = icon ?? Trash2;
 
   return (
-    <CustomModal isOpen={isOpen} onClose={onClose} size="sm">
+    <CustomModal isOpen={isOpen} onClose={onClose} title={title} size="sm">
       {/* ── Header ── */}
       <div className="flex items-center gap-3 p-4 px-5 border-b border-border/60 bg-gradient-to-r from-background via-card to-background shrink-0">
         <div className="p-2.5 rounded-2xl bg-destructive/10 text-destructive border border-destructive/20 shrink-0 shadow-2xs">

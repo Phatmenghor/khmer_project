@@ -1,7 +1,7 @@
 package com.emenu.features.order.dto.response;
 
 import com.emenu.enums.order.OrderStatus;
-import com.emenu.features.order.enums.OrderFromEnum;
+import com.emenu.enums.order.OrderFromEnum;
 import com.emenu.shared.dto.BaseAuditResponse;
 import jakarta.validation.Valid;
 import lombok.Data;

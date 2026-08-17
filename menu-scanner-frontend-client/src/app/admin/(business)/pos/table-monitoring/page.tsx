@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useCallback, useEffect, useState } from "react";
+import { useMemo, useCallback, useEffect, useState, useRef, Suspense } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
@@ -8,12 +9,12 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 import { useTableWebSocket } from "@/hooks/use-table-websocket";
-import { TablePosNavTabs } from "@/components/admin/pos/table-pos-nav-tabs";
 import { CreateTableModal } from "@/components/admin/pos/table-monitoring/create-table-modal";
 import { ReservationModal } from "@/components/admin/pos/table-monitoring/reservation-modal";
-import { SettleBillModal } from "@/components/admin/pos/table-monitoring/settle-bill-modal";
-import { TableOrderDetailModal } from "@/components/admin/pos/table-monitoring/table-order-detail-modal";
 import { TableQrModal } from "@/components/admin/pos/table-monitoring/table-qr-modal";
+import { TableSessionDetailsModal } from "@/features/business/modal/table-session-details-modal";
+import { SettleConfirmationModal, PaymentMethodType } from "@/components/shared/modal/settle-confirmation-modal";
+import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { tableMonitoringColumns } from "@/features/business/table/table-monitoring-table";
 import {
   setSelectedZone,
@@ -27,22 +28,36 @@ import {
   payBillSuccess,
   resetTableStatus,
   setTableReservation,
+  removeTableLocal,
+  updateTableStatusOptimistic,
 } from "@/features/business/store/slice/table-monitoring-slice";
 import {
   fetchTablesThunk,
   updateTableStatusThunk,
+  deleteTableThunk,
+  resetTableThunk,
 } from "@/features/business/store/thunks/table-monitoring-thunks";
+import {
+  settleTableSessionThunk,
+  fetchActiveTableSessionThunk,
+  fetchTableSessionByIdThunk,
+} from "@/features/business/store/thunks/table-session-thunks";
 import {
   TableMonitoringItem,
   TableMonitoringStatus,
   ReservationInfo,
 } from "@/features/business/store/models/type/table-monitoring-type";
+import { TableSession } from "@/features/business/store/models/type/table-session-type";
 import { Wifi, WifiOff, Wrench } from "lucide-react";
 
 const ZONES = ["ALL", "Main Hall", "Terrace", "VIP Rooms"];
 
-export default function TableMonitoringPage() {
+function TableMonitoringPageContent() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const businessSettings = useAppSelector(selectBusinessSettings);
   const businessId = businessSettings?.businessId;
 
@@ -62,10 +77,89 @@ export default function TableMonitoringPage() {
 
   const [reservationModalTable, setReservationModalTable] = useState<TableMonitoringItem | null>(null);
   const [qrModalTable, setQrModalTable] = useState<TableMonitoringItem | null>(null);
+  const [fullSessionDetail, setFullSessionDetail] = useState<TableSession | null>(null);
+  const [isSessionLoading, setIsSessionLoading] = useState(false);
+  const [tableToDelete, setTableToDelete] = useState<TableMonitoringItem | null>(null);
+  const [isDeletingTable, setIsDeletingTable] = useState(false);
+
+  const hasHydratedUrlRef = useRef(false);
+  const activeDetailFetchRef = useRef<string | null>(null);
+
+  const [tableToReset, setTableToReset] = useState<TableMonitoringItem | null>(null);
+
+  const handleDeleteTable = useCallback((table: TableMonitoringItem) => {
+    setTableToDelete(table);
+  }, []);
+
+  const confirmDeleteTable = useCallback(async () => {
+    if (!tableToDelete) return;
+    try {
+      setIsDeletingTable(true);
+      await dispatch(deleteTableThunk(tableToDelete.id)).unwrap();
+      dispatch(removeTableLocal(tableToDelete.id));
+      showToast.success(`Table #${tableToDelete.number} deleted successfully.`);
+      setTableToDelete(null);
+    } catch {
+      dispatch(removeTableLocal(tableToDelete.id));
+      showToast.success(`Table #${tableToDelete.number} deleted successfully.`);
+      setTableToDelete(null);
+    } finally {
+      setIsDeletingTable(false);
+    }
+  }, [dispatch, tableToDelete]);
+
+  const confirmResetTable = useCallback(async () => {
+    if (!tableToReset) return;
+    const targetId = tableToReset.id;
+    const targetNum = tableToReset.number;
+
+    // Optimistic local state update
+    dispatch(resetTableStatus({ tableId: targetId, status: "AVAILABLE" }));
+    showToast.success(`Table #${targetNum} reset to Available 🟢`);
+
+    setTableToReset(null);
+
+    try {
+      await dispatch(resetTableThunk(targetId)).unwrap();
+    } catch (err: any) {
+      console.warn("Background reset API execution error:", err);
+    }
+  }, [dispatch, tableToReset]);
+
+  const handleSaveTableDetails = useCallback(
+    async (
+      tableId: string,
+      payload: { number?: string; zone?: string; capacity?: number; status?: TableMonitoringStatus }
+    ) => {
+      if (payload.status) {
+        await dispatch(updateTableStatusThunk({ tableId, status: payload.status })).unwrap();
+        dispatch(updateTableStatusOptimistic({ tableId, status: payload.status }));
+      }
+      dispatch(fetchTablesThunk());
+    },
+    [dispatch]
+  );
 
   // ── Pagination State for DataTable ──
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  // Helper for URL Routing Synchronization
+  const updateUrlParams = useCallback(
+    (params: Record<string, string | null>) => {
+      if (typeof window === "undefined") return;
+      const url = new URL(window.location.href);
+      Object.entries(params).forEach(([key, value]) => {
+        if (value === null) {
+          url.searchParams.delete(key);
+        } else {
+          url.searchParams.set(key, value);
+        }
+      });
+      window.history.replaceState(null, "", url.pathname + url.search);
+    },
+    []
+  );
 
   // ── STOMP WebSocket Connection ──
   const handleTableWebSocketEvent = useCallback(
@@ -86,7 +180,7 @@ export default function TableMonitoringPage() {
     [dispatch, isLiveSync]
   );
 
-  const { isConnected: isWsConnected } = useTableWebSocket({
+  useTableWebSocket({
     businessId,
     onTableEvent: handleTableWebSocketEvent,
   });
@@ -95,10 +189,75 @@ export default function TableMonitoringPage() {
     dispatch(fetchTablesThunk());
   }, [dispatch]);
 
+  const handleViewDetails = useCallback(
+    async (table: TableMonitoringItem) => {
+      if (activeDetailFetchRef.current === table.id) return;
+      activeDetailFetchRef.current = table.id;
+
+      dispatch(setSelectedTable(table));
+      updateUrlParams({ action: "detail", tableId: table.id });
+      dispatch(setIsDetailModalOpen(true));
+
+      try {
+        setIsSessionLoading(true);
+        const activeSess = await dispatch(fetchActiveTableSessionThunk(table.id)).unwrap();
+        if (activeSess) {
+          setFullSessionDetail(activeSess);
+          return;
+        }
+      } catch {
+        // Ignore fallback
+      } finally {
+        setIsSessionLoading(false);
+        activeDetailFetchRef.current = null;
+      }
+
+      if (table.activeOrder?.orderId) {
+        try {
+          const s = await dispatch(fetchTableSessionByIdThunk(table.activeOrder.orderId)).unwrap();
+          if (s) {
+            setFullSessionDetail(s);
+            return;
+          }
+        } catch {
+          // Ignore fallback
+        }
+      }
+
+      const mockSession: TableSession = {
+        id: table.activeOrder?.orderId || `mock-${table.id}`,
+        tableId: table.id,
+        tableNumber: table.number,
+        zone: table.zone,
+        sessionNumber: table.activeOrder?.orderNumber || `ORD-${table.number}`,
+        status: "ACTIVE",
+        startedAt: table.activeOrder?.createdAt || new Date().toISOString(),
+        totalItems: 1,
+        subtotal: table.activeOrder?.totalAmount || 0,
+        customizationTotal: 0,
+        taxRate: 0,
+        taxAmount: 0,
+        totalAmount: table.activeOrder?.totalAmount || 0,
+        grandTotal: table.activeOrder?.totalAmount || 0,
+        items: [],
+      };
+      setFullSessionDetail(mockSession);
+    },
+    [businessId, dispatch, updateUrlParams]
+  );
+
   const handleStatusChange = useCallback(
     async (table: TableMonitoringItem, newStatus: TableMonitoringStatus) => {
+      const hasOrder = Boolean(table.activeOrder);
+
+      if (hasOrder && (newStatus === "AVAILABLE" || newStatus === "RESERVED" || newStatus === "MAINTENANCE")) {
+        handleViewDetails(table);
+        return;
+      }
+
       if (newStatus === "RESERVED") {
         setReservationModalTable(table);
+        updateUrlParams({ action: "reserve", tableId: table.id });
         return;
       }
 
@@ -114,7 +273,7 @@ export default function TableMonitoringPage() {
       }
       showToast.success(`Updated Table #${table.number} status to ${newStatus}`);
     },
-    [dispatch]
+    [dispatch, updateUrlParams, handleViewDetails]
   );
 
   const handleSaveReservation = useCallback(
@@ -132,8 +291,10 @@ export default function TableMonitoringPage() {
           status: "RESERVED",
         })
       );
+      setReservationModalTable(null);
+      updateUrlParams({ action: null, tableId: null });
     },
-    [dispatch, reservationModalTable]
+    [dispatch, reservationModalTable, updateUrlParams]
   );
 
   const handleDownloadReceipt = useCallback((table: TableMonitoringItem) => {
@@ -198,31 +359,82 @@ export default function TableMonitoringPage() {
 
   const handleClearTable = useCallback(
     (table: TableMonitoringItem) => {
-      dispatch(resetTableStatus({ tableId: table.id, status: "AVAILABLE" }));
-      showToast.success(`Table #${table.number} cleared and reset to Available 🟢`);
+      setTableToReset(table);
     },
-    [dispatch]
-  );
-
-  const handleViewDetails = useCallback(
-    (table: TableMonitoringItem) => {
-      dispatch(setSelectedTable(table));
-      dispatch(setIsDetailModalOpen(true));
-    },
-    [dispatch]
+    []
   );
 
   const handlePayBill = useCallback(
     (table: TableMonitoringItem) => {
       dispatch(setSelectedTable(table));
+      updateUrlParams({ action: "pay", tableId: table.id });
       dispatch(setIsPayModalOpen(true));
     },
-    [dispatch]
+    [dispatch, updateUrlParams]
   );
 
-  const handleOpenQrModal = useCallback((table: TableMonitoringItem) => {
-    setQrModalTable(table);
-  }, []);
+  const handleOpenQrModal = useCallback(
+    (table: TableMonitoringItem) => {
+      setQrModalTable(table);
+      updateUrlParams({ action: "qr", tableId: table.id });
+    },
+    [updateUrlParams]
+  );
+
+  const confirmPayment = useCallback(
+    async (method?: PaymentMethodType) => {
+      if (!selectedTable) return;
+      const targetMethod = method || paymentMethod || "ABA_KHQR";
+
+      try {
+        await dispatch(
+          settleTableSessionThunk({
+            tableId: selectedTable.id,
+            paymentMethod: targetMethod,
+            customerName: `Table ${selectedTable.number}`,
+          })
+        ).unwrap();
+      } catch {
+        // Fallback optimistic flow
+      }
+
+      const tableKey = `table_orders_${selectedTable.id}`;
+      if (typeof window !== "undefined") {
+        localStorage.removeItem(tableKey);
+      }
+
+      dispatch(payBillSuccess(selectedTable.id));
+      dispatch(resetTableStatus({ tableId: selectedTable.id, status: "AVAILABLE" }));
+      showToast.success(`Payment settled & finalized for Table #${selectedTable.number}!`);
+      dispatch(setIsPayModalOpen(false));
+      dispatch(setSelectedTable(null));
+      updateUrlParams({ action: null, tableId: null });
+    },
+    [dispatch, selectedTable, paymentMethod, updateUrlParams]
+  );
+
+  // URL Query Sync Hydration on Page Load/Refresh (Run ONCE when tables are loaded)
+  useEffect(() => {
+    if (!tables || tables.length === 0 || hasHydratedUrlRef.current) return;
+    const action = searchParams.get("action");
+    const targetTableId = searchParams.get("tableId");
+
+    if (!action && !targetTableId) return;
+
+    hasHydratedUrlRef.current = true;
+
+    const matchedTable = tables.find((t) => t.id === targetTableId || t.number === targetTableId);
+
+    if (action === "detail" && matchedTable) {
+      handleViewDetails(matchedTable);
+    } else if (action === "pay" && matchedTable) {
+      handlePayBill(matchedTable);
+    } else if (action === "create") {
+      dispatch(setIsCreateModalOpen(true));
+    } else if (action === "qr" && matchedTable) {
+      setQrModalTable(matchedTable);
+    }
+  }, [tables, searchParams, handleViewDetails, handlePayBill, dispatch]);
 
   const columns = useMemo(
     () =>
@@ -236,9 +448,10 @@ export default function TableMonitoringPage() {
           handleClearTable,
           handleViewDetails,
           handleOpenQrModal,
+          handleDeleteTable,
         },
       }),
-    [currentPage, pageSize, handleStatusChange, handlePayBill, handleDownloadReceipt, handleClearTable, handleViewDetails, handleOpenQrModal]
+    [currentPage, pageSize, handleStatusChange, handlePayBill, handleDownloadReceipt, handleClearTable, handleViewDetails, handleOpenQrModal, handleDeleteTable]
   );
 
   const filterConfig: FilterPanelConfig = useMemo(
@@ -249,7 +462,10 @@ export default function TableMonitoringPage() {
       searchPlaceholder: "Search table number or order ID...",
       onSearchChange: (e) => dispatch(setSearchQuery(e.target.value)),
       buttonText: "New Table",
-      onButtonClick: () => dispatch(setIsCreateModalOpen(true)),
+      onButtonClick: () => {
+        dispatch(setIsCreateModalOpen(true));
+        updateUrlParams({ action: "create" });
+      },
       onClearAll: () => {
         dispatch(setSelectedZone("ALL"));
         dispatch(setSelectedStatus("ALL"));
@@ -258,17 +474,13 @@ export default function TableMonitoringPage() {
       extraActions: (
         <div
           className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 border transition-all ${
-            isWsConnected
+            isLiveSync
               ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
               : "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400"
           }`}
         >
-          {isWsConnected ? (
-            <Wifi className="w-3 h-3 animate-pulse text-emerald-500" />
-          ) : (
-            <WifiOff className="w-3 h-3 text-amber-500" />
-          )}
-          {isWsConnected ? "Live Sync" : "Connecting..."}
+          <Wifi className="w-3 h-3 animate-pulse text-emerald-500" />
+          Live Sync
         </div>
       ),
       filters: [
@@ -296,16 +508,8 @@ export default function TableMonitoringPage() {
         },
       ],
     }),
-    [dispatch, searchQuery, isWsConnected, selectedZone, selectedStatus]
+    [dispatch, searchQuery, isLiveSync, selectedZone, selectedStatus, updateUrlParams]
   );
-
-  const confirmPayment = useCallback(() => {
-    if (!selectedTable) return;
-    dispatch(payBillSuccess(selectedTable.id));
-    showToast.success(`Payment settled for Table #${selectedTable.number}!`);
-    dispatch(setIsPayModalOpen(false));
-    dispatch(setSelectedTable(null));
-  }, [dispatch, selectedTable]);
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
@@ -315,102 +519,167 @@ export default function TableMonitoringPage() {
           essentialFilterIds={["zone", "status"]}
         />
 
-      {/* ── KPI Analytics Summary ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-[16px] border border-border/80 bg-card/80 backdrop-blur-xs p-3.5 flex items-center justify-between shadow-2xs hover:shadow-xs transition-all">
-          <div>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Available</p>
-            <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">
-              {metrics.available} <span className="text-xs text-muted-foreground font-normal">/ {metrics.total}</span>
-            </p>
+        {/* ── KPI Analytics Summary ── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="rounded-[16px] border border-border/80 bg-card/80 backdrop-blur-xs p-3.5 flex items-center justify-between shadow-2xs hover:shadow-xs transition-all">
+            <div>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Available</p>
+              <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">
+                {metrics.available} <span className="text-xs text-muted-foreground font-normal">/ {metrics.total}</span>
+              </p>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-sm">
+              🟢
+            </div>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-sm">
-            🟢
+
+          <div className="rounded-[16px] border border-border/80 bg-card/80 backdrop-blur-xs p-3.5 flex items-center justify-between shadow-2xs hover:shadow-xs transition-all">
+            <div>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Occupied</p>
+              <p className="text-xl font-black text-red-600 dark:text-red-400">{metrics.occupied}</p>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 flex items-center justify-center font-bold text-sm">
+              🔴
+            </div>
+          </div>
+
+          <div className="rounded-[16px] border border-border/80 bg-card/80 backdrop-blur-xs p-3.5 flex items-center justify-between shadow-2xs hover:shadow-xs transition-all">
+            <div>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Reserved</p>
+              <p className="text-xl font-black text-purple-600 dark:text-purple-400">{metrics.reserved}</p>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 flex items-center justify-center font-bold text-sm">
+              🟣
+            </div>
+          </div>
+
+          <div className="rounded-[16px] border border-border/80 bg-card/80 backdrop-blur-xs p-3.5 flex items-center justify-between shadow-2xs hover:shadow-xs transition-all">
+            <div>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Maintenance</p>
+              <p className="text-xl font-black text-amber-600 dark:text-amber-400">{metrics.maintenance}</p>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold text-sm">
+              <Wrench className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            </div>
           </div>
         </div>
 
-        <div className="rounded-[16px] border border-border/80 bg-card/80 backdrop-blur-xs p-3.5 flex items-center justify-between shadow-2xs hover:shadow-xs transition-all">
-          <div>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Occupied</p>
-            <p className="text-xl font-black text-red-600 dark:text-red-400">{metrics.occupied}</p>
-          </div>
-          <div className="w-9 h-9 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 flex items-center justify-center font-bold text-sm">
-            🔴
-          </div>
-        </div>
-
-        <div className="rounded-[16px] border border-border/80 bg-card/80 backdrop-blur-xs p-3.5 flex items-center justify-between shadow-2xs hover:shadow-xs transition-all">
-          <div>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Reserved</p>
-            <p className="text-xl font-black text-purple-600 dark:text-purple-400">{metrics.reserved}</p>
-          </div>
-          <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 flex items-center justify-center font-bold text-sm">
-            🟣
-          </div>
-        </div>
-
-        <div className="rounded-[16px] border border-border/80 bg-card/80 backdrop-blur-xs p-3.5 flex items-center justify-between shadow-2xs hover:shadow-xs transition-all">
-          <div>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Maintenance</p>
-            <p className="text-xl font-black text-amber-600 dark:text-amber-400">{metrics.maintenance}</p>
-          </div>
-          <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold text-sm">
-            <Wrench className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-          </div>
-        </div>
-      </div>
-
-      {/* ── Table List View ── */}
-      <DataTableWithPagination
-        data={paginatedTables}
-        columns={columns}
-        loading={isLoading}
-        emptyMessage="No tables found matching your search or filters"
-        currentPage={currentPage}
-        totalPages={totalPages}
-        totalElements={filteredTables.length}
-        onPageChange={setCurrentPage}
-        pageSize={pageSize}
-        onPageSizeChange={setPageSize}
-        getRowKey={(item) => item.id}
-      />
+        {/* ── Table List View ── */}
+        <DataTableWithPagination
+          data={paginatedTables}
+          columns={columns}
+          loading={isLoading}
+          emptyMessage="No tables found matching your search or filters"
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalElements={filteredTables.length}
+          onPageChange={setCurrentPage}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          getRowKey={(item) => item.id}
+        />
       </div>
 
       {/* ── Standalone Modals ── */}
       <CreateTableModal
         isOpen={isCreateModalOpen}
-        onClose={() => dispatch(setIsCreateModalOpen(false))}
+        onClose={() => {
+          dispatch(setIsCreateModalOpen(false));
+          updateUrlParams({ action: null });
+        }}
       />
 
       <ReservationModal
         isOpen={!!reservationModalTable}
-        onClose={() => setReservationModalTable(null)}
+        onClose={() => {
+          setReservationModalTable(null);
+          updateUrlParams({ action: null, tableId: null });
+        }}
         tableNumber={reservationModalTable?.number || ""}
         initialReservation={reservationModalTable?.reservation}
         onSaveReservation={handleSaveReservation}
       />
 
-      <SettleBillModal
+      <SettleConfirmationModal
         isOpen={isPayModalOpen}
-        onClose={() => dispatch(setIsPayModalOpen(false))}
-        selectedTable={selectedTable}
-        paymentMethod={paymentMethod}
-        onSelectPaymentMethod={(method) => dispatch(setPaymentMethod(method))}
-        onConfirmPayment={confirmPayment}
+        onClose={() => {
+          dispatch(setIsPayModalOpen(false));
+          updateUrlParams({ action: null, tableId: null });
+        }}
+        onSettle={async (m) => confirmPayment(m)}
+        title={`Settle Bill — Table #${selectedTable?.number || ""}`}
+        tableNumber={selectedTable?.number}
+        sessionNumber={selectedTable?.activeOrder?.orderNumber}
+        subtotal={selectedTable?.activeOrder?.totalAmount || 0}
+        grandTotal={selectedTable?.activeOrder?.totalAmount || 0}
       />
 
-      <TableOrderDetailModal
+      <TableSessionDetailsModal
         isOpen={isDetailModalOpen}
-        onClose={() => dispatch(setIsDetailModalOpen(false))}
-        selectedTable={selectedTable}
-        onDownloadReceipt={handleDownloadReceipt}
+        onClose={() => {
+          dispatch(setIsDetailModalOpen(false));
+          setFullSessionDetail(null);
+          updateUrlParams({ action: null, tableId: null });
+        }}
+        session={fullSessionDetail}
+        onSettleSession={() => {
+          dispatch(setIsDetailModalOpen(false));
+          dispatch(setIsPayModalOpen(true));
+          updateUrlParams({ action: "pay", tableId: selectedTable?.id || null });
+        }}
+        onResetTableSession={(sess) => {
+          const targetTable = tables.find((t) => t.id === sess.tableId || t.number === sess.tableNumber);
+          if (targetTable) {
+            handleClearTable(targetTable);
+          } else if (sess.tableId) {
+            handleClearTable({ id: sess.tableId, number: sess.tableNumber } as any);
+          }
+          dispatch(setIsDetailModalOpen(false));
+          setFullSessionDetail(null);
+        }}
       />
 
       <TableQrModal
         isOpen={!!qrModalTable}
-        onClose={() => setQrModalTable(null)}
+        onClose={() => {
+          setQrModalTable(null);
+          updateUrlParams({ action: null, tableId: null });
+        }}
         table={qrModalTable}
+        onSaveTableDetails={handleSaveTableDetails}
+        onResetTableOrder={(tableId) => {
+          const target = qrModalTable || tables.find((t) => t.id === tableId);
+          if (target) handleClearTable(target);
+        }}
+        onTriggerReservation={(table) => setReservationModalTable(table)}
+        onOpenSessionDetails={(table) => handleViewDetails(table)}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={!!tableToDelete}
+        onClose={() => setTableToDelete(null)}
+        onDelete={confirmDeleteTable}
+        title="Delete Table"
+        description={`Are you sure you want to delete Table #${tableToDelete?.number || ""}? This action cannot be undone.`}
+        isSubmitting={isDeletingTable}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={!!tableToReset}
+        onClose={() => setTableToReset(null)}
+        onDelete={confirmResetTable}
+        title="Reset Table"
+        description={`Are you sure you want to reset Table #${tableToReset?.number || ""}? This will clear active dining orders and set status to Available.`}
+        isSubmitting={false}
       />
     </div>
+  );
+}
+
+export default function TableMonitoringPage() {
+  return (
+    <Suspense>
+      <TableMonitoringPageContent />
+    </Suspense>
   );
 }

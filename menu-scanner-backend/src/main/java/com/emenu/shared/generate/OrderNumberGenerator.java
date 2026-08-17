@@ -57,6 +57,35 @@ public class OrderNumberGenerator {
     }
 
     /**
+     * Generate a unique table session number.
+     * Format: Table01-YYYYMMDD-002
+     */
+    @Transactional
+    public String generateSessionNumber(java.util.UUID businessId, String tableNumber) {
+        String cleanTable = tableNumber != null ? tableNumber.trim() : "01";
+        String tableFormatted = cleanTable.toLowerCase().startsWith("table")
+                ? "Table" + cleanTable.substring(5).replaceAll("\\s+", "")
+                : "Table" + cleanTable.replaceAll("\\s+", "");
+
+        LocalDate today = LocalDate.now();
+        String date = today.format(DATE_FORMATTER);
+
+        OrderCounter counter = orderCounterRepository.findByBusinessIdAndCounterDate(businessId, today)
+                .orElseGet(() -> {
+                    OrderCounter newCounter = new OrderCounter();
+                    newCounter.setBusinessId(businessId);
+                    newCounter.setCounterDate(today);
+                    newCounter.setCounterValue(0L);
+                    return orderCounterRepository.save(newCounter);
+                });
+
+        counter.setCounterValue(counter.getCounterValue() + 1);
+        OrderCounter savedCounter = orderCounterRepository.save(counter);
+
+        return String.format("%s-%s-%03d", tableFormatted, date, savedCounter.getCounterValue());
+    }
+
+    /**
      * Generate a unique order number with uniqueness check.
      * For legacy compatibility - uses per-business counter.
      *
@@ -92,7 +121,7 @@ public class OrderNumberGenerator {
      */
     @Transactional
     public String generateOrderNumber() {
-        // This method should not be called directly - use generateOrderNumber(businessId) instead
+        // This method should not be called directly - use generateOrderNumber(UUID businessId) to generate per-business order numbers
         throw new IllegalStateException("Use generateOrderNumber(UUID businessId) to generate per-business order numbers");
     }
 }

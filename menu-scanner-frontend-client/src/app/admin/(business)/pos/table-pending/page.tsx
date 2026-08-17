@@ -1,342 +1,322 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback, Suspense } from "react";
-import { ROUTES } from "@/constants/app-routes/routes";
+import { useEffect, useMemo, useState, useCallback, useRef, Suspense } from "react";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
+import { ApproveConfirmationModal } from "@/components/shared/modal/approve-confirmation-modal";
+import { SettleConfirmationModal, PaymentMethodType } from "@/components/shared/modal/settle-confirmation-modal";
+import { TableSessionDetailsModal } from "@/features/business/modal/table-session-details-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { useOrderAdminState } from "@/features/business/store/state/order-admin-state";
 import {
-  deleteOrderAdminService,
-  fetchAllOrderAdminService,
-} from "@/features/business/store/thunks/order-admin-thunks";
+  tableSessionColumns,
+  TablePendingOrderRow,
+} from "@/features/business/table/table-session-table";
+import { TableSession } from "@/features/business/store/models/type/table-session-type";
 import {
-  setPageNo,
-  setSearchFilter,
-  setPaymentStatusFilter,
-  setStartDateFilter,
-  setEndDateFilter,
-  resetState,
-} from "@/features/business/store/slice/order-admin-slice";
-import { orderAdminTableColumns } from "@/features/business/table/order-admin-table";
-import { OrderDetailModal } from "@/features/business/components/order-detail-modal";
-import { OrderUpdateModal } from "@/features/business/components/order-update-modal";
-import { OrderResponse } from "@/features/main/store/models/response/order-response";
-import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
+  fetchMyBusinessTableSessionsThunk,
+  deleteTableSessionThunk,
+  approveTableSessionThunk,
+  fetchTableSessionByIdThunk,
+  settleTableSessionThunk,
+} from "@/features/business/store/thunks/table-session-thunks";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
-import { useAppSelector } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { PAYMENT_STATUS_ADMIN_FILTER } from "@/constants/status/filter-status";
-import { useDownloadReceipt } from "@/hooks/use-download-receipt";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
-import { useRouter } from "next/navigation";
-import { useAdminTableUrlState } from "@/hooks/use-admin-table-url-state";
-import { TablePosNavTabs } from "@/components/admin/pos/table-pos-nav-tabs";
 import { useTableWebSocket } from "@/hooks/use-table-websocket";
 
 function TablePendingOrdersPageInner() {
-  useAdminCleanup(resetState);
-
-  const router = useRouter();
+  const dispatch = useAppDispatch();
   const businessSettings = useAppSelector(selectBusinessSettings);
   const businessId = businessSettings?.businessId || AppDefault.BUSINESS_ID;
 
-  const {
-    orderState,
-    orderData,
-    orderContent,
-    isLoading,
-    filters,
-    operations,
-    pagination,
-    dispatch,
-  } = useOrderAdminState();
+  const [tableSessions, setTableSessions] = useState<TablePendingOrderRow[]>([]);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageNo, setPageNo] = useState(1);
+  const [search, setSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [detailModalState, setDetailModalState] = useState({
+  const activeFetchRef = useRef<string | null>(null);
+
+  const [deleteState, setDeleteState] = useState<{
+    isOpen: boolean;
+    session: TableSession | null;
+    isDeleting: boolean;
+  }>({
     isOpen: false,
-    orderId: "",
+    session: null,
+    isDeleting: false,
   });
 
-  const [updateModalState, setUpdateModalState] = useState({
+  const [approveState, setApproveState] = useState<{
+    isOpen: boolean;
+    row: TablePendingOrderRow | null;
+    isApproving: boolean;
+  }>({
     isOpen: false,
-    orderId: "",
+    row: null,
+    isApproving: false,
   });
 
-  const [deleteState, setDeleteState] = useState({
+  const [settleState, setSettleState] = useState<{
+    isOpen: boolean;
+    row: TablePendingOrderRow | null;
+    session: TableSession | null;
+    isSettling: boolean;
+  }>({
     isOpen: false,
-    order: null as OrderResponse | null,
+    row: null,
+    session: null,
+    isSettling: false,
   });
 
-  const { handleDownloadReceipt, downloadingOrderId } = useDownloadReceipt();
-
-  const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const debouncedSearch = useDebounce(filters.search, 400);
-
-  const {
-    isHydrated,
-    viewId,
-    editId,
-    deleteId,
-    openView,
-    openEdit,
-    openDelete,
-    closeModal: closeRouteModal,
-    updateUrlWithPage,
-    handlePageChange,
-  } = useAdminTableUrlState({
-    baseRoute: ROUTES.ADMIN.TABLE_PENDING_ORDERS,
-    filters: {
-      search: filters.search,
-      paymentStatus: filters.paymentStatus && filters.paymentStatus !== "ALL" ? filters.paymentStatus : "",
-      startDate: filters.startDate || "",
-      endDate: filters.endDate || "",
-      pageNo: filters.pageNo,
-      pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
-    },
-    onInit: (params) => {
-      if (params.search) dispatch(setSearchFilter(params.search));
-      if (params.paymentStatus) dispatch(setPaymentStatusFilter(params.paymentStatus));
-      if (params.startDate) dispatch(setStartDateFilter(params.startDate));
-      if (params.endDate) dispatch(setEndDateFilter(params.endDate));
-      if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
-      if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
-    },
-    syncPageToRedux: (page) => dispatch(setPageNo(page)),
+  const [detailsModalState, setDetailsModalState] = useState<{
+    isOpen: boolean;
+    session: TableSession | null;
+    selectedRound?: number;
+  }>({
+    isOpen: false,
+    session: null,
+    selectedRound: undefined,
   });
 
-  const loadPendingTableOrders = useCallback(() => {
-    if (!isHydrated) return;
+  const globalPageSize = Number(useAppSelector(selectGlobalPageSize)) || AppDefault.PAGE_SIZE;
+  const debouncedSearch = useDebounce(search, 400);
 
-    const requestParams: Record<string, unknown> = {
-      search: debouncedSearch,
-      pageNo: filters.pageNo,
-      pageSize: globalPageSize,
-      orderStatus: "PENDING",
-    };
-
-    if (filters.paymentStatus && filters.paymentStatus !== "ALL") {
-      requestParams.paymentStatus = filters.paymentStatus;
+  const loadPendingTableSessions = useCallback(async () => {
+    const fetchKey = `${debouncedSearch}-PENDING-${pageNo}-${globalPageSize}`;
+    if (activeFetchRef.current === fetchKey) {
+      return;
     }
-
-    if (filters.startDate && filters.startDate.trim()) {
-      requestParams.startDate = filters.startDate;
+    activeFetchRef.current = fetchKey;
+    setIsLoading(true);
+    try {
+      const res = await dispatch(
+        fetchMyBusinessTableSessionsThunk({
+          search: debouncedSearch,
+          status: "PENDING",
+          pageNo,
+          pageSize: globalPageSize,
+        })
+      ).unwrap();
+      setTableSessions((res.content as any) || []);
+      setTotalElements(res.totalElements || 0);
+      setTotalPages(res.totalPages || 1);
+    } catch (err: any) {
+      showToast.error(err || "Failed to load table sessions");
+    } finally {
+      setIsLoading(false);
+      activeFetchRef.current = null;
     }
-
-    if (filters.endDate && filters.endDate.trim()) {
-      requestParams.endDate = filters.endDate;
-    }
-
-    dispatch(fetchAllOrderAdminService(requestParams));
-  }, [
-    isHydrated,
-    dispatch,
-    debouncedSearch,
-    filters.pageNo,
-    filters.paymentStatus,
-    filters.startDate,
-    filters.endDate,
-    globalPageSize,
-  ]);
+  }, [dispatch, pageNo, globalPageSize, debouncedSearch]);
 
   useEffect(() => {
-    loadPendingTableOrders();
-  }, [loadPendingTableOrders]);
+    loadPendingTableSessions();
+  }, [loadPendingTableSessions]);
 
-  // STOMP WebSocket Live Connection — NO setInterval polling!
   const handleTableWebSocketEvent = useCallback(() => {
-    loadPendingTableOrders();
-    showToast.success("🔔 New table order event received!");
-  }, [loadPendingTableOrders]);
+    loadPendingTableSessions();
+    showToast.success("🔔 Table session update received!");
+  }, [loadPendingTableSessions]);
 
-  const { isConnected } = useTableWebSocket({
+  useTableWebSocket({
     businessId,
     onTableEvent: handleTableWebSocketEvent,
   });
 
-  // Filter strictly for PENDING Table Orders
-  const pendingTableOrdersContent = useMemo(() => {
-    return orderContent.filter((ord) => {
-      const name = ord.customerName || "";
-      const phone = ord.customerPhone || "";
-      const note = ord.customerNote || "";
-      const isTable = phone === "Table Service" || name.startsWith("Table ") || note.includes("[Table ");
-      return isTable && ord.orderStatus === "PENDING";
-    });
-  }, [orderContent]);
+  const handleViewSession = useCallback(async (row: TablePendingOrderRow) => {
+    const targetId = row.sessionId || row.id.split("-round-")[0];
+    try {
+      const fullSession = await dispatch(fetchTableSessionByIdThunk(targetId)).unwrap();
+      if (fullSession) {
+        setDetailsModalState({ isOpen: true, session: fullSession, selectedRound: row.round });
+        return;
+      }
+    } catch {
+      // Fallback
+    }
+    const sessionObj: any = {
+      id: targetId,
+      sessionNumber: row.sessionNumber,
+      tableNumber: row.tableNumber,
+      status: row.status,
+      startedAt: row.startedAt,
+      items: row.items || [],
+      totalItems: row.roundItemsCount,
+      totalAmount: row.roundTotal,
+    };
+    setDetailsModalState({ isOpen: true, session: sessionObj, selectedRound: row.round });
+  }, [dispatch]);
 
-  const handleViewOrder = (order: OrderResponse) => {
-    openView(order.id);
+  const handleDeleteSession = useCallback((row: TablePendingOrderRow) => {
+    const sessionObj: any = {
+      id: row.sessionId || row.id.split("-round-")[0],
+      sessionNumber: row.sessionNumber,
+    };
+    setDeleteState({ isOpen: true, session: sessionObj, isDeleting: false });
+  }, []);
+
+  const confirmDeleteSession = async () => {
+    if (!deleteState.session) return;
+    setDeleteState((prev) => ({ ...prev, isDeleting: true }));
+    try {
+      await dispatch(deleteTableSessionThunk(deleteState.session.id)).unwrap();
+      showToast.success(`Table session #${deleteState.session.sessionNumber} deleted`);
+      setDeleteState({ isOpen: false, session: null, isDeleting: false });
+      loadPendingTableSessions();
+    } catch (err: any) {
+      showToast.error(err || "Failed to delete table session");
+      setDeleteState((prev) => ({ ...prev, isDeleting: false }));
+    }
   };
 
-  const handleEditOrder = (order: OrderResponse) => {
-    openEdit(order.id);
+  const handleApproveSession = useCallback((row: TablePendingOrderRow) => {
+    setApproveState({ isOpen: true, row, isApproving: false });
+  }, []);
+
+  const confirmApproveSession = async () => {
+    if (!approveState.row) return;
+    const row = approveState.row;
+    setApproveState((prev) => ({ ...prev, isApproving: true }));
+    try {
+      const targetId = row.sessionId || row.id.split("-round-")[0];
+      await dispatch(approveTableSessionThunk({ id: targetId, round: row.round })).unwrap();
+      showToast.success(`Round ${row.round} approved for table ${row.tableNumber}!`);
+      setApproveState({ isOpen: false, row: null, isApproving: false });
+      loadPendingTableSessions();
+    } catch (err: any) {
+      showToast.error(err || "Failed to approve table session round");
+      setApproveState((prev) => ({ ...prev, isApproving: false }));
+    }
   };
 
-  const handleDeleteOrder = (order: OrderResponse) => {
-    setDeleteState({ isOpen: true, order });
-    openDelete(order.id);
+  const handleSettleSession = useCallback(async (row: TablePendingOrderRow) => {
+    const targetId = row.sessionId || row.id.split("-round-")[0];
+    try {
+      const fullSession = await dispatch(fetchTableSessionByIdThunk(targetId)).unwrap();
+      setSettleState({ isOpen: true, row, session: fullSession || null, isSettling: false });
+    } catch {
+      setSettleState({ isOpen: true, row, session: null, isSettling: false });
+    }
+  }, [dispatch]);
+
+  const confirmSettleSession = async (paymentMethod: PaymentMethodType) => {
+    if (!settleState.row && !settleState.session) return;
+    const targetId = settleState.session?.tableId || settleState.session?.id || settleState.row?.sessionId || settleState.row?.id.split("-round-")[0] || "";
+    setSettleState((prev) => ({ ...prev, isSettling: true }));
+    try {
+      await dispatch(
+        settleTableSessionThunk({
+          tableId: targetId,
+          paymentMethod,
+        })
+      ).unwrap();
+      showToast.success(`Session #${settleState.session?.sessionNumber || settleState.row?.sessionNumber || ""} settled & finalized!`);
+      setSettleState({ isOpen: false, row: null, session: null, isSettling: false });
+      loadPendingTableSessions();
+    } catch (err: any) {
+      showToast.error(err || "Failed to settle table session");
+      setSettleState((prev) => ({ ...prev, isSettling: false }));
+    }
   };
 
   const tableHandlers = useMemo(
     () => ({
-      handleViewOrder,
-      handleEditOrder,
-      handleDeleteOrder,
-      handleDownloadReceipt,
+      handleViewSession,
+      handleDeleteSession,
+      handleApproveSession,
+      handleSettleSession,
     }),
-    [openView, openEdit, openDelete]
+    [handleViewSession, handleDeleteSession, handleApproveSession, handleSettleSession]
   );
 
   const columns = useMemo(
     () =>
-      orderAdminTableColumns({
-        data: orderData,
+      tableSessionColumns({
+        currentPage: pageNo,
+        pageSize: globalPageSize,
         handlers: tableHandlers,
-        downloadingOrderId,
-        hideDelivery: true,
-        hidePayment: true,
       }),
-    [orderData, tableHandlers, downloadingOrderId]
+    [pageNo, globalPageSize, tableHandlers]
   );
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setSearchFilter(e.target.value));
-  };
-
-  const handlePageChangeWrapper = (page: number) => {
-    dispatch(setPageNo(page));
-    handlePageChange(page);
-  };
-
-  const handlePageSizeChange = (size: number) => {
-    dispatch(setGlobalPageSize(size));
-    dispatch(setPageNo(1));
-  };
-
-  const orderToDelete = useMemo(() => {
-    if (deleteState.order) return deleteState.order;
-    if (deleteId) {
-      return orderContent.find((o) => o.id === deleteId) || null;
-    }
-    return null;
-  }, [deleteState.order, deleteId, orderContent]);
-
-  const handleDelete = async () => {
-    const activeId = deleteId || deleteState.order?.id;
-    if (!activeId) return;
-
-    try {
-      await dispatch(deleteOrderAdminService(activeId)).unwrap();
-      showToast.success(
-        `Order #${orderToDelete?.orderNumber ?? ""} deleted successfully`
-      );
-      closeDeleteModal();
-      closeRouteModal();
-
-      if (orderContent.length === 1 && pagination.currentPage > 1) {
-        const newPage = pagination.currentPage - 1;
-        dispatch(setPageNo(newPage));
-        updateUrlWithPage(newPage);
-      }
-    } catch (error: unknown) {
-      showToast.error(
-        (error as { message?: string })?.message || "Failed to delete order"
-      );
-    }
-  };
-
-  const closeDetailModal = () => {
-    setDetailModalState({ isOpen: false, orderId: "" });
-  };
-
-  const handleUpdateOrderFromDetail = () => {
-    const orderId = viewId || detailModalState.orderId;
-    if (orderId) {
-      closeDetailModal();
-      closeRouteModal();
-      openEdit(orderId);
-    }
-  };
-
-  const closeUpdateModal = () => {
-    setUpdateModalState({ isOpen: false, orderId: "" });
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteState({ isOpen: false, order: null });
-  };
-
-  const handleClearAllFilters = () => {
-    dispatch(setSearchFilter(""));
-  };
 
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Table Pending Orders",
-    searchValue: filters.search,
-    searchPlaceholder: "Search pending table order...",
-    onSearchChange: handleSearchChange,
-    onClearAll: handleClearAllFilters,
+    searchValue: search,
+    searchPlaceholder: "Search table number or session code...",
+    onSearchChange: (e) => setSearch(e.target.value),
+    onClearAll: () => setSearch(""),
     filters: [],
-  }), [filters]);
+  }), [search]);
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
-        <CollapsibleFilterPanel
-          config={filterConfig}
-        />
+        <CollapsibleFilterPanel config={filterConfig} />
 
         <DataTableWithPagination
-          data={pendingTableOrdersContent}
+          data={tableSessions}
           columns={columns}
           loading={isLoading}
-          emptyMessage="No pending table orders found"
-          getRowKey={(order) => order.id}
-          currentPage={filters.pageNo}
-          totalElements={pendingTableOrdersContent.length}
-          totalPages={Math.ceil(pendingTableOrdersContent.length / globalPageSize) || 1}
-          onPageChange={handlePageChangeWrapper}
+          emptyMessage="No table session orders found"
+          getRowKey={(row) => row.id}
+          currentPage={pageNo}
+          totalElements={totalElements}
+          totalPages={totalPages}
+          onPageChange={(page) => setPageNo(page)}
           pageSize={globalPageSize}
-          onPageSizeChange={handlePageSizeChange}
+          onPageSizeChange={() => setPageNo(1)}
           pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
       </div>
 
-      <OrderDetailModal
-        orderId={viewId || detailModalState.orderId}
-        isOpen={!!viewId || detailModalState.isOpen}
-        onClose={() => {
-          closeDetailModal();
-          closeRouteModal();
+      <TableSessionDetailsModal
+        isOpen={detailsModalState.isOpen}
+        onClose={() => setDetailsModalState({ isOpen: false, session: null, selectedRound: undefined })}
+        session={detailsModalState.session}
+        selectedRound={detailsModalState.selectedRound}
+        onSettleSession={(sess) => {
+          setDetailsModalState({ isOpen: false, session: null, selectedRound: undefined });
+          setSettleState({ isOpen: true, row: null, session: sess, isSettling: false });
         }}
-        onUpdateOrder={handleUpdateOrderFromDetail}
       />
 
-      <OrderUpdateModal
-        orderId={editId || updateModalState.orderId}
-        isOpen={!!editId || updateModalState.isOpen}
-        onClose={() => {
-          closeUpdateModal();
-          closeRouteModal();
-        }}
+      <SettleConfirmationModal
+        isOpen={settleState.isOpen}
+        onClose={() => setSettleState({ isOpen: false, row: null, session: null, isSettling: false })}
+        onSettle={confirmSettleSession}
+        title="Final Checkout & Settle Bill"
+        tableNumber={settleState.session?.tableNumber || settleState.row?.tableNumber}
+        sessionNumber={settleState.session?.sessionNumber || settleState.row?.sessionNumber}
+        subtotal={settleState.session?.subtotal || settleState.row?.roundTotal || 0}
+        taxRate={settleState.session?.taxRate || 0}
+        taxAmount={settleState.session?.taxAmount || 0}
+        grandTotal={settleState.session?.grandTotal || settleState.session?.totalAmount || settleState.row?.roundTotal || 0}
+        isSubmitting={settleState.isSettling}
+      />
+
+      <ApproveConfirmationModal
+        isOpen={approveState.isOpen}
+        onClose={() => setApproveState({ isOpen: false, row: null, isApproving: false })}
+        onApprove={confirmApproveSession}
+        title="Approve Order Round"
+        description={`Are you sure you want to approve Round ${approveState.row?.round || 1} for ${approveState.row?.tableNumber || "Table"}?`}
+        itemName={`${approveState.row?.tableNumber || "Table"} — Round ${approveState.row?.round || 1} (${approveState.row?.roundItemsCount || 0} items)`}
+        confirmButtonText="Approve Round"
+        isSubmitting={approveState.isApproving}
       />
 
       <DeleteConfirmationModal
-        isOpen={!!deleteId || deleteState.isOpen}
-        onClose={() => {
-          closeDeleteModal();
-          closeRouteModal();
-        }}
-        onDelete={handleDelete}
-        title="Delete Order"
-        description={`Are you sure you want to delete order #${
-          orderToDelete?.orderNumber || ""
-        }?`}
-        itemName={orderToDelete?.orderNumber || ""}
-        isSubmitting={operations.isDeleting}
+        isOpen={deleteState.isOpen}
+        onClose={() => setDeleteState({ isOpen: false, session: null, isDeleting: false })}
+        onDelete={confirmDeleteSession}
+        title="Delete Table Session"
+        description={`Are you sure you want to delete table session #${deleteState.session?.sessionNumber || ""}?`}
+        itemName={deleteState.session?.sessionNumber || ""}
+        isSubmitting={deleteState.isDeleting}
       />
     </div>
   );

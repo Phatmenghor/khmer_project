@@ -27,16 +27,14 @@ export const TableOrderDetailModal: React.FC<TableOrderDetailModalProps> = ({
   useEffect(() => {
     if (!isOpen || !selectedTable) return;
 
-    const fetchCumulativeTableOrders = async () => {
+    const fetchActiveTableSession = async () => {
       try {
         setLoadingOrders(true);
-        const tableKey = `table_orders_${selectedTable.id}`;
-        const raw = typeof window !== "undefined" ? localStorage.getItem(tableKey) : null;
-        const ids: string[] = raw ? JSON.parse(raw) : [];
+        const response = await axiosClient.get(`/api/v1/table-sessions/active?tableId=${selectedTable.id}`);
+        const sessionData = response.data?.data;
 
-        if (ids && ids.length > 0) {
-          const response = await axiosClient.post("/api/v1/orders/guest-lookup", ids);
-          setTableOrders(response.data?.data || []);
+        if (sessionData) {
+          setTableOrders([sessionData]);
         } else if (selectedTable.activeOrder) {
           setTableOrders([
             {
@@ -58,7 +56,7 @@ export const TableOrderDetailModal: React.FC<TableOrderDetailModalProps> = ({
       }
     };
 
-    fetchCumulativeTableOrders();
+    fetchActiveTableSession();
   }, [isOpen, selectedTable]);
 
   const cumulativeTotal = tableOrders.reduce((sum, ord) => {
@@ -98,7 +96,7 @@ export const TableOrderDetailModal: React.FC<TableOrderDetailModalProps> = ({
             {tableOrders.map((ord, idx) => (
               <div
                 key={ord.id || idx}
-                className="p-3.5 rounded-xl bg-muted/30 border border-border/80 text-xs space-y-2 shadow-3xs"
+                className="p-3.5 rounded-[16px] bg-card border border-border/80 text-xs space-y-2 shadow-2xs"
               >
                 <div className="flex items-center justify-between">
                   <span className="font-mono font-bold text-foreground flex items-center gap-1.5">
@@ -132,7 +130,7 @@ export const TableOrderDetailModal: React.FC<TableOrderDetailModalProps> = ({
             ))}
           </div>
         ) : (
-          <div className="p-3.5 rounded-xl bg-muted/40 border border-border space-y-1">
+          <div className="p-3.5 rounded-[16px] bg-muted/40 border border-border/80 space-y-1">
             <p className="text-xs text-foreground font-medium leading-relaxed">
               {selectedTable?.activeOrder?.itemsSummary || "No active orders for this table."}
             </p>
@@ -140,7 +138,7 @@ export const TableOrderDetailModal: React.FC<TableOrderDetailModalProps> = ({
         )}
 
         {/* Grand Total Bar */}
-        <div className="p-3.5 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-between text-xs font-bold">
+        <div className="p-3.5 rounded-[16px] bg-primary/10 border border-primary/30 flex items-center justify-between text-xs font-bold">
           <span className="text-foreground">Grand Total Running Bill:</span>
           <span className="text-primary font-black text-base">
             {formatCurrency(cumulativeTotal)}

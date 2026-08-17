@@ -2,6 +2,8 @@ package com.emenu.features.notification.telegram.service;
 
 import com.emenu.features.notification.telegram.dto.response.TelegramStatusResponse;
 import com.emenu.features.order.models.Order;
+import com.emenu.features.order.models.TableSession;
+import com.emenu.features.order.models.TableSessionItem;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,10 +26,6 @@ public interface TelegramNotificationService {
 
     // ── Bot management ────────────────────────────────────────────────────────
 
-    /**
-     * Persists the Telegram group chat ID to business settings and returns the business name,
-     * or null if the business was not found.
-     */
     String linkGroupToBusinessId(UUID businessId, long chatId);
 
     // ── Order notifications (async) ───────────────────────────────────────────
@@ -37,6 +35,16 @@ public interface TelegramNotificationService {
     void notifyNewPOSOrder(Order order);
 
     void notifyOrderStatusChanged(Order order);
+
+    // ── Table Session notifications (text-only async) ─────────────────────────
+
+    void notifyTableSessionItemAdded(TableSession session, TableSessionItem newItem);
+
+    void notifyTableSessionRoundAdded(TableSession session, int orderRound, List<TableSessionItem> addedItems);
+
+    void notifyTableSessionSettled(TableSession session, Order order);
+
+    void notifyTableReset(UUID businessId, String tableNumber);
 
     // ── Staff notifications (async) ───────────────────────────────────────────
 

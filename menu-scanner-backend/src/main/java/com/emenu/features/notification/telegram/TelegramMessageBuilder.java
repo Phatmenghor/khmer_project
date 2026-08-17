@@ -5,8 +5,11 @@ import com.emenu.features.order.models.Order;
 import com.emenu.features.order.models.OrderDeliveryAddress;
 import com.emenu.features.order.models.OrderItem;
 import com.emenu.features.order.models.OrderItemCustomization;
+import com.emenu.features.order.models.TableSession;
+import com.emenu.features.order.models.TableSessionItem;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -31,6 +34,136 @@ public final class TelegramMessageBuilder {
         String statusLabel = order.getOrderStatus() != null ? order.getOrderStatus().name() : "UPDATED";
         String statusEmoji = getStatusEmoji(order.getOrderStatus());
         return buildCleanReceiptMessage(order, statusEmoji + " <b>ORDER STATUS UPDATED: " + statusLabel + "</b>");
+    }
+
+    public static String newTableSessionItem(TableSession session, TableSessionItem newItem) {
+        return newTableSessionRound(session, newItem.getOrderRound() != null ? newItem.getOrderRound() : 1, List.of(newItem));
+    }
+
+    public static String newTableSessionRound(TableSession session, int orderRound, List<TableSessionItem> addedItems) {
+        StringBuilder sb = new StringBuilder();
+
+        // 1. Header
+        sb.append("🍽️ <b>NEW TABLE ITEM ADDED</b>\n\n");
+
+        // 2. Session Info
+        String tableStr = session.getTableNumber() != null
+                ? (session.getTableNumber().startsWith("Table ") ? session.getTableNumber() : "Table " + session.getTableNumber())
+                : "Table";
+        String cleanSessionNum = session.getSessionNumber() != null
+                ? session.getSessionNumber().replaceAll("(?i)^(SESS-?|Session\\s*)", "")
+                : "";
+
+        sb.append("• <b>Table:</b> ").append(escapeHtml(tableStr)).append("\n");
+        sb.append("• <b>Session Code:</b> <code>#").append(escapeHtml(cleanSessionNum)).append("</code>\n");
+        sb.append("• <b>Round:</b> Round ").append(orderRound).append("\n");
+        LocalDateTime itemTime = (addedItems != null && !addedItems.isEmpty() && addedItems.get(0).getCreatedAt() != null)
+                ? addedItems.get(0).getCreatedAt()
+                : LocalDateTime.now();
+        sb.append("• <b>Date/Time:</b> ").append(itemTime.format(DATE_FMT)).append("\n\n");
+
+        // 3. Added Items List
+        int addedCount = addedItems != null ? addedItems.stream().mapToInt(i -> i.getQuantity() != null ? i.getQuantity() : 1).sum() : 0;
+        sb.append("🛒 <b>Added Items</b> (").append(addedCount).append(" ").append(addedCount == 1 ? "item" : "items").append("):\n");
+        if (addedItems != null && !addedItems.isEmpty()) {
+            int idx = 1;
+            for (TableSessionItem newItem : addedItems) {
+                String name = newItem.getProductName() != null ? newItem.getProductName() : "Product Item";
+                BigDecimal lineTotal = newItem.getTotalPrice() != null ? newItem.getTotalPrice() :
+                        (newItem.getUnitPrice() != null ? newItem.getUnitPrice().multiply(new BigDecimal(newItem.getQuantity() != null ? newItem.getQuantity() : 1)) : BigDecimal.ZERO);
+
+                sb.append(idx++).append(". <b>").append(escapeHtml(name)).append("</b> × ").append(newItem.getQuantity() != null ? newItem.getQuantity() : 1)
+                  .append(" — <b>$").append(fmt(lineTotal)).append("</b>\n");
+
+                if (hasText(newItem.getSizeName()) && !"Standard".equalsIgnoreCase(newItem.getSizeName()) && !"null".equalsIgnoreCase(newItem.getSizeName())) {
+                    sb.append("   <i>Size: ").append(escapeHtml(newItem.getSizeName())).append("</i>\n");
+                }
+                if (newItem.getCustomizationTotal() != null && newItem.getCustomizationTotal().compareTo(BigDecimal.ZERO) > 0) {
+                    sb.append("   <i>Add-ons: +$").append(fmt(newItem.getCustomizationTotal())).append("</i>\n");
+                }
+                if (hasText(newItem.getCustomerNote())) {
+                    sb.append("   <i>Note: \"").append(escapeHtml(newItem.getCustomerNote())).append("\"</i>\n");
+                }
+            }
+        }
+
+        // 4. Summary (Round Total & Overall Table Total)
+        sb.append("\n------------------------------------------\n");
+        BigDecimal roundTotal = addedItems != null
+                ? addedItems.stream()
+                        .map(i -> i.getTotalPrice() != null ? i.getTotalPrice() : (i.getUnitPrice() != null ? i.getUnitPrice().multiply(new BigDecimal(i.getQuantity() != null ? i.getQuantity() : 1)) : BigDecimal.ZERO))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                : BigDecimal.ZERO;
+        int roundAddedItemsCount = addedItems != null ? addedItems.stream().mapToInt(i -> i.getQuantity() != null ? i.getQuantity() : 1).sum() : 0;
+        int totalItemsCount = session.getTotalItems() != null ? session.getTotalItems() : roundAddedItemsCount;
+        BigDecimal tableTotal = session.getTotalAmount() != null ? session.getTotalAmount() : roundTotal;
+
+        sb.append("💰 <b>ROUND TOTAL:</b> <b>$").append(fmt(roundTotal)).append("</b> (").append(roundAddedItemsCount).append(" ").append(roundAddedItemsCount == 1 ? "item" : "items").append(")\n");
+        sb.append("💰 <b>OVERALL TABLE TOTAL:</b> <b>$").append(fmt(tableTotal)).append("</b> (").append(totalItemsCount).append(" ").append(totalItemsCount == 1 ? "item" : "items").append(")\n");
+
+        return sb.toString();
+    }
+
+    public static String tableSessionSettled(TableSession session, Order order) {
+        StringBuilder sb = new StringBuilder();
+
+        // 1. Header
+        sb.append("✅ <b>TABLE SESSION SETTLED & PAID</b>\n\n");
+
+        // 2. Session Info
+        String tableStr = session.getTableNumber() != null
+                ? (session.getTableNumber().startsWith("Table ") ? session.getTableNumber() : "Table " + session.getTableNumber())
+                : "Table";
+        String cleanSessionNum = session.getSessionNumber() != null
+                ? session.getSessionNumber().replaceAll("(?i)^(SESS-?|Session\\s*)", "")
+                : "";
+
+        sb.append("• <b>Table:</b> ").append(escapeHtml(tableStr)).append("\n");
+        sb.append("• <b>Session Code:</b> <code>#").append(escapeHtml(cleanSessionNum)).append("</code>\n");
+        LocalDateTime settledTime = session.getClosedAt() != null ? session.getClosedAt() : LocalDateTime.now();
+        sb.append("• <b>Date/Time:</b> ").append(settledTime.format(DATE_FMT)).append("\n");
+        if (order != null && hasText(order.getOrderNumber())) {
+            sb.append("• <b>Order Number:</b> <code>#").append(escapeHtml(order.getOrderNumber())).append("</code>\n");
+        }
+        if (order != null && order.getPaymentMethod() != null) {
+            sb.append("• <b>Payment Method:</b> ").append(escapeHtml(order.getPaymentMethod().name())).append("\n");
+        }
+
+        // 3. Items List (if order present)
+        if (order != null && order.getItems() != null && !order.getItems().isEmpty()) {
+            sb.append("\n🛒 <b>Consolidated Items</b> (").append(order.getItems().size()).append(" item").append(order.getItems().size() > 1 ? "s" : "").append("):\n");
+            int idx = 1;
+            for (OrderItem item : order.getItems()) {
+                String name = item.getProductName() != null ? item.getProductName() : "Product";
+                BigDecimal lineTotal = item.getTotalPrice() != null ? item.getTotalPrice() :
+                        (item.getFinalPrice() != null ? item.getFinalPrice().multiply(new BigDecimal(item.getQuantity())) : BigDecimal.ZERO);
+
+                sb.append(idx++).append(". <b>").append(escapeHtml(name)).append("</b> × ").append(item.getQuantity())
+                  .append(" — <b>$").append(fmt(lineTotal)).append("</b>\n");
+
+                if (hasText(item.getSizeName()) && !"Standard".equalsIgnoreCase(item.getSizeName()) && !"null".equalsIgnoreCase(item.getSizeName())) {
+                    sb.append("   <i>Size: ").append(escapeHtml(item.getSizeName())).append("</i>\n");
+                }
+                Set<OrderItemCustomization> customs = item.getItemCustomizations();
+                if (customs != null && !customs.isEmpty()) {
+                    for (OrderItemCustomization c : customs) {
+                        BigDecimal adj = c.getPriceAdjustment() != null ? c.getPriceAdjustment() : BigDecimal.ZERO;
+                        sb.append("   <i>+ ").append(escapeHtml(c.getName()));
+                        if (adj.compareTo(BigDecimal.ZERO) > 0) {
+                            sb.append(" (+$").append(fmt(adj)).append(")");
+                        }
+                        sb.append("</i>\n");
+                    }
+                }
+            }
+        }
+
+        // 4. Final Total
+        sb.append("\n------------------------------------------\n");
+        BigDecimal finalTotal = order != null && order.getTotalAmount() != null ? order.getTotalAmount() : session.getTotalAmount();
+        sb.append("💰 <b>FINAL SETTLED TOTAL:</b> <b>$").append(fmt(finalTotal)).append("</b>\n");
+
+        return sb.toString();
     }
 
     public static String newStaff(String name, String position, String phone,
@@ -119,8 +252,8 @@ public final class TelegramMessageBuilder {
             sb.append("• <b>Source:</b> ").append(escapeHtml(order.getSource().toUpperCase())).append("\n");
         }
 
-        // 3. Customer Info
-        if (hasText(order.getCustomerName()) || hasText(order.getCustomerPhone()) || order.getDeliveryAddress() != null) {
+        // 3. Customer Info (only display if relevant customer data is present)
+        if (hasText(order.getCustomerName()) || hasText(order.getCustomerPhone()) || (order.getDeliveryAddress() != null && hasText(formatAddress(order.getDeliveryAddress())))) {
             sb.append("\n👤 <b>Customer Info:</b>\n");
             if (hasText(order.getCustomerName())) {
                 sb.append("• <b>Name:</b> ").append(escapeHtml(order.getCustomerName())).append("\n");
@@ -176,12 +309,11 @@ public final class TelegramMessageBuilder {
         if (order.getCustomizationTotal() != null && order.getCustomizationTotal().compareTo(BigDecimal.ZERO) > 0) {
             sb.append("• <b>Add-ons Total:</b> +$").append(fmt(order.getCustomizationTotal())).append("\n");
         }
-        if (order.getDeliveryFee() != null || order.getDeliveryOption() != null) {
+        if ((order.getDeliveryFee() != null && order.getDeliveryFee().compareTo(BigDecimal.ZERO) > 0) || (order.getDeliveryOption() != null && order.getDeliveryOption().getPrice() != null && order.getDeliveryOption().getPrice().compareTo(BigDecimal.ZERO) > 0)) {
             String delLabel = order.getDeliveryOption() != null && hasText(order.getDeliveryOption().getName())
                     ? "Delivery (" + order.getDeliveryOption().getName() + ")"
                     : "Delivery Fee";
-            BigDecimal delFee = order.getDeliveryFee() != null ? order.getDeliveryFee() :
-                    (order.getDeliveryOption() != null && order.getDeliveryOption().getPrice() != null ? order.getDeliveryOption().getPrice() : BigDecimal.ZERO);
+            BigDecimal delFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : order.getDeliveryOption().getPrice();
             sb.append("• <b>").append(escapeHtml(delLabel)).append(":</b> +$").append(fmt(delFee)).append("\n");
         }
         if (order.getDiscountAmount() != null && order.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {

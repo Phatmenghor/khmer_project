@@ -9,7 +9,7 @@ import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { showToast } from "@/components/shared/common/show-toast";
 import { addTableLocal } from "@/features/business/store/slice/table-monitoring-slice";
-import { createTableThunk } from "@/features/business/store/thunks/table-monitoring-thunks";
+import { createTableThunk, fetchTablesThunk } from "@/features/business/store/thunks/table-monitoring-thunks";
 import { UtensilsCrossed, Plus } from "lucide-react";
 
 interface CreateTableModalProps {
@@ -61,6 +61,7 @@ export function CreateTableModal({ isOpen, onClose }: CreateTableModalProps) {
         })
       ).unwrap();
 
+      dispatch(fetchTablesThunk());
       showToast.success(`Successfully created Table ${number.trim()}!`);
     } catch {
       dispatch(

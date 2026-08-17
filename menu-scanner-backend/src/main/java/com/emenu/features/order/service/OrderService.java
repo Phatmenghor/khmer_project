@@ -18,6 +18,7 @@ public interface OrderService {
     PaginationResponse<OrderResponse> getCustomerOrderHistory(OrderFilterRequest filter);
     List<OrderResponse> getGuestOrders(List<UUID> orderIds);
     OrderResponse getOrderById(UUID orderId);
+    OrderResponse getOrderByIdOrNumber(String idOrNumber);
 
     // Business Operations
     PaginationResponse<OrderResponse> getAllOrders(OrderFilterRequest filter);

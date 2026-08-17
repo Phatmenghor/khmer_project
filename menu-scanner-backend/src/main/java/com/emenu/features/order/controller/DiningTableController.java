@@ -1,14 +1,13 @@
 package com.emenu.features.order.controller;
 
+import com.emenu.enums.order.TableStatus;
+import com.emenu.features.order.dto.filter.DiningTableFilterRequest;
 import com.emenu.features.order.dto.request.CreateTableRequest;
 import com.emenu.features.order.dto.request.UpdateTableStatusRequest;
 import com.emenu.features.order.dto.response.DiningTableResponse;
-import com.emenu.features.order.enums.TableStatus;
 import com.emenu.features.order.service.DiningTableService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,78 +22,77 @@ import java.util.UUID;
 @RequestMapping("/api/v1/admin/tables")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Dining Tables Management", description = "Admin APIs for Floor Plan & Table Monitoring")
 public class DiningTableController {
 
     private final DiningTableService tableService;
     private final SecurityUtils securityUtils;
 
-    @GetMapping
-    @Operation(summary = "Get all dining tables for current logged-in business")
-    public ResponseEntity<ApiResponse<List<DiningTableResponse>>> getTables(
-            @RequestParam(required = false) TableStatus status
-    ) {
-        UUID businessId = securityUtils.getCurrentUserBusinessId();
-        log.info("Endpoint: get-tables - fetching tables for businessId={}, statusFilter={}", businessId, status);
-        List<DiningTableResponse> tables = tableService.getTablesByBusiness(businessId, status);
-        log.info("Endpoint: get-tables - returned count={} tables for businessId={}", tables.size(), businessId);
+    @PostMapping("/all")
+    public ResponseEntity<ApiResponse<List<DiningTableResponse>>> getAllTables(
+            @Valid @RequestBody DiningTableFilterRequest filterRequestData) {
+        log.info("Endpoint: all - dining tables list retrieval request received: business_id={}, status={}",
+                filterRequestData.getBusinessId(), filterRequestData.getStatus());
+        UUID businessId = filterRequestData.getBusinessId() != null
+                ? filterRequestData.getBusinessId()
+                : securityUtils.getCurrentUserBusinessId();
+        List<DiningTableResponse> tables = tableService.getTablesByBusiness(businessId, filterRequestData.getStatus());
         return ResponseEntity.ok(ApiResponse.success("Tables retrieved successfully", tables));
     }
 
+    @PostMapping("/my-business/all")
+    public ResponseEntity<ApiResponse<List<DiningTableResponse>>> getMyBusinessTables(
+            @Valid @RequestBody DiningTableFilterRequest filterRequestData) {
+        log.info("Endpoint: my-business/all - business tables list retrieval request received: status={}",
+                filterRequestData.getStatus());
+        UUID businessIdContext = securityUtils.getCurrentUserBusinessId();
+        filterRequestData.setBusinessId(businessIdContext);
+        List<DiningTableResponse> tables = tableService.getTablesByBusiness(businessIdContext, filterRequestData.getStatus());
+        return ResponseEntity.ok(ApiResponse.success("Business tables retrieved successfully", tables));
+    }
+
     @GetMapping("/{id}")
-    @Operation(summary = "Get dining table details by ID")
     public ResponseEntity<ApiResponse<DiningTableResponse>> getTableById(@PathVariable UUID id) {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
-        log.info("Endpoint: get-table-by-id - id={}, businessId={}", id, businessId);
+        log.info("Endpoint: getTableById - dining table details retrieval request received: table_id={}, business_id={}", id, businessId);
         DiningTableResponse table = tableService.getTableById(businessId, id);
-        log.info("Endpoint: get-table-by-id - detail returned for table id={}", id);
         return ResponseEntity.ok(ApiResponse.success("Table retrieved successfully", table));
     }
 
     @PostMapping
-    @Operation(summary = "Create a new dining table or room")
     public ResponseEntity<ApiResponse<DiningTableResponse>> createTable(
-            @Valid @RequestBody CreateTableRequest request
-    ) {
+            @Valid @RequestBody CreateTableRequest createRequestData) {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
-        log.info("Endpoint: create-table - creating table: number={}, zone={}, businessId={}",
-                request.getNumber(), request.getZone(), businessId);
-        DiningTableResponse response = tableService.createTable(businessId, request);
-        log.info("Endpoint: create-table - created successfully: tableId={}", response.getId());
+        log.info("Endpoint: createTable - dining table creation request received: number={}, zone={}, business_id={}",
+                createRequestData.getNumber(), createRequestData.getZone(), businessId);
+        DiningTableResponse response = tableService.createTable(businessId, createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Table created successfully", response));
     }
 
     @PutMapping("/{id}/status")
-    @Operation(summary = "Update dining table status (AVAILABLE, OCCUPIED, UNPAID, PAID, RESERVED)")
     public ResponseEntity<ApiResponse<DiningTableResponse>> updateTableStatus(
             @PathVariable UUID id,
-            @Valid @RequestBody UpdateTableStatusRequest request
-    ) {
+            @Valid @RequestBody UpdateTableStatusRequest updateStatusRequestData) {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
-        log.info("Endpoint: update-table-status - id={}, newStatus={}, businessId={}", id, request.getStatus(), businessId);
-        DiningTableResponse response = tableService.updateTableStatus(businessId, id, request);
-        log.info("Endpoint: update-table-status - table status updated successfully for id={}", id);
+        log.info("Endpoint: updateTableStatus - dining table status update request received: table_id={}, new_status={}, business_id={}",
+                id, updateStatusRequestData.getStatus(), businessId);
+        DiningTableResponse response = tableService.updateTableStatus(businessId, id, updateStatusRequestData);
         return ResponseEntity.ok(ApiResponse.success("Table status updated successfully", response));
     }
 
     @PostMapping("/{id}/reset")
-    @Operation(summary = "Reset dining table to AVAILABLE status")
     public ResponseEntity<ApiResponse<DiningTableResponse>> resetTable(@PathVariable UUID id) {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
-        log.info("Endpoint: reset-table - resetting table id={} for businessId={}", id, businessId);
+        log.info("Endpoint: resetTable - dining table reset request received: table_id={}, business_id={}", id, businessId);
         DiningTableResponse response = tableService.resetTable(businessId, id);
-        log.info("Endpoint: reset-table - table reset successfully for id={}", id);
         return ResponseEntity.ok(ApiResponse.success("Table reset to AVAILABLE successfully", response));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Soft delete dining table")
     public ResponseEntity<ApiResponse<Void>> deleteTable(@PathVariable UUID id) {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
-        log.info("Endpoint: delete-table - deleting table id={} for businessId={}", id, businessId);
+        log.info("Endpoint: deleteTable - dining table deletion request received: table_id={}, business_id={}", id, businessId);
         tableService.deleteTable(businessId, id);
-        log.info("Endpoint: delete-table - table deleted successfully for id={}", id);
         return ResponseEntity.ok(ApiResponse.success("Table deleted successfully", null));
     }
 }

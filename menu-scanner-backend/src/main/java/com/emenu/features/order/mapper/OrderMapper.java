@@ -103,7 +103,7 @@ public interface OrderMapper {
     @Mapping(target = "deliveryAddress", ignore = true)
     @Mapping(target = "orderStatus", expression = "java(com.emenu.enums.order.OrderStatus.COMPLETED)")
     @Mapping(target = "source", constant = "POS")
-    @Mapping(target = "orderFrom", expression = "java(com.emenu.features.order.enums.OrderFromEnum.BUSINESS)")
+    @Mapping(target = "orderFrom", expression = "java(com.emenu.enums.order.OrderFromEnum.BUSINESS)")
     @Mapping(target = "paymentMethod", source = "payment.paymentMethod")
     @Mapping(target = "customerPaymentMethod", source = "payment.customerPaymentMethod")
     @Mapping(target = "paymentStatus", source = "payment.paymentStatus")

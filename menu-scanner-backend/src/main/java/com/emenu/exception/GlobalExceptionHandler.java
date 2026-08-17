@@ -201,7 +201,7 @@ public class GlobalExceptionHandler {
             }
         }
 
-        log.warn("Validation failed for {} — {} field error(s)", request.getRequestURI(), fieldErrors.size());
+        log.warn("Validation failed for {} — {} field error(s): {}", request.getRequestURI(), fieldErrors.size(), fieldErrors);
         tagResponse(String.format("Validation failed: %s", String.join(", ", invalidFields.isEmpty() ? missingFields : invalidFields)));
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
@@ -254,11 +254,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ApiResponse<Object>> handleMethodNotSupported(
             HttpRequestMethodNotSupportedException ex) {
+        List<String> supported = ex.getSupportedHttpMethods() != null
+                ? ex.getSupportedHttpMethods().stream().map(org.springframework.http.HttpMethod::name).collect(Collectors.toList())
+                : List.of();
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
                 .body(ApiResponse.failure(
                         String.format("HTTP method '%s' is not supported for this endpoint", ex.getMethod()),
                         Map.of("errorCode", "METHOD_NOT_SUPPORTED",
-                               "supportedMethods", Objects.requireNonNullElse(ex.getSupportedHttpMethods(), Set.of()))));
+                               "supportedMethods", supported)));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

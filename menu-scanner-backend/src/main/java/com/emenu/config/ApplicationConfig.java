@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -22,46 +23,28 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 
 @Configuration
 @EnableAsync
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
 public class ApplicationConfig {
-
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     @Bean
     @Primary
-    public ObjectMapper objectMapper() {
+    public ObjectMapper objectMapper(Jackson2ObjectMapperBuilder builder) {
+        ObjectMapper mapper = builder.createXmlMapper(false).build();
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
         JavaTimeModule javaTimeModule = new JavaTimeModule();
-        javaTimeModule.addSerializer(LocalTime.class, new LocalTimeSerializer(TIME_FORMATTER));
-        javaTimeModule.addDeserializer(LocalTime.class, new LocalTimeDeserializer(TIME_FORMATTER));
-        javaTimeModule.addDeserializer(LocalDateTime.class, new FlexibleLocalDateTimeDeserializer());
+        javaTimeModule.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        javaTimeModule.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
 
-        // Global String trim: strips leading/trailing whitespace from every JSON String field.
-        // Blank strings ("   ") are normalised to null.
-        com.fasterxml.jackson.databind.module.SimpleModule trimModule =
-                new com.fasterxml.jackson.databind.module.SimpleModule("StringTrimModule");
-        trimModule.addDeserializer(String.class, new StringTrimDeserializer());
-
-        return Jackson2ObjectMapperBuilder.json()
-                .modules(javaTimeModule, trimModule)
-                .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .build();
-    }
-
-    @Bean
-    public RestTemplate restTemplate(com.emenu.shared.logging.RestTemplateLoggingInterceptor loggingInterceptor) {
-        // Always set timeouts — an unconfigured RestTemplate blocks the thread indefinitely
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(5_000);
-        factory.setReadTimeout(15_000);
-        RestTemplate restTemplate = new RestTemplate(factory);
-        restTemplate.setInterceptors(java.util.List.of(loggingInterceptor));
-        return restTemplate;
+        mapper.registerModule(javaTimeModule);
+        return mapper;
     }
 
     @Bean(name = "telegramRestTemplate")
@@ -81,10 +64,23 @@ public class ApplicationConfig {
         executor.setMaxPoolSize(20);
         executor.setQueueCapacity(100);
         executor.setThreadNamePrefix("async-");
+        executor.setTaskDecorator(runnable -> {
+            Map<String, String> contextMap = MDC.getCopyOfContextMap();
+            return () -> {
+                try {
+                    if (contextMap != null) {
+                        MDC.setContextMap(contextMap);
+                    }
+                    runnable.run();
+                } finally {
+                    MDC.clear();
+                }
+            };
+        });
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setAwaitTerminationSeconds(60);
         executor.initialize();
-        log.info("Async task executor initialized: core={}, max={}, queue={}", 5, 20, 100);
+        log.info("Async task executor initialized with MDC propagation: core={}, max={}, queue={}", 5, 20, 100);
         return executor;
     }
 
@@ -96,11 +92,11 @@ public class ApplicationConfig {
     static class SpringSecurityAuditorAware implements AuditorAware<String> {
         @Override
         public Optional<String> getCurrentAuditor() {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
-                return Optional.empty();
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return Optional.of("system");
             }
-            return Optional.of(auth.getName());
+            return Optional.ofNullable(authentication.getName());
         }
     }
 }

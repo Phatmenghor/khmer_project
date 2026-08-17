@@ -20,7 +20,7 @@ public interface DiningTableMapper {
     List<DiningTableResponse> toResponseList(List<DiningTable> tables);
 
     @Mapping(target = "name", source = "number")
-    @Mapping(target = "status", expression = "java(com.emenu.features.order.enums.TableStatus.AVAILABLE)")
+    @Mapping(target = "status", expression = "java(com.emenu.enums.order.TableStatus.AVAILABLE)")
     DiningTable toEntity(CreateTableRequest request);
 
     default Long calculateSeatedMinutes(DiningTable table) {

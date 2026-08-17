@@ -12,7 +12,7 @@ export interface ActiveTableOrder {
   totalAmount: number;
   paymentStatus: OrderPaymentStatus;
   itemsSummary: string;
-  createdAt: string;
+  createdAt?: string;
 }
 
 export interface ReservationInfo {
@@ -32,6 +32,7 @@ export interface TableMonitoringItem {
   activeOrder?: ActiveTableOrder | null;
   reservation?: ReservationInfo | null;
   seatedMinutes?: number;
+  seatedAt?: string;
 }
 
 export interface TableMonitoringState {

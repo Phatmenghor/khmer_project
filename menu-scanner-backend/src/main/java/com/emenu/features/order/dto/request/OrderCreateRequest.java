@@ -1,7 +1,7 @@
 package com.emenu.features.order.dto.request;
 
 import com.emenu.enums.order.OrderStatus;
-import com.emenu.features.order.enums.OrderFromEnum;
+import com.emenu.enums.order.OrderFromEnum;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -26,6 +26,10 @@ public class OrderCreateRequest {
     private String customerName;
     private String customerPhone;
     private String customerEmail;
+
+    // Dining Table information (optional for table orders)
+    private UUID tableId;
+    private String tableNumber;
 
     // Delivery address - ID for saved address OR guestAddress for direct input
     private UUID addressId;

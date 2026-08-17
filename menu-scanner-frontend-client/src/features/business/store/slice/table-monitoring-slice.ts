@@ -106,6 +106,9 @@ const tableMonitoringSlice = createSlice({
         table.seatedMinutes = undefined;
       }
     },
+    removeTableLocal: (state, action: PayloadAction<string>) => {
+      state.tables = state.tables.filter((t) => t.id !== action.payload);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -155,6 +158,7 @@ export const {
   setTableReservation,
   payBillSuccess,
   resetTableStatus,
+  removeTableLocal,
 } = tableMonitoringSlice.actions;
 
 export default tableMonitoringSlice.reducer;

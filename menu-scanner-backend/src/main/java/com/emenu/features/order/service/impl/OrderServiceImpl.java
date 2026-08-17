@@ -3,6 +3,8 @@ package com.emenu.features.order.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import com.emenu.enums.order.OrderStatus;
 import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.exception.custom.NotFoundException;
@@ -263,9 +265,35 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
 
-        // Load statusHistory separately to avoid MultipleBagFetchException
-        // This ensures changedByUser is eagerly loaded
         List<OrderStatusHistory> statusHistory = orderRepository.findStatusHistoryByOrderId(orderId);
+        order.setStatusHistory(statusHistory);
+
+        return orderMapper.toResponse(order);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public OrderResponse getOrderByIdOrNumber(String idOrNumber) {
+        if (idOrNumber == null || idOrNumber.isBlank()) {
+            throw new NotFoundException("Order not found with ID or number: " + idOrNumber);
+        }
+
+        UUID orderUuid = null;
+        try {
+            orderUuid = UUID.fromString(idOrNumber.trim());
+        } catch (IllegalArgumentException ignored) {}
+
+        Order order;
+        if (orderUuid != null) {
+            order = orderRepository.findByIdWithDetails(orderUuid)
+                    .orElseGet(() -> orderRepository.findByOrderNumberWithDetails(idOrNumber.trim())
+                            .orElseThrow(() -> new NotFoundException("Order not found with ID: " + idOrNumber)));
+        } else {
+            order = orderRepository.findByOrderNumberWithDetails(idOrNumber.trim())
+                    .orElseThrow(() -> new NotFoundException("Order not found with number: " + idOrNumber));
+        }
+
+        List<OrderStatusHistory> statusHistory = orderRepository.findStatusHistoryByOrderId(order.getId());
         order.setStatusHistory(statusHistory);
 
         return orderMapper.toResponse(order);
@@ -852,72 +880,108 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void applyPricingToOrder(Order order, OrderCreateRequest.PricingInfo pricingInfo) {
-        if (pricingInfo == null) return;
-
-        // Apply subtotal
-        if (pricingInfo.getSubtotal() != null) {
-            order.setSubtotal(pricingInfo.getSubtotal());
+        BigDecimal businessTaxRate = BigDecimal.ZERO;
+        if (businessSettingRepository != null && order.getBusinessId() != null) {
+            businessTaxRate = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(order.getBusinessId())
+                    .map(s -> s.getTaxPercentage() != null ? BigDecimal.valueOf(s.getTaxPercentage()) : BigDecimal.ZERO)
+                    .orElse(BigDecimal.ZERO);
         }
 
-        // Apply delivery fee
-        if (pricingInfo.getDeliveryFee() != null) {
-            order.setDeliveryFee(pricingInfo.getDeliveryFee());
-        }
+        BigDecimal effectiveTaxRate = (pricingInfo != null && pricingInfo.getTaxPercentage() != null)
+                ? pricingInfo.getTaxPercentage()
+                : businessTaxRate;
+        order.setTaxPercentage(effectiveTaxRate);
 
-        // Apply tax information
-        if (pricingInfo.getTaxPercentage() != null) {
-            order.setTaxPercentage(pricingInfo.getTaxPercentage());
-        }
-        if (pricingInfo.getTaxAmount() != null) {
+        BigDecimal baseSubtotal = order.getSubtotal() != null ? order.getSubtotal() : BigDecimal.ZERO;
+        BigDecimal baseCust = order.getCustomizationTotal() != null ? order.getCustomizationTotal() : BigDecimal.ZERO;
+        BigDecimal taxableBase = baseSubtotal.add(baseCust);
+        BigDecimal calcTax = taxableBase.multiply(effectiveTaxRate).divide(new BigDecimal("100.00"), 2, RoundingMode.HALF_UP);
+
+        if (pricingInfo != null && pricingInfo.getTaxAmount() != null) {
             order.setTaxAmount(pricingInfo.getTaxAmount());
+        } else {
+            order.setTaxAmount(calcTax);
         }
 
-        // Apply discount information
-        if (pricingInfo.getDiscountAmount() != null) {
-            order.setDiscountAmount(pricingInfo.getDiscountAmount());
-        }
-        if (pricingInfo.getDiscountType() != null) {
-            order.setDiscountType(pricingInfo.getDiscountType());
-        }
-        if (pricingInfo.getDiscountReason() != null) {
-            order.setDiscountReason(pricingInfo.getDiscountReason());
+        if (pricingInfo != null) {
+            if (pricingInfo.getSubtotal() != null) {
+                order.setSubtotal(pricingInfo.getSubtotal());
+            }
+            if (pricingInfo.getDeliveryFee() != null) {
+                order.setDeliveryFee(pricingInfo.getDeliveryFee());
+            }
+            if (pricingInfo.getDiscountAmount() != null) {
+                order.setDiscountAmount(pricingInfo.getDiscountAmount());
+            }
+            if (pricingInfo.getDiscountType() != null) {
+                order.setDiscountType(pricingInfo.getDiscountType());
+            }
+            if (pricingInfo.getDiscountReason() != null) {
+                order.setDiscountReason(pricingInfo.getDiscountReason());
+            }
+            if (pricingInfo.getFinalTotal() != null) {
+                order.setTotalAmount(pricingInfo.getFinalTotal());
+            } else {
+                BigDecimal del = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
+                BigDecimal disc = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
+                order.setTotalAmount(taxableBase.add(del).add(calcTax).subtract(disc));
+            }
+        } else {
+            order.setTotalAmount(taxableBase.add(calcTax));
         }
 
-        // Apply final total
-        if (pricingInfo.getFinalTotal() != null) {
-            order.setTotalAmount(pricingInfo.getFinalTotal());
-        }
-
-        // Save order with updated pricing
         orderRepository.save(order);
     }
 
     private void applyPOSPricingToOrder(Order order, POSCheckoutRequest.PricingInfo pricingInfo) {
-        if (pricingInfo == null) return;
+        BigDecimal businessTaxRate = BigDecimal.ZERO;
+        if (businessSettingRepository != null && order.getBusinessId() != null) {
+            businessTaxRate = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(order.getBusinessId())
+                    .map(s -> s.getTaxPercentage() != null ? BigDecimal.valueOf(s.getTaxPercentage()) : BigDecimal.ZERO)
+                    .orElse(BigDecimal.ZERO);
+        }
 
-        if (pricingInfo.getSubtotal() != null) {
-            order.setSubtotal(pricingInfo.getSubtotal());
-        }
-        if (pricingInfo.getDeliveryFee() != null) {
-            order.setDeliveryFee(pricingInfo.getDeliveryFee());
-        }
-        if (pricingInfo.getTaxPercentage() != null) {
-            order.setTaxPercentage(pricingInfo.getTaxPercentage());
-        }
-        if (pricingInfo.getTaxAmount() != null) {
+        BigDecimal effectiveTaxRate = (pricingInfo != null && pricingInfo.getTaxPercentage() != null)
+                ? pricingInfo.getTaxPercentage()
+                : businessTaxRate;
+        order.setTaxPercentage(effectiveTaxRate);
+
+        BigDecimal baseSubtotal = order.getSubtotal() != null ? order.getSubtotal() : BigDecimal.ZERO;
+        BigDecimal baseCust = order.getCustomizationTotal() != null ? order.getCustomizationTotal() : BigDecimal.ZERO;
+        BigDecimal taxableBase = baseSubtotal.add(baseCust);
+        BigDecimal calcTax = taxableBase.multiply(effectiveTaxRate).divide(new BigDecimal("100.00"), 2, RoundingMode.HALF_UP);
+
+        if (pricingInfo != null && pricingInfo.getTaxAmount() != null) {
             order.setTaxAmount(pricingInfo.getTaxAmount());
+        } else {
+            order.setTaxAmount(calcTax);
         }
-        if (pricingInfo.getDiscountAmount() != null) {
-            order.setDiscountAmount(pricingInfo.getDiscountAmount());
-        }
-        if (pricingInfo.getDiscountType() != null) {
-            order.setDiscountType(pricingInfo.getDiscountType());
-        }
-        if (pricingInfo.getDiscountReason() != null) {
-            order.setDiscountReason(pricingInfo.getDiscountReason());
-        }
-        if (pricingInfo.getFinalTotal() != null) {
-            order.setTotalAmount(pricingInfo.getFinalTotal());
+
+        if (pricingInfo != null) {
+            if (pricingInfo.getSubtotal() != null) {
+                order.setSubtotal(pricingInfo.getSubtotal());
+            }
+            if (pricingInfo.getDeliveryFee() != null) {
+                order.setDeliveryFee(pricingInfo.getDeliveryFee());
+            }
+            if (pricingInfo.getDiscountAmount() != null) {
+                order.setDiscountAmount(pricingInfo.getDiscountAmount());
+            }
+            if (pricingInfo.getDiscountType() != null) {
+                order.setDiscountType(pricingInfo.getDiscountType());
+            }
+            if (pricingInfo.getDiscountReason() != null) {
+                order.setDiscountReason(pricingInfo.getDiscountReason());
+            }
+            if (pricingInfo.getFinalTotal() != null) {
+                order.setTotalAmount(pricingInfo.getFinalTotal());
+            } else {
+                BigDecimal del = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
+                BigDecimal disc = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
+                order.setTotalAmount(taxableBase.add(del).add(calcTax).subtract(disc));
+            }
+        } else {
+            order.setTotalAmount(taxableBase.add(calcTax));
         }
 
         orderRepository.save(order);

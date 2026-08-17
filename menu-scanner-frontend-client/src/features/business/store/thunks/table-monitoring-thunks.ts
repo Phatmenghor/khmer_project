@@ -3,13 +3,22 @@ import { tableMonitoringApi, CreateTableRequest } from "../services/table-monito
 
 export const fetchTablesThunk = createAsyncThunk(
   "tableMonitoring/fetchTables",
-  async (_, { rejectWithValue }) => {
+  async (params: { status?: string; pageNo?: number; pageSize?: number } | void, { rejectWithValue }) => {
     try {
-      const response = await tableMonitoringApi.fetchTables();
+      const response = await tableMonitoringApi.fetchTables(params || undefined);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch tables");
     }
+  },
+  {
+    condition: (_, { getState }: any) => {
+      const state = getState();
+      if (state.tableMonitoring?.isLoading) {
+        return false;
+      }
+      return true;
+    },
   }
 );
 
@@ -45,6 +54,30 @@ export const payTableOrderThunk = createAsyncThunk(
       return { tableId, ...response };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to process payment");
+    }
+  }
+);
+
+export const resetTableThunk = createAsyncThunk(
+  "tableMonitoring/resetTable",
+  async (tableId: string, { rejectWithValue }) => {
+    try {
+      const response = await tableMonitoringApi.resetTable(tableId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Failed to reset table");
+    }
+  }
+);
+
+export const deleteTableThunk = createAsyncThunk(
+  "tableMonitoring/deleteTable",
+  async (tableId: string, { rejectWithValue }) => {
+    try {
+      await tableMonitoringApi.deleteTable(tableId);
+      return tableId;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Failed to delete table");
     }
   }
 );

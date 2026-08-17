@@ -1,6 +1,6 @@
 package com.emenu.features.order.models;
 
-import com.emenu.features.order.enums.TableStatus;
+import com.emenu.enums.order.TableStatus;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.*;

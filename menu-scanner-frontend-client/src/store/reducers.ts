@@ -22,6 +22,7 @@ import stockManagementReducer from "@/features/business/store/slice/stock-manage
 import orderAdminReducer from "@/features/business/store/slice/order-admin-slice";
 import posPageReducer from "@/features/business/store/slice/pos-page-slice";
 import tableMonitoringReducer from "@/features/business/store/slice/table-monitoring-slice";
+import tableSessionReducer from "@/features/business/store/slice/table-session-slice";
 import bulkPromotionReducer from "@/features/business/store/slice/bulk-promotion-slice";
 import promotionSizeSelectionReducer from "@/features/business/store/slice/promotion-size-selection-slice";
 import businessSettingsReducer from "@/features/business/store/slice/business-settings-slice";
@@ -74,6 +75,7 @@ export const reducers = {
   ordersAdmin: orderAdminReducer,
   posPage: posPageReducer,
   tableMonitoring: tableMonitoringReducer,
+  tableSession: tableSessionReducer,
   bulkPromotion: bulkPromotionReducer,
   promotionSizeSelection: promotionSizeSelectionReducer,
 

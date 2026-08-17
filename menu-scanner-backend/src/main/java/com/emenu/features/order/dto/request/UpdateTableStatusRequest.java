@@ -1,6 +1,6 @@
 package com.emenu.features.order.dto.request;
 
-import com.emenu.features.order.enums.TableStatus;
+import com.emenu.enums.order.TableStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;

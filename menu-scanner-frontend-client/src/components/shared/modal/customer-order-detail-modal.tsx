@@ -192,7 +192,7 @@ export function CustomerOrderDetailModal({
           {/* ── Left Column (2 Cols): Timeline, Items, Pricing, Status History ── */}
           <div className="lg:col-span-2 space-y-3">
             {/* Status Timeline */}
-            <div className="rounded border border-border bg-card p-3">
+            <div className="rounded-[18px] border border-border/80 bg-card p-3.5 shadow-2xs">
               <SectionTitle>Order Progress</SectionTitle>
               {isCancelled ? (
                 <div className="flex items-center gap-2 px-3 py-2.5 rounded bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400">
@@ -263,7 +263,7 @@ export function CustomerOrderDetailModal({
 
             {/* Order Items */}
             {order.items && order.items.length > 0 && (
-              <div className="rounded border border-border bg-card p-3 shadow-2xs">
+              <div className="rounded-[18px] border border-border/80 bg-card p-3.5 shadow-2xs">
                 <SectionTitle>Order Items ({order.items.length})</SectionTitle>
                 <div className="space-y-2">
                   {order.items.map((item) => {
@@ -280,7 +280,7 @@ export function CustomerOrderDetailModal({
                     return (
                       <div
                         key={item.id}
-                        className="flex gap-2.5 p-2 rounded border border-border bg-muted/40"
+                        className="flex gap-2.5 p-2.5 rounded-[14px] border border-border/70 bg-muted/40"
                       >
                         {/* Product Image */}
                         <CustomImagePreview
@@ -386,7 +386,7 @@ export function CustomerOrderDetailModal({
             )}
 
             {/* Pricing Summary */}
-            <div className="rounded border border-border bg-card p-3">
+            <div className="rounded-[18px] border border-border/80 bg-card p-3.5 shadow-2xs">
               <SectionTitle>Pricing Summary</SectionTitle>
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs">
@@ -487,7 +487,7 @@ export function CustomerOrderDetailModal({
 
             {/* Status History Card (From API) */}
             {order.statusHistory && order.statusHistory.length > 0 && (
-              <div className="rounded border border-border bg-card p-3">
+              <div className="rounded-[18px] border border-border/80 bg-card p-3.5 shadow-2xs">
                 <SectionTitle>Status History</SectionTitle>
                 <div className="space-y-1.5 mt-2">
                   {order.statusHistory.map((h, idx) => {
@@ -543,7 +543,7 @@ export function CustomerOrderDetailModal({
           {/* ── Right Column (1 Col): Order Info, Delivery Address, Remarks ── */}
           <div className="space-y-3">
             {/* Order Info */}
-            <div className="rounded border border-border bg-card p-3">
+            <div className="rounded-[18px] border border-border/80 bg-card p-3.5 shadow-2xs">
               <SectionTitle>Order Info</SectionTitle>
               <div className="grid grid-cols-2 gap-x-3 gap-y-2">
                 <InfoRow label="Date" value={dateFormatLocal(order.createdAt)} />
@@ -565,7 +565,7 @@ export function CustomerOrderDetailModal({
 
             {/* Delivery Address */}
             {order.deliveryAddress && (
-              <div className="rounded border border-border bg-card p-3 space-y-2">
+              <div className="rounded-[18px] border border-border/80 bg-card p-3.5 shadow-2xs space-y-2">
                 <div className="flex items-center justify-between">
                   <SectionTitle className="my-0">Delivery Address</SectionTitle>
                   {mapsUrl && (

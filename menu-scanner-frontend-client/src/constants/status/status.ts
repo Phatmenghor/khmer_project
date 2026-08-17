@@ -248,3 +248,72 @@ export const getPromotionFilterFromKey = (key: string): boolean | undefined => {
   if (key === POSPromotionFilterKey.STANDARD) return false;
   return undefined;
 };
+
+/* ── Table Status Constants ── */
+export interface TableStatusConfig {
+  value: string;
+  label: string;
+  badgeClass: string;
+  iconColor: string;
+  isSelectableManually: boolean;
+}
+
+export const TABLE_STATUS_CONFIG_MAP: Record<string, TableStatusConfig> = {
+  AVAILABLE: {
+    value: "AVAILABLE",
+    label: "🟢 Available",
+    badgeClass: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
+    iconColor: "text-emerald-500",
+    isSelectableManually: true,
+  },
+  OCCUPIED: {
+    value: "OCCUPIED",
+    label: "🔴 Occupied",
+    badgeClass: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/30",
+    iconColor: "text-red-500",
+    isSelectableManually: false,
+  },
+  RESERVED: {
+    value: "RESERVED",
+    label: "🟣 Reserved",
+    badgeClass: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30",
+    iconColor: "text-purple-500",
+    isSelectableManually: true,
+  },
+  MAINTENANCE: {
+    value: "MAINTENANCE",
+    label: "🟡 Maintenance",
+    badgeClass: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30",
+    iconColor: "text-amber-500",
+    isSelectableManually: true,
+  },
+};
+
+/** Manually selectable status options for forms (excluding OCCUPIED) */
+export const MANUALLY_SELECTABLE_TABLE_STATUS_OPTIONS = Object.values(TABLE_STATUS_CONFIG_MAP)
+  .filter((config) => config.isSelectableManually)
+  .map((config) => ({
+    value: config.value,
+    label: config.label,
+  }));
+
+/** All Table Status select options (including OCCUPIED) */
+export const ALL_TABLE_STATUS_OPTIONS = Object.values(TABLE_STATUS_CONFIG_MAP).map((config) => ({
+  value: config.value,
+  label: config.label,
+}));
+
+/** Helper to retrieve badge CSS class for any table status */
+export function getTableStatusBadgeClass(status: string): string {
+  const key = status?.toUpperCase();
+  return (
+    TABLE_STATUS_CONFIG_MAP[key]?.badgeClass ||
+    "bg-muted text-muted-foreground border-border/60"
+  );
+}
+
+/** Helper to retrieve label with emoji icon for table status */
+export function getTableStatusLabel(status: string): string {
+  const key = status?.toUpperCase();
+  return TABLE_STATUS_CONFIG_MAP[key]?.label || status;
+}

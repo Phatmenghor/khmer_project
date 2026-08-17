@@ -14,6 +14,7 @@ import { fetchDefaultAddressService } from "@/features/location/store/thunks/loc
 import { fetchPublicPaymentOptionsService } from "@/features/master-data/store/thunks/payment-options-thunks";
 import { fetchPublicDeliveryOptionsService } from "@/features/master-data/store/thunks/delivery-options-thunks";
 import { createOrderService, CheckoutPayload } from "@/features/main/store/thunks/order-thunks";
+import { addBatchItemsToSessionThunk } from "@/features/business/store/thunks/table-session-thunks";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { OrderFromEnum } from "@/enums/order.enum";
 import { updateLocalCartItem, resetCart, loadCartFromStorage } from "@/features/main/store/slice/cart-slice";
@@ -189,6 +190,65 @@ export default function CheckoutPage() {
     setCheckoutState((prev) => ({ ...prev, isProcessing: true }));
 
     try {
+      if (orderContext.isTable && activeTableSession?.tableId) {
+        await dispatch(
+          addBatchItemsToSessionThunk({
+            tableId: activeTableSession.tableId,
+            tableNumber: activeTableSession.tableName || `Table ${activeTableSession.tableId}`,
+            items: items.map((item: any) => ({
+              tableId: activeTableSession.tableId,
+              tableNumber: activeTableSession.tableName || `Table ${activeTableSession.tableId}`,
+              productId: item.productId,
+              productName: item.productName || "Product Item",
+              imageUrl: item.productImageUrl || "",
+              sizeId: item.productSizeId || undefined,
+              sizeName: item.sizeName || undefined,
+              quantity: Number(item.quantity ?? 1),
+              unitPrice: Number(item.finalPrice ?? item.currentPrice ?? 0),
+              customizationTotal: 0,
+              customerNote: checkoutState.customerNote && checkoutState.customerNote.trim()
+                ? checkoutState.customerNote.trim()
+                : undefined,
+            })),
+          })
+        ).unwrap();
+
+        const addedSubtotal = items.reduce((sum: number, i: any) => sum + (Number(i.finalPrice || i.currentPrice || 0) * Number(i.quantity || 1)), 0);
+        const addedItemsList = items.map((i: any) => ({
+          id: i.productId,
+          productName: i.productName || "Product Item",
+          quantity: Number(i.quantity || 1),
+          unitPrice: Number(i.finalPrice || i.currentPrice || 0),
+          totalPrice: Number(i.finalPrice || i.currentPrice || 0) * Number(i.quantity || 1),
+        }));
+
+        const mockSuccessOrder: any = {
+          id: activeTableSession.tableId,
+          orderNumber: `SESSION-${activeTableSession.tableName || activeTableSession.tableId}`,
+          businessId: AppDefault.BUSINESS_ID,
+          customerName: orderContext.tableName,
+          customerPhone: "Table Service",
+          orderStatus: "COMPLETED",
+          paymentStatus: "UNPAID",
+          paymentMethod: "CASH",
+          subtotal: addedSubtotal,
+          totalAmount: addedSubtotal,
+          pricing: {
+            subtotal: addedSubtotal,
+            finalTotal: addedSubtotal,
+          },
+          createdAt: new Date().toISOString(),
+          items: addedItemsList,
+        };
+
+        dispatch(resetCart());
+
+        setSuccessOrder(mockSuccessOrder);
+        setSuccessModalOpen(true);
+        showToast.success("Items added to your table session! Staff will serve you shortly.");
+        return;
+      }
+
       const isValidUuid = (val?: string | null) =>
         Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
 
@@ -209,13 +269,13 @@ export default function CheckoutPage() {
         orderFrom: OrderFromEnum.CUSTOMER,
         addressId: validAddressId,
         deliveryOption: {
-          name: orderContext.isTable ? "Table Dine-In Service" : (selectedDeliveryOption?.name || "Standard Delivery"),
-          description: orderContext.isTable ? `Served to ${orderContext.tableName}` : (selectedDeliveryOption?.description || "Dine-in or direct delivery"),
+          name: selectedDeliveryOption?.name || "Standard Delivery",
+          description: selectedDeliveryOption?.description || "Direct delivery",
           imageUrl: selectedDeliveryOption?.image?.sm || selectedDeliveryOption?.image?.md || "",
           price: deliveryFee,
         },
-        customerName: orderContext.isTable ? orderContext.tableName : (checkoutState.customerName?.trim() || "Guest Customer"),
-        customerPhone: orderContext.isTable ? (checkoutState.customerPhone?.trim() || "Table Service") : (checkoutState.customerPhone?.trim() || undefined),
+        customerName: checkoutState.customerName?.trim() || "Guest Customer",
+        customerPhone: checkoutState.customerPhone?.trim() || undefined,
         customerEmail: checkoutState.customerEmail?.trim() || undefined,
         cart: {
           businessId: AppDefault.BUSINESS_ID,
@@ -277,9 +337,7 @@ export default function CheckoutPage() {
           paymentMethod: validPaymentMethod as any,
           paymentStatus: "UNPAID" as const,
         },
-        customerNote: orderContext.isTable
-          ? checkoutState.customerNote ? `[${orderContext.tableName}] ${checkoutState.customerNote}` : `[${orderContext.tableName}]`
-          : checkoutState.customerNote,
+        customerNote: checkoutState.customerNote ? checkoutState.customerNote.trim() : "",
       };
 
       const orderResult = await dispatch(createOrderService(checkoutPayload)).unwrap();

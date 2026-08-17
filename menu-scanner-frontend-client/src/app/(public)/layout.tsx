@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
 import { BottomNav } from "@/components/layout/bottom-nav";
@@ -11,12 +12,14 @@ import { fetchCart } from "@/features/main/store/thunks/cart-thunks";
 import { fetchFavoriteList } from "@/features/main/store/thunks/favorite-thunks";
 import { loadFavoritesFromStorage } from "@/features/main/store/slice/favorite-slice";
 import { loadCartFromStorage } from "@/features/main/store/slice/cart-slice";
+import { detectAndSaveTableSessionFromUrl } from "@/utils/table/table-session";
 
 export default function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
   const { isAuthenticated } = useAuthState();
   const {
     dispatch: cartDispatch,
@@ -28,6 +31,12 @@ export default function PublicLayout({
     loaded: favoriteLoaded,
     loading: favoriteLoading,
   } = useFavoriteState();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      detectAndSaveTableSessionFromUrl();
+    }
+  }, [pathname]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -59,18 +68,14 @@ export default function PublicLayout({
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
 
-      {/* Bottom padding accounts for the fixed BottomNav (h-11) +
-          iPhone home indicator / Telegram bottom chrome. */}
       <main className="flex-1 pb-[calc(2.75rem+env(safe-area-inset-bottom))] sm:pb-0">
         <Suspense>{children}</Suspense>
       </main>
 
-      {}
       <div className="hidden sm:block">
         <Footer />
       </div>
 
-      {}
       <BottomNav />
     </div>
   );

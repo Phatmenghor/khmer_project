@@ -79,9 +79,9 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<OrderResponse>> getOrderById(@PathVariable UUID id) {
-        log.info("Endpoint: get-order - order retrieval: id={}", id);
-        OrderResponse order = orderService.getOrderById(id);
+    public ResponseEntity<ApiResponse<OrderResponse>> getOrderById(@PathVariable String id) {
+        log.info("Endpoint: get-order - order retrieval: idOrNumber={}", id);
+        OrderResponse order = orderService.getOrderByIdOrNumber(id);
         return ResponseEntity.ok(ApiResponse.success("Order retrieved successfully", order));
     }
 
