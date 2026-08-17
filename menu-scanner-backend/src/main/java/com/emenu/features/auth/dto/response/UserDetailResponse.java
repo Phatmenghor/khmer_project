@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import com.emenu.enums.user.EmploymentType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,10 +23,11 @@ public class UserDetailResponse extends UserResponse {
     private String employeeId;
     private String position;
     private String department;
-    private EmploymentType employmentType;
     private LocalDate joinDate;
     private LocalDate leaveDate;
-    private String shift;
+
+    // Staff Leave Entitlement & Balance calculated by Backend
+    private LeaveBalanceDto leaveBalance;
 
     private Long telegramId;
     private String telegramUsername;

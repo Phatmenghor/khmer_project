@@ -38,6 +38,21 @@ export interface Education {
   certificateUrl: string;
 }
 
+export interface LeaveBalanceModel {
+  annualLeaveQuota?: number;
+  usedAnnualLeave?: number;
+  remainingAnnualLeave?: number;
+  sickLeaveQuota?: number;
+  usedSickLeave?: number;
+  remainingSickLeave?: number;
+  specialLeaveQuota?: number;
+  usedSpecialLeave?: number;
+  remainingSpecialLeave?: number;
+  targetYear?: number;
+  isProRated?: boolean;
+  [key: string]: unknown;
+}
+
 export interface CustomerUserResponseModel {
   id: string;
   createdAt: string;
@@ -64,10 +79,8 @@ export interface CustomerUserResponseModel {
   employeeId?: string;
   position?: string;
   department?: string;
-  employmentType?: string;
   joinDate?: string;
   leaveDate?: string;
-  shift?: string;
   telegramId?: number;
   telegramUsername?: string;
   telegramFirstName?: string;
@@ -113,10 +126,8 @@ export interface UserResponseModel {
   dateOfBirth?: string;
   employeeId?: string;
   department?: string;
-  employmentType?: string;
   joinDate?: string;
   leaveDate?: string;
-  shift?: string;
   remark?: string;
   telegramId?: string;
   telegramUsername?: string;
@@ -126,6 +137,30 @@ export interface UserResponseModel {
   telegramSyncedAt?: string;
   telegramSynced?: boolean;
   lastLoginAt?: string;
+
+  // Spring Boot DTO Flat & Nested Leave Balances & Quotas
+  annualLeaveQuota?: number;
+  usedAnnualLeave?: number;
+  remainingAnnualLeave?: number;
+  sickLeaveQuota?: number;
+  usedSickLeave?: number;
+  remainingSickLeave?: number;
+  specialLeaveQuota?: number;
+  usedSpecialLeave?: number;
+  remainingSpecialLeave?: number;
+  annualLeaveDays?: number;
+  sickLeaveDays?: number;
+  specialLeaveDays?: number;
+  usedAnnualLeaveDays?: number;
+  usedSickLeaveDays?: number;
+  usedSpecialLeaveDays?: number;
+  remainingAnnualLeaveDays?: number;
+  remainingSickLeaveDays?: number;
+  remainingSpecialLeaveDays?: number;
+  leaveBalance?: LeaveBalanceModel;
+  leaveQuota?: LeaveBalanceModel;
+  leaveSummary?: LeaveBalanceModel;
+
   addresses?: Address[];
   emergencyContacts?: EmergencyContact[];
   documents?: Document[];

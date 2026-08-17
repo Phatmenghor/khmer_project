@@ -87,6 +87,19 @@ public class BusinessSetting extends BaseUUIDEntity {
     @Enumerated(EnumType.STRING)
     private ScanModeEnum scanMode = ScanModeEnum.FULL_TIME;
 
+    // ── Staff Leave Entitlements per Year ──
+    @Column(name = "enable_leave_management")
+    private Boolean enableLeaveManagement = true;
+
+    @Column(name = "annual_leave_days_per_year")
+    private Integer annualLeaveDaysPerYear = 18;
+
+    @Column(name = "sick_leave_days_per_year")
+    private Integer sickLeaveDaysPerYear = 10;
+
+    @Column(name = "special_leave_days_per_year")
+    private Integer specialLeaveDaysPerYear = 5;
+
     // ── Dedicated OneToMany Table Mapping for Default Day Shifts ──
     @OneToMany(
         mappedBy = "businessSetting",

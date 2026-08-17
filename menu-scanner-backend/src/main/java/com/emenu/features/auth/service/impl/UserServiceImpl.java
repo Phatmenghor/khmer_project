@@ -15,8 +15,10 @@ import com.emenu.features.auth.mapper.UserNestedEntitiesMapper;
 import com.emenu.features.auth.mapper.UserProfileMapper;
 import com.emenu.features.auth.models.*;
 import com.emenu.features.auth.repository.BusinessRepository;
+import com.emenu.features.auth.repository.BusinessSettingRepository;
 import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.repository.UserRepository;
+import com.emenu.features.auth.dto.response.LeaveBalanceDto;
 import com.emenu.features.auth.specification.UserSpecification;
 import com.emenu.features.auth.service.BusinessService;
 import com.emenu.features.auth.service.UserService;
@@ -71,6 +73,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BusinessRepository businessRepository;
+    private final BusinessSettingRepository businessSettingRepository;
     private final BusinessService businessService;
     private final UserMapper userMapper;
     private final UserProfileMapper userProfileMapper;
@@ -307,6 +310,57 @@ public class UserServiceImpl implements UserService {
                     log.warn("User not found: id={}", userEntityId);
                     return new ValidationException("User not found");
                 }));
+
+        if (userDetailsResponse != null && userDetailsResponse.getBusinessId() != null) {
+            BusinessSetting setting = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(userDetailsResponse.getBusinessId())
+                    .orElse(null);
+
+            boolean isLeaveEnabled = setting == null || Boolean.TRUE.equals(setting.getEnableLeaveManagement());
+
+            if (isLeaveEnabled) {
+                int annualQuota = (setting != null && setting.getAnnualLeaveDaysPerYear() != null) ? setting.getAnnualLeaveDaysPerYear() : 18;
+                int sickQuota = (setting != null && setting.getSickLeaveDaysPerYear() != null) ? setting.getSickLeaveDaysPerYear() : 10;
+                int specialQuota = (setting != null && setting.getSpecialLeaveDaysPerYear() != null) ? setting.getSpecialLeaveDaysPerYear() : 5;
+
+            int targetYear = java.time.LocalDate.now().getYear();
+            boolean isProRated = false;
+            double annualCalc = annualQuota;
+            double sickCalc = sickQuota;
+            double specialCalc = specialQuota;
+
+            if (userDetailsResponse.getJoinDate() != null) {
+                java.time.LocalDate join = userDetailsResponse.getJoinDate();
+                if (join.getYear() == targetYear) {
+                    isProRated = true;
+                    int monthsWorked = Math.max(1, 12 - join.getMonthValue() + 1);
+                    annualCalc = Math.round(((double) annualQuota / 12.0 * monthsWorked) * 10.0) / 10.0;
+                    sickCalc = Math.round(((double) sickQuota / 12.0 * monthsWorked) * 10.0) / 10.0;
+                    specialCalc = Math.round(((double) specialQuota / 12.0 * monthsWorked) * 10.0) / 10.0;
+                } else if (join.getYear() > targetYear) {
+                    isProRated = true;
+                    annualCalc = 0.0;
+                    sickCalc = 0.0;
+                    specialCalc = 0.0;
+                }
+            }
+
+            LeaveBalanceDto balanceDto = LeaveBalanceDto.builder()
+                    .annualLeaveQuota(annualCalc)
+                    .usedAnnualLeave(0.0)
+                    .remainingAnnualLeave(annualCalc)
+                    .sickLeaveQuota(sickCalc)
+                    .usedSickLeave(0.0)
+                    .remainingSickLeave(sickCalc)
+                    .specialLeaveQuota(specialCalc)
+                    .usedSpecialLeave(0.0)
+                    .remainingSpecialLeave(specialCalc)
+                    .targetYear(targetYear)
+                    .isProRated(isProRated)
+                    .build();
+
+            userDetailsResponse.setLeaveBalance(balanceDto);
+            }
+        }
 
         log.info("User details retrieved successfully: id={}, type={}", userEntityId,
                 userDetailsResponse.getUserType() != null ? userDetailsResponse.getUserType() : "UNKNOWN");
@@ -576,18 +630,16 @@ public class UserServiceImpl implements UserService {
         return creationRequest.getEmployeeId() != null ||
                 creationRequest.getPosition() != null ||
                 creationRequest.getDepartment() != null ||
-                creationRequest.getEmploymentType() != null ||
                 creationRequest.getJoinDate() != null ||
-                creationRequest.getShift() != null;
+                creationRequest.getLeaveDate() != null;
     }
 
     private boolean hasEmploymentUpdateData(UserUpdateRequest updateRequest) {
         return updateRequest.getEmployeeId() != null ||
                 updateRequest.getPosition() != null ||
                 updateRequest.getDepartment() != null ||
-                updateRequest.getEmploymentType() != null ||
                 updateRequest.getJoinDate() != null ||
-                updateRequest.getShift() != null;
+                updateRequest.getLeaveDate() != null;
     }
 
     private <RequestItem, EntityItem extends BaseUUIDEntity> void syncEntityCollection(

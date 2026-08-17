@@ -760,16 +760,6 @@ export default function UserBusinessModal({
                       autoComplete="new-password"
                     />
 
-                    <SelectField
-                      control={control}
-                      name="employmentType"
-                      label="Employment Type"
-                      placeholder="Select employment type"
-                      options={EMPLOYMENT_TYPE_OPTIONS}
-                      disabled={isSubmitting}
-                      error={errors.employmentType}
-                    />
-
                     <DateTimePickerField
                       control={control}
                       name="joinDate"
@@ -788,16 +778,6 @@ export default function UserBusinessModal({
                       placeholder="Select leave date"
                       disabled={isSubmitting}
                       error={errors.leaveDate}
-                    />
-
-                    <TextField
-                      control={control}
-                      name="shift"
-                      label="Shift"
-                      placeholder="Enter shift"
-                      disabled={isSubmitting}
-                      error={errors.shift}
-                      autoComplete="new-password"
                     />
                   </div>
                 </div>

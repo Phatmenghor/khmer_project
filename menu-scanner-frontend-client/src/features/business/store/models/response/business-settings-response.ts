@@ -43,6 +43,7 @@ export interface BusinessSettingsResponse {
   receiptSize?: ReceiptSize;
   wifiName?: string;
   wifiPassword?: string;
+  enableLeaveManagement?: boolean;
   annualLeaveDaysPerYear?: number;
   sickLeaveDaysPerYear?: number;
   specialLeaveDaysPerYear?: number;

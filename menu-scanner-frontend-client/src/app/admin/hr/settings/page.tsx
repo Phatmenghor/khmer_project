@@ -8,6 +8,7 @@ import { hrSettingsSchema, HRSettingsFormValues } from "@/features/hr/store/mode
 import { DefaultShiftRosterSection } from "@/features/business/components/default-shift-roster-section";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomSwitch } from "@/components/shared/common/custom-switch";
 import { showToast } from "@/components/shared/common/show-toast";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selectors";
@@ -51,6 +52,7 @@ function HRSettingsPageInner() {
   const [isLoading, setIsLoading] = useState(!businessSettings);
   const [isSaving, setIsSaving] = useState(false);
   const [hasCustomRosterChanges, setHasCustomRosterChanges] = useState(false);
+  const [isLeaveSwitchDirty, setIsLeaveSwitchDirty] = useState(false);
 
   // Default day shifts state (Mon - Sun)
   const [dayShifts, setDayShifts] = useState(() => {
@@ -70,14 +72,17 @@ function HRSettingsPageInner() {
     resolver: zodResolver(hrSettingsSchema),
     mode: "onChange",
     defaultValues: {
-      annualLeaveDaysPerYear: "18",
-      sickLeaveDaysPerYear: "10",
-      specialLeaveDaysPerYear: "5",
+      enableLeaveManagement: true,
+      annualLeaveDaysPerYear: "",
+      sickLeaveDaysPerYear: "",
+      specialLeaveDaysPerYear: "",
       dayShifts: [],
     },
   });
 
   const { isDirty } = form.formState;
+  const isLeaveEnabled = form.watch("enableLeaveManagement");
+  const isAnyDirty = isDirty || hasCustomRosterChanges || isLeaveSwitchDirty;
 
   // Fetch business settings directly from backend API
   const fetchSettings = useCallback(async () => {
@@ -87,9 +92,10 @@ function HRSettingsPageInner() {
       if (action.meta.requestStatus === "fulfilled" && action.payload) {
         const data: any = action.payload;
         form.reset({
-          annualLeaveDaysPerYear: data.annualLeaveDaysPerYear?.toString() || "18",
-          sickLeaveDaysPerYear: data.sickLeaveDaysPerYear?.toString() || "10",
-          specialLeaveDaysPerYear: data.specialLeaveDaysPerYear?.toString() || "5",
+          enableLeaveManagement: data.enableLeaveManagement !== false,
+          annualLeaveDaysPerYear: data.annualLeaveDaysPerYear != null ? data.annualLeaveDaysPerYear.toString() : "",
+          sickLeaveDaysPerYear: data.sickLeaveDaysPerYear != null ? data.sickLeaveDaysPerYear.toString() : "",
+          specialLeaveDaysPerYear: data.specialLeaveDaysPerYear != null ? data.specialLeaveDaysPerYear.toString() : "",
         });
 
         if (Array.isArray(data.businessHours) && data.businessHours.length > 0) {
@@ -109,6 +115,7 @@ function HRSettingsPageInner() {
           setDayShifts(loadedShifts);
         }
         setHasCustomRosterChanges(false);
+        setIsLeaveSwitchDirty(false);
       }
     } catch {
     } finally {
@@ -131,7 +138,7 @@ function HRSettingsPageInner() {
   };
 
   const onSubmit = async (data: HRSettingsFormValues) => {
-    if (!isDirty && !hasCustomRosterChanges) {
+    if (!isAnyDirty) {
       showToast.info("No changes were made to HR settings");
       return;
     }
@@ -150,14 +157,16 @@ function HRSettingsPageInner() {
         updateBusinessSettingsThunk({
           businessId: AppDefault.BUSINESS_ID,
           businessHours: businessHoursPayload,
-          annualLeaveDaysPerYear: parseInt(data.annualLeaveDaysPerYear, 10),
-          sickLeaveDaysPerYear: parseInt(data.sickLeaveDaysPerYear, 10),
-          specialLeaveDaysPerYear: parseInt(data.specialLeaveDaysPerYear, 10),
+          enableLeaveManagement: Boolean(data.enableLeaveManagement),
+          annualLeaveDaysPerYear: data.annualLeaveDaysPerYear ? parseInt(data.annualLeaveDaysPerYear, 10) : undefined,
+          sickLeaveDaysPerYear: data.sickLeaveDaysPerYear ? parseInt(data.sickLeaveDaysPerYear, 10) : undefined,
+          specialLeaveDaysPerYear: data.specialLeaveDaysPerYear ? parseInt(data.specialLeaveDaysPerYear, 10) : undefined,
         } as any)
       ).unwrap();
 
       showToast.success("HR settings & Staff Working Time saved successfully via API!");
       setHasCustomRosterChanges(false);
+      setIsLeaveSwitchDirty(false);
       dispatch(fetchBusinessSettingsThunk(AppDefault.BUSINESS_ID));
     } catch (err: any) {
       showToast.error(err?.message || "Failed to save HR settings");
@@ -192,37 +201,55 @@ function HRSettingsPageInner() {
             icon={ShieldCheck}
             title="Staff Leave Entitlements & Yearly Quotas"
             subtitle="API-managed staff leave quotas per year (Calculated and reset annually per staff member on backend)"
+            action={
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-foreground">Enable Feature</span>
+                <CustomSwitch
+                  checked={Boolean(isLeaveEnabled)}
+                  onCheckedChange={(checked: boolean) => {
+                    form.setValue("enableLeaveManagement", checked, { shouldDirty: true, shouldTouch: true });
+                    setIsLeaveSwitchDirty(true);
+                  }}
+                  disabled={isSaving}
+                />
+              </div>
+            }
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <TextField<HRSettingsFormValues>
-              control={form.control}
-              name="annualLeaveDaysPerYear"
-              label="Annual Leave (Days / Year)"
-              placeholder="e.g. 18"
-              disabled={isSaving}
-              pattern="[0-9]"
-              required
-            />
-            <TextField<HRSettingsFormValues>
-              control={form.control}
-              name="sickLeaveDaysPerYear"
-              label="Sick Leave (Days / Year)"
-              placeholder="e.g. 10"
-              disabled={isSaving}
-              pattern="[0-9]"
-              required
-            />
-            <TextField<HRSettingsFormValues>
-              control={form.control}
-              name="specialLeaveDaysPerYear"
-              label="Special Leave (Days / Year)"
-              placeholder="e.g. 5"
-              disabled={isSaving}
-              pattern="[0-9]"
-              required
-            />
-          </div>
+          {isLeaveEnabled ? (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <TextField<HRSettingsFormValues>
+                control={form.control}
+                name="annualLeaveDaysPerYear"
+                label="Annual Leave (Days / Year)"
+                placeholder="Enter annual leave days"
+                disabled={isSaving}
+                pattern="[0-9]"
+              />
+              <TextField<HRSettingsFormValues>
+                control={form.control}
+                name="sickLeaveDaysPerYear"
+                label="Sick Leave (Days / Year)"
+                placeholder="Enter sick leave days"
+                disabled={isSaving}
+                pattern="[0-9]"
+              />
+              <TextField<HRSettingsFormValues>
+                control={form.control}
+                name="specialLeaveDaysPerYear"
+                label="Special Leave (Days / Year)"
+                placeholder="Enter special leave days"
+                disabled={isSaving}
+                pattern="[0-9]"
+              />
+            </div>
+          ) : (
+            <div className="p-4 rounded-xl border border-dashed border-border/70 bg-muted/20 text-center">
+              <p className="text-xs font-semibold text-muted-foreground">
+                Staff Leave Entitlements & Quotas feature is disabled. Toggle switch above to enable leave calculations.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Section 2: Staff Working Time (Default Per-Day Shift Roster) */}
@@ -235,7 +262,7 @@ function HRSettingsPageInner() {
         {/* Floating / Bottom Save Action Bar */}
         <div className="sticky bottom-4 z-40 rounded-[16px] border border-border/80 bg-card/90 backdrop-blur-md p-3 px-4 sm:px-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 shadow-lg">
           <p className="text-xs font-medium text-muted-foreground text-center sm:text-left">
-            {isDirty || hasCustomRosterChanges ? (
+            {isAnyDirty ? (
               <span className="text-amber-600 dark:text-amber-400 font-bold">● Unsaved changes detected</span>
             ) : (
               "All HR configurations saved"
@@ -256,7 +283,7 @@ function HRSettingsPageInner() {
               type="submit"
               variant="primary"
               size="sm"
-              disabled={isSaving || (!isDirty && !hasCustomRosterChanges)}
+              disabled={isSaving || !isAnyDirty}
               className="gap-1.5 font-bold min-w-[140px]"
             >
               {isSaving ? (

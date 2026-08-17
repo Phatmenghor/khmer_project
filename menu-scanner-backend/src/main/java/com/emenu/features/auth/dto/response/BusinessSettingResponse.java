@@ -37,4 +37,9 @@ public class BusinessSettingResponse extends BaseAuditResponse {
     private Boolean enableCheckIn;
     private ScanModeEnum scanMode;
     private List<DayShiftDto> defaultDayShifts;
+
+    private Boolean enableLeaveManagement;
+    private Integer annualLeaveDaysPerYear;
+    private Integer sickLeaveDaysPerYear;
+    private Integer specialLeaveDaysPerYear;
 }

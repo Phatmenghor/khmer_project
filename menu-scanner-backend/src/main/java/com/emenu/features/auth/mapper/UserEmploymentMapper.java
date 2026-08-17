@@ -19,10 +19,8 @@ public interface UserEmploymentMapper {
         employment.setEmployeeId(request.getEmployeeId());
         employment.setPosition(request.getPosition());
         employment.setDepartment(request.getDepartment());
-        employment.setEmploymentType(request.getEmploymentType());
         employment.setJoinDate(request.getJoinDate());
         employment.setLeaveDate(request.getLeaveDate());
-        employment.setShift(request.getShift());
         return employment;
     }
 

@@ -50,6 +50,7 @@ export interface BusinessSettingsResponse {
   enableCheckIn?: boolean;
   scanMode?: ScanModeType;
   defaultDayShifts?: any[];
+  enableLeaveManagement?: boolean;
   annualLeaveDaysPerYear?: number;
   sickLeaveDaysPerYear?: number;
   specialLeaveDaysPerYear?: number;
@@ -83,6 +84,7 @@ export interface UpdateBusinessSettingsRequest {
   enableCheckIn?: boolean;
   scanMode?: ScanModeType;
   defaultDayShifts?: any[];
+  enableLeaveManagement?: boolean;
   annualLeaveDaysPerYear?: number;
   sickLeaveDaysPerYear?: number;
   specialLeaveDaysPerYear?: number;

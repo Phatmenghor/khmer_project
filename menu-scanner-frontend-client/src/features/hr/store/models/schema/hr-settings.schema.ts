@@ -12,9 +12,10 @@ export const dayShiftSchema = z.object({
 });
 
 export const hrSettingsSchema = z.object({
-  annualLeaveDaysPerYear: z.string().min(1, "Annual leave allowance is required").regex(/^\d+$/, "Must be a valid number"),
-  sickLeaveDaysPerYear: z.string().min(1, "Sick leave allowance is required").regex(/^\d+$/, "Must be a valid number"),
-  specialLeaveDaysPerYear: z.string().min(1, "Special leave allowance is required").regex(/^\d+$/, "Must be a valid number"),
+  enableLeaveManagement: z.boolean().optional().default(true),
+  annualLeaveDaysPerYear: z.string().optional().or(z.literal("")),
+  sickLeaveDaysPerYear: z.string().optional().or(z.literal("")),
+  specialLeaveDaysPerYear: z.string().optional().or(z.literal("")),
   dayShifts: z.array(dayShiftSchema).optional().default([]),
 });
 

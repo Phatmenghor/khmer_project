@@ -58,6 +58,10 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
                     newSetting.setStoreDescription(BusinessConstants.DEFAULT_STORE_DESCRIPTION);
                     newSetting.setEnableCheckIn(true);
                     newSetting.setScanMode(ScanModeEnum.FULL_TIME);
+                    newSetting.setEnableLeaveManagement(true);
+                    newSetting.setAnnualLeaveDaysPerYear(18);
+                    newSetting.setSickLeaveDaysPerYear(10);
+                    newSetting.setSpecialLeaveDaysPerYear(5);
 
                     newSetting.setBusinessHours(createDefaultBusinessHours(newSetting));
                     newSetting.setSocialMedia(createDefaultSocialMedia(newSetting));
@@ -170,6 +174,18 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
         if (request.getScanMode() != null) {
             businessSetting.setScanMode(request.getScanMode());
         }
+        if (request.getEnableLeaveManagement() != null) {
+            businessSetting.setEnableLeaveManagement(request.getEnableLeaveManagement());
+        }
+        if (request.getAnnualLeaveDaysPerYear() != null) {
+            businessSetting.setAnnualLeaveDaysPerYear(request.getAnnualLeaveDaysPerYear());
+        }
+        if (request.getSickLeaveDaysPerYear() != null) {
+            businessSetting.setSickLeaveDaysPerYear(request.getSickLeaveDaysPerYear());
+        }
+        if (request.getSpecialLeaveDaysPerYear() != null) {
+            businessSetting.setSpecialLeaveDaysPerYear(request.getSpecialLeaveDaysPerYear());
+        }
 
         if (request.getDefaultDayShifts() != null && !request.getDefaultDayShifts().isEmpty()) {
             List<BusinessSettingDayShift> newShifts = request.getDefaultDayShifts().stream()
@@ -252,6 +268,10 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
         if (response != null && setting != null) {
             response.setEnableCheckIn(setting.getEnableCheckIn() != null ? setting.getEnableCheckIn() : true);
             response.setScanMode(setting.getScanMode() != null ? setting.getScanMode() : ScanModeEnum.FULL_TIME);
+            response.setEnableLeaveManagement(setting.getEnableLeaveManagement() != null ? setting.getEnableLeaveManagement() : true);
+            response.setAnnualLeaveDaysPerYear(setting.getAnnualLeaveDaysPerYear() != null ? setting.getAnnualLeaveDaysPerYear() : 18);
+            response.setSickLeaveDaysPerYear(setting.getSickLeaveDaysPerYear() != null ? setting.getSickLeaveDaysPerYear() : 10);
+            response.setSpecialLeaveDaysPerYear(setting.getSpecialLeaveDaysPerYear() != null ? setting.getSpecialLeaveDaysPerYear() : 5);
 
             if (setting.getDefaultDayShifts() != null && !setting.getDefaultDayShifts().isEmpty()) {
                 List<DayShiftDto> dtos = setting.getDefaultDayShifts().stream()

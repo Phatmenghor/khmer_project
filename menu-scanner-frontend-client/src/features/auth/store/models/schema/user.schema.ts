@@ -122,10 +122,8 @@ export const createUserSchema = z.object({
   employeeId: z.string().optional().or(z.literal("")),
   position: z.string().optional().or(z.literal("")),
   department: z.string().optional().or(z.literal("")),
-  employmentType: z.string().optional().or(z.literal("")),
   joinDate: z.string().optional().or(z.literal("")),
   leaveDate: z.string().optional().or(z.literal("")),
-  shift: z.string().optional().or(z.literal("")),
 
   remark: z.string().optional().or(z.literal("")),
 
@@ -154,10 +152,8 @@ export const updateUserSchema = z.object({
   employeeId: z.string().optional().or(z.literal("")),
   position: z.string().optional().or(z.literal("")),
   department: z.string().optional().or(z.literal("")),
-  employmentType: z.string().optional().or(z.literal("")),
   joinDate: z.string().optional().or(z.literal("")),
   leaveDate: z.string().optional().or(z.literal("")),
-  shift: z.string().optional().or(z.literal("")),
 
   remark: z.string().optional().or(z.literal("")),
 

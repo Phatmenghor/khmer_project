@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
+import { calculateUserProRatedLeaveQuota } from "@/utils/hr/leave-calculator";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { fetchUserByIdService } from "@/features/auth/store/thunks/users-thunks";
 import { clearSelectedUser } from "@/features/auth/store/slice/users-slice";
@@ -58,10 +59,10 @@ export function UserBusinessDetailModal({
     userData?.employeeId ||
     userData?.position ||
     userData?.department ||
-    userData?.employmentType ||
     userData?.joinDate ||
     userData?.leaveDate ||
-    userData?.shift;
+    userData?.leaveBalance ||
+    userData?.leaveQuota;
 
   return (
     <DetailModal
@@ -116,24 +117,83 @@ export function UserBusinessDetailModal({
           <InfoRow label="Date of Birth" value={userData.dateOfBirth ? formatDate(userData.dateOfBirth) : "-"} />
           <InfoRow label="Email" value={userData.email || "-"} fullWidth />
 
-          {/* Employment Information */}
+          {/* Employment Information & Leave Quotas */}
           {hasEmployment && (
             <>
-              <SectionTitle>Employment</SectionTitle>
+              <SectionTitle>Employment & Leave Quotas</SectionTitle>
               <InfoRow label="Employee ID" value={userData.employeeId || "-"} />
               <InfoRow label="Position" value={userData.position || "-"} />
               <InfoRow label="Department" value={userData.department || "-"} />
-              <InfoRow
-                label="Type"
-                value={
-                  userData.employmentType
-                    ? formatEnumValue(userData.employmentType)
-                    : "-"
-                }
-              />
               <InfoRow label="Join Date" value={userData.joinDate || "-"} />
               <InfoRow label="Leave Date" value={userData.leaveDate || "-"} />
-              <InfoRow label="Shift" value={userData.shift} />
+
+              {/* Spring Boot API Managed Staff Leave Quotas & Balances Card */}
+              {(() => {
+                const apiLeave = userData.leaveBalance || userData.leaveQuota || userData.leaveSummary || {
+                  annualLeaveQuota: userData.annualLeaveQuota ?? userData.annualLeaveDays,
+                  usedAnnualLeave: userData.usedAnnualLeave ?? userData.usedAnnualLeaveDays,
+                  remainingAnnualLeave: userData.remainingAnnualLeave ?? userData.remainingAnnualLeaveDays,
+                  sickLeaveQuota: userData.sickLeaveQuota ?? userData.sickLeaveDays,
+                  usedSickLeave: userData.usedSickLeave ?? userData.usedSickLeaveDays,
+                  remainingSickLeave: userData.remainingSickLeave ?? userData.remainingSickLeaveDays,
+                  specialLeaveQuota: userData.specialLeaveQuota ?? userData.specialLeaveDays,
+                  usedSpecialLeave: userData.usedSpecialLeave ?? userData.usedSpecialLeaveDays,
+                  remainingSpecialLeave: userData.remainingSpecialLeave ?? userData.remainingSpecialLeaveDays,
+                };
+
+                const hasLeaveData = Boolean(
+                  apiLeave && (apiLeave.annualLeaveQuota !== undefined || apiLeave.remainingAnnualLeave !== undefined)
+                );
+
+                if (!hasLeaveData) return null;
+
+                return (
+                  <div className="col-span-1 md:col-span-2 mt-2 p-3.5 rounded-xl border border-primary/30 bg-primary/5 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-extrabold text-primary">
+                        Staff Leave Entitlements & API Balances ({apiLeave.targetYear || new Date().getFullYear()})
+                      </span>
+                      {apiLeave.isProRated !== undefined && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+                          {apiLeave.isProRated ? "Pro-Rated Allowance" : "Full Year Allowance"}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="p-2 rounded-lg bg-card border border-border/60 text-center">
+                        <span className="text-[10px] text-muted-foreground font-medium block">Annual Leave</span>
+                        <span className="text-xs font-black text-foreground">
+                          {apiLeave.remainingAnnualLeave ?? apiLeave.annualLeaveQuota ?? 0} Days Remaining
+                        </span>
+                        <span className="text-[10px] text-muted-foreground block mt-0.5">
+                          Used: {apiLeave.usedAnnualLeave || 0} / Total: {apiLeave.annualLeaveQuota || 0}
+                        </span>
+                      </div>
+
+                      <div className="p-2 rounded-lg bg-card border border-border/60 text-center">
+                        <span className="text-[10px] text-muted-foreground font-medium block">Sick Leave</span>
+                        <span className="text-xs font-black text-foreground">
+                          {apiLeave.remainingSickLeave ?? apiLeave.sickLeaveQuota ?? 0} Days Remaining
+                        </span>
+                        <span className="text-[10px] text-muted-foreground block mt-0.5">
+                          Used: {apiLeave.usedSickLeave || 0} / Total: {apiLeave.sickLeaveQuota || 0}
+                        </span>
+                      </div>
+
+                      <div className="p-2 rounded-lg bg-card border border-border/60 text-center">
+                        <span className="text-[10px] text-muted-foreground font-medium block">Special Leave</span>
+                        <span className="text-xs font-black text-foreground">
+                          {apiLeave.remainingSpecialLeave ?? apiLeave.specialLeaveQuota ?? 0} Days Remaining
+                        </span>
+                        <span className="text-[10px] text-muted-foreground block mt-0.5">
+                          Used: {apiLeave.usedSpecialLeave || 0} / Total: {apiLeave.specialLeaveQuota || 0}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </>
           )}
 

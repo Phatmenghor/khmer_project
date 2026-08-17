@@ -31,10 +31,8 @@ public class UserUpdateRequest {
     private String employeeId;
     private String position;
     private String department;
-    private EmploymentType employmentType;
     private LocalDate joinDate;
     private LocalDate leaveDate;
-    private String shift;
 
     private List<AddressRequest> addresses;
     private List<EmergencyContactRequest> emergencyContacts;
