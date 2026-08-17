@@ -1,5 +1,6 @@
 package com.emenu.features.hr.dto.request;
 
+import com.emenu.enums.hr.ScanModeEnum;
 import com.emenu.features.hr.dto.common.DayShiftDto;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,8 @@ public class WorkScheduleCreateRequest {
     @NotBlank(message = "Name required")
     private String name;
 
-    @NotEmpty(message = "Day shifts required")
     private List<DayShiftDto> dayShifts;
+
+    private Boolean enableCheckIn;
+    private ScanModeEnum scanMode;
 }

@@ -64,6 +64,22 @@ export const businessSettingsSchema = z.object({
   wifiName: z.string().optional(),
   wifiPassword: z.string().optional(),
   storeDescription: z.string().optional(),
+
+  // Staff Working Time Defaults & Attendance Scan Rules
+  enableCheckIn: z.boolean().optional(),
+  scanMode: z.enum(["FULL_TIME", "FOUR_TIMES", "HALF_TIME"]).optional(),
+  defaultDayShifts: z.array(
+    z.object({
+      dayOfWeek: z.string().optional(),
+      enabled: z.boolean().optional(),
+      startTime: z.string().optional(),
+      endTime: z.string().optional(),
+      breakStartTime: z.string().optional(),
+      breakEndTime: z.string().optional(),
+      enableCheckIn: z.boolean().optional(),
+      scanMode: z.string().optional(),
+    })
+  ).optional(),
 });
 
 export type BusinessSettingsFormData = z.infer<typeof businessSettingsSchema>;

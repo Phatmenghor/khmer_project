@@ -2,6 +2,7 @@ package com.emenu.features.auth.models;
 
 import com.emenu.enums.common.StockStatus;
 import com.emenu.enums.common.ReceiptSize;
+import com.emenu.enums.hr.ScanModeEnum;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import com.emenu.shared.dto.ImageUrls;
 import jakarta.persistence.*;
@@ -78,4 +79,20 @@ public class BusinessSetting extends BaseUUIDEntity {
 
     @Column(name = "store_description", columnDefinition = "TEXT")
     private String storeDescription;
+
+    @Column(name = "enable_check_in")
+    private Boolean enableCheckIn = true;
+
+    @Column(name = "scan_mode")
+    @Enumerated(EnumType.STRING)
+    private ScanModeEnum scanMode = ScanModeEnum.FULL_TIME;
+
+    // ── Dedicated OneToMany Table Mapping for Default Day Shifts ──
+    @OneToMany(
+        mappedBy = "businessSetting",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.EAGER
+    )
+    private List<BusinessSettingDayShift> defaultDayShifts;
 }

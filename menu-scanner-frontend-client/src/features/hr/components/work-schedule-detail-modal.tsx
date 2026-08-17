@@ -111,7 +111,7 @@ export function WorkScheduleDetailModal({
           {/* 7-Day Shift Roster Breakdown */}
           <div className="col-span-2 space-y-2.5 mt-1">
             <SectionTitle>7-Day Shift Roster Breakdown</SectionTitle>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
               {WEEK_DAYS.map((d) => {
                 const shift = dayShiftsMap.get(d.day);
                 const isEnabled = shift ? shift.enabled : schedule.workDays?.includes(d.day);
@@ -124,36 +124,48 @@ export function WorkScheduleDetailModal({
                   <div
                     key={d.day}
                     className={cn(
-                      "p-2.5 rounded-lg border flex items-center justify-between gap-2 text-left",
+                      "p-3 rounded-xl border flex items-center justify-between gap-3 text-left transition-all bg-card shadow-2xs",
                       isEnabled
-                        ? "bg-card border-border/80"
-                        : "bg-muted/20 border-border/40 opacity-60"
+                        ? "border-primary/40"
+                        : "border-border/60"
                     )}
                   >
-                    <div className="flex items-center gap-2 min-w-[110px]">
+                    <div className="flex items-center gap-2.5">
                       {isEnabled ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
+                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                       ) : (
-                        <XCircle className="h-4 w-4 text-muted-foreground/40 flex-shrink-0" />
+                        <XCircle className="h-4 w-4 text-muted-foreground/60 shrink-0" />
                       )}
-                      <span className="text-xs font-semibold text-foreground">{d.label}</span>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-foreground">{d.label}</span>
+                        <span
+                          className={cn(
+                            "text-[10px] font-semibold inline-block",
+                            isEnabled ? "text-primary" : "text-muted-foreground"
+                          )}
+                        >
+                          {isEnabled ? "Working Day" : "Off Day"}
+                        </span>
+                      </div>
                     </div>
 
                     {isEnabled ? (
                       <div className="flex flex-col text-right text-xs">
-                        <span className="font-medium text-foreground">
-                          Shift: {startTime && endTime ? `${formatTime(startTime)} - ${formatTime(endTime)}` : "Unset"}
+                        <span className="font-semibold text-foreground">
+                          {startTime && endTime ? `${formatTime(startTime)} - ${formatTime(endTime)}` : "No Time Set"}
                         </span>
                         {breakStart && breakEnd ? (
-                          <span className="text-[11px] text-muted-foreground">
+                          <span className="text-[11px] text-muted-foreground font-medium">
                             Break: {formatTime(breakStart)} - {formatTime(breakEnd)}
                           </span>
                         ) : (
-                          <span className="text-[11px] text-muted-foreground">Break: None</span>
+                          <span className="text-[11px] text-muted-foreground/80 font-normal">No Break</span>
                         )}
                       </div>
                     ) : (
-                      <span className="text-xs text-muted-foreground italic">Off Day</span>
+                      <span className="text-xs font-medium text-muted-foreground bg-muted/60 px-2.5 py-1 rounded-md border border-border/40">
+                        Off Day
+                      </span>
                     )}
                   </div>
                 );

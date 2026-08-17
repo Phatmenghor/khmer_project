@@ -1,5 +1,6 @@
 package com.emenu.features.hr.dto.common;
 
+import com.emenu.enums.hr.ScanModeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,4 +29,7 @@ public class DayShiftDto {
 
     @Schema(type = "string", pattern = "HH:mm", example = "13:00", description = "Break end time in HH:mm format")
     private LocalTime breakEndTime;
+
+    private Boolean enableCheckIn;
+    private ScanModeEnum scanMode;
 }

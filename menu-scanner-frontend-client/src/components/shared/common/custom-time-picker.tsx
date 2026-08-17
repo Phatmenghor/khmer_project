@@ -1,12 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -35,10 +41,12 @@ export function CustomTimePicker({
   error = false,
 }: CustomTimePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [useCenteredModal, setUseCenteredModal] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+
   const [selectedHour, setSelectedHour] = useState<string>("09");
   const [selectedMinute, setSelectedMinute] = useState<string>("00");
   const [selectedPeriod, setSelectedPeriod] = useState<"AM" | "PM">("AM");
-
 
   useEffect(() => {
     if (value) {
@@ -46,7 +54,6 @@ export function CustomTimePicker({
       if (timeParts.length >= 2) {
         const hour24 = parseInt(timeParts[0]);
         const minute = timeParts[1];
-
 
         const period = hour24 >= 12 ? "PM" : "AM";
         const hour12 = hour24 % 12 || 12;
@@ -58,6 +65,23 @@ export function CustomTimePicker({
     }
   }, [value]);
 
+  // Measure available vertical space to dynamically switch mode
+  const handleOpenToggle = (open: boolean) => {
+    if (open && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      const requiredSpace = 250;
+
+      // Only switch to viewport-centered dialog if BOTH top & bottom have insufficient space
+      if (spaceBelow < requiredSpace && spaceAbove < requiredSpace) {
+        setUseCenteredModal(true);
+      } else {
+        setUseCenteredModal(false);
+      }
+    }
+    setIsOpen(open);
+  };
 
   const convertTo24Hour = (hour12: string, period: "AM" | "PM"): string => {
     let hour24 = parseInt(hour12);
@@ -69,24 +93,20 @@ export function CustomTimePicker({
     return String(hour24).padStart(2, "0");
   };
 
-
   const formatTimeDisplay = (hour: string, minute: string, period: "AM" | "PM"): string => {
     return `${hour}:${minute} ${period}`;
   };
-
 
   const formatTimeForForm = (): string => {
     const hour24 = convertTo24Hour(selectedHour, selectedPeriod);
     return `${hour24}:${selectedMinute}`;
   };
 
-
   const applyTime = () => {
     const formattedTime = formatTimeForForm();
     onChange(formattedTime);
     setIsOpen(false);
   };
-
 
   const clearSelection = () => {
     setSelectedHour("09");
@@ -95,11 +115,9 @@ export function CustomTimePicker({
     onChange("");
   };
 
-
   const hours = Array.from({ length: 12 }, (_, i) =>
     String(i + 1).padStart(2, "0")
   );
-
 
   const minutes = Array.from({ length: 60 }, (_, i) =>
     String(i).padStart(2, "0")
@@ -109,169 +127,210 @@ export function CustomTimePicker({
     ? formatTimeDisplay(selectedHour, selectedMinute, selectedPeriod)
     : null;
 
-  return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <div
-          className={cn(
-            "relative w-full h-[36px] rounded-[12px] border border-border bg-muted/50 shadow-2xs",
-            "transition-all duration-200 ease-out",
-            "hover:bg-muted/65 hover:border-border",
-            isOpen && "bg-background border-primary ring-2 ring-primary/25",
-            error && "border-destructive focus:border-destructive",
-            disabled && "opacity-50 cursor-not-allowed bg-muted/20",
-            className
-          )}
+  const timePickerBodyContent = (
+    <div className="w-[260px] p-0 flex flex-col bg-card">
+      {/* Header */}
+      <div className="px-3 py-2 border-b border-border bg-muted/20 flex items-center justify-between">
+        <span className="text-xs font-semibold text-foreground">Select Time</span>
+        <CustomButton
+          variant="unstyled"
+          size="unstyled"
+          type="button"
+          onClick={() => setIsOpen(false)}
+          className="h-6 w-6 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent rounded-full transition-colors"
+          title="Close"
         >
-          <CustomButton variant="unstyled" size="unstyled"
-            type="button"
-            disabled={disabled}
-            className={cn(
-              "w-full h-full px-3 text-base md:text-sm font-normal text-left flex items-center gap-2",
-              "rounded-[12px] transition-colors min-w-0",
-              "focus:outline-none",
-              disabled && "cursor-not-allowed"
-            )}
-            onClick={() => setIsOpen(true)}
-            title={displayValue || placeholder}
-          >
-            <Clock className="h-4 w-4 flex-shrink-0 text-muted-foreground/60" />
-            <span
-              className={cn(
-                "flex-1 truncate line-clamp-1 text-base md:text-sm font-normal",
-                value ? "text-foreground font-medium" : "text-muted-foreground/60"
-              )}
-            >
-              {displayValue || placeholder}
-            </span>
-            {value && !disabled && (
-              <div
-                className="h-5 w-5 flex-shrink-0 flex items-center justify-center rounded hover:bg-destructive/10"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  clearSelection();
-                }}
-                role="button"
-                tabIndex={0}
-              >
-                <X className="h-3.5 w-3.5 text-destructive" />
-              </div>
-            )}
-          </CustomButton>
-        </div>
-      </PopoverTrigger>
-      <PopoverContent className="w-[260px] p-0" align="start" side="bottom" sideOffset={8}>
-        {/* Header */}
-        <div className="px-3 py-2 border-b bg-muted/20 flex items-center justify-between">
-          <span className="text-xs font-semibold text-foreground">Select Time</span>
-          <CustomButton variant="unstyled" size="unstyled"
-            type="button"
-            onClick={() => setIsOpen(false)}
-            className="h-6 w-6 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent rounded-full transition-colors"
-            title="Close"
-          >
-            <X className="h-3 w-3" />
-          </CustomButton>
-        </div>
+          <X className="h-3 w-3" />
+        </CustomButton>
+      </div>
 
-        {/* Content */}
-        <div className="p-3 space-y-3">
-          {/* Pickers container */}
-          <div className="flex items-center justify-center gap-2 py-1">
-            {/* Hour Selector */}
-            <div className="flex flex-col gap-1 w-[60px]">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase text-center tracking-wider">Hour</span>
-              <Select value={selectedHour} onValueChange={setSelectedHour}>
-                <SelectPrimitive.Trigger className="flex h-[36px] w-full items-center justify-center text-center whitespace-nowrap rounded-md border border-border/80 bg-muted/30 px-1 text-base md:text-sm font-semibold text-foreground shadow-2xs transition-all duration-200 hover:bg-muted/50 hover:border-border focus:outline-none focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50">
-                  <SelectValue />
-                </SelectPrimitive.Trigger>
-                <SelectContent className="max-h-48">
-                  {hours.map((hour) => (
-                    <SelectItem key={hour} value={hour} className="text-center font-medium">
-                      {hour}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Separator */}
-            <div className="text-base font-bold text-muted-foreground mt-4">:</div>
-
-            {/* Minute Selector */}
-            <div className="flex flex-col gap-1 w-[60px]">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase text-center tracking-wider">Min</span>
-              <Select value={selectedMinute} onValueChange={setSelectedMinute}>
-                <SelectPrimitive.Trigger className="flex h-[36px] w-full items-center justify-center text-center whitespace-nowrap rounded-md border border-border/80 bg-muted/30 px-1 text-base md:text-sm font-semibold text-foreground shadow-2xs transition-all duration-200 hover:bg-muted/50 hover:border-border focus:outline-none focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50">
-                  <SelectValue />
-                </SelectPrimitive.Trigger>
-                <SelectContent className="max-h-48">
-                  {minutes.map((minute) => (
-                    <SelectItem key={minute} value={minute} className="text-center font-medium">
-                      {minute}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Period Selector */}
-            <div className="flex flex-col gap-1 w-[80px]">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase text-center tracking-wider">Period</span>
-              <div className="flex border rounded-md p-0.5 bg-muted h-[36px] items-center border-input">
-                {["AM", "PM"].map((period) => (
-                  <CustomButton variant="unstyled" size="unstyled"
-                    key={period}
-                    type="button"
-                    onClick={() => setSelectedPeriod(period as "AM" | "PM")}
-                    className={cn(
-                      "flex-1 h-full text-xs font-bold rounded transition-all flex items-center justify-center",
-                      selectedPeriod === period
-                        ? "bg-background text-primary shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    {period}
-                  </CustomButton>
+      {/* Content */}
+      <div className="p-3 space-y-3">
+        {/* Pickers container */}
+        <div className="flex items-center justify-center gap-2 py-1">
+          {/* Hour Selector */}
+          <div className="flex flex-col gap-1 w-[60px]">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase text-center tracking-wider">Hour</span>
+            <Select value={selectedHour} onValueChange={setSelectedHour}>
+              <SelectPrimitive.Trigger className="flex h-[36px] w-full items-center justify-center text-center whitespace-nowrap rounded-md border border-border/80 bg-muted/30 px-1 text-base md:text-sm font-semibold text-foreground shadow-2xs transition-all duration-200 hover:bg-muted/50 hover:border-border focus:outline-none focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50">
+                <SelectValue />
+              </SelectPrimitive.Trigger>
+              <SelectContent className="z-[10001] max-h-48">
+                {hours.map((hour) => (
+                  <SelectItem key={hour} value={hour} className="text-center font-medium">
+                    {hour}
+                  </SelectItem>
                 ))}
-              </div>
-            </div>
+              </SelectContent>
+            </Select>
           </div>
 
+          {/* Separator */}
+          <div className="text-base font-bold text-muted-foreground mt-4">:</div>
+
+          {/* Minute Selector */}
+          <div className="flex flex-col gap-1 w-[60px]">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase text-center tracking-wider">Min</span>
+            <Select value={selectedMinute} onValueChange={setSelectedMinute}>
+              <SelectPrimitive.Trigger className="flex h-[36px] w-full items-center justify-center text-center whitespace-nowrap rounded-md border border-border/80 bg-muted/30 px-1 text-base md:text-sm font-semibold text-foreground shadow-2xs transition-all duration-200 hover:bg-muted/50 hover:border-border focus:outline-none focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50">
+                <SelectValue />
+              </SelectPrimitive.Trigger>
+              <SelectContent className="z-[10001] max-h-48">
+                {minutes.map((minute) => (
+                  <SelectItem key={minute} value={minute} className="text-center font-medium">
+                    {minute}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Period Selector */}
+          <div className="flex flex-col gap-1 w-[80px]">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase text-center tracking-wider">Period</span>
+            <div className="flex border rounded-md p-0.5 bg-muted h-[36px] items-center border-input">
+              {["AM", "PM"].map((period) => (
+                <CustomButton
+                  variant="unstyled"
+                  size="unstyled"
+                  key={period}
+                  type="button"
+                  onClick={() => setSelectedPeriod(period as "AM" | "PM")}
+                  className={cn(
+                    "flex-1 h-full text-xs font-bold rounded transition-all flex items-center justify-center",
+                    selectedPeriod === period
+                      ? "bg-background text-primary shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {period}
+                </CustomButton>
+              ))}
+            </div>
+          </div>
         </div>
+      </div>
 
-        {/* Footer Actions */}
-        <div className="p-2 border-t bg-muted/20 flex gap-2">
-          <CustomButton
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              const now = new Date();
-              let hour = now.getHours();
-              const minute = String(now.getMinutes()).padStart(2, "0");
+      {/* Footer Actions */}
+      <div className="p-2 border-t border-border bg-muted/20 flex gap-2">
+        <CustomButton
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            const now = new Date();
+            let hour = now.getHours();
+            const minute = String(now.getMinutes()).padStart(2, "0");
 
-              const period = hour >= 12 ? "PM" : "AM";
-              const hour12 = hour % 12 || 12;
+            const period = hour >= 12 ? "PM" : "AM";
+            const hour12 = hour % 12 || 12;
 
-              setSelectedHour(String(hour12).padStart(2, "0"));
-              setSelectedMinute(minute);
-              setSelectedPeriod(period as "AM" | "PM");
-              onChange(formatTimeForForm());
-              setIsOpen(false);
+            setSelectedHour(String(hour12).padStart(2, "0"));
+            setSelectedMinute(minute);
+            setSelectedPeriod(period as "AM" | "PM");
+            onChange(formatTimeForForm());
+            setIsOpen(false);
+          }}
+          className="flex-1 h-8 text-xs font-semibold"
+        >
+          Now
+        </CustomButton>
+        <CustomButton
+          variant="default"
+          size="sm"
+          onClick={applyTime}
+          className="flex-1 h-8 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+        >
+          Apply
+        </CustomButton>
+      </div>
+    </div>
+  );
+
+  const triggerButton = (
+    <div
+      className={cn(
+        "relative w-full h-[36px] rounded-[12px] border border-border bg-muted/50 shadow-2xs",
+        "transition-all duration-200 ease-out",
+        "hover:bg-muted/65 hover:border-border",
+        isOpen && "bg-background border-primary ring-2 ring-primary/25",
+        error && "border-destructive focus:border-destructive",
+        disabled && "opacity-50 cursor-not-allowed bg-muted/20",
+        className
+      )}
+    >
+      <CustomButton
+        ref={triggerRef}
+        variant="unstyled"
+        size="unstyled"
+        type="button"
+        disabled={disabled}
+        className={cn(
+          "w-full h-full px-3 text-base md:text-sm font-normal text-left flex items-center gap-2",
+          "rounded-[12px] transition-colors min-w-0",
+          "focus:outline-none",
+          disabled && "cursor-not-allowed"
+        )}
+        onClick={() => handleOpenToggle(!isOpen)}
+        title={displayValue || placeholder}
+      >
+        <Clock className="h-4 w-4 flex-shrink-0 text-muted-foreground/60" />
+        <span
+          className={cn(
+            "flex-1 truncate line-clamp-1 text-base md:text-sm font-normal",
+            value ? "text-foreground font-medium" : "text-muted-foreground/60"
+          )}
+        >
+          {displayValue || placeholder}
+        </span>
+        {value && !disabled && (
+          <div
+            className="h-5 w-5 flex-shrink-0 flex items-center justify-center rounded hover:bg-destructive/10"
+            onClick={(e) => {
+              e.stopPropagation();
+              clearSelection();
             }}
-            className="flex-1 h-8 text-xs font-semibold"
+            role="button"
+            tabIndex={0}
           >
-            Now
-          </CustomButton>
-          <CustomButton
-            variant="default"
-            size="sm"
-            onClick={applyTime}
-            className="flex-1 h-8 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
-          >
-            Apply
-          </CustomButton>
-        </div>
+            <X className="h-3.5 w-3.5 text-destructive" />
+          </div>
+        )}
+      </CustomButton>
+    </div>
+  );
+
+  if (useCenteredModal) {
+    return (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          {triggerButton}
+        </DialogTrigger>
+        <DialogContent
+          disableScrollWrapper
+          closeButtonClassName="hidden"
+          className="w-[260px] p-0 shadow-2xl border border-border/80 rounded-2xl z-[10000] bg-card overflow-hidden transition-all fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        >
+          <DialogTitle className="sr-only">Select Time</DialogTitle>
+          {timePickerBodyContent}
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Popover open={isOpen} onOpenChange={handleOpenToggle}>
+      <PopoverTrigger asChild>
+        {triggerButton}
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-[260px] p-0 shadow-2xl border border-border/80 rounded-2xl z-[9999] bg-card overflow-hidden transition-all"
+        align="start"
+        side="bottom"
+        sideOffset={8}
+        collisionPadding={16}
+        avoidCollisions={true}
+      >
+        {timePickerBodyContent}
       </PopoverContent>
     </Popover>
   );

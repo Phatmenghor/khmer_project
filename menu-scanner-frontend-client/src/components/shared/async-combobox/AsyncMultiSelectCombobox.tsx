@@ -131,7 +131,7 @@ export function AsyncMultiSelectCombobox<T>({
             className={cn(
               "w-full justify-between min-w-0 shadow-2xs font-normal transition-all duration-200 text-left cursor-pointer",
               SIZE_CLASSES[size],
-              selectedValues.length === 0 && "text-muted-foreground/60",
+              selectedValues.length === 0 && "text-muted-foreground",
               open && "bg-background border-primary text-foreground ring-2 ring-primary/25",
               error && "border-destructive focus:border-destructive",
               disabled && "opacity-50 cursor-not-allowed bg-muted/20",
@@ -142,14 +142,14 @@ export function AsyncMultiSelectCombobox<T>({
             <span
               className={cn(
                 "text-base md:text-sm truncate min-w-0 flex-1 font-normal",
-                selectedValues.length === 0 ? "text-muted-foreground/60" : "text-foreground font-medium"
+                selectedValues.length === 0 ? "text-muted-foreground" : "text-foreground font-medium"
               )}
             >
               {selectedValues.length === 0
                 ? placeholder
                 : `${selectedValues.length} item(s) selected`}
             </span>
-            <ChevronsUpDown className="h-4 w-4 opacity-60 shrink-0 ml-1.5" />
+            <ChevronsUpDown className="h-4 w-4 text-muted-foreground shrink-0 ml-1.5" />
           </CustomButton>
         </PopoverTrigger>
 
@@ -165,7 +165,7 @@ export function AsyncMultiSelectCombobox<T>({
               placeholder={searchPlaceholder}
               value={searchTerm}
               onValueChange={setSearchTerm}
-              className="text-xs"
+              className="text-base md:text-sm font-normal text-foreground placeholder:text-muted-foreground"
             />
             <CommandList className="max-h-52 overflow-y-auto">
               <CommandEmpty className="py-4 text-center text-xs text-muted-foreground">
@@ -186,7 +186,7 @@ export function AsyncMultiSelectCombobox<T>({
                       onCheckedChange={handleToggleSelectAll}
                       className="rounded-md"
                     />
-                    <span className="text-xs font-extrabold">
+                    <span className="text-xs font-extrabold text-foreground">
                       {selectAllLabel} ({data.length})
                     </span>
                   </CommandItem>
@@ -217,7 +217,7 @@ export function AsyncMultiSelectCombobox<T>({
                           onCheckedChange={() => handleToggleItem(item)}
                           className="rounded-md"
                         />
-                        <span className="truncate flex-1 text-left">
+                        <span className="truncate flex-1 text-left text-xs font-medium text-foreground">
                           {renderItem ? renderItem(item) : labelText}
                         </span>
                       </div>

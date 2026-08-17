@@ -103,7 +103,7 @@ export default function DashboardLayout({
   }, [isFullscreen]);
 
   return (
-    <div className="admin-shell flex overflow-x-hidden h-screen w-full bg-background">
+    <div className="admin-shell flex overflow-hidden h-screen w-full bg-background">
       {!isFullscreen && (
         <DashboardSidebar
           isOpen={isSidebarOpen}
@@ -113,8 +113,8 @@ export default function DashboardLayout({
       <div
         ref={contentRef}
         className={cn(
-          "dashboard-content flex flex-col flex-1 min-w-0 transition-all duration-300 h-screen",
-          isPosPage ? "overflow-hidden" : "overflow-y-auto",
+          "dashboard-content flex flex-col flex-1 min-w-0 transition-all duration-300 h-screen overflow-y-auto overflow-x-hidden",
+          isPosPage && "overflow-hidden",
           isFullscreen ? "ml-0 w-full" : isMobile ? "w-full" : isSidebarOpen ? "ml-52" : "ml-14",
         )}
       >

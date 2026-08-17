@@ -1,5 +1,6 @@
 package com.emenu.features.hr.dto.response;
 
+import com.emenu.enums.hr.ScanModeEnum;
 import com.emenu.features.auth.dto.response.UserBasicInfo;
 import com.emenu.features.hr.dto.common.DayShiftDto;
 import com.emenu.shared.dto.BaseAuditResponse;
@@ -17,4 +18,6 @@ public class WorkScheduleResponse extends BaseAuditResponse {
     private UUID businessId;
     private String name;
     private List<DayShiftDto> dayShifts;
+    private Boolean enableCheckIn;
+    private ScanModeEnum scanMode;
 }

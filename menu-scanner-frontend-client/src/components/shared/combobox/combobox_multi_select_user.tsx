@@ -8,6 +8,8 @@ import { fetchAllUsersService } from "@/features/auth/store/thunks/users-thunks"
 import { UserResponseModel } from "@/features/auth/store/models/response/users-response";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 
+import { UserGropeType } from "@/constants/status/status";
+
 interface ComboboxMultiSelectUserInnerProps {
   selectedUserIds: string[];
   onChangeSelectedUserIds: (ids: string[]) => void;
@@ -29,11 +31,11 @@ function ComboboxMultiSelectUserInner({
   error,
   showSelectAll = false,
 }: ComboboxMultiSelectUserInnerProps) {
-  // Infinite Scroll & Pagination Page Size 15 using useReduxCombobox
+  // Infinite Scroll & Pagination Page Size 15 using useReduxCombobox for Business Users only
   const controller = useReduxCombobox<UserResponseModel>({
-    cacheKey: "users-multi-select-15",
+    cacheKey: "users-multi-select-business-15",
     thunkService: fetchAllUsersService,
-    extraParams: { pageSize: 15 },
+    extraParams: { pageSize: 15, userTypes: [UserGropeType.BUSINESS_USER] },
   });
 
   const selectedObjects = useMemo(() => {
@@ -77,7 +79,7 @@ function ComboboxMultiSelectUserInner({
               )}
             </div>
             <span className="text-[11px] text-muted-foreground truncate">
-              {item.email || item.phoneNumber || "Staff Member"}
+              {item.userIdentifier || item.email || item.phoneNumber || "Staff Member"}
             </span>
           </div>
         );

@@ -1,6 +1,10 @@
 package com.emenu.features.hr.service.impl;
 
+import com.emenu.enums.hr.ScanModeEnum;
 import com.emenu.features.auth.mapper.UserMapper;
+import com.emenu.features.auth.models.BusinessSetting;
+import com.emenu.features.auth.models.BusinessSettingDayShift;
+import com.emenu.features.auth.repository.BusinessSettingRepository;
 import com.emenu.features.auth.repository.UserRepository;
 import com.emenu.features.setting.repository.WorkScheduleTypeEnumRepository;
 import com.emenu.features.hr.dto.common.DayShiftDto;
@@ -40,6 +44,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
     private final WorkScheduleRepository repository;
     private final UserRepository userRepository;
+    private final BusinessSettingRepository businessSettingRepository;
     private final WorkScheduleTypeEnumRepository typeEnumRepository;
     private final WorkScheduleMapper mapper;
     private final PaginationMapper paginationMapper;
@@ -49,27 +54,71 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     public WorkScheduleResponse create(WorkScheduleCreateRequest request) {
         log.info("Creating work schedule: name={}, userId={}, businessId={}, dayShiftsCount={}",
                 request.getName(), request.getUserId(), request.getBusinessId(), request.getDayShifts() != null ? request.getDayShifts().size() : 0);
-        WorkSchedule schedule = mapper.toEntity(request);
 
-        if (request.getDayShifts() != null && !request.getDayShifts().isEmpty()) {
-            List<WorkSchedule.WorkScheduleDayShift> shifts = request.getDayShifts().stream()
-                    .map(dto -> WorkSchedule.WorkScheduleDayShift.builder()
-                            .dayOfWeek(dto.getDayOfWeek())
-                            .enabled(dto.getEnabled())
-                            .startTime(dto.getStartTime())
-                            .endTime(dto.getEndTime())
-                            .breakStartTime(dto.getBreakStartTime())
-                            .breakEndTime(dto.getBreakEndTime())
-                            .build())
-                    .toList();
-            schedule.setDayShifts(new ArrayList<>(shifts));
-
-            // Derive internal entity columns from dayShifts
-            populateInternalEntityFields(schedule, request.getDayShifts());
-        } else {
-            schedule.setStartTime(LocalTime.of(8, 0));
-            schedule.setEndTime(LocalTime.of(18, 0));
+        BusinessSetting businessSetting = null;
+        if (request.getBusinessId() != null) {
+            businessSetting = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(request.getBusinessId()).orElse(null);
         }
+
+        Boolean enableCheckIn = request.getEnableCheckIn() != null ? request.getEnableCheckIn()
+                : (businessSetting != null && businessSetting.getEnableCheckIn() != null ? businessSetting.getEnableCheckIn() : true);
+
+        ScanModeEnum scanMode = request.getScanMode() != null ? request.getScanMode()
+                : (businessSetting != null && businessSetting.getScanMode() != null ? businessSetting.getScanMode() : ScanModeEnum.FULL_TIME);
+
+        WorkSchedule schedule = mapper.toEntity(request);
+        schedule.setEnableCheckIn(enableCheckIn);
+        schedule.setScanMode(scanMode);
+
+        if (request.getDayShifts() == null || request.getDayShifts().isEmpty()) {
+            List<DayShiftDto> generatedDtos = new ArrayList<>();
+            if (businessSetting != null && businessSetting.getDefaultDayShifts() != null && !businessSetting.getDefaultDayShifts().isEmpty()) {
+                for (BusinessSettingDayShift ds : businessSetting.getDefaultDayShifts()) {
+                    generatedDtos.add(DayShiftDto.builder()
+                            .dayOfWeek(ds.getDayOfWeek())
+                            .enabled(ds.getEnabled())
+                            .startTime(ds.getStartTime())
+                            .endTime(ds.getEndTime())
+                            .breakStartTime(ds.getBreakStartTime())
+                            .breakEndTime(ds.getBreakEndTime())
+                            .enableCheckIn(enableCheckIn)
+                            .scanMode(scanMode)
+                            .build());
+                }
+            } else {
+                for (DayOfWeek day : DayOfWeek.values()) {
+                    boolean enabled = day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY;
+                    generatedDtos.add(DayShiftDto.builder()
+                            .dayOfWeek(day)
+                            .enabled(enabled)
+                            .startTime(LocalTime.of(8, 0))
+                            .endTime(LocalTime.of(18, 0))
+                            .breakStartTime(LocalTime.of(12, 0))
+                            .breakEndTime(LocalTime.of(13, 0))
+                            .enableCheckIn(enableCheckIn)
+                            .scanMode(scanMode)
+                            .build());
+                }
+            }
+            request.setDayShifts(generatedDtos);
+        }
+
+        List<WorkSchedule.WorkScheduleDayShift> shifts = request.getDayShifts().stream()
+                .map(dto -> WorkSchedule.WorkScheduleDayShift.builder()
+                        .dayOfWeek(dto.getDayOfWeek())
+                        .enabled(dto.getEnabled())
+                        .startTime(dto.getStartTime())
+                        .endTime(dto.getEndTime())
+                        .breakStartTime(dto.getBreakStartTime())
+                        .breakEndTime(dto.getBreakEndTime())
+                        .enableCheckIn(dto.getEnableCheckIn() != null ? dto.getEnableCheckIn() : enableCheckIn)
+                        .scanMode(dto.getScanMode() != null ? dto.getScanMode() : scanMode)
+                        .build())
+                .toList();
+        schedule.setDayShifts(new ArrayList<>(shifts));
+
+        // Derive internal entity columns from dayShifts
+        populateInternalEntityFields(schedule, request.getDayShifts());
 
         WorkSchedule savedSchedule = repository.save(schedule);
         log.info("Work schedule created successfully: id={}, name={}, userId={}", savedSchedule.getId(), savedSchedule.getName(), request.getUserId());
@@ -127,7 +176,18 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
             schedule.setName(request.getName().trim());
         }
 
+        if (request.getEnableCheckIn() != null) {
+            schedule.setEnableCheckIn(request.getEnableCheckIn());
+        }
+
+        if (request.getScanMode() != null) {
+            schedule.setScanMode(request.getScanMode());
+        }
+
         if (request.getDayShifts() != null) {
+            Boolean defaultEnableCheckIn = schedule.getEnableCheckIn();
+            ScanModeEnum defaultScanMode = schedule.getScanMode();
+
             List<WorkSchedule.WorkScheduleDayShift> shifts = request.getDayShifts().stream()
                     .map(dto -> WorkSchedule.WorkScheduleDayShift.builder()
                             .dayOfWeek(dto.getDayOfWeek())
@@ -136,6 +196,8 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                             .endTime(dto.getEndTime())
                             .breakStartTime(dto.getBreakStartTime())
                             .breakEndTime(dto.getBreakEndTime())
+                            .enableCheckIn(dto.getEnableCheckIn() != null ? dto.getEnableCheckIn() : defaultEnableCheckIn)
+                            .scanMode(dto.getScanMode() != null ? dto.getScanMode() : defaultScanMode)
                             .build())
                     .toList();
 
@@ -205,6 +267,9 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
             response.setUserInfo(userMapper.toUserBasicInfo(schedule.getUser()));
         }
 
+        response.setEnableCheckIn(schedule.getEnableCheckIn());
+        response.setScanMode(schedule.getScanMode());
+
         if (schedule.getDayShifts() != null && !schedule.getDayShifts().isEmpty()) {
             List<DayShiftDto> dtos = schedule.getDayShifts().stream()
                     .map(s -> DayShiftDto.builder()
@@ -214,6 +279,8 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                             .endTime(s.getEndTime())
                             .breakStartTime(s.getBreakStartTime())
                             .breakEndTime(s.getBreakEndTime())
+                            .enableCheckIn(s.getEnableCheckIn())
+                            .scanMode(s.getScanMode())
                             .build())
                     .toList();
             response.setDayShifts(dtos);

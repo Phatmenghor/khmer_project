@@ -33,6 +33,9 @@ public interface BusinessSettingMapper {
 
     BusinessSetting toEntity(BusinessSettingCreateRequest request);
 
+    @Mapping(target = "defaultDayShifts", ignore = true)
+    @Mapping(target = "socialMedia", ignore = true)
+    @Mapping(target = "businessHours", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(BusinessSettingUpdateRequest request, @MappingTarget BusinessSetting businessSetting);
 

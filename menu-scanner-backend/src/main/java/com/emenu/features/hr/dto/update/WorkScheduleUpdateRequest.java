@@ -1,5 +1,6 @@
 package com.emenu.features.hr.dto.update;
 
+import com.emenu.enums.hr.ScanModeEnum;
 import com.emenu.features.hr.dto.common.DayShiftDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,4 +16,6 @@ import java.util.List;
 public class WorkScheduleUpdateRequest {
     private String name;
     private List<DayShiftDto> dayShifts;
+    private Boolean enableCheckIn;
+    private ScanModeEnum scanMode;
 }

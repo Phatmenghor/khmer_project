@@ -2,6 +2,7 @@ package com.emenu.features.auth.service.impl;
 
 import com.emenu.enums.common.StockStatus;
 import com.emenu.enums.common.ReceiptSize;
+import com.emenu.enums.hr.ScanModeEnum;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.dto.request.BusinessSettingCreateRequest;
 import com.emenu.features.auth.dto.response.BusinessSettingResponse;
@@ -10,11 +11,13 @@ import com.emenu.features.auth.mapper.BusinessSettingMapper;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.BusinessHours;
 import com.emenu.features.auth.models.BusinessSetting;
+import com.emenu.features.auth.models.BusinessSettingDayShift;
 import com.emenu.features.auth.models.SocialMedia;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.BusinessSettingRepository;
 import com.emenu.features.auth.service.BusinessSettingService;
+import com.emenu.features.hr.dto.common.DayShiftDto;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.constants.BusinessConstants;
 import com.emenu.features.notification.telegram.repository.TelegramMessageLogRepository;
@@ -23,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -40,9 +44,9 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
     private final TelegramMessageLogRepository telegramMessageLogRepository;
 
     private BusinessSetting getOrCreateBusinessSetting(UUID businessId) {
-        return businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
+        BusinessSetting setting = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
                 .orElseGet(() -> {
-                    log.info("Business setting not found, creating default settings for businessId={}", businessId);
+                    log.info("Business setting not found, creating settings for businessId={}", businessId);
                     
                     BusinessSetting newSetting = new BusinessSetting();
                     newSetting.setBusinessId(businessId);
@@ -52,14 +56,45 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
                     newSetting.setUseBrands(true);
                     newSetting.setReceiptSize(ReceiptSize.SIZE_58MM);
                     newSetting.setStoreDescription(BusinessConstants.DEFAULT_STORE_DESCRIPTION);
+                    newSetting.setEnableCheckIn(true);
+                    newSetting.setScanMode(ScanModeEnum.FULL_TIME);
 
-                    BusinessSetting savedSetting = businessSettingRepository.save(newSetting);
+                    newSetting.setBusinessHours(createDefaultBusinessHours(newSetting));
+                    newSetting.setSocialMedia(createDefaultSocialMedia(newSetting));
+                    newSetting.setDefaultDayShifts(createDefaultDayShifts(newSetting));
 
-                    savedSetting.setBusinessHours(createDefaultBusinessHours(savedSetting));
-                    savedSetting.setSocialMedia(createDefaultSocialMedia(savedSetting));
-
-                    return businessSettingRepository.save(savedSetting);
+                    return businessSettingRepository.save(newSetting);
                 });
+
+        if (setting.getDefaultDayShifts() == null) {
+            setting.setDefaultDayShifts(new ArrayList<>(createDefaultDayShifts(setting)));
+            setting = businessSettingRepository.save(setting);
+        } else if (setting.getDefaultDayShifts().isEmpty()) {
+            setting.getDefaultDayShifts().addAll(createDefaultDayShifts(setting));
+            setting = businessSettingRepository.save(setting);
+        }
+
+        return setting;
+    }
+
+    private List<BusinessSettingDayShift> createDefaultDayShifts(BusinessSetting setting) {
+        List<BusinessSettingDayShift> defaultShifts = new ArrayList<>();
+        for (DayOfWeek day : DayOfWeek.values()) {
+            BusinessSettingDayShift ds = BusinessSettingDayShift.builder()
+                    .businessSettingId(setting.getId())
+                    .businessSetting(setting)
+                    .dayOfWeek(day)
+                    .enabled(false)
+                    .startTime(null)
+                    .endTime(null)
+                    .breakStartTime(null)
+                    .breakEndTime(null)
+                    .enableCheckIn(false)
+                    .scanMode(ScanModeEnum.FULL_TIME)
+                    .build();
+            defaultShifts.add(ds);
+        }
+        return defaultShifts;
     }
 
     private List<BusinessHours> createDefaultBusinessHours(BusinessSetting setting) {
@@ -104,13 +139,13 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
         BusinessSetting savedSetting = businessSettingRepository.save(businessSetting);
 
         log.info("Business setting created successfully: business_id={}", business.getId());
-        return businessSettingMapper.toResponse(savedSetting);
+        return enrichResponse(businessSettingMapper.toResponse(savedSetting), savedSetting);
     }
 
     @Override
     public BusinessSettingResponse getBusinessSettingByBusinessId(UUID businessId) {
         BusinessSetting businessSetting = getOrCreateBusinessSetting(businessId);
-        return businessSettingMapper.toResponse(businessSetting);
+        return enrichResponse(businessSettingMapper.toResponse(businessSetting), businessSetting);
     }
 
     @Override
@@ -124,15 +159,42 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
 
         businessSettingMapper.updateEntity(request, businessSetting);
 
-        // Explicitly set telegramGroupChatId to support updating and clearing it
         businessSetting.setTelegramGroupChatId(request.getTelegramGroupChatId());
-
-        // Explicitly set wifiName and wifiPassword to support updating and clearing
         businessSetting.setWifiName(request.getWifiName());
         businessSetting.setWifiPassword(request.getWifiPassword());
         businessSetting.setStoreDescription(request.getStoreDescription());
 
-        // Update Business entity with contact information if provided
+        if (request.getEnableCheckIn() != null) {
+            businessSetting.setEnableCheckIn(request.getEnableCheckIn());
+        }
+        if (request.getScanMode() != null) {
+            businessSetting.setScanMode(request.getScanMode());
+        }
+
+        if (request.getDefaultDayShifts() != null && !request.getDefaultDayShifts().isEmpty()) {
+            List<BusinessSettingDayShift> newShifts = request.getDefaultDayShifts().stream()
+                    .map(dto -> BusinessSettingDayShift.builder()
+                            .businessSettingId(businessSetting.getId())
+                            .businessSetting(businessSetting)
+                            .dayOfWeek(dto.getDayOfWeek())
+                            .enabled(dto.getEnabled() != null ? dto.getEnabled() : false)
+                            .startTime(dto.getStartTime())
+                            .endTime(dto.getEndTime())
+                            .breakStartTime(dto.getBreakStartTime())
+                            .breakEndTime(dto.getBreakEndTime())
+                            .enableCheckIn(dto.getEnableCheckIn() != null ? dto.getEnableCheckIn() : false)
+                            .scanMode(dto.getScanMode() != null ? dto.getScanMode() : ScanModeEnum.FULL_TIME)
+                            .build())
+                    .toList();
+
+            if (businessSetting.getDefaultDayShifts() == null) {
+                businessSetting.setDefaultDayShifts(new ArrayList<>(newShifts));
+            } else {
+                businessSetting.getDefaultDayShifts().clear();
+                businessSetting.getDefaultDayShifts().addAll(newShifts);
+            }
+        }
+
         if (request.getBusinessName() != null) {
             business.setName(request.getBusinessName());
         }
@@ -150,7 +212,7 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
         BusinessSetting updatedSetting = businessSettingRepository.save(businessSetting);
 
         log.info("Business setting updated successfully: business_id={}", businessId);
-        return businessSettingMapper.toResponse(updatedSetting);
+        return enrichResponse(businessSettingMapper.toResponse(updatedSetting), updatedSetting);
     }
 
     @Override
@@ -184,5 +246,29 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
 
         log.info("Business setting self-update initiated: user_id={}, business_id={}", currentUser.getId(), currentUser.getBusinessId());
         return updateBusinessSetting(currentUser.getBusinessId(), request);
+    }
+
+    private BusinessSettingResponse enrichResponse(BusinessSettingResponse response, BusinessSetting setting) {
+        if (response != null && setting != null) {
+            response.setEnableCheckIn(setting.getEnableCheckIn() != null ? setting.getEnableCheckIn() : true);
+            response.setScanMode(setting.getScanMode() != null ? setting.getScanMode() : ScanModeEnum.FULL_TIME);
+
+            if (setting.getDefaultDayShifts() != null && !setting.getDefaultDayShifts().isEmpty()) {
+                List<DayShiftDto> dtos = setting.getDefaultDayShifts().stream()
+                        .map(s -> DayShiftDto.builder()
+                                .dayOfWeek(s.getDayOfWeek())
+                                .enabled(s.getEnabled() != null ? s.getEnabled() : false)
+                                .startTime(s.getStartTime())
+                                .endTime(s.getEndTime())
+                                .breakStartTime(s.getBreakStartTime())
+                                .breakEndTime(s.getBreakEndTime())
+                                .enableCheckIn(s.getEnableCheckIn() != null ? s.getEnableCheckIn() : false)
+                                .scanMode(s.getScanMode() != null ? s.getScanMode() : ScanModeEnum.FULL_TIME)
+                                .build())
+                        .toList();
+                response.setDefaultDayShifts(dtos);
+            }
+        }
+        return response;
     }
 }

@@ -2,6 +2,8 @@ package com.emenu.features.auth.dto.response;
 
 import com.emenu.enums.common.StockStatus;
 import com.emenu.enums.common.ReceiptSize;
+import com.emenu.enums.hr.ScanModeEnum;
+import com.emenu.features.hr.dto.common.DayShiftDto;
 import com.emenu.shared.dto.BaseAuditResponse;
 import com.emenu.shared.dto.ImageUrls;
 import lombok.Data;
@@ -31,4 +33,8 @@ public class BusinessSettingResponse extends BaseAuditResponse {
     private String wifiName;
     private String wifiPassword;
     private String storeDescription;
+
+    private Boolean enableCheckIn;
+    private ScanModeEnum scanMode;
+    private List<DayShiftDto> defaultDayShifts;
 }

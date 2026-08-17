@@ -40,6 +40,8 @@ import {
   selectSelectedUser,
   selectIsFetchingDetail,
 } from "../store/selectors/users-selectors";
+import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selectors";
+import { fetchBusinessSettingsThunk } from "@/features/business/store/thunks/business-settings-thunks";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
@@ -262,8 +264,21 @@ export default function UserBusinessModal({
   }, [userId, isOpen, isCreate, reset, dispatch]);
 
 
+  const businessSettings = useAppSelector(selectBusinessSettings);
+
+  useEffect(() => {
+    if (isOpen && !businessSettings) {
+      dispatch(fetchBusinessSettingsThunk(AppDefault.BUSINESS_ID));
+    }
+  }, [isOpen, businessSettings, dispatch]);
+
   useEffect(() => {
     if (isOpen && isCreate) {
+      const defaultShiftName = businessSettings?.businessName
+        ? `${businessSettings.businessName} Shift Roster`
+        : "";
+      const defaultBusinessId = businessSettings?.businessId || AppDefault.BUSINESS_ID;
+
       reset({
         id: "",
         userIdentifier: "",
@@ -283,11 +298,11 @@ export default function UserBusinessModal({
         position: "",
         department: "",
         employmentType: "",
-        joinDate: "",
+        joinDate: new Date().toISOString().split("T")[0],
         leaveDate: "",
-        shift: "",
+        shift: defaultShiftName,
         remark: "",
-        businessId: "",
+        businessId: defaultBusinessId,
         addresses: [],
         emergencyContacts: [],
         documents: [],
@@ -297,7 +312,7 @@ export default function UserBusinessModal({
       setPendingProfileFile(null);
       setProfilePreviewUrl("");
     }
-  }, [isOpen, isCreate, reset]);
+  }, [isOpen, isCreate, reset, businessSettings]);
 
 
   useEffect(() => {

@@ -1,12 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -72,6 +78,9 @@ export function CustomDateTimePicker({
   id,
 }: DateTimePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [useCenteredModal, setUseCenteredModal] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewDate, setViewDate] = useState<Date>(new Date());
   
@@ -105,6 +114,24 @@ export function CustomDateTimePicker({
       setSelectedDate(null);
     }
   }, [value, mode]);
+
+  // Measure available vertical space to dynamically switch mode
+  const handleOpenToggle = (open: boolean) => {
+    if (open && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      const requiredSpace = 340;
+
+      // Only switch to viewport-centered dialog if BOTH top & bottom have insufficient space
+      if (spaceBelow < requiredSpace && spaceAbove < requiredSpace) {
+        setUseCenteredModal(true);
+      } else {
+        setUseCenteredModal(false);
+      }
+    }
+    setIsOpen(open);
+  };
 
   // Handle date selection
   const handleDateSelect = (day: number) => {
@@ -276,245 +303,275 @@ export function CustomDateTimePicker({
     return formattedDate;
   };
 
-  return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <CustomButton
-          variant="outline"
-          size="unstyled"
-          id={id}
-          disabled={disabled}
-          className={cn(
-            "w-full h-8 px-3 text-xs justify-between font-normal rounded-[8px] bg-muted/30 border-border/80 hover:bg-muted/50 focus:bg-background transition-all flex items-center gap-2.5",
-            !selectedDate && "text-muted-foreground",
-            error && "border-destructive focus-visible:border-destructive",
-            className
-          )}
-        >
-          <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            {mode === "datetime" ? (
-              <Clock className="h-3.5 w-3.5 text-primary/80 shrink-0" />
-            ) : (
-              <Calendar className="h-3.5 w-3.5 text-primary/80 shrink-0" />
-            )}
-            <span className="truncate text-left text-xs font-medium">
-              {formatDisplayText()}
-            </span>
+  const calendarBodyContent = (
+    <div className="w-[290px] sm:w-[310px] p-0 flex flex-col bg-card">
+      {/* Header */}
+      <div className="flex items-center justify-between p-2 border-b border-border bg-muted/30">
+        <div className="flex items-center gap-1 flex-1">
+          <CustomButton
+            variant="ghost"
+            size="unstyled"
+            onClick={() => navigateMonth("prev")}
+            className="h-7 w-7 p-0 hover:bg-accent rounded-md flex items-center justify-center shrink-0"
+            icon={<ChevronLeft className="h-4 w-4" />}
+          />
+
+          <div className="flex items-center gap-1 flex-1 min-w-0">
+            {/* Shadcn Custom Select for Month */}
+            <Select
+              value={MONTHS[viewDate.getMonth()]}
+              onValueChange={handleMonthChange}
+            >
+              <SelectTrigger className="h-7 text-xs font-bold px-2 py-0 min-w-[95px] flex-1 rounded-md border border-border/80 bg-background text-foreground shadow-2xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="z-[10001] max-h-56">
+                {MONTHS.map((m, idx) => (
+                  <SelectItem key={m} value={m} className="text-xs font-semibold">
+                    {FULL_MONTHS[idx]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Shadcn Custom Select for Year */}
+            <Select
+              value={viewDate.getFullYear().toString()}
+              onValueChange={handleYearChange}
+            >
+              <SelectTrigger className="h-7 text-xs font-bold px-2 py-0 min-w-[75px] w-[75px] rounded-md border border-border/80 bg-background text-foreground shadow-2xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="z-[10001] max-h-56">
+                {yearOptions.map((y) => (
+                  <SelectItem key={y} value={y} className="text-xs font-semibold">
+                    {y}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {selectedDate && !disabled && (
+          <CustomButton
+            variant="ghost"
+            size="unstyled"
+            onClick={() => navigateMonth("next")}
+            className="h-7 w-7 p-0 hover:bg-accent rounded-md flex items-center justify-center shrink-0"
+            icon={<ChevronRight className="h-4 w-4" />}
+          />
+        </div>
+
+        <CustomButton
+          variant="ghost"
+          size="unstyled"
+          onClick={() => setIsOpen(false)}
+          className="h-7 w-7 p-0 hover:bg-accent rounded-md flex items-center justify-center shrink-0 ml-1"
+          icon={<X className="h-4 w-4 text-muted-foreground" />}
+        />
+      </div>
+
+      {/* Calendar Grid */}
+      <div className="p-2">
+        {/* Day Headers */}
+        <div className="grid grid-cols-7 gap-1 text-center mb-1">
+          {DAYS.map((day, idx) => (
             <div
-              role="button"
-              tabIndex={0}
-              className="h-4 w-4 rounded-full flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground shrink-0 ml-1 cursor-pointer transition-colors"
-              onClick={clearSelection}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  clearSelection(e as any);
-                }
-              }}
+              key={`${day}-${idx}`}
+              className="text-[10px] font-bold text-muted-foreground/70 h-6 flex items-center justify-center"
             >
-              <X className="h-3 w-3" />
+              {day}
             </div>
-          )}
+          ))}
+        </div>
+
+        {/* Days Grid */}
+        <div className="grid grid-cols-7 gap-1">
+          {getCalendarDays().map((dayObj, index) => (
+            <CustomButton
+              key={index}
+              variant="ghost"
+              size="unstyled"
+              onClick={() => handleDateSelect(dayObj.day)}
+              disabled={!dayObj.isCurrentMonth}
+              className={cn(
+                "h-7 w-7 p-0 text-xs font-medium transition-all rounded-md flex items-center justify-center",
+                !dayObj.isCurrentMonth &&
+                  "text-muted-foreground/30 hover:text-muted-foreground/30 hover:bg-transparent cursor-not-allowed",
+                dayObj.isSelected &&
+                  "bg-primary text-primary-foreground font-bold hover:bg-primary/95",
+                dayObj.isToday &&
+                  !dayObj.isSelected &&
+                  "bg-primary/10 text-primary font-bold ring-1 ring-primary/30"
+              )}
+            >
+              {dayObj.day}
+            </CustomButton>
+          ))}
+        </div>
+      </div>
+
+      {/* DateTime selection mode */}
+      {mode === "datetime" && (
+        <div className="p-2 border-t border-border bg-muted/10">
+          <div className="flex items-center justify-center gap-1.5">
+            <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
+            
+            <Select value={selectedHour} onValueChange={setSelectedHour}>
+              <SelectTrigger className="h-7 px-2 py-0 text-xs font-bold w-[60px] rounded-md border border-border/80 bg-background text-foreground shadow-2xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="z-[10001] max-h-48">
+                {hours.map((h) => (
+                  <SelectItem key={h} value={h} className="text-xs font-semibold">
+                    {h}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <span className="text-xs font-bold text-muted-foreground">:</span>
+            
+            <Select value={selectedMinute} onValueChange={setSelectedMinute}>
+              <SelectTrigger className="h-7 px-2 py-0 text-xs font-bold w-[60px] rounded-md border border-border/80 bg-background text-foreground shadow-2xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="z-[10001] max-h-48">
+                {minutes.map((m) => (
+                  <SelectItem key={m} value={m} className="text-xs font-semibold">
+                    {m}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <Select value={selectedPeriod} onValueChange={(val) => setSelectedPeriod(val as "AM" | "PM")}>
+              <SelectTrigger className="h-7 px-2 py-0 text-xs font-bold w-[65px] rounded-md border border-border/80 bg-background text-foreground shadow-2xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="z-[10001]">
+                <SelectItem value="AM" className="text-xs font-semibold">AM</SelectItem>
+                <SelectItem value="PM" className="text-xs font-semibold">PM</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      )}
+
+      {/* Footer actions */}
+      <div className="p-2 border-t border-border bg-muted/20 flex gap-2">
+        <CustomButton
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            const today = new Date();
+            setSelectedDate(today);
+            setViewDate(today);
+
+            if (mode === "datetime") {
+              const hours = today.getHours();
+              const minutes = today.getMinutes();
+              setSelectedPeriod(hours >= 12 ? "PM" : "AM");
+              setSelectedHour(String(hours % 12 || 12).padStart(2, "0"));
+              setSelectedMinute(String(minutes).padStart(2, "0"));
+            }
+
+            onChange(formatDateForForm(today));
+            setIsOpen(false);
+          }}
+          className="flex-1 h-7 text-xs font-semibold"
+        >
+          Now
         </CustomButton>
+
+        <CustomButton
+          variant="primary"
+          size="sm"
+          onClick={applyDateTime}
+          disabled={!selectedDate}
+          className="flex-1 h-7 text-xs font-bold"
+        >
+          Apply
+        </CustomButton>
+      </div>
+    </div>
+  );
+
+  const triggerButton = (
+    <CustomButton
+      ref={triggerRef}
+      variant="outline"
+      size="unstyled"
+      id={id}
+      disabled={disabled}
+      onClick={() => handleOpenToggle(!isOpen)}
+      className={cn(
+        "w-full h-8 px-3 text-xs justify-between font-normal rounded-[8px] bg-muted/30 border-border/80 hover:bg-muted/50 focus:bg-background transition-all flex items-center gap-2.5",
+        !selectedDate && "text-muted-foreground",
+        error && "border-destructive focus-visible:border-destructive",
+        className
+      )}
+    >
+      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+        {mode === "datetime" ? (
+          <Clock className="h-3.5 w-3.5 text-primary/80 shrink-0" />
+        ) : (
+          <Calendar className="h-3.5 w-3.5 text-primary/80 shrink-0" />
+        )}
+        <span className="truncate text-left text-xs font-medium">
+          {formatDisplayText()}
+        </span>
+      </div>
+
+      {selectedDate && !disabled && (
+        <div
+          role="button"
+          tabIndex={0}
+          className="h-4 w-4 rounded-full flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground shrink-0 ml-1 cursor-pointer transition-colors"
+          onClick={clearSelection}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              clearSelection(e as any);
+            }
+          }}
+        >
+          <X className="h-3 w-3" />
+        </div>
+      )}
+    </CustomButton>
+  );
+
+  if (useCenteredModal) {
+    return (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          {triggerButton}
+        </DialogTrigger>
+        <DialogContent
+          disableScrollWrapper
+          closeButtonClassName="hidden"
+          className="w-[300px] sm:w-[320px] max-w-[92vw] p-0 shadow-2xl border border-border/80 rounded-2xl z-[10000] bg-card overflow-hidden transition-all fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        >
+          <DialogTitle className="sr-only">Select Date and Time</DialogTitle>
+          {calendarBodyContent}
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Popover open={isOpen} onOpenChange={handleOpenToggle}>
+      <PopoverTrigger asChild>
+        {triggerButton}
       </PopoverTrigger>
       <PopoverContent
-        className="w-[290px] sm:w-[310px] p-0 shadow-xl border border-border/80 rounded-xl z-[9999] bg-card overflow-hidden transition-all"
+        className="w-[290px] sm:w-[310px] p-0 shadow-2xl border border-border/80 rounded-2xl z-[9999] bg-card overflow-hidden transition-all"
         align="start"
         side="bottom"
         sideOffset={6}
         collisionPadding={16}
         avoidCollisions={true}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-2 border-b border-border bg-muted/30">
-          <div className="flex items-center gap-1 flex-1">
-            <CustomButton
-              variant="ghost"
-              size="unstyled"
-              onClick={() => navigateMonth("prev")}
-              className="h-7 w-7 p-0 hover:bg-accent rounded-md flex items-center justify-center shrink-0"
-              icon={<ChevronLeft className="h-4 w-4" />}
-            />
-
-            <div className="flex items-center gap-1 flex-1 min-w-0">
-              {/* Shadcn Custom Select for Month */}
-              <Select
-                value={MONTHS[viewDate.getMonth()]}
-                onValueChange={handleMonthChange}
-              >
-                <SelectTrigger className="h-7 text-xs font-bold px-2 py-0 min-w-[95px] flex-1 rounded-md border border-border/80 bg-background text-foreground shadow-2xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="z-[10000] max-h-56">
-                  {MONTHS.map((m, idx) => (
-                    <SelectItem key={m} value={m} className="text-xs font-semibold">
-                      {FULL_MONTHS[idx]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Shadcn Custom Select for Year */}
-              <Select
-                value={viewDate.getFullYear().toString()}
-                onValueChange={handleYearChange}
-              >
-                <SelectTrigger className="h-7 text-xs font-bold px-2 py-0 min-w-[75px] w-[75px] rounded-md border border-border/80 bg-background text-foreground shadow-2xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="z-[10000] max-h-56">
-                  {yearOptions.map((y) => (
-                    <SelectItem key={y} value={y} className="text-xs font-semibold">
-                      {y}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <CustomButton
-              variant="ghost"
-              size="unstyled"
-              onClick={() => navigateMonth("next")}
-              className="h-7 w-7 p-0 hover:bg-accent rounded-md flex items-center justify-center shrink-0"
-              icon={<ChevronRight className="h-4 w-4" />}
-            />
-          </div>
-
-          <CustomButton
-            variant="ghost"
-            size="unstyled"
-            onClick={() => setIsOpen(false)}
-            className="h-7 w-7 p-0 hover:bg-accent rounded-md flex items-center justify-center shrink-0 ml-1"
-            icon={<X className="h-4 w-4 text-muted-foreground" />}
-          />
-        </div>
-
-        {/* Calendar Grid */}
-        <div className="p-2">
-          {/* Day Headers */}
-          <div className="grid grid-cols-7 gap-1 text-center mb-1">
-            {DAYS.map((day, idx) => (
-              <div
-                key={`${day}-${idx}`}
-                className="text-[10px] font-bold text-muted-foreground/70 h-6 flex items-center justify-center"
-              >
-                {day}
-              </div>
-            ))}
-          </div>
-
-          {/* Days Grid */}
-          <div className="grid grid-cols-7 gap-1">
-            {getCalendarDays().map((dayObj, index) => (
-              <CustomButton
-                key={index}
-                variant="ghost"
-                size="unstyled"
-                onClick={() => handleDateSelect(dayObj.day)}
-                disabled={!dayObj.isCurrentMonth}
-                className={cn(
-                  "h-7 w-7 p-0 text-xs font-medium transition-all rounded-md flex items-center justify-center",
-                  !dayObj.isCurrentMonth &&
-                    "text-muted-foreground/30 hover:text-muted-foreground/30 hover:bg-transparent cursor-not-allowed",
-                  dayObj.isSelected &&
-                    "bg-primary text-primary-foreground font-bold hover:bg-primary/95",
-                  dayObj.isToday &&
-                    !dayObj.isSelected &&
-                    "bg-primary/10 text-primary font-bold ring-1 ring-primary/30"
-                )}
-              >
-                {dayObj.day}
-              </CustomButton>
-            ))}
-          </div>
-        </div>
-
-        {/* DateTime selection mode */}
-        {mode === "datetime" && (
-          <div className="p-2 border-t border-border bg-muted/10">
-            <div className="flex items-center justify-center gap-1.5">
-              <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
-              
-              <Select value={selectedHour} onValueChange={setSelectedHour}>
-                <SelectTrigger className="h-7 px-2 py-0 text-xs font-bold w-[60px] rounded-md border border-border/80 bg-background text-foreground shadow-2xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="z-[10000] max-h-48">
-                  {hours.map((h) => (
-                    <SelectItem key={h} value={h} className="text-xs font-semibold">
-                      {h}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <span className="text-xs font-bold text-muted-foreground">:</span>
-              
-              <Select value={selectedMinute} onValueChange={setSelectedMinute}>
-                <SelectTrigger className="h-7 px-2 py-0 text-xs font-bold w-[60px] rounded-md border border-border/80 bg-background text-foreground shadow-2xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="z-[10000] max-h-48">
-                  {minutes.map((m) => (
-                    <SelectItem key={m} value={m} className="text-xs font-semibold">
-                      {m}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <Select value={selectedPeriod} onValueChange={(val) => setSelectedPeriod(val as "AM" | "PM")}>
-                <SelectTrigger className="h-7 px-2 py-0 text-xs font-bold w-[65px] rounded-md border border-border/80 bg-background text-foreground shadow-2xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="z-[10000]">
-                  <SelectItem value="AM" className="text-xs font-semibold">AM</SelectItem>
-                  <SelectItem value="PM" className="text-xs font-semibold">PM</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        )}
-
-        {/* Footer actions */}
-        <div className="p-2 border-t border-border bg-muted/20 flex gap-2">
-          <CustomButton
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              const today = new Date();
-              setSelectedDate(today);
-              setViewDate(today);
-
-              if (mode === "datetime") {
-                const hours = today.getHours();
-                const minutes = today.getMinutes();
-                setSelectedPeriod(hours >= 12 ? "PM" : "AM");
-                setSelectedHour(String(hours % 12 || 12).padStart(2, "0"));
-                setSelectedMinute(String(minutes).padStart(2, "0"));
-              }
-
-              onChange(formatDateForForm(today));
-              setIsOpen(false);
-            }}
-            className="flex-1 h-7 text-xs font-semibold"
-          >
-            Now
-          </CustomButton>
-
-          <CustomButton
-            variant="primary"
-            size="sm"
-            onClick={applyDateTime}
-            disabled={!selectedDate}
-            className="flex-1 h-7 text-xs font-bold"
-          >
-            Apply
-          </CustomButton>
-        </div>
+        {calendarBodyContent}
       </PopoverContent>
     </Popover>
   );

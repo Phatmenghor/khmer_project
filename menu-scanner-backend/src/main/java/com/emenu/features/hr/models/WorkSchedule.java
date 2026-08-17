@@ -1,5 +1,6 @@
 package com.emenu.features.hr.models;
 
+import com.emenu.enums.hr.ScanModeEnum;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.User;
 import com.emenu.shared.domain.BaseUUIDEntity;
@@ -64,6 +65,15 @@ public class WorkSchedule extends BaseUUIDEntity {
     @Column(name = "break_end_time")
     private LocalTime breakEndTime;
 
+    @Column(name = "enable_check_in")
+    @Builder.Default
+    private Boolean enableCheckIn = true;
+
+    @Column(name = "scan_mode")
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private ScanModeEnum scanMode = ScanModeEnum.FULL_TIME;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "schedule_day_shift_details", joinColumns = @JoinColumn(name = "schedule_id"))
     private List<WorkScheduleDayShift> dayShifts;
@@ -92,5 +102,12 @@ public class WorkSchedule extends BaseUUIDEntity {
 
         @Column(name = "break_end_time")
         private LocalTime breakEndTime;
+
+        @Column(name = "enable_check_in")
+        private Boolean enableCheckIn;
+
+        @Column(name = "scan_mode")
+        @Enumerated(EnumType.STRING)
+        private ScanModeEnum scanMode;
     }
 }

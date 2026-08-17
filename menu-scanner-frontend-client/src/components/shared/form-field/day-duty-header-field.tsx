@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
 import { cn } from "@/lib/utils";
 
 interface DayDutyHeaderFieldProps {
@@ -9,6 +9,7 @@ interface DayDutyHeaderFieldProps {
   enabled: boolean;
   onToggle: () => void;
   disabled?: boolean;
+  showCheckbox?: boolean;
   className?: string;
 }
 
@@ -17,6 +18,7 @@ export function DayDutyHeaderField({
   enabled,
   onToggle,
   disabled = false,
+  showCheckbox = true,
   className,
 }: DayDutyHeaderFieldProps) {
   const handleClick = (e: React.MouseEvent) => {
@@ -31,22 +33,22 @@ export function DayDutyHeaderField({
     <div
       onClick={handleClick}
       className={cn(
-        "flex items-center gap-2.5 min-w-[130px] cursor-pointer select-none py-1 group",
+        "flex items-center gap-2.5 cursor-pointer select-none py-1 group",
         disabled && "opacity-50 cursor-not-allowed",
         className
       )}
     >
-      <div className="pointer-events-none flex items-center justify-center">
-        <Checkbox
-          checked={enabled}
-          tabIndex={-1}
-          disabled={disabled}
-          className="rounded-md"
-        />
-      </div>
+      {showCheckbox && (
+        <div className="pointer-events-none flex items-center justify-center">
+          <CustomCheckbox
+            checked={enabled}
+            disabled={disabled}
+          />
+        </div>
+      )}
       <span
         className={cn(
-          "font-extrabold text-xs transition-colors group-hover:text-primary",
+          "font-black text-xs md:text-sm tracking-wide transition-colors group-hover:text-foreground",
           enabled ? "text-foreground" : "text-muted-foreground/80"
         )}
       >

@@ -14,6 +14,8 @@ export interface BusinessHours {
   closingTime: string;
 }
 
+export type ScanModeType = "FULL_TIME" | "FOUR_TIMES" | "HALF_TIME";
+
 export interface BusinessSettingsResponse {
   id: string;
   createdAt: string;
@@ -38,6 +40,19 @@ export interface BusinessSettingsResponse {
   wifiName?: string;
   wifiPassword?: string;
   storeDescription?: string;
+
+  // Default Staff Working Time & Check-in Settings
+  defaultWorkingDays?: string[];
+  defaultStartTime?: string;
+  defaultEndTime?: string;
+  defaultBreakStartTime?: string;
+  defaultBreakEndTime?: string;
+  enableCheckIn?: boolean;
+  scanMode?: ScanModeType;
+  defaultDayShifts?: any[];
+  annualLeaveDaysPerYear?: number;
+  sickLeaveDaysPerYear?: number;
+  specialLeaveDaysPerYear?: number;
 }
 
 export interface UpdateBusinessSettingsRequest {
@@ -58,10 +73,22 @@ export interface UpdateBusinessSettingsRequest {
   wifiName?: string | null;
   wifiPassword?: string | null;
   storeDescription?: string | null;
+
+  // Default Staff Working Time & Check-in Settings
+  defaultWorkingDays?: string[];
+  defaultStartTime?: string;
+  defaultEndTime?: string;
+  defaultBreakStartTime?: string;
+  defaultBreakEndTime?: string;
+  enableCheckIn?: boolean;
+  scanMode?: ScanModeType;
+  defaultDayShifts?: any[];
+  annualLeaveDaysPerYear?: number;
+  sickLeaveDaysPerYear?: number;
+  specialLeaveDaysPerYear?: number;
 }
 
 const API_BASE_URL = "/api/v1/business-settings";
-
 
 export const fetchCurrentBusinessSettings = async (): Promise<BusinessSettingsResponse> => {
   const response = await axiosClientWithAuth.get<{ data: BusinessSettingsResponse }>(
@@ -74,7 +101,6 @@ export const fetchCurrentBusinessSettings = async (): Promise<BusinessSettingsRe
   );
   return response.data.data;
 };
-
 
 const activePromises = new Map<string, Promise<BusinessSettingsResponse>>();
 
@@ -106,7 +132,6 @@ export const fetchBusinessSettingsByBusinessId = async (
   return promise;
 };
 
-
 export const generateBusinessSettingsHash = (settings: BusinessSettingsResponse): string => {
   const hashString = JSON.stringify({
     id: settings.id,
@@ -125,7 +150,6 @@ export const generateBusinessSettingsHash = (settings: BusinessSettingsResponse)
   return Math.abs(hash).toString(36);
 };
 
-
 export const updateCurrentBusinessSettings = async (
   request: UpdateBusinessSettingsRequest
 ): Promise<BusinessSettingsResponse> => {
@@ -139,7 +163,6 @@ export const updateCurrentBusinessSettings = async (
     throw error;
   }
 };
-
 
 export const updateBusinessSettingsByBusinessId = async (
   businessId: string,
@@ -156,7 +179,6 @@ export const updateBusinessSettingsByBusinessId = async (
   }
 };
 
-
 export const createBusinessSettings = async (
   request: {
     businessId: string;
@@ -172,7 +194,6 @@ export const createBusinessSettings = async (
     throw error;
   }
 };
-
 
 export const deleteBusinessSettings = async (businessId: string): Promise<void> => {
   try {

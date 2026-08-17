@@ -59,6 +59,7 @@ export const ROUTES = {
     HR_ATTENDANCE: "/admin/hr/attendance",
     HR_LEAVE: "/admin/hr/leave",
     HR_WORK_SCHEDULE: "/admin/hr/work-schedule",
+    HR_SETTINGS: "/admin/hr/settings",
   },
 
   MANAGE_STOCK: {
@@ -119,6 +120,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "Work Schedules",
         href: ROUTES.ADMIN.HR_WORK_SCHEDULE,
+      },
+      {
+        title: "HR Settings",
+        href: ROUTES.ADMIN.HR_SETTINGS,
       },
     ],
   },

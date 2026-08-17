@@ -114,17 +114,24 @@ export function AsyncCombobox<T>({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between min-w-0 shadow-2xs font-normal transition-all duration-200",
+              "w-full justify-between min-w-0 shadow-2xs font-normal transition-all duration-200 text-left cursor-pointer",
               SIZE_CLASSES[size],
-              !value && "text-muted-foreground/75",
+              !value && "text-muted-foreground",
               open && "bg-background border-primary text-foreground ring-2 ring-primary/25",
-              error && "border-red-500 focus:border-red-500",
+              error && "border-destructive focus:border-destructive",
               disabled && "opacity-50 cursor-not-allowed bg-muted/20",
               className
             )}
             disabled={disabled}
           >
-            <span className="truncate flex-1 text-left">{selectedLabel}</span>
+            <span
+              className={cn(
+                "text-base md:text-sm truncate min-w-0 flex-1 font-normal",
+                !value ? "text-muted-foreground" : "text-foreground font-medium"
+              )}
+            >
+              {selectedLabel}
+            </span>
             <div className="flex items-center gap-1 shrink-0 ml-1.5">
               {Boolean(value) &&
                 (typeof value === "string"
@@ -136,12 +143,12 @@ export function AsyncCombobox<T>({
                     tabIndex={0}
                     title="Clear selection"
                     onClick={handleClear}
-                    className="p-0.5 rounded-full hover:bg-destructive/15 hover:text-destructive text-muted-foreground/70 transition-colors cursor-pointer"
+                    className="p-0.5 rounded-full hover:bg-destructive/15 hover:text-destructive text-muted-foreground transition-colors cursor-pointer"
                   >
                     <X className="h-3.5 w-3.5" />
                   </span>
                 )}
-              <ChevronsUpDown className="h-3.5 w-3.5 opacity-50 shrink-0" />
+              <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
             </div>
           </CustomButton>
         </PopoverTrigger>
@@ -160,9 +167,10 @@ export function AsyncCombobox<T>({
               placeholder={searchPlaceholder}
               value={searchTerm}
               onValueChange={setSearchTerm}
+              className="text-base md:text-sm font-normal text-foreground placeholder:text-muted-foreground"
             />
             <CommandList className="max-h-44 overflow-y-auto">
-              <CommandEmpty>{emptyMessage}</CommandEmpty>
+              <CommandEmpty className="py-4 text-center text-xs text-muted-foreground">{emptyMessage}</CommandEmpty>
               <CommandGroup>
                 {data.map((item, index) => {
                   if (!item) return null;
@@ -183,7 +191,7 @@ export function AsyncCombobox<T>({
                           : "hover:bg-primary/10 hover:text-primary text-foreground"
                       )}
                     >
-                      <span className="whitespace-nowrap flex-1 text-left">
+                      <span className="whitespace-nowrap flex-1 text-left text-xs font-medium text-foreground">
                         {renderItem ? renderItem(item) : labelText}
                       </span>
                       <Check
@@ -199,12 +207,12 @@ export function AsyncCombobox<T>({
 
               {loading && (
                 <div className="text-center py-1">
-                  <Loader2 className="animate-spin text-gray-500 h-3 w-3 mx-auto" />
+                  <Loader2 className="animate-spin text-muted-foreground h-3 w-3 mx-auto" />
                 </div>
               )}
 
               {!loading && lastPage && data.length > 0 && (
-                <div className="text-center py-1 text-xs text-gray-400">
+                <div className="text-center py-1 text-xs text-muted-foreground/60">
                   {endOfListMessage}
                 </div>
               )}
@@ -212,7 +220,7 @@ export function AsyncCombobox<T>({
           </Command>
         </PopoverContent>
       </Popover>
-      <p className={`text-xs text-red-500 ${error ? "min-h-[16px]" : ""}`}>{error || ""}</p>
+      <p className={`text-xs text-destructive ${error ? "min-h-[16px]" : ""}`}>{error || ""}</p>
     </div>
   );
 }

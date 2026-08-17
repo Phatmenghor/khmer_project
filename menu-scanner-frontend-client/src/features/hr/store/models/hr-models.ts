@@ -67,6 +67,8 @@ export interface DayShiftDto {
   endTime?: string;
   breakStartTime?: string;
   breakEndTime?: string;
+  enableCheckIn?: boolean;
+  scanMode?: string;
 }
 
 export interface WorkingDaysFormattedInfo {
@@ -82,15 +84,7 @@ export interface WorkingDaysFormattedInfo {
   }[];
 }
 
-const BASE_WEEK_DAYS = [
-  { day: "MONDAY", label: "Monday", short: "Mon" },
-  { day: "TUESDAY", label: "Tuesday", short: "Tue" },
-  { day: "WEDNESDAY", label: "Wednesday", short: "Wed" },
-  { day: "THURSDAY", label: "Thursday", short: "Thu" },
-  { day: "FRIDAY", label: "Friday", short: "Fri" },
-  { day: "SATURDAY", label: "Saturday", short: "Sat" },
-  { day: "SUNDAY", label: "Sunday", short: "Sun" },
-];
+import { BASE_WEEK_DAYS } from "@/constants/week-days";
 
 export function getWorkingDaysFormattedInfo(
   workDays: string[] = [],

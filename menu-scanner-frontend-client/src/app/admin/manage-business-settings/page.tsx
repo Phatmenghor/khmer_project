@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { Label } from "@/components/ui/label";
 import { showToast } from "@/components/shared/common/show-toast";
+import { DefaultShiftRosterSection } from "@/features/business/components/default-shift-roster-section";
+import { cn } from "@/lib/utils";
 import {
   Loader2,
   Save,
@@ -14,7 +16,6 @@ import {
   Trash2,
   Send,
   Building2,
-  Phone,
   Clock,
   Share2,
   Sparkles,
@@ -48,9 +49,39 @@ import { BusinessSettingsResponse } from "@/features/business/store/services/bus
 import { cacheThemeColors } from "@/utils/common/theme-cache";
 import { ReceiptSize } from "@/enums/receipt-size.enum";
 
+import { BASE_WEEK_DAYS, EMPTY_WORK_SHIFT_ROSTER } from "@/constants/week-days";
+
 function convertResponseToFormData(
   response: BusinessSettingsResponse,
 ): BusinessSettingsFormData {
+  const defaultShifts = BASE_WEEK_DAYS.map((d) => {
+    const found = (response.defaultDayShifts || []).find(
+      (ds: any) => ds.dayOfWeek === d.day
+    );
+    if (found) {
+      return {
+        dayOfWeek: d.day,
+        enabled: Boolean(found.enabled),
+        startTime: found.startTime ? found.startTime.substring(0, 5) : "",
+        endTime: found.endTime ? found.endTime.substring(0, 5) : "",
+        breakStartTime: found.breakStartTime ? found.breakStartTime.substring(0, 5) : "",
+        breakEndTime: found.breakEndTime ? found.breakEndTime.substring(0, 5) : "",
+        enableCheckIn: Boolean(found.enableCheckIn),
+        scanMode: found.scanMode || "FULL_TIME",
+      };
+    }
+    return {
+      dayOfWeek: d.day,
+      enabled: false,
+      startTime: "",
+      endTime: "",
+      breakStartTime: "",
+      breakEndTime: "",
+      enableCheckIn: false,
+      scanMode: "FULL_TIME",
+    };
+  });
+
   return {
     businessName: response.businessName || "",
     taxPercentage: response.taxPercentage?.toString() || "",
@@ -78,6 +109,9 @@ function convertResponseToFormData(
     wifiName: response.wifiName ?? "",
     wifiPassword: response.wifiPassword ?? "",
     storeDescription: response.storeDescription || "",
+    enableCheckIn: response.enableCheckIn !== false,
+    scanMode: response.scanMode || "FULL_TIME",
+    defaultDayShifts: defaultShifts,
   };
 }
 
@@ -93,13 +127,13 @@ function SectionHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 pb-3 border-b border-border/60">
+    <div className="flex items-center justify-between gap-3 pb-3 border-b border-border/60 text-left">
       <div className="flex items-center gap-2.5 min-w-0">
         <div className="shrink-0 p-2 rounded-xl bg-primary/10 text-primary border border-primary/20">
           <Icon className="w-4 h-4" />
         </div>
         <div className="min-w-0">
-          <h3 className="text-sm font-bold text-foreground leading-tight">{title}</h3>
+          <h3 className="text-sm font-extrabold text-foreground leading-tight">{title}</h3>
           {subtitle && (
             <p className="text-xs text-muted-foreground mt-0.5 truncate">{subtitle}</p>
           )}
@@ -154,10 +188,14 @@ export default function BusinessSettingsPage() {
       wifiName: "",
       wifiPassword: "",
       storeDescription: "",
+      enableCheckIn: true,
+      scanMode: "FULL_TIME",
+      defaultDayShifts: EMPTY_WORK_SHIFT_ROSTER,
     },
   });
 
   const { isDirty, dirtyFields } = form.formState;
+  const watchDefaultDayShifts = form.watch("defaultDayShifts") || [];
 
   useEffect(() => {
     fetchBusinessSettings();
@@ -231,7 +269,32 @@ export default function BusinessSettingsPage() {
     }
   }, [form, socialBlobUrls]);
 
+  const handleUpdateDayShift = (index: number, field: string, value: any) => {
+    const current = [...(form.getValues("defaultDayShifts") || [])];
+    if (current[index]) {
+      const item = { ...current[index], [field]: value };
+      if (field === "enabled" && value === true) {
+        if (!item.startTime) item.startTime = "08:00";
+        if (!item.endTime) item.endTime = "17:00";
+        if (!item.breakStartTime) item.breakStartTime = "12:00";
+        if (!item.breakEndTime) item.breakEndTime = "13:00";
+        if (item.enableCheckIn === undefined || item.enableCheckIn === false) item.enableCheckIn = true;
+        if (!item.scanMode) item.scanMode = "FULL_TIME";
+      }
+      if (field === "enableCheckIn" && value === true) {
+        if (!item.scanMode) item.scanMode = "FULL_TIME";
+      }
+      current[index] = item;
+      form.setValue("defaultDayShifts", current, { shouldDirty: true });
+    }
+  };
+
   const onSubmit = async (data: BusinessSettingsFormData) => {
+    if (!isDirty && !pendingLogoFile && pendingSocialFiles.every((f) => !f)) {
+      showToast.info("No changes were made to business settings");
+      return;
+    }
+
     try {
       setIsSaving(true);
       const businessId = AppDefault.BUSINESS_ID;
@@ -280,6 +343,17 @@ export default function BusinessSettingsPage() {
           image: sm.image as ImageUrls | undefined,
         }));
 
+      const cleanedDayShifts = (data.defaultDayShifts || []).map((ds) => ({
+        dayOfWeek: ds.dayOfWeek,
+        enabled: Boolean(ds.enabled),
+        startTime: ds.startTime && ds.startTime.trim() !== "" ? ds.startTime : null,
+        endTime: ds.endTime && ds.endTime.trim() !== "" ? ds.endTime : null,
+        breakStartTime: ds.breakStartTime && ds.breakStartTime.trim() !== "" ? ds.breakStartTime : null,
+        breakEndTime: ds.breakEndTime && ds.breakEndTime.trim() !== "" ? ds.breakEndTime : null,
+        enableCheckIn: Boolean(ds.enableCheckIn),
+        scanMode: ds.scanMode || "FULL_TIME",
+      }));
+
       const payload = {
         businessName: data.businessName || undefined,
         taxPercentage: data.taxPercentage
@@ -301,6 +375,9 @@ export default function BusinessSettingsPage() {
         wifiName: data.wifiName || null,
         wifiPassword: data.wifiPassword || null,
         storeDescription: data.storeDescription || null,
+        enableCheckIn: data.enableCheckIn,
+        scanMode: data.scanMode,
+        defaultDayShifts: cleanedDayShifts,
       };
 
       const action = await dispatch(updateBusinessSettingsThunk(payload));
@@ -350,12 +427,12 @@ export default function BusinessSettingsPage() {
   const watchLogoBusiness = form.watch("logoBusiness");
 
   return (
-    <div className="flex flex-1 flex-col gap-5 px-1 pb-10 pt-2">
+    <div className="flex flex-1 flex-col gap-5 px-1 pb-10 pt-2 text-left">
       {/* Top Header */}
       <div className="space-y-1">
         <h1 className="text-base font-extrabold text-foreground">Business Settings</h1>
         <p className="text-xs text-muted-foreground mt-0.5">
-          Configure your business profile, branding, hours, and integrations
+          Configure business profile, staff default working shift roster, and attendance scan rules
         </p>
       </div>
 
@@ -522,11 +599,11 @@ export default function BusinessSettingsPage() {
           </div>
         </div>
 
-        {/* Section 2: Business Hours */}
+        {/* Section 2: Operating Schedule & Hours */}
         <div className="rounded-[16px] border border-border/80 bg-card/80 backdrop-blur-xs p-5 space-y-4 shadow-2xs">
           <SectionHeader
             icon={Clock}
-            title="Operating Schedule & Hours"
+            title="Business Operating Hours"
             subtitle={
               businessHours.length > 0
                 ? `${businessHours.length} day${businessHours.length > 1 ? "s" : ""} configured`
@@ -638,7 +715,7 @@ export default function BusinessSettingsPage() {
           )}
         </div>
 
-        {/* Section 3: Social Media */}
+        {/* Section 4: Social Media */}
         <div className="rounded-[16px] border border-border/80 bg-card/80 backdrop-blur-xs p-5 space-y-4 shadow-2xs">
           <SectionHeader
             icon={Share2}
@@ -745,7 +822,7 @@ export default function BusinessSettingsPage() {
           )}
         </div>
 
-        {/* Section 4: Telegram Monitoring */}
+        {/* Section 5: Telegram Monitoring */}
         <div className="rounded-[16px] border border-border/80 bg-card/80 backdrop-blur-xs p-5 space-y-4 shadow-2xs">
           <SectionHeader
             icon={Send}

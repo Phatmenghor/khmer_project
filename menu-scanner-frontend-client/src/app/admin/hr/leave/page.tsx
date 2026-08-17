@@ -14,6 +14,7 @@ import {
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { CancelButton, CustomButton, SubmitButton } from "@/components/shared/button/custom-button";
 import { CustomModal } from "@/components/shared/modal/custom-modal";
+import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
@@ -104,6 +105,9 @@ function LeavePageInner() {
     );
   }, [dispatch, debouncedSearch, statusFilter, currentPage, globalPageSize]);
 
+  const selectedLeaveType = leaveForm.watch("leaveType");
+  const [leaveToDelete, setLeaveToDelete] = useState<LeaveModel | null>(null);
+
   const onLeaveSubmit = async (data: LeaveFormValues) => {
     try {
       const start = new Date(data.startDate);
@@ -111,9 +115,13 @@ function LeavePageInner() {
       const diffTime = Math.abs(end.getTime() - start.getTime());
       const totalDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1);
 
+      const finalLeaveType = data.leaveType === "OTHER" && data.otherLeaveType?.trim()
+        ? data.otherLeaveType.trim()
+        : data.leaveType;
+
       await dispatch(
         createLeaveService({
-          leaveTypeEnum: data.leaveType,
+          leaveTypeEnum: finalLeaveType,
           startDate: data.startDate,
           endDate: data.endDate,
           totalDays,
@@ -148,7 +156,7 @@ function LeavePageInner() {
           actionNote: note,
         })
       ).unwrap();
-      showToast.success(`Leave request ${status.toLowerCase()}!`);
+      showToast.success(`Leave request ${status.toLowerCase()} successfully!`);
       closeModal();
       setSelectedLeave(null);
       decisionForm.reset();
@@ -166,9 +174,15 @@ function LeavePageInner() {
     }
   };
 
-  const handleDeleteLeave = async (item: LeaveModel) => {
-    if (window.confirm("Delete this leave application?")) {
-      await dispatch(deleteLeaveService(item.id));
+  const handleDeleteLeave = (item: LeaveModel) => {
+    setLeaveToDelete(item);
+  };
+
+  const confirmDeleteLeave = async () => {
+    if (!leaveToDelete) return;
+    try {
+      await dispatch(deleteLeaveService(leaveToDelete.id)).unwrap();
+      showToast.success("Leave application deleted successfully!");
       dispatch(
         fetchLeaveListService({
           businessId: AppDefault.BUSINESS_ID,
@@ -178,6 +192,9 @@ function LeavePageInner() {
           pageSize: globalPageSize,
         })
       );
+    } catch (err: any) {
+      showToast.error(err?.message || "Failed to delete leave application");
+      throw err;
     }
   };
 
@@ -260,7 +277,7 @@ function LeavePageInner() {
       <CustomModal
         isOpen={createMode}
         onClose={closeModal}
-        size="xl"
+        size="2xl"
       >
         <FormHeader
           title="Apply Leave"
@@ -282,8 +299,20 @@ function LeavePageInner() {
                 { value: "UNPAID", label: "Unpaid Leave" },
                 { value: "MATERNITY", label: "Maternity / Paternity Leave" },
                 { value: "SPECIAL", label: "Special Leave" },
+                { value: "OTHER", label: "Other Leave (Custom)" },
               ]}
             />
+            {selectedLeaveType === "OTHER" && (
+              <TextField
+                control={leaveForm.control}
+                name="otherLeaveType"
+                label="Custom Leave Type Name"
+                required
+                placeholder="e.g. Compassionate Leave, Emergency Leave..."
+                disabled={isSubmittingLeave}
+                error={leaveErrors.otherLeaveType}
+              />
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <DateTimePickerField
                 control={leaveForm.control}
@@ -399,6 +428,17 @@ function LeavePageInner() {
           </form>
         </CustomModal>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={!!leaveToDelete}
+        onClose={() => setLeaveToDelete(null)}
+        onDelete={confirmDeleteLeave}
+        title="Delete Leave Application"
+        description="Are you sure you want to delete this leave application?"
+        itemName={leaveToDelete ? `${leaveToDelete.leaveTypeEnum} (${leaveToDelete.startDate} - ${leaveToDelete.endDate})` : undefined}
+        confirmButtonText="Delete Application"
+      />
     </div>
   );
 }

@@ -40,16 +40,9 @@ import {
   DayShiftFieldConfig,
 } from "@/features/hr/components/work-schedule-modal";
 import { WorkScheduleDetailModal } from "@/features/hr/components/work-schedule-detail-modal";
+import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 
-const BASE_WEEK_DAYS: { day: string; label: string; short: string }[] = [
-  { day: "MONDAY", label: "Monday", short: "Mon" },
-  { day: "TUESDAY", label: "Tuesday", short: "Tue" },
-  { day: "WEDNESDAY", label: "Wednesday", short: "Wed" },
-  { day: "THURSDAY", label: "Thursday", short: "Thu" },
-  { day: "FRIDAY", label: "Friday", short: "Fri" },
-  { day: "SATURDAY", label: "Saturday", short: "Sat" },
-  { day: "SUNDAY", label: "Sunday", short: "Sun" },
-];
+import { BASE_WEEK_DAYS } from "@/constants/week-days";
 
 function normalizeTimeStr(val?: string | null): string {
   if (!val || typeof val !== "string") return "";
@@ -98,22 +91,36 @@ function WorkSchedulePageInner() {
   const { formState: { isDirty } } = scheduleForm;
 
   const computedDaysConfig = useMemo((): DayShiftFieldConfig[] => {
-    const defaultStart = normalizeTimeStr(businessSettings?.openTime) || "08:00";
-    const defaultEnd = normalizeTimeStr(businessSettings?.closeTime) || "18:00";
-
-    return BASE_WEEK_DAYS.map((d) => ({
-      day: d.day as any,
-      label: d.label,
-      short: d.short,
-      enabled: d.day !== "SUNDAY",
-      startTime: defaultStart,
-      endTime: defaultEnd,
-      breakStartTime: "",
-      breakEndTime: "",
-    }));
+    const defaultShifts = businessSettings?.defaultDayShifts;
+    return BASE_WEEK_DAYS.map((d) => {
+      const found = defaultShifts?.find((ds: any) => ds.dayOfWeek === d.day);
+      if (found) {
+        return {
+          day: d.day as any,
+          label: d.label,
+          short: d.short,
+          enabled: found.enabled !== false,
+          startTime: normalizeTimeStr(found.startTime) || "08:00",
+          endTime: normalizeTimeStr(found.endTime) || "18:00",
+          breakStartTime: normalizeTimeStr(found.breakStartTime) || "12:00",
+          breakEndTime: normalizeTimeStr(found.breakEndTime) || "13:00",
+        };
+      }
+      return {
+        day: d.day as any,
+        label: d.label,
+        short: d.short,
+        enabled: d.day !== "SATURDAY" && d.day !== "SUNDAY",
+        startTime: "08:00",
+        endTime: "18:00",
+        breakStartTime: "12:00",
+        breakEndTime: "13:00",
+      };
+    });
   }, [businessSettings]);
 
   const [dayConfigs, setDayConfigs] = useState<DayShiftFieldConfig[]>(computedDaysConfig);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!createMode && !editId) {
@@ -227,13 +234,37 @@ function WorkSchedulePageInner() {
 
   const handleUpdateDayConfig = (day: any, field: keyof DayShiftFieldConfig, value: any) => {
     setDayConfigs((prev) =>
-      prev.map((item) => (item.day === day ? { ...item, [field]: value } : item))
+      prev.map((item) => {
+        if (item.day !== day) return item;
+        const updated = { ...item, [field]: value };
+        if (field === "enabled" && value === true) {
+          if (!updated.startTime) updated.startTime = "08:00";
+          if (!updated.endTime) updated.endTime = "17:00";
+          if (!updated.breakStartTime) updated.breakStartTime = "12:00";
+          if (!updated.breakEndTime) updated.breakEndTime = "13:00";
+          if (updated.enableCheckIn === undefined || updated.enableCheckIn === false) updated.enableCheckIn = true;
+          if (!updated.scanMode) updated.scanMode = "FULL_TIME";
+        }
+        if (field === "enableCheckIn" && value === true) {
+          if (!updated.scanMode) updated.scanMode = "FULL_TIME";
+        }
+        return updated;
+      })
     );
     setHasCustomChanges(true);
   };
 
   const onScheduleSubmit = async (data: WorkScheduleFormValues) => {
+    const isEditingMode = Boolean(editId || editingSchedule);
+    if (isEditingMode && !scheduleForm.formState.isDirty && !hasCustomChanges) {
+      showToast.info("No changes were made to the work schedule");
+      setActiveModalKey(null);
+      closeModal();
+      return;
+    }
+
     try {
+      setIsSubmitting(true);
       const dayShiftsPayload: DayShiftDto[] = dayConfigs.map((d) => ({
         dayOfWeek: d.day,
         enabled: d.enabled,
@@ -244,7 +275,7 @@ function WorkSchedulePageInner() {
       }));
 
       const targetId = editingSchedule?.id || editId;
-      if (editId || editingSchedule) {
+      if (isEditingMode) {
         if (!targetId || targetId === "undefined") {
           showToast.error("Invalid work schedule ID for update");
           return;
@@ -256,7 +287,7 @@ function WorkSchedulePageInner() {
             dayShifts: dayShiftsPayload,
           })
         ).unwrap();
-        showToast.success("Work schedule updated!");
+        showToast.success("Work schedule updated successfully!");
       } else {
         if (selectedUserIds.length > 0) {
           await Promise.all(
@@ -270,7 +301,7 @@ function WorkSchedulePageInner() {
               ).unwrap()
             )
           );
-          showToast.success(`Work schedule assigned to ${selectedUserIds.length} staff member(s)!`);
+          showToast.success(`Work schedule created successfully for ${selectedUserIds.length} staff member(s)!`);
         } else {
           await dispatch(
             createWorkScheduleService({
@@ -278,7 +309,7 @@ function WorkSchedulePageInner() {
               dayShifts: dayShiftsPayload,
             })
           ).unwrap();
-          showToast.success("Work schedule created for general shift!");
+          showToast.success("Work schedule created successfully!");
         }
       }
       setActiveModalKey(null);
@@ -297,12 +328,22 @@ function WorkSchedulePageInner() {
       );
     } catch (err: any) {
       showToast.error(err?.message || "Failed to save work schedule.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleDeleteSchedule = async (item: WorkScheduleModel) => {
-    if (window.confirm("Delete this work schedule?")) {
-      await dispatch(deleteWorkScheduleService(item.id));
+  const [scheduleToDelete, setScheduleToDelete] = useState<WorkScheduleModel | null>(null);
+
+  const handleDeleteSchedule = (item: WorkScheduleModel) => {
+    setScheduleToDelete(item);
+  };
+
+  const confirmDeleteSchedule = async () => {
+    if (!scheduleToDelete) return;
+    try {
+      await dispatch(deleteWorkScheduleService(scheduleToDelete.id)).unwrap();
+      showToast.success(`Work schedule "${scheduleToDelete.name}" deleted successfully!`);
       dispatch(
         fetchWorkScheduleListService({
           businessId: AppDefault.BUSINESS_ID,
@@ -311,6 +352,9 @@ function WorkSchedulePageInner() {
           pageSize: globalPageSize,
         })
       );
+    } catch (err: any) {
+      showToast.error(err?.message || "Failed to delete work schedule");
+      throw err;
     }
   };
 
@@ -373,6 +417,7 @@ function WorkSchedulePageInner() {
       <WorkScheduleModal
         isOpen={isEditOrCreateOpen}
         isLoading={isFetchingDetail}
+        isSubmitting={isSubmitting}
         onClose={() => {
           setActiveModalKey(null);
           closeModal();
@@ -400,6 +445,17 @@ function WorkSchedulePageInner() {
         }}
         viewId={viewId}
         initialSchedule={viewingSchedule}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={!!scheduleToDelete}
+        onClose={() => setScheduleToDelete(null)}
+        onDelete={confirmDeleteSchedule}
+        title="Delete Work Schedule"
+        description="Are you sure you want to delete this work schedule? Assigned staff members will revert to the default shift roster."
+        itemName={scheduleToDelete?.name}
+        confirmButtonText="Delete Schedule"
       />
     </div>
   );

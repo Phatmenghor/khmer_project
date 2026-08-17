@@ -6,6 +6,8 @@ import { UserResponseModel } from "@/features/auth/store/models/response/users-r
 import { fetchAllUsersService } from "@/features/auth/store/thunks/users-thunks";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 
+import { UserGropeType } from "@/constants/status/status";
+
 interface ComboboxSelectUserProps {
   dataSelect?: UserResponseModel | null;
   onChangeSelected: (item: UserResponseModel | null) => void;
@@ -28,8 +30,9 @@ export function ComboboxSelectUser({
   error,
 }: ComboboxSelectUserProps) {
   const controller = useReduxCombobox<UserResponseModel>({
-    cacheKey: "users",
+    cacheKey: "users-business",
     thunkService: fetchAllUsersService,
+    extraParams: { userTypes: [UserGropeType.BUSINESS_USER] },
   });
 
   return (
