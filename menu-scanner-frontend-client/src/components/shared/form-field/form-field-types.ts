@@ -29,6 +29,8 @@ export interface TextFormFieldProps<T extends FieldValues = FieldValues> extends
     | "password"
     | "number"
     | "url"
+    | "date"
+    | "time"
     | "datetime-local"
     | "color";
   valueAsNumber?: boolean;

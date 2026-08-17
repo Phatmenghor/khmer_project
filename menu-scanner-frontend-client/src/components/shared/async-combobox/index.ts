@@ -1,4 +1,5 @@
 export { AsyncCombobox } from "./AsyncCombobox";
+export { AsyncMultiSelectCombobox } from "./AsyncMultiSelectCombobox";
 export { useInfiniteComboboxData } from "./useInfiniteComboboxData";
 export { useReduxCombobox } from "./useReduxCombobox";
 export type {
@@ -10,3 +11,4 @@ export type {
   UseInfiniteComboboxOptions,
   UseInfiniteComboboxResult,
 } from "./types";
+export type { AsyncMultiSelectComboboxProps } from "./AsyncMultiSelectCombobox";

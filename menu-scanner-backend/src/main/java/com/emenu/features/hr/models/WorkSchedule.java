@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -62,4 +63,34 @@ public class WorkSchedule extends BaseUUIDEntity {
 
     @Column(name = "break_end_time")
     private LocalTime breakEndTime;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "schedule_day_shift_details", joinColumns = @JoinColumn(name = "schedule_id"))
+    private List<WorkScheduleDayShift> dayShifts;
+
+    @Embeddable
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class WorkScheduleDayShift {
+        @Enumerated(EnumType.STRING)
+        @Column(name = "day_of_week")
+        private DayOfWeek dayOfWeek;
+
+        @Column(name = "is_enabled")
+        private Boolean enabled;
+
+        @Column(name = "start_time")
+        private LocalTime startTime;
+
+        @Column(name = "end_time")
+        private LocalTime endTime;
+
+        @Column(name = "break_start_time")
+        private LocalTime breakStartTime;
+
+        @Column(name = "break_end_time")
+        private LocalTime breakEndTime;
+    }
 }

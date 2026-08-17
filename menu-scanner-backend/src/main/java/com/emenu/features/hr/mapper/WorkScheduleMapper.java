@@ -1,5 +1,6 @@
 package com.emenu.features.hr.mapper;
 
+import com.emenu.features.auth.mapper.UserMapper;
 import com.emenu.features.hr.dto.request.WorkScheduleCreateRequest;
 import com.emenu.features.hr.dto.response.WorkScheduleResponse;
 import com.emenu.features.hr.dto.update.WorkScheduleUpdateRequest;
@@ -12,7 +13,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", uses = {UserMapper.class}, unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface WorkScheduleMapper {
 
     @Mapping(target = "userInfo.id", source = "user.id")
@@ -21,6 +22,7 @@ public interface WorkScheduleMapper {
     @Mapping(target = "userInfo.email", source = "user.profile.email")
     @Mapping(target = "userInfo.phoneNumber", source = "user.profile.phoneNumber")
     @Mapping(target = "userInfo.profileImage", source = "user.profile.profileImage")
+    @Mapping(target = "userInfo.roles", source = "user.roles", qualifiedByName = "rolesToStrings")
     WorkScheduleResponse toResponse(WorkSchedule workSchedule);
 
     List<WorkScheduleResponse> toResponseList(List<WorkSchedule> workSchedules);

@@ -1,5 +1,6 @@
 package com.emenu.features.hr.repository;
 
+import com.emenu.enums.hr.AttendanceStatusEnum;
 import com.emenu.features.hr.models.Attendance;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,16 +21,22 @@ public interface AttendanceRepository extends JpaRepository<Attendance, UUID>, J
 
     Optional<Attendance> findByUserIdAndAttendanceDateAndIsDeletedFalse(UUID userId, LocalDate date);
 
-    @Query("SELECT a FROM Attendance a WHERE a.isDeleted = false " +
+    @Query("SELECT a FROM Attendance a LEFT JOIN a.user u LEFT JOIN u.profile p WHERE a.isDeleted = false " +
            "AND (:businessId IS NULL OR a.businessId = :businessId) " +
            "AND (:userId IS NULL OR a.userId = :userId) " +
+           "AND (:status IS NULL OR a.status = :status) " +
            "AND (:startDate IS NULL OR a.attendanceDate >= :startDate) " +
            "AND (:endDate IS NULL OR a.attendanceDate <= :endDate) " +
            "AND (:search IS NULL OR :search = '' OR " +
-           "LOWER(a.remarks) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "LOWER(a.remarks) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(u.userIdentifier) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(p.firstName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(p.lastName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(p.email) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<Attendance> findWithFilters(
         @Param("businessId") UUID businessId,
         @Param("userId") UUID userId,
+        @Param("status") AttendanceStatusEnum status,
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
         @Param("search") String search,

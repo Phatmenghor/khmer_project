@@ -20,7 +20,7 @@ public interface LeaveRepository extends JpaRepository<Leave, UUID>, JpaSpecific
 
     Optional<Leave> findByIdAndIsDeletedFalse(UUID id);
 
-    @Query("SELECT l FROM Leave l WHERE l.isDeleted = false " +
+    @Query("SELECT l FROM Leave l LEFT JOIN l.user u LEFT JOIN u.profile p WHERE l.isDeleted = false " +
             "AND (:businessId IS NULL OR l.businessId = :businessId) " +
             "AND (:userId IS NULL OR l.userId = :userId) " +
             "AND (:leaveTypeEnum IS NULL OR l.leaveTypeEnum = :leaveTypeEnum) " +
@@ -28,7 +28,11 @@ public interface LeaveRepository extends JpaRepository<Leave, UUID>, JpaSpecific
             "AND (:startDate IS NULL OR l.startDate >= :startDate) " +
             "AND (:endDate IS NULL OR l.endDate <= :endDate) " +
             "AND (:search IS NULL OR :search = '' OR " +
-            "LOWER(l.reason) LIKE LOWER(CONCAT('%', :search, '%')))")
+            "LOWER(l.reason) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(u.userIdentifier) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(p.firstName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(p.lastName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(p.email) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<Leave> findWithFilters(
             @Param("businessId") UUID businessId,
             @Param("userId") UUID userId,

@@ -1,5 +1,6 @@
 package com.emenu.features.hr.dto.filter;
 
+import com.emenu.enums.hr.AttendanceStatusEnum;
 import com.emenu.shared.dto.BaseFilterRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,6 +13,7 @@ import java.util.UUID;
 public class AttendanceFilterRequest extends BaseFilterRequest {
     private UUID businessId;
     private UUID userId;
+    private AttendanceStatusEnum status;
     private LocalDate startDate;
     private LocalDate endDate;
 }

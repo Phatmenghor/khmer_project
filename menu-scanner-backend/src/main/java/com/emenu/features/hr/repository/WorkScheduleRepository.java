@@ -20,11 +20,15 @@ public interface WorkScheduleRepository extends JpaRepository<WorkSchedule, UUID
 
     List<WorkSchedule> findByUserIdAndIsDeletedFalse(UUID userId);
 
-    @Query("SELECT w FROM WorkSchedule w WHERE w.isDeleted = false " +
+    @Query("SELECT w FROM WorkSchedule w LEFT JOIN w.user u LEFT JOIN u.profile p WHERE w.isDeleted = false " +
            "AND (:businessId IS NULL OR w.businessId = :businessId) " +
            "AND (:userId IS NULL OR w.userId = :userId) " +
            "AND (:search IS NULL OR :search = '' OR " +
-           "LOWER(w.name) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "LOWER(w.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(u.userIdentifier) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(p.firstName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(p.lastName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(p.email) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<WorkSchedule> findWithFilters(
         @Param("businessId") UUID businessId,
         @Param("userId") UUID userId,

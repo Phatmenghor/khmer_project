@@ -1,7 +1,9 @@
 package com.emenu.features.hr.service.impl;
 
 import com.emenu.features.auth.mapper.UserMapper;
+import com.emenu.features.auth.repository.UserRepository;
 import com.emenu.features.setting.repository.WorkScheduleTypeEnumRepository;
+import com.emenu.features.hr.dto.common.DayShiftDto;
 import com.emenu.features.hr.dto.filter.WorkScheduleFilterRequest;
 import com.emenu.features.hr.dto.request.WorkScheduleCreateRequest;
 import com.emenu.features.hr.dto.response.WorkScheduleResponse;
@@ -22,7 +24,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -32,6 +39,7 @@ import java.util.UUID;
 public class WorkScheduleServiceImpl implements WorkScheduleService {
 
     private final WorkScheduleRepository repository;
+    private final UserRepository userRepository;
     private final WorkScheduleTypeEnumRepository typeEnumRepository;
     private final WorkScheduleMapper mapper;
     private final PaginationMapper paginationMapper;
@@ -39,16 +47,39 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
     @Override
     public WorkScheduleResponse create(WorkScheduleCreateRequest request) {
+        log.info("Creating work schedule: name={}, userId={}, businessId={}, dayShiftsCount={}",
+                request.getName(), request.getUserId(), request.getBusinessId(), request.getDayShifts() != null ? request.getDayShifts().size() : 0);
         WorkSchedule schedule = mapper.toEntity(request);
-        schedule.setScheduleTypeEnum(request.getScheduleTypeEnumName());
+
+        if (request.getDayShifts() != null && !request.getDayShifts().isEmpty()) {
+            List<WorkSchedule.WorkScheduleDayShift> shifts = request.getDayShifts().stream()
+                    .map(dto -> WorkSchedule.WorkScheduleDayShift.builder()
+                            .dayOfWeek(dto.getDayOfWeek())
+                            .enabled(dto.getEnabled())
+                            .startTime(dto.getStartTime())
+                            .endTime(dto.getEndTime())
+                            .breakStartTime(dto.getBreakStartTime())
+                            .breakEndTime(dto.getBreakEndTime())
+                            .build())
+                    .toList();
+            schedule.setDayShifts(new ArrayList<>(shifts));
+
+            // Derive internal entity columns from dayShifts
+            populateInternalEntityFields(schedule, request.getDayShifts());
+        } else {
+            schedule.setStartTime(LocalTime.of(8, 0));
+            schedule.setEndTime(LocalTime.of(18, 0));
+        }
+
         WorkSchedule savedSchedule = repository.save(schedule);
-        log.info("Work schedule created successfully: id={}, userId={}", savedSchedule.getId(), request.getUserId());
+        log.info("Work schedule created successfully: id={}, name={}, userId={}", savedSchedule.getId(), savedSchedule.getName(), request.getUserId());
         return enrichResponse(mapper.toResponse(savedSchedule), savedSchedule);
     }
 
     @Override
     @Transactional(readOnly = true)
     public WorkScheduleResponse getById(UUID id) {
+        log.info("Fetching work schedule by ID: id={}", id);
         WorkSchedule schedule = findScheduleById(id);
         return enrichResponse(mapper.toResponse(schedule), schedule);
     }
@@ -56,6 +87,8 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<WorkScheduleResponse> getAll(WorkScheduleFilterRequest filter) {
+        log.info("Fetching work schedule list: pageNo={}, pageSize={}, businessId={}, userId={}",
+                filter.getPageNo(), filter.getPageSize(), filter.getBusinessId(), filter.getUserId());
         Pageable pageable = PaginationUtils.createPageable(
                 filter.getPageNo(), filter.getPageSize(),
                 filter.getSortBy(), filter.getSortDirection()
@@ -77,6 +110,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     @Override
     @Transactional(readOnly = true)
     public List<WorkScheduleResponse> getByUserId(UUID userId) {
+        log.info("Fetching work schedules by user ID: userId={}", userId);
         List<WorkSchedule> schedules = repository.findByUserIdAndIsDeletedFalse(userId);
         return schedules.stream()
                 .map(s -> enrichResponse(mapper.toResponse(s), s))
@@ -85,21 +119,76 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
     @Override
     public WorkScheduleResponse update(UUID id, WorkScheduleUpdateRequest request) {
+        log.info("Updating work schedule: id={}, name={}, dayShiftsCount={}",
+                id, request.getName(), request.getDayShifts() != null ? request.getDayShifts().size() : 0);
         WorkSchedule schedule = findScheduleById(id);
-        schedule.setScheduleTypeEnum(request.getScheduleTypeEnumName());
-        mapper.updateEntity(request, schedule);
+
+        if (request.getName() != null && !request.getName().trim().isEmpty()) {
+            schedule.setName(request.getName().trim());
+        }
+
+        if (request.getDayShifts() != null) {
+            List<WorkSchedule.WorkScheduleDayShift> shifts = request.getDayShifts().stream()
+                    .map(dto -> WorkSchedule.WorkScheduleDayShift.builder()
+                            .dayOfWeek(dto.getDayOfWeek())
+                            .enabled(dto.getEnabled())
+                            .startTime(dto.getStartTime())
+                            .endTime(dto.getEndTime())
+                            .breakStartTime(dto.getBreakStartTime())
+                            .breakEndTime(dto.getBreakEndTime())
+                            .build())
+                    .toList();
+
+            if (schedule.getDayShifts() == null) {
+                schedule.setDayShifts(new ArrayList<>(shifts));
+            } else {
+                schedule.getDayShifts().clear();
+                schedule.getDayShifts().addAll(shifts);
+            }
+
+            // Derive internal entity columns from dayShifts
+            populateInternalEntityFields(schedule, request.getDayShifts());
+        }
+
         WorkSchedule updatedSchedule = repository.save(schedule);
-        log.info("Work schedule updated successfully: id={}", id);
+        log.info("Work schedule updated successfully: id={}, name={}, dayShiftsCount={}",
+                id, updatedSchedule.getName(), request.getDayShifts() != null ? request.getDayShifts().size() : 0);
         return enrichResponse(mapper.toResponse(updatedSchedule), updatedSchedule);
     }
 
     @Override
     public WorkScheduleResponse delete(UUID id) {
+        log.info("Deleting work schedule: id={}", id);
         WorkSchedule schedule = findScheduleById(id);
         schedule.softDelete();
         schedule = repository.save(schedule);
         log.info("Work schedule deleted successfully: id={}", id);
         return enrichResponse(mapper.toResponse(schedule), schedule);
+    }
+
+    private void populateInternalEntityFields(WorkSchedule schedule, List<DayShiftDto> dayShifts) {
+        Set<DayOfWeek> workDaysSet = new HashSet<>();
+        DayShiftDto firstActive = null;
+
+        for (DayShiftDto dto : dayShifts) {
+            if (Boolean.TRUE.equals(dto.getEnabled())) {
+                workDaysSet.add(dto.getDayOfWeek());
+                if (firstActive == null) {
+                    firstActive = dto;
+                }
+            }
+        }
+        schedule.setWorkDays(workDaysSet);
+
+        if (firstActive != null) {
+            if (firstActive.getStartTime() != null) schedule.setStartTime(firstActive.getStartTime());
+            if (firstActive.getEndTime() != null) schedule.setEndTime(firstActive.getEndTime());
+            schedule.setBreakStartTime(firstActive.getBreakStartTime());
+            schedule.setBreakEndTime(firstActive.getBreakEndTime());
+        } else if (schedule.getStartTime() == null) {
+            schedule.setStartTime(LocalTime.of(8, 0));
+            schedule.setEndTime(LocalTime.of(18, 0));
+        }
     }
 
     private WorkSchedule findScheduleById(UUID id) {
@@ -108,7 +197,28 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     }
 
     private WorkScheduleResponse enrichResponse(WorkScheduleResponse response, WorkSchedule schedule) {
-        response.setUserInfo(userMapper.toUserBasicInfo(schedule.getUser()));
+        if (schedule.getUserId() != null) {
+            userRepository.findById(schedule.getUserId()).ifPresent(user -> {
+                response.setUserInfo(userMapper.toUserBasicInfo(user));
+            });
+        } else if (schedule.getUser() != null) {
+            response.setUserInfo(userMapper.toUserBasicInfo(schedule.getUser()));
+        }
+
+        if (schedule.getDayShifts() != null && !schedule.getDayShifts().isEmpty()) {
+            List<DayShiftDto> dtos = schedule.getDayShifts().stream()
+                    .map(s -> DayShiftDto.builder()
+                            .dayOfWeek(s.getDayOfWeek())
+                            .enabled(s.getEnabled())
+                            .startTime(s.getStartTime())
+                            .endTime(s.getEndTime())
+                            .breakStartTime(s.getBreakStartTime())
+                            .breakEndTime(s.getBreakEndTime())
+                            .build())
+                    .toList();
+            response.setDayShifts(dtos);
+        }
+
         return response;
     }
 }

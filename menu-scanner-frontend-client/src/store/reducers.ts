@@ -42,6 +42,7 @@ import locationReducer from "@/features/location/store/slice/location-slice";
 import publicPortfolioReducer from "@/features/portfolio/store/slice/public-portfolio-slice";
 import portfolioProfileReducer from "@/features/portfolio/store/slice/portfolio-profile-slice";
 import portfolioReviewsReducer from "@/features/portfolio/store/slice/portfolio-reviews-slice";
+import { hrReducer } from "@/features/hr/store/slice/hr-slice";
 
 
 export const reducers = {
@@ -50,6 +51,7 @@ export const reducers = {
   globalSettings: globalSettingsReducer,
   comboboxCache: comboboxCacheReducer,
   dashboard: dashboardReducer,
+  hr: hrReducer,
 
 
   auth: authReducer,

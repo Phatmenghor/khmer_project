@@ -4,7 +4,7 @@ import com.emenu.enums.payment.PaymentMethod;
 import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.features.order.dto.request.*;
 import com.emenu.features.order.dto.request.OrderCreateRequest.GuestAddressRequest;
-import com.emenu.features.order.enums.OrderFromEnum;
+import com.emenu.enums.order.OrderFromEnum;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

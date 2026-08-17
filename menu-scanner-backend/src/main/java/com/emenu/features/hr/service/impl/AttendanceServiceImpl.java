@@ -103,7 +103,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         );
 
         Page<Attendance> page = attendanceRepository.findWithFilters(
-                filter.getBusinessId(), filter.getUserId(),
+                filter.getBusinessId(), filter.getUserId(), filter.getStatus(),
                 filter.getStartDate(), filter.getEndDate(),
                 filter.getSearch(), pageable
         );
@@ -138,18 +138,23 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     private WorkSchedule findAndValidateSchedule(UUID workScheduleId, UUID userId) {
-        WorkSchedule schedule = workScheduleRepository.findByIdAndIsDeletedFalse(workScheduleId)
-                .orElseThrow(() -> new ResourceNotFoundException("Work schedule not found"));
-        if (!schedule.getUserId().equals(userId)) {
-            throw new BusinessValidationException("Work schedule does not belong to user");
+        if (workScheduleId != null) {
+            WorkSchedule schedule = workScheduleRepository.findByIdAndIsDeletedFalse(workScheduleId)
+                    .orElse(null);
+            if (schedule != null) return schedule;
         }
-        return schedule;
+        return workScheduleRepository.findByUserIdAndIsDeletedFalse(userId).stream()
+                .findFirst()
+                .orElse(null);
     }
 
     private void validateWorkDay(WorkSchedule schedule) {
+        if (schedule == null || schedule.getWorkDays() == null || schedule.getWorkDays().isEmpty()) {
+            return;
+        }
         DayOfWeek dayOfWeek = LocalDate.now().getDayOfWeek();
         if (!schedule.getWorkDays().contains(dayOfWeek)) {
-            throw new BusinessValidationException("Today is not a working day according to your schedule");
+            log.info("Check-in on non-working day according to schedule: day={}", dayOfWeek);
         }
     }
 
@@ -170,7 +175,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .anyMatch(c -> c.getCheckInType() == requestedType);
 
         if (checkInExists) {
-            throw new BusinessValidationException("Already checked in for type: " + requestedType);
+            throw new BusinessValidationException("Already recorded check-in for: " + requestedType);
         }
         if (currentCount == 0 && requestedType != CheckInType.START) {
             throw new BusinessValidationException("Must clock in (START) first");
@@ -187,25 +192,34 @@ public class AttendanceServiceImpl implements AttendanceService {
         AttendanceCheckIn startCheckIn = attendance.getCheckIns().stream()
                 .filter(c -> c.getCheckInType() == CheckInType.START)
                 .findFirst()
-                .orElseThrow(() -> new BusinessValidationException("Start check-in not found"));
+                .orElse(null);
 
         AttendanceCheckIn endCheckIn = attendance.getCheckIns().stream()
                 .filter(c -> c.getCheckInType() == CheckInType.END)
                 .findFirst()
-                .orElseThrow(() -> new BusinessValidationException("End check-in not found"));
+                .orElse(null);
+
+        if (startCheckIn == null || endCheckIn == null) {
+            attendance.setStatus(AttendanceStatusEnum.PRESENT);
+            return;
+        }
 
         LocalDateTime startTime = startCheckIn.getCheckInTime();
         LocalDateTime endTime = endCheckIn.getCheckInTime();
-        LocalDateTime expectedStart = LocalDateTime.of(attendance.getAttendanceDate(), schedule.getStartTime());
+
+        java.time.LocalTime expectedStartTime = (schedule != null && schedule.getStartTime() != null) ? schedule.getStartTime() : java.time.LocalTime.of(9, 0);
+        java.time.LocalTime expectedEndTime = (schedule != null && schedule.getEndTime() != null) ? schedule.getEndTime() : java.time.LocalTime.of(17, 30);
+
+        LocalDateTime expectedStart = LocalDateTime.of(attendance.getAttendanceDate(), expectedStartTime);
         boolean isLate = startTime.isAfter(expectedStart);
 
         long totalWorkMinutes = DateTimeUtils.calculateDurationMinutes(startTime, endTime);
-        long expectedWorkMinutes = Duration.between(schedule.getStartTime(), schedule.getEndTime()).toMinutes();
+        long expectedWorkMinutes = Duration.between(expectedStartTime, expectedEndTime).toMinutes();
 
-        if (schedule.getBreakStartTime() != null && schedule.getBreakEndTime() != null) {
+        if (schedule != null && schedule.getBreakStartTime() != null && schedule.getBreakEndTime() != null) {
             long breakMinutes = Duration.between(schedule.getBreakStartTime(), schedule.getBreakEndTime()).toMinutes();
-            totalWorkMinutes -= breakMinutes;
-            expectedWorkMinutes -= breakMinutes;
+            totalWorkMinutes = Math.max(0, totalWorkMinutes - breakMinutes);
+            expectedWorkMinutes = Math.max(1, expectedWorkMinutes - breakMinutes);
         }
 
         double workPercentage = DateTimeUtils.calculateWorkPercentage(totalWorkMinutes, expectedWorkMinutes);

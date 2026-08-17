@@ -53,15 +53,13 @@ public interface UserMapper {
     @Mapping(target = "telegramSyncedAt", source = "telegram.telegramSyncedAt")
     UserDetailResponse toDetailResponse(User user);
 
-    @Mapping(target = "telegramSynced",    expression = "java(user.getTelegram() != null)")
+    @Mapping(target = "userIdentifier",    source = "userIdentifier")
+    @Mapping(target = "roles",             source = "roles", qualifiedByName = "rolesToStrings")
     @Mapping(target = "firstName",         source = "profile.firstName")
     @Mapping(target = "lastName",          source = "profile.lastName")
     @Mapping(target = "email",             source = "profile.email")
     @Mapping(target = "phoneNumber",       source = "profile.phoneNumber")
     @Mapping(target = "profileImage",      source = "profile.profileImage")
-    @Mapping(target = "telegramId",        source = "telegram.telegramId")
-    @Mapping(target = "telegramUsername",  source = "telegram.telegramUsername")
-    @Mapping(target = "telegramSyncedAt",  source = "telegram.telegramSyncedAt")
     UserBasicInfo toUserBasicInfo(User user);
 
     @Mapping(target = "userId",            source = "user.id")

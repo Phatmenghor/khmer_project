@@ -1,5 +1,6 @@
 package com.emenu.features.hr.mapper;
 
+import com.emenu.features.auth.mapper.UserMapper;
 import com.emenu.features.hr.dto.helper.AttendanceCreateHelper;
 import com.emenu.features.hr.dto.response.AttendanceResponse;
 import com.emenu.features.hr.dto.update.AttendanceUpdateRequest;
@@ -12,7 +13,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {AttendanceCheckInMapper.class}, unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", uses = {AttendanceCheckInMapper.class, UserMapper.class}, unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface AttendanceMapper {
 
     @Mapping(target = "userInfo.id", source = "user.id")
@@ -21,6 +22,7 @@ public interface AttendanceMapper {
     @Mapping(target = "userInfo.email", source = "user.profile.email")
     @Mapping(target = "userInfo.phoneNumber", source = "user.profile.phoneNumber")
     @Mapping(target = "userInfo.profileImage", source = "user.profile.profileImage")
+    @Mapping(target = "userInfo.roles", source = "user.roles", qualifiedByName = "rolesToStrings")
     AttendanceResponse toResponse(Attendance attendance);
 
     List<AttendanceResponse> toResponseList(List<Attendance> attendances);

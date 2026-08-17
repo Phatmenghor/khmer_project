@@ -55,6 +55,10 @@ export const ROUTES = {
     QR_GENERATOR: "/admin/qr-generator",
     PORTFOLIO: "/admin/portfolio",
     PORTFOLIO_REVIEWS: "/admin/portfolio/reviews",
+    HR: "/admin/hr/attendance",
+    HR_ATTENDANCE: "/admin/hr/attendance",
+    HR_LEAVE: "/admin/hr/leave",
+    HR_WORK_SCHEDULE: "/admin/hr/work-schedule",
   },
 
   MANAGE_STOCK: {
@@ -98,8 +102,24 @@ export const SIDEBAR_MENU: MenuItem[] = [
         title: "Customers",
         href: ROUTES.ADMIN.CUSTOMERS,
       },
-
-
+    ],
+  },
+  {
+    title: "HR Suite",
+    icon: Users,
+    items: [
+      {
+        title: "Attendance Logs",
+        href: ROUTES.ADMIN.HR_ATTENDANCE,
+      },
+      {
+        title: "Leave Requests",
+        href: ROUTES.ADMIN.HR_LEAVE,
+      },
+      {
+        title: "Work Schedules",
+        href: ROUTES.ADMIN.HR_WORK_SCHEDULE,
+      },
     ],
   },
 
