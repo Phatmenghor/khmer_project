@@ -12,12 +12,12 @@ import { RootState } from "@/store";
 
 export const fetchBusinessSettingsThunk = createAsyncThunk<
   BusinessSettingsResponse,
-  string | undefined
+  string | { businessId?: string; force?: boolean } | undefined
 >(
   "businessSettings/fetch",
-  async (businessIdParam, { rejectWithValue }) => {
+  async (param, { rejectWithValue }) => {
     try {
-      const businessId = businessIdParam || AppDefault.BUSINESS_ID;
+      const businessId = typeof param === "string" ? param : param?.businessId || AppDefault.BUSINESS_ID;
       const settings = await fetchBusinessSettingsByBusinessId(businessId);
       return settings;
     } catch (error) {
@@ -26,7 +26,10 @@ export const fetchBusinessSettingsThunk = createAsyncThunk<
     }
   },
   {
-    condition: (_, { getState }) => {
+    condition: (param, { getState }) => {
+      if (typeof param === "object" && param?.force) {
+        return true;
+      }
       const state = getState() as RootState;
       const { data, isLoading } = state.businessSettings;
       if (data || isLoading) {

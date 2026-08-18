@@ -49,7 +49,6 @@ import { DocumentsCard } from "./_components/documents-card";
 import { EducationCard } from "./_components/education-card";
 import { AdditionalInfoCard } from "./_components/additional-info-card";
 import { SecuritySection } from "./_components/security-section";
-import { ProfileViewModal } from "./_components/profile-view-modal";
 
 export default function AdminProfilePage() {
   const dispatch = useAppDispatch();
@@ -70,7 +69,6 @@ export default function AdminProfilePage() {
   const documentUploads = useDeferredUploads<number>();
   const educationUploads = useDeferredUploads<number>();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isProfileViewModalOpen, setIsProfileViewModalOpen] = useState(false);
 
   const {
     control,
@@ -94,10 +92,8 @@ export default function AdminProfilePage() {
       employeeId: "",
       position: "",
       department: "",
-      employmentType: "",
       joinDate: "",
       leaveDate: "",
-      shift: "",
       remark: "",
       addresses: [],
       emergencyContacts: [],
@@ -143,10 +139,9 @@ export default function AdminProfilePage() {
     employeeId: profile.employeeId || "",
     position: profile.position || "",
     department: profile.department || "",
-    employmentType: profile.employmentType || "",
     joinDate: profile.joinDate || "",
     leaveDate: profile.leaveDate || "",
-    shift: profile.shift || "",
+    leaveBalance: profile.leaveBalance || profile.leaveQuota || profile.leaveSummary,
     remark: profile.remark || "",
     addresses: Array.isArray(profile.addresses) ? profile.addresses : [],
     emergencyContacts: Array.isArray(profile.emergencyContacts) ? profile.emergencyContacts : [],
@@ -218,10 +213,8 @@ export default function AdminProfilePage() {
       if (data.employeeId) payload.employeeId = data.employeeId;
       if (data.position) payload.position = data.position;
       if (data.department) payload.department = data.department;
-      if (data.employmentType) payload.employmentType = data.employmentType;
       if (data.joinDate) payload.joinDate = data.joinDate;
       if (data.leaveDate) payload.leaveDate = data.leaveDate;
-      if (data.shift) payload.shift = data.shift;
       if (data.remark) payload.remark = data.remark;
 
       if (addressFields.length > 0 && data.addresses && data.addresses.length > 0) {
@@ -369,7 +362,6 @@ export default function AdminProfilePage() {
           onCancelClick={handleCancel}
           onSaveClick={handleSubmit(onSubmit)}
           onAvatarClick={() => setIsProfilePictureModalOpen(true)}
-          onViewClick={() => setIsProfileViewModalOpen(true)}
         />
 
         {/* ── Tab Switcher ── */}
@@ -395,6 +387,7 @@ export default function AdminProfilePage() {
                 errors={errors}
                 isEditing={isEditing}
                 watch={watch}
+                userProfile={userProfile}
               />
 
               <AddressCard
@@ -524,12 +517,6 @@ export default function AdminProfilePage() {
           variant="critical"
           requireConfirmation={true}
           confirmationText="DELETE"
-        />
-
-        <ProfileViewModal
-          isOpen={isProfileViewModalOpen}
-          onClose={() => setIsProfileViewModalOpen(false)}
-          userProfile={userProfile}
         />
       </div>
     </div>

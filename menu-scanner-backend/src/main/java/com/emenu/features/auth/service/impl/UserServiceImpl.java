@@ -503,7 +503,7 @@ public class UserServiceImpl implements UserService {
     public UserDetailResponse getCurrentUser() {
         User currentUserContext = securityUtils.getCurrentUser();
         log.info("Current user retrieved successfully: id={}", currentUserContext.getId());
-        return userMapper.toDetailResponse(currentUserContext);
+        return getUserById(currentUserContext.getId());
     }
 
     @Override
@@ -512,7 +512,7 @@ public class UserServiceImpl implements UserService {
         User currentUserContext = securityUtils.getCurrentUser();
         log.info("Current user full profile update initiated: id={}", currentUserContext.getId());
         updateUser(currentUserContext.getId(), profileUpdateRequest);
-        return userMapper.toDetailResponse(securityUtils.getCurrentUser());
+        return getUserById(currentUserContext.getId());
     }
 
     @Override
@@ -592,7 +592,7 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("This endpoint is only accessible to BUSINESS_USER users.");
         }
         log.info("Business user profile retrieved: id={}", currentUserContext.getId());
-        return userMapper.toDetailResponse(currentUserContext);
+        return getUserById(currentUserContext.getId());
     }
 
     @Override
@@ -604,7 +604,7 @@ public class UserServiceImpl implements UserService {
         }
         log.info("Business user profile update initiated: id={}", currentUserContext.getId());
         updateUser(currentUserContext.getId(), profileUpdateRequest);
-        return userMapper.toDetailResponse(securityUtils.getCurrentUser());
+        return getUserById(currentUserContext.getId());
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

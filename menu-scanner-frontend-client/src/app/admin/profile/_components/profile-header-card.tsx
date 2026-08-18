@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, Edit, Eye, Save, Building2 } from "lucide-react";
+import { Camera, Edit, Save, Building2 } from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,7 +17,6 @@ interface ProfileHeaderCardProps {
   onCancelClick: () => void;
   onSaveClick: () => void;
   onAvatarClick: () => void;
-  onViewClick: () => void;
 }
 
 export function ProfileHeaderCard({
@@ -32,7 +31,6 @@ export function ProfileHeaderCard({
   onCancelClick,
   onSaveClick,
   onAvatarClick,
-  onViewClick,
 }: ProfileHeaderCardProps) {
   return (
     <Card className="mb-4 border-border/80 bg-card/60 backdrop-blur-xs shadow-xs">
@@ -119,26 +117,15 @@ export function ProfileHeaderCard({
                 </CustomButton>
               </>
             ) : (
-              <>
-                <CustomButton
-                  variant="outline"
-                  size="sm"
-                  onClick={onViewClick}
-                  className="gap-1.5 font-bold text-xs h-8"
-                >
-                  <Eye className="w-3.5 h-3.5" />
-                  View
-                </CustomButton>
-                <CustomButton
-                  variant="primary"
-                  size="sm"
-                  onClick={onEditClick}
-                  className="gap-1.5 font-bold text-xs h-8"
-                >
-                  <Edit className="w-3.5 h-3.5" />
-                  Edit Profile
-                </CustomButton>
-              </>
+              <CustomButton
+                variant="primary"
+                size="sm"
+                onClick={onEditClick}
+                className="gap-1.5 font-bold text-xs h-8"
+              >
+                <Edit className="w-3.5 h-3.5" />
+                Edit Profile
+              </CustomButton>
             )}
           </div>
         </div>

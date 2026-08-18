@@ -5,6 +5,7 @@ import { useInView } from "react-intersection-observer";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { fetchStart, fetchSuccess, fetchFailure } from "@/store/slices/combobox-cache-slice";
 import { AppDefault } from "@/constants/app-resource/default/default";
+import { useDebounce } from "@/utils/debounce/debounce";
 import type { UseInfiniteComboboxResult } from "./types";
 
 const activeRequests = new Set<string>();
@@ -40,12 +41,13 @@ export function useReduxCombobox<T>(options: {
   const extraParamsKey = extraParams ? JSON.stringify(extraParams) : "";
 
   const fetchPage = useCallback(
-    async (newPage: number) => {
+    async (newPage: number, searchParam?: string) => {
       if (!enabled) return;
       if (loadingRef.current) return;
-      if (lastPageRef.current && newPage > 1) return;
+      if (lastPageRef.current && newPage > 1 && !searchParam) return;
 
-      const requestKey = `${cacheKey}-page-${newPage}`;
+      const currentSearch = searchParam !== undefined ? searchParam : searchTerm;
+      const requestKey = `${cacheKey}-page-${newPage}-search-${currentSearch}`;
       if (activeRequests.has(requestKey)) return;
       activeRequests.add(requestKey);
 
@@ -53,7 +55,7 @@ export function useReduxCombobox<T>(options: {
       try {
         const result = await dispatch(
           thunkService({
-            search: "",
+            search: currentSearch,
             pageNo: newPage,
             pageSize: AppDefault.DEFAULT_PAGE_SIZE,
             ...extraParams,
@@ -81,36 +83,40 @@ export function useReduxCombobox<T>(options: {
     [dispatch, cacheKey, thunkService, enabled, extraParamsKey] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  // Fetch page 1 when key changes or enabled transitions to true
+  // Fetch initial page 1 on mount if cache is empty
   useEffect(() => {
     if (enabled && data.length === 0 && !loading) {
-      fetchPage(1);
+      fetchPage(1, "");
     }
   }, [enabled, cacheKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Scroll load next page
   useEffect(() => {
     if (inView && !lastPage && !loading && data.length > 0 && enabled) {
-      fetchPage(currentPage + 1);
+      fetchPage(currentPage + 1, searchTerm);
     }
   }, [inView, lastPage, loading, currentPage, data.length, enabled, fetchPage]);
 
+  // Debounced API search (350ms)
+  const debouncedSearchTerm = useDebounce(searchTerm, 350);
+  const isInitialMountRef = useRef(true);
+
+  useEffect(() => {
+    if (!enabled) return;
+    if (isInitialMountRef.current) {
+      isInitialMountRef.current = false;
+      return;
+    }
+    fetchPage(1, debouncedSearchTerm);
+  }, [debouncedSearchTerm, enabled, cacheKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const filteredData = useMemo(() => {
     const prepend = prependFirstPage ? prependFirstPage(searchTerm) ?? [] : [];
-    const cleanSearch = searchTerm.trim().toLowerCase();
     let listToFilter = [...prepend, ...data];
     if (listToFilter.length === 0 && !loading && fallbackData) {
       listToFilter = fallbackData;
     }
-    if (!cleanSearch) return listToFilter;
-    return listToFilter.filter((item: any) => {
-      const name = item.name || item.provinceEn || item.districtEn || item.communeEn || item.villageEn || item.label || item.enumName || "";
-      const nameKh = item.provinceKh || item.districtKh || item.communeKh || item.villageKh || "";
-      return (
-        name.toLowerCase().includes(cleanSearch) ||
-        nameKh.toLowerCase().includes(cleanSearch)
-      );
-    });
+    return listToFilter;
   }, [data, searchTerm, prependFirstPage, loading, fallbackData]);
 
   return {

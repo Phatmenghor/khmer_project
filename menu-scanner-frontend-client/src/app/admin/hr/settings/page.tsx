@@ -84,11 +84,13 @@ function HRSettingsPageInner() {
   const isLeaveEnabled = form.watch("enableLeaveManagement");
   const isAnyDirty = isDirty || hasCustomRosterChanges || isLeaveSwitchDirty;
 
-  // Fetch business settings directly from backend API
+  // Fetch business settings directly from backend API with force refresh
   const fetchSettings = useCallback(async () => {
     try {
       setIsLoading(true);
-      const action = await dispatch(fetchBusinessSettingsThunk(AppDefault.BUSINESS_ID));
+      const action = await dispatch(
+        fetchBusinessSettingsThunk({ businessId: AppDefault.BUSINESS_ID, force: true })
+      );
       if (action.meta.requestStatus === "fulfilled" && action.payload) {
         const data: any = action.payload;
         form.reset({
@@ -153,7 +155,7 @@ function HRSettingsPageInner() {
           closeTime: ds.endTime || "17:00",
         }));
 
-      await dispatch(
+      const updatedData: any = await dispatch(
         updateBusinessSettingsThunk({
           businessId: AppDefault.BUSINESS_ID,
           businessHours: businessHoursPayload,
@@ -165,9 +167,14 @@ function HRSettingsPageInner() {
       ).unwrap();
 
       showToast.success("HR settings & Staff Working Time saved successfully via API!");
+      form.reset({
+        enableLeaveManagement: updatedData.enableLeaveManagement !== false,
+        annualLeaveDaysPerYear: updatedData.annualLeaveDaysPerYear != null ? updatedData.annualLeaveDaysPerYear.toString() : "",
+        sickLeaveDaysPerYear: updatedData.sickLeaveDaysPerYear != null ? updatedData.sickLeaveDaysPerYear.toString() : "",
+        specialLeaveDaysPerYear: updatedData.specialLeaveDaysPerYear != null ? updatedData.specialLeaveDaysPerYear.toString() : "",
+      });
       setHasCustomRosterChanges(false);
       setIsLeaveSwitchDirty(false);
-      dispatch(fetchBusinessSettingsThunk(AppDefault.BUSINESS_ID));
     } catch (err: any) {
       showToast.error(err?.message || "Failed to save HR settings");
     } finally {

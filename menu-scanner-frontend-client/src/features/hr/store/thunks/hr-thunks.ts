@@ -85,6 +85,7 @@ export const createLeaveService = createApiThunk<
     endDate: string;
     totalDays: number;
     reason: string;
+    attachmentImage?: string;
   }
 >("hr/createLeave", async (payload) => {
   const response = await axiosClientWithAuth.post("/api/v1/hr/leave", payload);

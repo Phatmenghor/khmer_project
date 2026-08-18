@@ -17,6 +17,7 @@ import { useDeferredUploads } from "@/hooks/use-deferred-upload";
 import { ImageUrls } from "../store/models/request/users-request";
 
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
+import { getTodayLocalDateString } from "@/utils/date/date-time-format";
 import {
   CreateUserRequest,
   UpdateUserRequest,
@@ -298,7 +299,7 @@ export default function UserBusinessModal({
         position: "",
         department: "",
         employmentType: "",
-        joinDate: new Date().toISOString().split("T")[0],
+        joinDate: getTodayLocalDateString(),
         leaveDate: "",
         shift: defaultShiftName,
         remark: "",

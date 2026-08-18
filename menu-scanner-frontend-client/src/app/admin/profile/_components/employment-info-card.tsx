@@ -12,6 +12,7 @@ interface EmploymentInfoCardProps {
   errors: any;
   isEditing: boolean;
   watch: (name: string) => any;
+  userProfile?: any;
 }
 
 export function EmploymentInfoCard({
@@ -19,8 +20,13 @@ export function EmploymentInfoCard({
   errors,
   isEditing,
   watch,
+  userProfile,
 }: EmploymentInfoCardProps) {
-  const leaveBalance = watch("leaveBalance");
+  const leaveBalance =
+    userProfile?.leaveBalance ||
+    userProfile?.leaveQuota ||
+    userProfile?.leaveSummary ||
+    watch("leaveBalance");
 
   return (
     <Card className="border-border/80 shadow-2xs">
@@ -38,21 +44,21 @@ export function EmploymentInfoCard({
                 control={control}
                 name="employeeId"
                 label="Employee ID"
-                placeholder="Employee ID"
+                placeholder="Enter employee ID"
                 error={errors.employeeId}
               />
               <TextField
                 control={control}
                 name="position"
                 label="Position"
-                placeholder="Position"
+                placeholder="Enter position"
                 error={errors.position}
               />
               <TextField
                 control={control}
                 name="department"
                 label="Department"
-                placeholder="Department"
+                placeholder="Enter department"
                 error={errors.department}
               />
               <DateTimePickerField
@@ -60,7 +66,7 @@ export function EmploymentInfoCard({
                 name="joinDate"
                 label="Join Date"
                 mode="date"
-                placeholder="Join date"
+                placeholder="Enter join date"
                 error={errors.joinDate}
               />
               <DateTimePickerField
@@ -68,7 +74,7 @@ export function EmploymentInfoCard({
                 name="leaveDate"
                 label="Leave Date"
                 mode="date"
-                placeholder="Leave date"
+                placeholder="Enter leave date"
                 error={errors.leaveDate}
               />
             </>

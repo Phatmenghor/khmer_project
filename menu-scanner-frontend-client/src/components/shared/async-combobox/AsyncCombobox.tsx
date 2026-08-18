@@ -167,6 +167,8 @@ export function AsyncCombobox<T>({
               placeholder={searchPlaceholder}
               value={searchTerm}
               onValueChange={setSearchTerm}
+              isLoading={loading}
+              onClear={() => setSearchTerm("")}
               className="text-base md:text-sm font-normal text-foreground placeholder:text-muted-foreground"
             />
             <CommandList className="max-h-44 overflow-y-auto">
@@ -177,10 +179,11 @@ export function AsyncCombobox<T>({
                   const id = getId(item);
                   const selected = isSelected(item);
                   const labelText = getLabel(item);
+                  const itemValue = `${labelText} ${(item as any)?.userIdentifier || ""} ${(item as any)?.email || ""} ${(item as any)?.phoneNumber || ""} ${(item as any)?.fullName || ""} ${id}`;
                   return (
                     <CommandItem
                       key={id}
-                      value={String(id)}
+                      value={itemValue}
                       onSelect={() => handleSelect(item)}
                       ref={index === data.length - 1 ? sentinelRef : null}
                       title={labelText}

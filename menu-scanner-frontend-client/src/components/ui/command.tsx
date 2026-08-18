@@ -3,7 +3,7 @@
 import * as React from "react"
 import { type DialogProps } from "@radix-ui/react-dialog"
 import { Command as CommandPrimitive } from "cmdk"
-import { Search } from "lucide-react"
+import { Search, Loader2, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
@@ -36,12 +36,22 @@ const CommandDialog = ({ children, ...props }: DialogProps) => {
   )
 }
 
+interface CommandInputProps
+  extends React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> {
+  isLoading?: boolean
+  onClear?: () => void
+}
+
 const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
->(({ className, ...props }, ref) => (
+  CommandInputProps
+>(({ className, isLoading, onClear, ...props }, ref) => (
   <div className="flex items-center border-b border-border/60 px-2.5 bg-transparent" cmdk-input-wrapper="">
-    <Search className="mr-1.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+    {isLoading ? (
+      <Loader2 className="mr-1.5 h-3.5 w-3.5 shrink-0 text-primary animate-spin" />
+    ) : (
+      <Search className="mr-1.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+    )}
     <CommandPrimitive.Input
       ref={ref}
       className={cn(
@@ -50,6 +60,25 @@ const CommandInput = React.forwardRef<
       )}
       {...props}
     />
+    {props.value ? (
+      <button
+        type="button"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (onClear) onClear();
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (onClear) onClear();
+        }}
+        className="ml-1.5 p-0.5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0 cursor-pointer"
+        title="Clear search"
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
+    ) : null}
   </div>
 ))
 

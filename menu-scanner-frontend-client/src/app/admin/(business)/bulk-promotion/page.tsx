@@ -15,6 +15,7 @@ import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
+import { getTodayLocalDateString } from "@/utils/date/date-time-format";
 import { PromotionValueField } from "@/components/shared/form-field/promotion-value-field";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import {
@@ -144,10 +145,10 @@ export default function BulkPromotionPage() {
       productIds: [],
       promotionType: undefined,
       promotionValue: 0,
-      promotionFromDate: new Date().toISOString().split("T")[0],
-      promotionToDate: new Date(
-        Date.now() + PROMOTION_DEFAULT_DURATION_DAYS * 24 * 60 * 60 * 1000,
-      ).toISOString().split("T")[0],
+      promotionFromDate: getTodayLocalDateString(),
+      promotionToDate: getTodayLocalDateString(
+        new Date(Date.now() + PROMOTION_DEFAULT_DURATION_DAYS * 24 * 60 * 60 * 1000)
+      ),
     },
   });
 

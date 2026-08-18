@@ -50,8 +50,11 @@ public class LeaveServiceImpl implements LeaveService {
         leave.setTotalDays(totalDays);
         leave.setStatus(LeaveStatusEnum.PENDING);
 
+        String referenceNumber = "LV-" + System.currentTimeMillis() + "-" + String.format("%04d", (int)(Math.random() * 10000));
+        leave.setReferenceNumber(referenceNumber);
+
         Leave savedLeave = repository.save(leave);
-        log.info("Leave request created successfully: id={}, userId={}", savedLeave.getId(), userId);
+        log.info("Leave request created successfully: id={}, userId={}, reference={}", savedLeave.getId(), userId, referenceNumber);
         return enrichWithUserInfo(mapper.toResponse(savedLeave), savedLeave);
     }
 

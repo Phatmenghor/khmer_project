@@ -170,6 +170,7 @@ export type LeaveTypeEnum = "ANNUAL" | "SICK" | "UNPAID" | "MATERNITY" | "SPECIA
 
 export interface LeaveModel {
   id: string;
+  referenceNumber?: string;
   userInfo?: UserBasicInfo;
   businessId: string;
   leaveTypeEnum: LeaveTypeEnum | string;
@@ -177,6 +178,7 @@ export interface LeaveModel {
   endDate: string;
   totalDays: number;
   reason: string;
+  attachmentImage?: string;
   status: LeaveStatusType;
   actionBy?: string;
   actionUserInfo?: UserBasicInfo;

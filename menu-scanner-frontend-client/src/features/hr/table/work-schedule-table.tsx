@@ -40,40 +40,28 @@ export const workScheduleTableColumns = ({
       ),
     },
     {
-      key: "avatar",
-      label: "Profile",
-      render: (item: WorkScheduleModel) => {
-        const user = item.userInfo;
-        const name = getUserDisplayName(user);
-        const avatarUrl = getUserAvatarUrl(user);
-        const fallbackText = name ? name.substring(0, 1).toUpperCase() : "S";
-
-        return (
-          <div className="flex items-center py-1">
-            <TableImage
-              src={avatarUrl}
-              alt={name}
-              fallbackText={fallbackText}
-              className="h-9 w-9 rounded-[10px]"
-            />
-          </div>
-        );
-      },
-    },
-    {
       key: "userInfo",
       label: "Staff",
       render: (item: WorkScheduleModel) => {
         const user = item.userInfo;
         const name = getUserDisplayName(user);
+        const avatarUrl = getUserAvatarUrl(user);
         const rolesDisplay = getUserRolesDisplay(user);
 
         return (
-          <div className="flex flex-col min-w-0 py-1">
-            <span className="font-extrabold text-foreground text-xs truncate">{name}</span>
-            <span className="text-[11px] text-muted-foreground font-medium truncate">
-              {rolesDisplay}
-            </span>
+          <div className="flex items-center gap-2.5 py-1">
+            <TableImage
+              src={avatarUrl}
+              alt={name}
+              fallbackText={name ? name.substring(0, 1).toUpperCase() : "S"}
+              className="h-9 w-9 rounded-[10px]"
+            />
+            <div className="flex flex-col min-w-0">
+              <span className="font-extrabold text-foreground text-xs truncate">{name}</span>
+              <span className="text-[11px] text-muted-foreground font-medium truncate">
+                {rolesDisplay}
+              </span>
+            </div>
           </div>
         );
       },

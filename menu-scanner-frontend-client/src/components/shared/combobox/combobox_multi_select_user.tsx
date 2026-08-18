@@ -58,29 +58,24 @@ function ComboboxMultiSelectUserInner({
       onChange={(items) => onChangeSelectedUserIds(items.map((i) => i.id))}
       controller={controller}
       getId={(item) => item?.id ?? ""}
-      getLabel={(item) => item?.fullName || `${item?.firstName || ""} ${item?.lastName || ""}`.trim() || "Staff Member"}
+      getLabel={(item) => item?.userIdentifier || item?.email || item?.phoneNumber || "Staff Member"}
       showSelectAll={showSelectAll}
       selectAllLabel="Select All Staff Members"
       renderItem={(item) => {
         if (!item) return null;
-        const name = item.fullName || `${item.firstName || ""} ${item.lastName || ""}`.trim() || "Staff Member";
+        const identifier = item.userIdentifier || item.email || item.phoneNumber || "Staff Member";
         const formattedRoles = item.roles && item.roles.length > 0
           ? item.roles.map((r) => formatEnumValue(r)).join(", ")
           : null;
 
         return (
-          <div className="flex flex-col min-w-0 py-0.5">
-            <div className="flex items-center gap-1.5 min-w-0">
-              <span className="text-xs font-bold text-foreground truncate">{name}</span>
-              {formattedRoles && (
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20 truncate">
-                  {formattedRoles}
-                </span>
-              )}
-            </div>
-            <span className="text-[11px] text-muted-foreground truncate">
-              {item.userIdentifier || item.email || item.phoneNumber || "Staff Member"}
-            </span>
+          <div className="flex items-center justify-between gap-2 min-w-0 w-full py-0.5">
+            <span className="text-xs font-extrabold text-foreground truncate">{identifier}</span>
+            {formattedRoles && (
+              <span className="text-xs font-bold text-primary truncate shrink-0">
+                ({formattedRoles})
+              </span>
+            )}
           </div>
         );
       }}

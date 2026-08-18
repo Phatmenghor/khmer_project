@@ -21,6 +21,7 @@ public class LeaveResponse extends BaseAuditResponse {
     private LocalDate endDate;
     private Double totalDays;
     private String reason;
+    private String attachmentImage;
     private LeaveStatusEnum status;
     private UUID actionBy;
     private UserBasicInfo actionUserInfo;

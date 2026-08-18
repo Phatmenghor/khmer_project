@@ -43,7 +43,7 @@ public class Leave extends BaseUUIDEntity {
     private Business business;
 
     @Column(name = "leave_type_enum")
-    private UUID leaveTypeEnum;
+    private String leaveTypeEnum;
 
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
@@ -56,6 +56,9 @@ public class Leave extends BaseUUIDEntity {
 
     @Column(name = "reason", columnDefinition = "TEXT")
     private String reason;
+
+    @Column(name = "attachment_image", columnDefinition = "TEXT")
+    private String attachmentImage;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

@@ -24,6 +24,7 @@ export const leaveSchema = z.object({
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
   reason: z.string().trim().min(1, "Reason for leave is required"),
+  attachmentImage: z.string().optional(),
 });
 
 export type LeaveFormValues = z.infer<typeof leaveSchema>;

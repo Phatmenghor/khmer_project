@@ -1,13 +1,17 @@
 import React from "react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
+import { TableImage } from "@/components/shared/table/table-image";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2 } from "lucide-react";
+import { Trash2, Eye } from "lucide-react";
 import { indexDisplay } from "@/utils/common/common";
 import {
   LeaveModel,
   LeaveStatusType,
+  getUserDisplayName,
+  getUserRolesDisplay,
+  getUserAvatarUrl,
 } from "@/features/hr/store/models/hr-models";
 
 interface LeaveTableOptions {
@@ -50,16 +54,26 @@ export const leaveTableColumns = ({
     },
     {
       key: "userInfo",
-      label: "Employee",
+      label: "Staff",
       render: (item: LeaveModel) => {
         const user = item.userInfo;
-        const name = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() : "Staff Member";
+        const name = getUserDisplayName(user);
+        const avatarUrl = getUserAvatarUrl(user);
+        const rolesDisplay = getUserRolesDisplay(user);
+
         return (
           <div className="flex items-center gap-2.5 py-1">
-            <CustomAvatar name={name} imageUrl={user?.profileImageUrl} size="md" />
-            <div className="flex flex-col">
-              <span className="font-extrabold text-foreground text-xs">{name}</span>
-              <span className="text-[11px] text-muted-foreground">{user?.email || "N/A"}</span>
+            <TableImage
+              src={avatarUrl}
+              alt={name}
+              fallbackText={name ? name.substring(0, 1).toUpperCase() : "S"}
+              className="h-9 w-9 rounded-[10px]"
+            />
+            <div className="flex flex-col min-w-0">
+              <span className="font-extrabold text-foreground text-xs truncate">{name}</span>
+              <span className="text-[11px] text-muted-foreground font-medium truncate">
+                {user?.email || rolesDisplay || "Staff Member"}
+              </span>
             </div>
           </div>
         );
@@ -103,21 +117,34 @@ export const leaveTableColumns = ({
       ),
     },
     {
+      key: "attachmentImage",
+      label: "Attachment",
+      render: (item: LeaveModel) => (
+        item.attachmentImage ? (
+          <TableImage
+            src={item.attachmentImage}
+            alt={`${item.leaveTypeEnum} Attachment`}
+            className="h-8 w-8 rounded-lg"
+          />
+        ) : (
+          <span className="text-[11px] text-muted-foreground italic">None</span>
+        )
+      ),
+    },
+    {
       key: "actions",
-      label: "Decision",
+      label: "Actions",
       render: (item: LeaveModel) => (
         <div className="flex items-center justify-end gap-1.5">
-          {item.status === "PENDING" ? (
-            <CustomButton
-              size="sm"
-              className="h-7 rounded-xl text-xs font-bold gap-1 cursor-pointer"
-              onClick={() => onReview(item)}
-            >
-              Review Request
-            </CustomButton>
-          ) : (
-            <span className="text-[11px] text-muted-foreground italic">Processed</span>
-          )}
+          <CustomButton
+            size="sm"
+            variant={item.status === "PENDING" ? "primary" : "outline"}
+            className="h-7 rounded-xl text-xs font-bold gap-1.5 cursor-pointer"
+            onClick={() => onReview(item)}
+          >
+            <Eye className="w-3.5 h-3.5" />
+            {item.status === "PENDING" ? "Review" : "View"}
+          </CustomButton>
           <CustomButton
             variant="ghost"
             size="sm"
