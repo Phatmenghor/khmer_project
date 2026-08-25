@@ -7,6 +7,7 @@ import {
   AttendanceFilterPayload,
   LeaveModel,
   LeaveFilterPayload,
+  LeaveBalanceModel,
   WorkScheduleModel,
   WorkScheduleFilterPayload,
   DayShiftDto,
@@ -65,17 +66,28 @@ export const fetchLeaveListService = createApiThunk<
   PaginationResponseModel<LeaveModel>,
   LeaveFilterPayload
 >("hr/fetchLeaveList", async (filter) => {
-  const { searchQuery, search, ...rest } = filter || {};
+  const { searchQuery, search, status, statuses, ...rest } = filter || {};
+  // Normalise: if caller passes single status, convert to array for backend
+  const statusesPayload = statuses ?? (status ? [status] : undefined);
   const response = await axiosClientWithAuth.post("/api/v1/hr/leave/all", {
-    pageNo: 1,
-    pageSize: 50,
-    sortBy: "createdAt",
-    sortDirection: "DESC",
+    pageNo: filter?.pageNo ?? 1,
+    pageSize: filter?.pageSize ?? 50,
+    sortBy: filter?.sortBy ?? "createdAt",
+    sortDirection: filter?.sortDirection ?? "DESC",
     search: search || searchQuery,
+    statuses: statusesPayload,
     ...rest,
   });
   return response.data?.data || response.data;
 });
+
+export const getLeaveByIdService = createApiThunk<LeaveModel, string>(
+  "hr/getLeaveById",
+  async (id) => {
+    const response = await axiosClientWithAuth.get(`/api/v1/hr/leave/${id}`);
+    return response.data?.data || response.data;
+  }
+);
 
 export const createLeaveService = createApiThunk<
   LeaveModel,
@@ -83,18 +95,24 @@ export const createLeaveService = createApiThunk<
     leaveTypeEnum: string;
     startDate: string;
     endDate: string;
-    totalDays: number;
     reason: string;
-    attachmentImage?: string;
   }
 >("hr/createLeave", async (payload) => {
   const response = await axiosClientWithAuth.post("/api/v1/hr/leave", payload);
   return response.data?.data || response.data;
 });
 
+export const updateLeaveService = createApiThunk<
+  LeaveModel,
+  { id: string; startDate?: string; endDate?: string; reason?: string }
+>("hr/updateLeave", async ({ id, ...payload }) => {
+  const response = await axiosClientWithAuth.put(`/api/v1/hr/leave/${id}`, payload);
+  return response.data?.data || response.data;
+});
+
 export const approveLeaveService = createApiThunk<
   LeaveModel,
-  { id: string; status: "APPROVED" | "REJECTED"; actionNote?: string }
+  { id: string; status: "APPROVED" | "REJECTED" | "CANCELLED"; actionNote?: string }
 >("hr/approveLeave", async ({ id, ...payload }) => {
   const response = await axiosClientWithAuth.post(`/api/v1/hr/leave/${id}/approve`, payload);
   return response.data?.data || response.data;
@@ -107,6 +125,14 @@ export const deleteLeaveService = createApiThunk<LeaveModel, string>(
     return response.data?.data || response.data;
   }
 );
+
+export const fetchMyLeaveBalanceService = createApiThunk<
+  LeaveBalanceModel,
+  void
+>("hr/fetchMyLeaveBalance", async () => {
+  const response = await axiosClientWithAuth.get("/api/v1/hr/leave/balance");
+  return response.data?.data || response.data;
+});
 
 // ── WORK SCHEDULE THUNKS ──
 export const fetchWorkScheduleListService = createApiThunk<

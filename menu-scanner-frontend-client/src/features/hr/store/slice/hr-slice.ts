@@ -7,6 +7,9 @@ import {
 import {
   fetchAttendanceListService,
   fetchLeaveListService,
+  getLeaveByIdService,
+  approveLeaveService,
+  deleteLeaveService,
   fetchWorkScheduleListService,
 } from "../thunks/hr-thunks";
 
@@ -18,6 +21,8 @@ interface HRState {
   leaveList: LeaveModel[];
   leaveTotalItems: number;
   leaveLoading: boolean;
+  selectedLeave: LeaveModel | null;
+  selectedLeaveLoading: boolean;
 
   workScheduleList: WorkScheduleModel[];
   workScheduleTotalItems: number;
@@ -34,6 +39,8 @@ const initialState: HRState = {
   leaveList: [],
   leaveTotalItems: 0,
   leaveLoading: false,
+  selectedLeave: null,
+  selectedLeaveLoading: false,
 
   workScheduleList: [],
   workScheduleTotalItems: 0,
@@ -45,9 +52,13 @@ const initialState: HRState = {
 export const hrSlice = createSlice({
   name: "hr",
   initialState,
-  reducers: {},
+  reducers: {
+    clearSelectedLeave(state) {
+      state.selectedLeave = null;
+    },
+  },
   extraReducers: (builder) => {
-    // Attendance
+    // ── Attendance ──
     builder.addCase(fetchAttendanceListService.pending, (state) => {
       state.attendanceLoading = true;
       state.error = null;
@@ -63,7 +74,7 @@ export const hrSlice = createSlice({
       state.error = action.error?.message || "Failed to fetch attendance records";
     });
 
-    // Leaves
+    // ── Leave list ──
     builder.addCase(fetchLeaveListService.pending, (state) => {
       state.leaveLoading = true;
       state.error = null;
@@ -79,7 +90,39 @@ export const hrSlice = createSlice({
       state.error = action.error?.message || "Failed to fetch leave requests";
     });
 
-    // Work Schedules
+    // ── Leave detail (getById — loads statusHistory) ──
+    builder.addCase(getLeaveByIdService.pending, (state) => {
+      state.selectedLeaveLoading = true;
+    });
+    builder.addCase(getLeaveByIdService.fulfilled, (state, action) => {
+      state.selectedLeaveLoading = false;
+      state.selectedLeave = action.payload as LeaveModel;
+      // Also update the matching entry in the list so status is in sync
+      const updated = action.payload as LeaveModel;
+      const idx = state.leaveList.findIndex((l) => l.id === updated.id);
+      if (idx !== -1) state.leaveList[idx] = { ...state.leaveList[idx], ...updated };
+    });
+    builder.addCase(getLeaveByIdService.rejected, (state) => {
+      state.selectedLeaveLoading = false;
+    });
+
+    // ── Approve / Reject — optimistic local update ──
+    builder.addCase(approveLeaveService.fulfilled, (state, action) => {
+      const updated = action.payload as LeaveModel;
+      const idx = state.leaveList.findIndex((l) => l.id === updated.id);
+      if (idx !== -1) state.leaveList[idx] = { ...state.leaveList[idx], ...updated };
+      if (state.selectedLeave?.id === updated.id) state.selectedLeave = updated;
+    });
+
+    // ── Delete — remove from local list ──
+    builder.addCase(deleteLeaveService.fulfilled, (state, action) => {
+      const deleted = action.payload as LeaveModel;
+      state.leaveList = state.leaveList.filter((l) => l.id !== deleted.id);
+      state.leaveTotalItems = Math.max(0, state.leaveTotalItems - 1);
+      if (state.selectedLeave?.id === deleted.id) state.selectedLeave = null;
+    });
+
+    // ── Work Schedules ──
     builder.addCase(fetchWorkScheduleListService.pending, (state) => {
       state.workScheduleLoading = true;
       state.error = null;
@@ -97,4 +140,5 @@ export const hrSlice = createSlice({
   },
 });
 
+export const { clearSelectedLeave } = hrSlice.actions;
 export const hrReducer = hrSlice.reducer;

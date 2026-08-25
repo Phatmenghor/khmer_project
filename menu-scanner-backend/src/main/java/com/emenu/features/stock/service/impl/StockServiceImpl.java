@@ -138,29 +138,51 @@ public class StockServiceImpl implements StockService {
         List<StockMovement> orderMovements = stockMovementRepository.findByOrderId(orderId);
 
         if (orderMovements.isEmpty()) {
-            throw new ResourceNotFoundException("No stock movements found for order");
+            log.warn("No stock movements found for order {}", orderId);
+            return new StockMovementDto();
         }
+
+        Set<UUID> affectedProductIds = new HashSet<>();
 
         for (StockMovement originalMovement : orderMovements) {
             if ("STOCK_OUT".equals(originalMovement.getMovementType())) {
                 ProductStock stock = productStockRepository.findById(originalMovement.getProductStockId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Stock record not found"));
+                    .orElse(null);
+
+                if (stock == null) {
+                    continue;
+                }
 
                 Integer returnQuantity = Math.abs(originalMovement.getQuantityChange());
-                Integer newQty = stock.getQuantityOnHand() + returnQuantity;
+                Integer prevOnHand = stock.getQuantityOnHand() != null ? stock.getQuantityOnHand() : 0;
+                Integer prevAvailable = stock.getQuantityAvailable() != null ? stock.getQuantityAvailable() : prevOnHand;
 
-                stock.setQuantityOnHand(newQty);
+                Integer newOnHand = prevOnHand + returnQuantity;
+                Integer newAvailable = prevAvailable + returnQuantity;
+
+                stock.setQuantityOnHand(newOnHand);
+                stock.setQuantityAvailable(newAvailable);
                 productStockRepository.save(stock);
 
                 createStockMovement(
                     businessId, stock.getId(), "RETURN",
-                    returnQuantity, stock.getQuantityOnHand() - returnQuantity, newQty,
+                    returnQuantity, prevOnHand, newOnHand,
                     orderId, reason, stock.getPriceIn()
                 );
+
+                affectedProductIds.add(stock.getProductId());
             }
         }
 
-        log.info("Stock returned for order {}", orderId);
+        for (UUID productId : affectedProductIds) {
+            try {
+                webSocketNotificationService.notifyStockUpdated(businessId, productId);
+            } catch (Exception e) {
+                log.warn("Failed to send stock update WebSocket notification for product {}: {}", productId, e.getMessage());
+            }
+        }
+
+        log.info("Stock successfully returned/added back for order {}", orderId);
         return new StockMovementDto();
     }
 

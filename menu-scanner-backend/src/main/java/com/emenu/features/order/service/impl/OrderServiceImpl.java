@@ -60,10 +60,9 @@ import com.emenu.features.notification.websocket.service.WebSocketNotificationSe
 import com.emenu.features.order.service.OrderService;
 import com.emenu.features.stock.service.impl.StockServiceImpl;
 import com.emenu.security.SecurityUtils;
+import com.emenu.features.counter.ReferenceNumberGenerator;
 import com.emenu.shared.dto.ImageUrls;
 import com.emenu.shared.dto.PaginationResponse;
-import com.emenu.shared.generate.ReferenceNumberGenerator;
-import com.emenu.shared.generate.OrderNumberGenerator;
 import com.emenu.shared.generate.PaymentReferenceGenerator;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -106,7 +105,6 @@ public class OrderServiceImpl implements OrderService {
     private final OrderPaymentMapper paymentMapper;
     private final SecurityUtils securityUtils;
     private final ReferenceNumberGenerator referenceNumberGenerator;
-    private final OrderNumberGenerator orderNumberGenerator;
     private final PaymentReferenceGenerator paymentReferenceGenerator;
     private final PaginationMapper paginationMapper;
     private final StockServiceImpl stockService;
@@ -600,7 +598,7 @@ public class OrderServiceImpl implements OrderService {
 
     private Order createBaseOrder(OrderCreateRequest request, UUID customerId) {
         // Generate order number with per-business counter (ORD-YYYYMMDD-XXXXX)
-        String orderNumber = orderNumberGenerator.generateOrderNumber(request.getBusinessId());
+        String orderNumber = referenceNumberGenerator.generateOrderNumber(request.getBusinessId());
         OrderCreateHelper helper = orderMapper.buildOrderHelper(request, customerId, orderNumber);
         Order order = orderMapper.createFromHelper(helper);
         // Set orderFrom to distinguish between CUSTOMER (checkout) and BUSINESS (POS) orders
@@ -1047,7 +1045,7 @@ public class OrderServiceImpl implements OrderService {
 
         try {
             Order order = orderMapper.fromPOSCheckoutRequest(request);
-            order.setOrderNumber(orderNumberGenerator.generateOrderNumber(request.getBusinessId()));
+            order.setOrderNumber(referenceNumberGenerator.generateOrderNumber(request.getBusinessId()));
 
             Order savedOrder = orderRepository.save(order);
 

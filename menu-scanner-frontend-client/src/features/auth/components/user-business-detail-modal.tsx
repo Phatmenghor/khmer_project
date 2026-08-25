@@ -160,37 +160,55 @@ export function UserBusinessDetailModal({
                       )}
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="p-2 rounded-lg bg-card border border-border/60 text-center">
-                        <span className="text-[10px] text-muted-foreground font-medium block">Annual Leave</span>
-                        <span className="text-xs font-black text-foreground">
-                          {apiLeave.remainingAnnualLeave ?? apiLeave.annualLeaveQuota ?? 0} Days Remaining
-                        </span>
-                        <span className="text-[10px] text-muted-foreground block mt-0.5">
-                          Used: {apiLeave.usedAnnualLeave || 0} / Total: {apiLeave.annualLeaveQuota || 0}
-                        </span>
-                      </div>
+                    {(() => {
+                      const getVal = (val: any): number | undefined => (typeof val === "number" ? val : undefined);
 
-                      <div className="p-2 rounded-lg bg-card border border-border/60 text-center">
-                        <span className="text-[10px] text-muted-foreground font-medium block">Sick Leave</span>
-                        <span className="text-xs font-black text-foreground">
-                          {apiLeave.remainingSickLeave ?? apiLeave.sickLeaveQuota ?? 0} Days Remaining
-                        </span>
-                        <span className="text-[10px] text-muted-foreground block mt-0.5">
-                          Used: {apiLeave.usedSickLeave || 0} / Total: {apiLeave.sickLeaveQuota || 0}
-                        </span>
-                      </div>
+                      const remainingAnnual = getVal(apiLeave.remainingAnnualLeave) ?? getVal(apiLeave.annualAvailable) ?? getVal(apiLeave.annualLeaveQuota) ?? 0;
+                      const usedAnnual = getVal(apiLeave.usedAnnualLeave) ?? getVal(apiLeave.annualUsedAndPending) ?? 0;
+                      const totalAnnual = getVal(apiLeave.annualLeaveQuota) ?? getVal(apiLeave.annualEntitlement) ?? 0;
 
-                      <div className="p-2 rounded-lg bg-card border border-border/60 text-center">
-                        <span className="text-[10px] text-muted-foreground font-medium block">Special Leave</span>
-                        <span className="text-xs font-black text-foreground">
-                          {apiLeave.remainingSpecialLeave ?? apiLeave.specialLeaveQuota ?? 0} Days Remaining
-                        </span>
-                        <span className="text-[10px] text-muted-foreground block mt-0.5">
-                          Used: {apiLeave.usedSpecialLeave || 0} / Total: {apiLeave.specialLeaveQuota || 0}
-                        </span>
-                      </div>
-                    </div>
+                      const remainingSick = getVal(apiLeave.remainingSickLeave) ?? getVal(apiLeave.sickAvailable) ?? getVal(apiLeave.sickLeaveQuota) ?? 0;
+                      const usedSick = getVal(apiLeave.usedSickLeave) ?? getVal(apiLeave.sickUsedAndPending) ?? 0;
+                      const totalSick = getVal(apiLeave.sickLeaveQuota) ?? getVal(apiLeave.sickEntitlement) ?? 0;
+
+                      const remainingSpecial = getVal(apiLeave.remainingSpecialLeave) ?? getVal(apiLeave.specialAvailable) ?? getVal(apiLeave.specialLeaveQuota) ?? 0;
+                      const usedSpecial = getVal(apiLeave.usedSpecialLeave) ?? getVal(apiLeave.specialUsedAndPending) ?? 0;
+                      const totalSpecial = getVal(apiLeave.specialLeaveQuota) ?? getVal(apiLeave.specialEntitlement) ?? 0;
+
+                      return (
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="p-2 rounded-lg bg-card border border-border/60 text-center">
+                            <span className="text-[10px] text-muted-foreground font-medium block">Annual Leave</span>
+                            <span className="text-xs font-black text-foreground">
+                              {remainingAnnual} Days Remaining
+                            </span>
+                            <span className="text-[10px] text-muted-foreground block mt-0.5">
+                              Used: {usedAnnual} / Total: {totalAnnual}
+                            </span>
+                          </div>
+
+                          <div className="p-2 rounded-lg bg-card border border-border/60 text-center">
+                            <span className="text-[10px] text-muted-foreground font-medium block">Sick Leave</span>
+                            <span className="text-xs font-black text-foreground">
+                              {remainingSick} Days Remaining
+                            </span>
+                            <span className="text-[10px] text-muted-foreground block mt-0.5">
+                              Used: {usedSick} / Total: {totalSick}
+                            </span>
+                          </div>
+
+                          <div className="p-2 rounded-lg bg-card border border-border/60 text-center">
+                            <span className="text-[10px] text-muted-foreground font-medium block">Special Leave</span>
+                            <span className="text-xs font-black text-foreground">
+                              {remainingSpecial} Days Remaining
+                            </span>
+                            <span className="text-[10px] text-muted-foreground block mt-0.5">
+                              Used: {usedSpecial} / Total: {totalSpecial}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })()}

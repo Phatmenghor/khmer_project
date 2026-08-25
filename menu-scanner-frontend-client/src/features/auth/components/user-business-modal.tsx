@@ -1325,7 +1325,6 @@ export default function UserBusinessModal({
               isCreate={isCreate}
               createMessage="Creating user..."
               updateMessage="Updating user..."
-              className="m-0 mx-0 mb-0 md:mx-0 md:mb-0 p-4 md:p-4"
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
               <SubmitButton

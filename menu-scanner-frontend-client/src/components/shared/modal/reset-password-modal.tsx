@@ -122,7 +122,6 @@ export default function ResetPasswordModal({
         avatarImageUrl={resolvedProfileImageUrl}
         showAvatar={true}
         isCreate={false}
-        className="w-full m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-3 sm:p-4 border-b border-border/60 shrink-0"
       />
       {isFetchingDetail && !resolvedUserName ? (
         <div className="p-4 flex items-center justify-center py-8 flex-1">
@@ -199,7 +198,6 @@ export default function ResetPasswordModal({
             isDirty={false}
             isCreate={false}
             noChangesMessage="Resetting user password"
-            className="w-full m-0 mx-0 mb-0 md:mx-0 md:mb-0 p-3 sm:p-4 border-t border-border/60 bg-muted/30 shrink-0"
           >
             <CancelButton onClick={handleClose} disabled={isResettingPassword} />
             <CustomButton

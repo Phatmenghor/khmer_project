@@ -7,6 +7,8 @@ import com.emenu.features.hr.dto.response.LeaveResponse;
 import com.emenu.features.hr.dto.update.LeaveUpdateRequest;
 import com.emenu.shared.dto.PaginationResponse;
 
+import com.emenu.features.hr.dto.response.LeaveBalanceResponse;
+
 import java.util.UUID;
 
 public interface LeaveService {
@@ -16,4 +18,5 @@ public interface LeaveService {
     LeaveResponse update(UUID id, LeaveUpdateRequest request);
     LeaveResponse approve(UUID id, LeaveApprovalRequest request, UUID actionBy);
     LeaveResponse delete(UUID id);
+    LeaveBalanceResponse getLeaveBalance(UUID userId, UUID businessId);
 }

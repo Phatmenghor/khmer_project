@@ -2,7 +2,7 @@ import { indexDisplay } from "@/utils/common/common";
 import { Eye, Plus } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/custom-button";
-import { Switch } from "@/components/ui/switch";
+import { CustomSwitch } from "@/components/shared/common/custom-switch";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { TableImage } from "@/components/shared/table/table-image";
 import { ProductStockItemDto, ProductStockItemsListResponse } from "../store/models/response/stock-response";
@@ -160,7 +160,7 @@ export const stockItemsTableColumns = ({
       render: (item) => (
         <div className="flex items-center gap-2">
           {handleToggleStockStatus && (
-            <Switch
+            <CustomSwitch
               checked={item?.stockStatus === "ENABLED"}
               onCheckedChange={() => handleToggleStockStatus(item)}
             />

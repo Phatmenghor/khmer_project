@@ -1,6 +1,6 @@
-package com.emenu.features.order.repository;
+package com.emenu.features.counter.repository;
 
-import com.emenu.features.order.models.OrderCounter;
+import com.emenu.features.counter.models.OrderCounter;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;

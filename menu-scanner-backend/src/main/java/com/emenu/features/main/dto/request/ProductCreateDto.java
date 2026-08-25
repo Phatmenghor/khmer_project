@@ -36,7 +36,7 @@ public class ProductCreateDto {
     private String sku;
     private Boolean hasSizes;
 
-    private PromotionType promotionType;
+    private String promotionType;
     private BigDecimal promotionValue;
 
     @JsonFormat(pattern = "yyyy-MM-dd['T'HH:mm[:ss]]")

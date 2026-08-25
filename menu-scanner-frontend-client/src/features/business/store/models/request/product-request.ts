@@ -30,6 +30,12 @@ export interface ProductSizeRequest {
   promotionToDate?: string;
 }
 
+export interface ProductCustomizationRequest {
+  id?: string;
+  name: string;
+  priceAdjustment?: number;
+}
+
 export interface CreateProductRequest {
   name: string;
   description: string;
@@ -47,6 +53,7 @@ export interface CreateProductRequest {
 
   images?: ProductImageRequest[];
   sizes?: ProductSizeRequest[];
+  customizations?: ProductCustomizationRequest[];
 
   status: string;
 }
@@ -68,6 +75,7 @@ export interface UpdateProductRequest {
 
   images?: ProductImageRequest[];
   sizes?: ProductSizeRequest[];
+  customizations?: ProductCustomizationRequest[];
 
   status?: string;
 }

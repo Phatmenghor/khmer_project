@@ -18,13 +18,11 @@ export type WorkScheduleFormValues = z.infer<typeof workScheduleSchema>;
  * Zod Validation Schema for Leave Form
  */
 export const leaveSchema = z.object({
-  userId: z.string().optional(),
   leaveType: z.string().min(1, "Please select a leave type"),
   otherLeaveType: z.string().optional(),
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
   reason: z.string().trim().min(1, "Reason for leave is required"),
-  attachmentImage: z.string().optional(),
 });
 
 export type LeaveFormValues = z.infer<typeof leaveSchema>;

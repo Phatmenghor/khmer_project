@@ -1,26 +1,34 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { Check, X } from "lucide-react";
-import { useAppDispatch } from "@/store";
-import { approveLeaveService, fetchLeaveListService } from "@/features/hr/store/thunks/hr-thunks";
-import { LeaveModel, LeaveStatusType } from "@/features/hr/store/models/hr-models";
+import React, { useState, useEffect } from "react";
+import { Check, X, Loader2 } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/store";
+import {
+  approveLeaveService,
+  fetchLeaveListService,
+  getLeaveByIdService,
+} from "@/features/hr/store/thunks/hr-thunks";
+import { clearSelectedLeave } from "@/features/hr/store/slice/hr-slice";
+import {
+  LeaveModel,
+  LeaveStatusType,
+  LeaveStatusHistoryItem,
+  getUserAvatarUrl,
+  getUserRolesDisplay,
+} from "@/features/hr/store/models/hr-models";
 import { CustomModal } from "@/components/shared/modal/custom-modal";
-import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
-import { TextField } from "@/components/shared/form-field/text-field";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
-import { TableImage } from "@/components/shared/table/table-image";
 import { Badge } from "@/components/ui/badge";
 import { showToast } from "@/components/shared/common/show-toast";
 import { AppDefault } from "@/constants/app-resource/default/default";
-
-interface LeaveDecisionFormData {
-  actionNote?: string;
-}
+import { dateTimeFormat } from "@/utils/date/date-time-format";
+import { SectionTitle, InfoRow } from "@/components/shared/modal/detail-section";
+import { CustomImagePreview } from "@/components/shared/image/custom-image-preview";
+import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { LeaveDecisionConfirmModal } from "./leave-decision-confirm-modal";
 
 interface LeaveDetailModalProps {
   leave: LeaveModel | null;
@@ -32,194 +40,224 @@ interface LeaveDetailModalProps {
 export function renderLeaveStatusBadge(status?: LeaveStatusType) {
   switch (status) {
     case "APPROVED":
-      return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 rounded-xl px-2.5 py-0.5 font-bold">Approved</Badge>;
+      return <Badge className="bg-emerald-500/10 hover:bg-emerald-500/10 text-emerald-600 hover:text-emerald-600 border border-emerald-500/30 hover:border-emerald-500/80 rounded-xl px-2.5 py-0.5 font-bold transition-colors cursor-default">Approved</Badge>;
     case "REJECTED":
-      return <Badge className="bg-red-500/10 text-red-600 border-red-500/30 rounded-xl px-2.5 py-0.5 font-bold">Rejected</Badge>;
+      return <Badge className="bg-red-500/10 hover:bg-red-500/10 text-red-600 hover:text-red-600 border border-red-500/30 hover:border-red-500/80 rounded-xl px-2.5 py-0.5 font-bold transition-colors cursor-default">Rejected</Badge>;
+    case "CANCELLED":
+      return <Badge className="bg-gray-500/10 hover:bg-gray-500/10 text-gray-500 hover:text-gray-500 border border-gray-500/30 hover:border-gray-500/80 rounded-xl px-2.5 py-0.5 font-bold transition-colors cursor-default">Cancelled</Badge>;
     case "PENDING":
-      return <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/30 rounded-xl px-2.5 py-0.5 font-bold">Pending</Badge>;
+      return <Badge className="bg-amber-500/10 hover:bg-amber-500/10 text-amber-600 hover:text-amber-600 border border-amber-500/30 hover:border-amber-500/80 rounded-xl px-2.5 py-0.5 font-bold transition-colors cursor-default">Pending</Badge>;
     default:
       return <Badge variant="outline">{status || "Unknown"}</Badge>;
   }
 }
 
+function historyDotColor(status: LeaveStatusType) {
+  switch (status) {
+    case "APPROVED": return "bg-emerald-500";
+    case "REJECTED": return "bg-red-500";
+    case "CANCELLED": return "bg-gray-400";
+    default: return "bg-primary";
+  }
+}
+
+function historyLabel(status: LeaveStatusType) {
+  switch (status) {
+    case "PENDING": return "Leave Submitted";
+    case "APPROVED": return "Approved by Manager";
+    case "REJECTED": return "Rejected by Manager";
+    case "CANCELLED": return "Cancelled";
+    default: return status;
+  }
+}
+
+function HistoryTimeline({ history, loading }: { history?: LeaveStatusHistoryItem[]; loading: boolean }) {
+  if (loading) {
+    return (
+      <div className="col-span-2 flex items-center gap-2 py-2 text-muted-foreground text-xs">
+        <Loader2 className="h-3 w-3 animate-spin" />
+        Loading history...
+      </div>
+    );
+  }
+  if (!history || history.length === 0) return null;
+  return (
+    <div className="col-span-2 relative pl-4 border-l border-border/60 space-y-4 py-1">
+      {history.map((item) => (
+        <div key={item.id} className="relative">
+          <div className={`absolute -left-[20.5px] top-0.5 h-2 w-2 rounded-full border border-background shadow-xs ${historyDotColor(item.status)}`} />
+          <div className="flex flex-col gap-0.5">
+            <span className="font-bold text-foreground text-xs">{historyLabel(item.status)}</span>
+            <span className="text-[10px] text-muted-foreground">
+              {item.changedByName || "System"} &bull; {dateTimeFormat(item.changedAt)}
+            </span>
+            {item.note && (
+              <p className="mt-1.5 p-2 rounded-lg bg-background border border-border/50 text-[11px] text-foreground italic leading-relaxed">
+                &ldquo;{item.note}&rdquo;
+              </p>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function LeaveDetailModal({ leave, isOpen, onClose, onSuccess }: LeaveDetailModalProps) {
   const dispatch = useAppDispatch();
+  const { selectedLeave, selectedLeaveLoading } = useAppSelector((s) => s.hr);
 
-  const decisionForm = useForm<LeaveDecisionFormData>({
-    defaultValues: { actionNote: "" },
-  });
+  const [confirmStatus, setConfirmStatus] = useState<"APPROVED" | "REJECTED" | null>(null);
+  const [isSubmittingDecision, setIsSubmittingDecision] = useState(false);
 
-  const {
-    formState: { isSubmitting: isSubmittingDecision },
-    reset,
-  } = decisionForm;
-
+  // Fetch full detail (with statusHistory) every time the modal opens
   useEffect(() => {
-    if (isOpen) {
-      reset({ actionNote: "" });
+    if (isOpen && leave?.id) {
+      dispatch(getLeaveByIdService(leave.id));
     }
-  }, [isOpen, reset]);
+    if (!isOpen) {
+      dispatch(clearSelectedLeave());
+    }
+  }, [isOpen, leave?.id, dispatch]);
 
   if (!leave) return null;
 
-  const onDecisionSubmit = async (status: "APPROVED" | "REJECTED") => {
+  // Use enriched data from store if available, fall back to prop
+  const liveLeave: LeaveModel = selectedLeave?.id === leave.id ? selectedLeave : leave;
+
+  const employeeName = liveLeave.userInfo
+    ? `${liveLeave.userInfo.firstName || ""} ${liveLeave.userInfo.lastName || ""}`.trim()
+    : "Staff Member";
+
+  const employeeSubtitle = liveLeave.userInfo
+    ? getUserRolesDisplay(liveLeave.userInfo)
+    : "Staff Member";
+
+  const avatarUrl = getUserAvatarUrl(liveLeave.userInfo);
+
+  const handleConfirmSubmit = async (actionNote: string) => {
+    if (!confirmStatus) return;
+    setIsSubmittingDecision(true);
     try {
-      const data = decisionForm.getValues();
       await dispatch(
         approveLeaveService({
-          id: leave.id,
-          status,
-          actionNote: data.actionNote || undefined,
+          id: liveLeave.id,
+          status: confirmStatus,
+          actionNote: actionNote || undefined,
         })
       ).unwrap();
 
-      showToast.success(`Leave request ${status.toLowerCase()} successfully!`);
-      onClose();
-      reset();
+      showToast.success(`Leave request ${confirmStatus.toLowerCase()} successfully!`);
+      setConfirmStatus(null);
+      // Refresh detail to get updated statusHistory
+      dispatch(getLeaveByIdService(liveLeave.id));
+      // Refresh list in background
       dispatch(fetchLeaveListService({ businessId: AppDefault.BUSINESS_ID }));
       if (onSuccess) onSuccess();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to process leave request";
       showToast.error(message);
+    } finally {
+      setIsSubmittingDecision(false);
     }
   };
 
-  const employeeName = leave.userInfo
-    ? `${leave.userInfo.firstName || ""} ${leave.userInfo.lastName || ""}`.trim()
-    : "Staff Member";
-
   return (
-    <CustomModal isOpen={isOpen} onClose={onClose} size="2xl">
-      <FormHeader
-        title={leave.status === "PENDING" ? "Review Leave Application" : "Leave Application Details"}
-        description={leave.referenceNumber ? `Reference #${leave.referenceNumber}` : "Employee Leave Application"}
-        isCreate={false}
-      />
-      <form className="flex flex-col flex-1 min-h-0 overflow-hidden" autoComplete="off">
-        <FormBody className="space-y-4">
-          {/* Employee Info Header Card */}
-          <div className="flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border/60 shadow-2xs">
-            <CustomAvatar
-              name={employeeName}
-              imageUrl={leave.userInfo?.profileImageUrl}
-              size="lg"
-            />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <span className="font-extrabold text-foreground text-sm">
-                  {employeeName}
-                </span>
-                {renderLeaveStatusBadge(leave.status)}
-              </div>
-              <span className="text-xs text-muted-foreground font-medium block mt-0.5">
-                {leave.userInfo?.email || "No email provided"}
-              </span>
+    <>
+      <CustomModal isOpen={isOpen} onClose={onClose} size="2xl" disableScrollWrapper={true}>
+        <DialogHeader className="px-4 py-3 border-b border-border/60 m-0 bg-muted/30 flex-shrink-0">
+          <div className="flex items-center gap-3 pr-4 text-left">
+            {avatarUrl ? (
+              <CustomImagePreview
+                src={avatarUrl}
+                alt={employeeName}
+                fallbackText={employeeName}
+                className="h-10 w-10 rounded-[10px]"
+              />
+            ) : employeeName ? (
+              <CustomAvatar name={employeeName} size="lg" />
+            ) : null}
+
+            <div className="flex-1 min-w-0 text-left">
+              <DialogTitle className="text-sm md:text-base font-semibold leading-tight text-foreground truncate">
+                {employeeName}
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground leading-snug truncate">
+                {employeeSubtitle} &bull; {liveLeave.userInfo?.email || "No email"}
+              </DialogDescription>
             </div>
           </div>
+        </DialogHeader>
 
-          {/* Leave Application Details Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-muted/40 border border-border/60 text-xs">
-            <div>
-              <span className="text-muted-foreground font-medium block">Leave Type</span>
-              <span className="font-extrabold text-primary text-sm mt-0.5 block">{leave.leaveTypeEnum}</span>
-            </div>
-            <div>
-              <span className="text-muted-foreground font-medium block">Total Duration</span>
-              <span className="font-extrabold text-foreground text-sm mt-0.5 block">{leave.totalDays} Day(s)</span>
-            </div>
-            <div>
-              <span className="text-muted-foreground font-medium block">Start Date</span>
-              <span className="font-bold text-foreground mt-0.5 block">{leave.startDate}</span>
-            </div>
-            <div>
-              <span className="text-muted-foreground font-medium block">End Date</span>
-              <span className="font-bold text-foreground mt-0.5 block">{leave.endDate}</span>
-            </div>
-            <div className="sm:col-span-2 pt-2 border-t border-border/40">
-              <span className="text-muted-foreground font-medium block">Reason for Leave</span>
-              <p className="text-foreground font-medium mt-1 p-2.5 rounded-lg bg-background border border-border/50 text-xs leading-relaxed">
-                {leave.reason || "No reason provided."}
-              </p>
-            </div>
-            {leave.attachmentImage && (
-              <div className="sm:col-span-2 pt-2 border-t border-border/40">
-                <span className="text-muted-foreground font-medium block mb-1.5">Attached Document / Image</span>
-                <TableImage
-                  src={leave.attachmentImage}
-                  alt="Attached Leave Document"
-                  className="h-28 w-28 rounded-xl"
-                />
-              </div>
-            )}
-          </div>
+        <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+          <FormBody className="p-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3.5 p-1 text-left">
+              {/* Leave Information */}
+              <SectionTitle>Leave Information</SectionTitle>
+              <InfoRow label="Reference Number" value={liveLeave.referenceNumber || "-"} />
+              <InfoRow label="Leave Type" value={liveLeave.leaveTypeEnum} />
+              <InfoRow label="Start Date" value={liveLeave.startDate} />
+              <InfoRow label="End Date" value={liveLeave.endDate} />
+              <InfoRow label="Total Days" value={`${liveLeave.totalDays} Day(s)`} />
+              <InfoRow label="Status" value={renderLeaveStatusBadge(liveLeave.status)} />
+              <InfoRow label="Reason for Leave" value={liveLeave.reason || "-"} fullWidth />
 
-          {/* Manager Decision Input / Record */}
-          {leave.status === "PENDING" ? (
-            <TextField
-              control={decisionForm.control}
-              name="actionNote"
-              label="Manager Decision Note"
-              disabled={isSubmittingDecision}
-              placeholder="E.g. Approved based on annual leave allowance"
-            />
-          ) : (
-            <div className="p-3.5 rounded-xl bg-muted/30 border border-border/60 space-y-1.5 text-xs">
-              <div className="font-bold text-foreground text-xs pb-1 border-b border-border/40">
-                Decision Information
-              </div>
-              <div className="flex justify-between pt-1">
-                <span className="text-muted-foreground font-medium">Processed By:</span>
-                <span className="font-bold text-foreground">
-                  {leave.actionUserInfo ? `${leave.actionUserInfo.firstName || ""} ${leave.actionUserInfo.lastName || ""}`.trim() : "System Administrator"}
-                </span>
-              </div>
-              {leave.actionNote && (
-                <div className="pt-1.5 border-t border-border/40">
-                  <span className="text-muted-foreground font-medium block">Decision Note:</span>
-                  <p className="text-foreground italic mt-0.5">{leave.actionNote}</p>
-                </div>
+              {/* Status History Timeline */}
+              {(selectedLeaveLoading || (liveLeave.statusHistory && liveLeave.statusHistory.length > 0)) && (
+                <>
+                  <SectionTitle>Application Timeline &amp; Audit</SectionTitle>
+                  <HistoryTimeline history={liveLeave.statusHistory} loading={selectedLeaveLoading} />
+                </>
               )}
             </div>
-          )}
-        </FormBody>
+          </FormBody>
 
-        <FormFooter
-          isSubmitting={isSubmittingDecision}
-          isDirty={true}
-          isCreate={false}
-        >
-          {leave.status === "PENDING" ? (
-            <>
+          <FormFooter isSubmitting={isSubmittingDecision} isDirty={true} isCreate={false}>
+            {liveLeave.status === "PENDING" ? (
+              <>
+                <CustomButton
+                  variant="outline"
+                  type="button"
+                  className="h-9 rounded-xl text-xs font-bold border border-red-500/40 hover:border-red-500/80 text-red-600 dark:text-red-400 hover:bg-red-500/10 cursor-pointer px-4 transition-all duration-150"
+                  onClick={() => setConfirmStatus("REJECTED")}
+                  disabled={isSubmittingDecision || selectedLeaveLoading}
+                >
+                  Reject Request
+                </CustomButton>
+                <CustomButton
+                  type="button"
+                  className="h-9 rounded-xl text-xs font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer px-4 shadow-xs transition-all duration-150"
+                  onClick={() => setConfirmStatus("APPROVED")}
+                  disabled={isSubmittingDecision || selectedLeaveLoading}
+                >
+                  Approve Leave
+                </CustomButton>
+              </>
+            ) : (
               <CustomButton
                 variant="outline"
                 type="button"
-                className="h-9 rounded-xl text-xs font-bold border-red-500/40 text-red-600 hover:bg-red-500/10 cursor-pointer gap-1.5"
-                onClick={() => onDecisionSubmit("REJECTED")}
-                disabled={isSubmittingDecision}
+                className="h-9 rounded-xl text-xs font-semibold border border-border/80 hover:border-foreground/30 hover:bg-accent/50 text-foreground cursor-pointer px-5 transition-all duration-150"
+                onClick={onClose}
               >
-                <X className="h-3.5 w-3.5" /> Reject Request
+                Close
               </CustomButton>
-              <CustomButton
-                type="button"
-                className="h-9 rounded-xl text-xs font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer gap-1.5"
-                onClick={() => onDecisionSubmit("APPROVED")}
-                disabled={isSubmittingDecision}
-              >
-                <Check className="h-3.5 w-3.5" /> Approve Leave
-              </CustomButton>
-            </>
-          ) : (
-            <CustomButton
-              variant="outline"
-              type="button"
-              className="h-9 rounded-xl text-xs font-bold cursor-pointer"
-              onClick={onClose}
-            >
-              Close
-            </CustomButton>
-          )}
-        </FormFooter>
-      </form>
-    </CustomModal>
+            )}
+          </FormFooter>
+        </div>
+      </CustomModal>
+
+      {/* Confirm decision modal */}
+      {confirmStatus && (
+        <LeaveDecisionConfirmModal
+          isOpen={!!confirmStatus}
+          onClose={() => setConfirmStatus(null)}
+          onConfirm={handleConfirmSubmit}
+          status={confirmStatus}
+          employeeName={employeeName}
+          isSubmitting={isSubmittingDecision}
+        />
+      )}
+    </>
   );
 }

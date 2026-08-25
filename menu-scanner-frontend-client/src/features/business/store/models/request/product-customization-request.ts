@@ -1,5 +1,4 @@
 export interface ProductCustomizationCreateDto {
-  productId: string;
   name: string;
   priceAdjustment: number;
   status?: string;

@@ -57,9 +57,6 @@ public class Leave extends BaseUUIDEntity {
     @Column(name = "reason", columnDefinition = "TEXT")
     private String reason;
 
-    @Column(name = "attachment_image", columnDefinition = "TEXT")
-    private String attachmentImage;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     @Builder.Default

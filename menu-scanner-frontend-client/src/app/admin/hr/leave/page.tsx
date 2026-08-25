@@ -15,6 +15,7 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import { useHRState } from "@/features/hr/store/state/hr-state";
 import {
   fetchLeaveListService,
+  approveLeaveService,
   deleteLeaveService,
 } from "@/features/hr/store/thunks/hr-thunks";
 import { AppDefault } from "@/constants/app-resource/default/default";
@@ -26,6 +27,7 @@ import {
 } from "@/features/hr/store/models/hr-models";
 import { LeaveModal } from "@/features/hr/components/leave-modal";
 import { LeaveDetailModal } from "@/features/hr/components/leave-detail-modal";
+import { LeaveDecisionConfirmModal } from "@/features/hr/components/leave-decision-confirm-modal";
 
 function LeavePageInner() {
   const dispatch = useAppDispatch();
@@ -44,6 +46,10 @@ function LeavePageInner() {
 
   const [selectedLeave, setSelectedLeave] = useState<LeaveModel | null>(null);
   const [leaveToDelete, setLeaveToDelete] = useState<LeaveModel | null>(null);
+  const [decisionTarget, setDecisionTarget] = useState<{
+    leave: LeaveModel;
+    status: "APPROVED" | "REJECTED";
+  } | null>(null);
 
   // Sync modal state from URL search params
   useEffect(() => {
@@ -93,6 +99,33 @@ function LeavePageInner() {
     }
   };
 
+  const handleDecisionConfirm = async (actionNote: string) => {
+    if (!decisionTarget) return;
+    try {
+      await dispatch(
+        approveLeaveService({
+          id: decisionTarget.leave.id,
+          status: decisionTarget.status,
+          actionNote: actionNote || undefined,
+        })
+      ).unwrap();
+      showToast.success(`Leave request ${decisionTarget.status.toLowerCase()} successfully!`);
+      setDecisionTarget(null);
+      dispatch(
+        fetchLeaveListService({
+          businessId: AppDefault.BUSINESS_ID,
+          searchQuery: debouncedSearch || undefined,
+          status: statusFilter === "ALL" ? undefined : (statusFilter as LeaveStatusType),
+          pageNo: currentPage,
+          pageSize: globalPageSize,
+        })
+      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to process leave request";
+      showToast.error(message);
+    }
+  };
+
   const columns = useMemo(
     () =>
       leaveTableColumns({
@@ -101,6 +134,12 @@ function LeavePageInner() {
         onReview: (item) => {
           setSelectedLeave(item);
           openEdit(item.id);
+        },
+        onApprove: (item) => {
+          setDecisionTarget({ leave: item, status: "APPROVED" });
+        },
+        onReject: (item) => {
+          setDecisionTarget({ leave: item, status: "REJECTED" });
         },
         onDelete: handleDeleteLeave,
       }),
@@ -181,6 +220,21 @@ function LeavePageInner() {
           setSelectedLeave(null);
         }}
       />
+
+      {/* Table Quick Action Decision Confirmation Modal */}
+      {decisionTarget && (
+        <LeaveDecisionConfirmModal
+          isOpen={!!decisionTarget}
+          onClose={() => setDecisionTarget(null)}
+          onConfirm={handleDecisionConfirm}
+          status={decisionTarget.status}
+          employeeName={
+            decisionTarget.leave.userInfo
+              ? `${decisionTarget.leave.userInfo.firstName || ""} ${decisionTarget.leave.userInfo.lastName || ""}`.trim()
+              : "Staff Member"
+          }
+        />
+      )}
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal

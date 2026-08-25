@@ -14,9 +14,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ProductCustomizationCreateDto {
 
-    @NotNull(message = "Product ID is required")
-    private UUID productId;
-
     @NotBlank(message = "Add-on name is required")
     private String name;
 

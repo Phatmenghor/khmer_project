@@ -1,10 +1,9 @@
 import React from "react";
 import { TableColumn } from "@/components/shared/common/data-table";
-import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { TableImage } from "@/components/shared/table/table-image";
-import { CustomButton } from "@/components/shared/button/custom-button";
+import { ActionButton } from "@/components/shared/button/custom-button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Eye } from "lucide-react";
+import { Trash2, Eye, Check, X } from "lucide-react";
 import { indexDisplay } from "@/utils/common/common";
 import {
   LeaveModel,
@@ -18,6 +17,8 @@ interface LeaveTableOptions {
   currentPage: number;
   pageSize: number;
   onReview: (item: LeaveModel) => void;
+  onApprove?: (item: LeaveModel) => void;
+  onReject?: (item: LeaveModel) => void;
   onDelete: (item: LeaveModel) => void;
 }
 
@@ -25,16 +26,20 @@ export const leaveTableColumns = ({
   currentPage,
   pageSize,
   onReview,
+  onApprove,
+  onReject,
   onDelete,
 }: LeaveTableOptions): TableColumn<LeaveModel>[] => {
   const renderStatus = (status: LeaveStatusType) => {
     switch (status) {
       case "APPROVED":
-        return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 rounded-xl px-2.5 py-0.5 font-bold">Approved</Badge>;
+        return <Badge className="bg-emerald-500/10 hover:bg-emerald-500/10 text-emerald-600 hover:text-emerald-600 border border-emerald-500/30 hover:border-emerald-500/80 rounded-xl px-2.5 py-0.5 font-bold transition-colors cursor-default">Approved</Badge>;
       case "REJECTED":
-        return <Badge className="bg-red-500/10 text-red-600 border-red-500/30 rounded-xl px-2.5 py-0.5 font-bold">Rejected</Badge>;
+        return <Badge className="bg-red-500/10 hover:bg-red-500/10 text-red-600 hover:text-red-600 border border-red-500/30 hover:border-red-500/80 rounded-xl px-2.5 py-0.5 font-bold transition-colors cursor-default">Rejected</Badge>;
+      case "CANCELLED":
+        return <Badge className="bg-gray-500/10 hover:bg-gray-500/10 text-gray-500 hover:text-gray-500 border border-gray-500/30 hover:border-gray-500/80 rounded-xl px-2.5 py-0.5 font-bold transition-colors cursor-default">Cancelled</Badge>;
       case "PENDING":
-        return <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/30 rounded-xl px-2.5 py-0.5 font-bold">Pending</Badge>;
+        return <Badge className="bg-amber-500/10 hover:bg-amber-500/10 text-amber-600 hover:text-amber-600 border border-amber-500/30 hover:border-amber-500/80 rounded-xl px-2.5 py-0.5 font-bold transition-colors cursor-default">Pending</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -108,51 +113,57 @@ export const leaveTableColumns = ({
       render: (item: LeaveModel) => renderStatus(item.status),
     },
     {
-      key: "reason",
-      label: "Reason",
-      render: (item: LeaveModel) => (
-        <span className="text-muted-foreground text-xs line-clamp-1 max-w-[200px]">
-          {item.reason}
-        </span>
-      ),
-    },
-    {
-      key: "attachmentImage",
-      label: "Attachment",
-      render: (item: LeaveModel) => (
-        item.attachmentImage ? (
-          <TableImage
-            src={item.attachmentImage}
-            alt={`${item.leaveTypeEnum} Attachment`}
-            className="h-8 w-8 rounded-lg"
-          />
-        ) : (
-          <span className="text-[11px] text-muted-foreground italic">None</span>
-        )
-      ),
+      key: "actionUserInfo",
+      label: "Action By",
+      render: (item: LeaveModel) => {
+        if (item.status === "PENDING") {
+          return <span className="text-[11px] text-muted-foreground italic">Pending Review</span>;
+        }
+        const actionUser = item.actionUserInfo;
+        const name = actionUser ? `${actionUser.firstName || ""} ${actionUser.lastName || ""}`.trim() : "System Admin";
+        return (
+          <span className="text-xs text-foreground font-semibold truncate max-w-[150px] block">
+            {name}
+          </span>
+        );
+      },
     },
     {
       key: "actions",
       label: "Actions",
       render: (item: LeaveModel) => (
-        <div className="flex items-center justify-end gap-1.5">
-          <CustomButton
-            size="sm"
-            variant={item.status === "PENDING" ? "primary" : "outline"}
-            className="h-7 rounded-xl text-xs font-bold gap-1.5 cursor-pointer"
+        <div className="flex items-center justify-end gap-1">
+          {item.status === "PENDING" && (
+            <>
+              {onApprove && (
+                <ActionButton
+                  icon={<Check className="w-3.5 h-3.5" />}
+                  tooltip="Approve Leave"
+                  className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10"
+                  onClick={() => onApprove(item)}
+                />
+              )}
+              {onReject && (
+                <ActionButton
+                  icon={<X className="w-3.5 h-3.5" />}
+                  tooltip="Reject Leave"
+                  variant="destructive"
+                  onClick={() => onReject(item)}
+                />
+              )}
+            </>
+          )}
+          <ActionButton
+            icon={<Eye className="w-3.5 h-3.5" />}
+            tooltip={item.status === "PENDING" ? "Review Leave" : "View Details"}
             onClick={() => onReview(item)}
-          >
-            <Eye className="w-3.5 h-3.5" />
-            {item.status === "PENDING" ? "Review" : "View"}
-          </CustomButton>
-          <CustomButton
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0 rounded-xl text-destructive hover:bg-destructive/10 cursor-pointer"
+          />
+          <ActionButton
+            icon={<Trash2 className="w-3.5 h-3.5" />}
+            tooltip="Delete Request"
+            variant="destructive"
             onClick={() => onDelete(item)}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </CustomButton>
+          />
         </div>
       ),
     },

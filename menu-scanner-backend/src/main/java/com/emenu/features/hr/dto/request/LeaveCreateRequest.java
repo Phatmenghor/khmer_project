@@ -26,5 +26,4 @@ public class LeaveCreateRequest {
     @NotNull(message = "Reason required")
     private String reason;
 
-    private String attachmentImage;
 }

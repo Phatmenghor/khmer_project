@@ -32,7 +32,6 @@ public class ProductCustomizationMapper {
         }
 
         ProductCustomization customization = new ProductCustomization();
-        customization.setProductId(dto.getProductId());
         customization.setName(dto.getName());
         customization.setPriceAdjustment(dto.getPriceAdjustment());
 

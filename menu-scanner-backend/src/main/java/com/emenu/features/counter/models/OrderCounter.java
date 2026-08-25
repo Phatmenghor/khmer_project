@@ -1,4 +1,4 @@
-package com.emenu.features.order.models;
+package com.emenu.features.counter.models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

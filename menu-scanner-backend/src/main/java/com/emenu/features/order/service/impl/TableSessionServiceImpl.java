@@ -23,8 +23,8 @@ import com.emenu.features.order.repository.OrderRepository;
 import com.emenu.features.order.repository.TableSessionRepository;
 import com.emenu.features.order.service.TableSessionService;
 import com.emenu.features.order.specification.TableSessionSpecification;
+import com.emenu.features.counter.ReferenceNumberGenerator;
 import com.emenu.shared.dto.PaginationResponse;
-import com.emenu.shared.generate.OrderNumberGenerator;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +53,7 @@ public class TableSessionServiceImpl implements TableSessionService {
     private final TableSessionRepository tableSessionRepository;
     private final OrderRepository orderRepository;
     private final TableSessionMapper tableSessionMapper;
-    private final OrderNumberGenerator orderNumberGenerator;
+    private final ReferenceNumberGenerator referenceNumberGenerator;
     private final PaginationMapper paginationMapper;
     private final TelegramNotificationService telegramNotificationService;
     private final WebSocketNotificationService webSocketNotificationService;
@@ -211,7 +211,7 @@ public class TableSessionServiceImpl implements TableSessionService {
                     String tableNum = request.getTableNumber() != null && !request.getTableNumber().isBlank()
                             ? request.getTableNumber()
                             : (request.getTableId() != null ? "Table " + request.getTableId() : "Table " + tableUuid.toString().substring(0, 4));
-                    String sessionNum = orderNumberGenerator.generateSessionNumber(businessId, tableNum);
+                    String sessionNum = referenceNumberGenerator.generateSessionNumber(businessId, tableNum);
                     TableSession newSess = TableSession.builder()
                             .businessId(businessId)
                             .tableId(tableUuid)
@@ -369,7 +369,7 @@ public class TableSessionServiceImpl implements TableSessionService {
                 .orElseThrow(() -> new NotFoundException("No active dining session found for Table ID: " + request.getTableId()));
 
         Order order = new Order();
-        order.setOrderNumber(orderNumberGenerator.generateOrderNumber(businessId));
+        order.setOrderNumber(referenceNumberGenerator.generateOrderNumber(businessId));
         order.setBusinessId(businessId);
         order.setCustomerName(request.getCustomerName() != null && !request.getCustomerName().isBlank()
                 ? request.getCustomerName()

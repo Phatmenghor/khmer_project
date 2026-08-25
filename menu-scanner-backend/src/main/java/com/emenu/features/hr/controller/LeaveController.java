@@ -77,4 +77,18 @@ public class LeaveController {
         LeaveResponse response = service.delete(id);
         return ResponseEntity.ok(ApiResponse.success("Leave request deleted", response));
     }
+
+    @GetMapping("/balance")
+    public ResponseEntity<ApiResponse<com.emenu.features.hr.dto.response.LeaveBalanceResponse>> getMyLeaveBalance() {
+        User currentUser = securityUtils.getCurrentUser();
+        com.emenu.features.hr.dto.response.LeaveBalanceResponse response = service.getLeaveBalance(currentUser.getId(), currentUser.getBusinessId());
+        return ResponseEntity.ok(ApiResponse.success("My leave balance retrieved", response));
+    }
+
+    @GetMapping("/balance/{userId}")
+    public ResponseEntity<ApiResponse<com.emenu.features.hr.dto.response.LeaveBalanceResponse>> getUserLeaveBalance(@PathVariable UUID userId) {
+        User currentUser = securityUtils.getCurrentUser();
+        com.emenu.features.hr.dto.response.LeaveBalanceResponse response = service.getLeaveBalance(userId, currentUser.getBusinessId());
+        return ResponseEntity.ok(ApiResponse.success("User leave balance retrieved", response));
+    }
 }

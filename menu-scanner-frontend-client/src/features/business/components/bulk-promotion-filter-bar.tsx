@@ -68,9 +68,6 @@ export function BulkPromotionFilterBar({
               checked={allSelected}
               onCheckedChange={handleSelectAll}
               disabled={isLoading}
-              size="lg"
-              variant="default"
-              ariaLabel="Select all products on this page"
               className="flex-shrink-0"
             />
 

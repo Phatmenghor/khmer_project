@@ -107,18 +107,30 @@ export function EmploymentInfoCard({
             <div className="grid grid-cols-3 gap-2">
               <div className="p-2 rounded-lg bg-card border border-border/60 text-center">
                 <span className="text-[10px] text-muted-foreground font-medium block">Annual Leave</span>
-                <span className="text-xs font-black text-foreground">{leaveBalance.remainingAnnualLeave ?? leaveBalance.annualLeaveQuota ?? 0} Days Remaining</span>
-                <span className="text-[10px] text-muted-foreground block mt-0.5">Used: {leaveBalance.usedAnnualLeave || 0} / Total: {leaveBalance.annualLeaveQuota || 0}</span>
+                <span className="text-xs font-black text-foreground">
+                  {leaveBalance.remainingAnnualLeave ?? leaveBalance.annualAvailable ?? leaveBalance.annualLeaveQuota ?? 0} Days Remaining
+                </span>
+                <span className="text-[10px] text-muted-foreground block mt-0.5">
+                  Used: {leaveBalance.usedAnnualLeave ?? leaveBalance.annualUsedAndPending ?? 0} / Total: {leaveBalance.annualLeaveQuota ?? leaveBalance.annualEntitlement ?? 0}
+                </span>
               </div>
               <div className="p-2 rounded-lg bg-card border border-border/60 text-center">
                 <span className="text-[10px] text-muted-foreground font-medium block">Sick Leave</span>
-                <span className="text-xs font-black text-foreground">{leaveBalance.remainingSickLeave ?? leaveBalance.sickLeaveQuota ?? 0} Days Remaining</span>
-                <span className="text-[10px] text-muted-foreground block mt-0.5">Used: {leaveBalance.usedSickLeave || 0} / Total: {leaveBalance.sickLeaveQuota || 0}</span>
+                <span className="text-xs font-black text-foreground">
+                  {leaveBalance.remainingSickLeave ?? leaveBalance.sickAvailable ?? leaveBalance.sickLeaveQuota ?? 0} Days Remaining
+                </span>
+                <span className="text-[10px] text-muted-foreground block mt-0.5">
+                  Used: {leaveBalance.usedSickLeave ?? leaveBalance.sickUsedAndPending ?? 0} / Total: {leaveBalance.sickLeaveQuota ?? leaveBalance.sickEntitlement ?? 0}
+                </span>
               </div>
               <div className="p-2 rounded-lg bg-card border border-border/60 text-center">
                 <span className="text-[10px] text-muted-foreground font-medium block">Special Leave</span>
-                <span className="text-xs font-black text-foreground">{leaveBalance.remainingSpecialLeave ?? leaveBalance.specialLeaveQuota ?? 0} Days Remaining</span>
-                <span className="text-[10px] text-muted-foreground block mt-0.5">Used: {leaveBalance.usedSpecialLeave || 0} / Total: {leaveBalance.specialLeaveQuota || 0}</span>
+                <span className="text-xs font-black text-foreground">
+                  {leaveBalance.remainingSpecialLeave ?? leaveBalance.specialAvailable ?? leaveBalance.specialLeaveQuota ?? 0} Days Remaining
+                </span>
+                <span className="text-[10px] text-muted-foreground block mt-0.5">
+                  Used: {leaveBalance.usedSpecialLeave ?? leaveBalance.specialUsedAndPending ?? 0} / Total: {leaveBalance.specialLeaveQuota ?? leaveBalance.specialEntitlement ?? 0}
+                </span>
               </div>
             </div>
           </div>

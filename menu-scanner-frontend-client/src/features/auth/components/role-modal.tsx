@@ -179,7 +179,6 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
               : "Update role information below"
           }
           isCreate={isCreate}
-          className="m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4"
         />
 
         {!isCreate && isFetchingDetail ? (
@@ -234,7 +233,6 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
               isCreate={isCreate}
               createMessage="Creating role..."
               updateMessage="Updating role..."
-              className="m-0 mx-0 mb-0 md:mx-0 md:mb-0 p-4 md:p-4"
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
               <SubmitButton

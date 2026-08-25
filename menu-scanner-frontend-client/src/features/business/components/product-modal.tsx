@@ -398,12 +398,6 @@ export default function ProductModal({
         ),
       }));
 
-      const cleanedCustomizations = (data.customizations || []).map((customization) => ({
-        id: customization.id,
-        name: customization.name,
-        priceAdjustment: customization.priceAdjustment || 0,
-      }));
-
       const basePayload = {
         name: data.name,
         description: data.description,
@@ -414,7 +408,7 @@ export default function ProductModal({
         mainImage: mainImagePayload,
         images: validImages.length > 0 ? validImages : undefined,
         sizes: cleanedSizes.length > 0 ? cleanedSizes : undefined,
-        customizations: cleanedCustomizations.length > 0 ? cleanedCustomizations : undefined,
+        customizations: data.customizations && data.customizations.length > 0 ? data.customizations : undefined,
         status: data.status,
         hasSizes: hasSizes,
       };
@@ -1124,7 +1118,6 @@ export default function ProductModal({
               updateMessage={
                 isUploadingImage ? "Uploading images..." : "Updating product..."
               }
-              className="m-0 mx-0 mb-0 md:mx-0 md:mb-0 p-4 md:p-4"
             >
               <CancelButton onClick={handleClose} disabled={isProcessing} />
               <SubmitButton

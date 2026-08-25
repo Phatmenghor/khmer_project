@@ -1,0 +1,32 @@
+package com.emenu.features.counter.models;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.util.UUID;
+
+@Entity
+@Table(name = "attendance_check_in_counters", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"business_id", "counter_date"}, name = "uk_check_in_counter_business_date")
+})
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class AttendanceCheckInCounter {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(name = "business_id", nullable = false)
+    private UUID businessId;
+
+    @Column(name = "counter_date", nullable = false)
+    private LocalDate counterDate;
+
+    @Column(name = "counter_value", nullable = false)
+    private Long counterValue = 0L;
+}

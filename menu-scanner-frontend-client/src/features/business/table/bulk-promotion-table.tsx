@@ -107,9 +107,6 @@ export const bulkPromotionTableColumns = ({
             checked={selectedProductIds.has(product.id)}
             onCheckedChange={() => onSelectProduct(product.id)}
             disabled={isLoading}
-            size="lg"
-            variant="default"
-            ariaLabel={`Select ${product.name}`}
           />
 
           <ActionButton
@@ -193,9 +190,6 @@ export const bulkPromotionTableColumns = ({
                   <CustomCheckbox
                     checked={isSelected}
                     onCheckedChange={() => onSizeToggle?.(product.id, size.id)}
-                    size="sm"
-                    variant="default"
-                    ariaLabel={`Select ${size.name}`}
                   />
 
                   {}

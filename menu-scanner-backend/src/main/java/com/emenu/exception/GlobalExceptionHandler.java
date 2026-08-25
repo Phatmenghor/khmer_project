@@ -268,6 +268,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleNotReadable(
             HttpMessageNotReadableException ex) {
         log.warn("Invalid JSON body: {}", ex.getMessage());
+        if (ex.getCause() instanceof com.fasterxml.jackson.databind.JsonMappingException jme) {
+            String path = jme.getPath().stream()
+                    .map(ref -> {
+                        if (ref.getFieldName() != null) {
+                            return ref.getFieldName();
+                        } else {
+                            return "[" + ref.getIndex() + "]";
+                        }
+                    })
+                    .collect(Collectors.joining(" -> "));
+            log.warn("JSON Deserialization failed at path: {}", path);
+        }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.failure("Invalid request body. Please check your JSON format.",
                         Map.of("errorCode", "INVALID_REQUEST_BODY")));

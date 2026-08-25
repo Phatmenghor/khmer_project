@@ -23,6 +23,8 @@ import com.emenu.features.auth.specification.UserSpecification;
 import com.emenu.features.auth.service.BusinessService;
 import com.emenu.features.auth.service.UserService;
 import com.emenu.features.auth.service.UserValidationService;
+import com.emenu.features.hr.repository.LeaveRepository;
+import com.emenu.enums.hr.LeaveStatusEnum;
 import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.constants.AuthConstants;
@@ -85,6 +87,7 @@ public class UserServiceImpl implements UserService {
     private final PaginationMapper paginationMapper;
     private final WebSocketNotificationService webSocketNotificationService;
     private final RequestCancellationRegistry cancellationRegistry;
+    private final LeaveRepository leaveRepository;
 
     @Override
     public UserResponse createUser(@Valid UserCreateRequest requestData) {
@@ -344,21 +347,33 @@ public class UserServiceImpl implements UserService {
                 }
             }
 
-            LeaveBalanceDto balanceDto = LeaveBalanceDto.builder()
-                    .annualLeaveQuota(annualCalc)
-                    .usedAnnualLeave(0.0)
-                    .remainingAnnualLeave(annualCalc)
-                    .sickLeaveQuota(sickCalc)
-                    .usedSickLeave(0.0)
-                    .remainingSickLeave(sickCalc)
-                    .specialLeaveQuota(specialCalc)
-                    .usedSpecialLeave(0.0)
-                    .remainingSpecialLeave(specialCalc)
-                    .targetYear(targetYear)
-                    .isProRated(isProRated)
-                    .build();
+            java.time.LocalDate startOfYear = java.time.LocalDate.of(targetYear, 1, 1);
+                java.time.LocalDate endOfYear = java.time.LocalDate.of(targetYear, 12, 31);
+                List<LeaveStatusEnum> activeStatuses = List.of(LeaveStatusEnum.PENDING, LeaveStatusEnum.APPROVED);
 
-            userDetailsResponse.setLeaveBalance(balanceDto);
+                double usedAnnual = leaveRepository.sumUsedLeaveDays(userEntityId, userDetailsResponse.getBusinessId(), "ANNUAL", activeStatuses, startOfYear, endOfYear);
+                double usedSick = leaveRepository.sumUsedLeaveDays(userEntityId, userDetailsResponse.getBusinessId(), "SICK", activeStatuses, startOfYear, endOfYear);
+                double usedSpecial = leaveRepository.sumUsedLeaveDays(userEntityId, userDetailsResponse.getBusinessId(), "SPECIAL", activeStatuses, startOfYear, endOfYear);
+
+                double remainingAnnual = Math.max(0.0, Math.round((annualCalc - usedAnnual) * 10.0) / 10.0);
+                double remainingSick = Math.max(0.0, Math.round((sickCalc - usedSick) * 10.0) / 10.0);
+                double remainingSpecial = Math.max(0.0, Math.round((specialCalc - usedSpecial) * 10.0) / 10.0);
+
+                LeaveBalanceDto balanceDto = LeaveBalanceDto.builder()
+                        .annualLeaveQuota(annualCalc)
+                        .usedAnnualLeave(usedAnnual)
+                        .remainingAnnualLeave(remainingAnnual)
+                        .sickLeaveQuota(sickCalc)
+                        .usedSickLeave(usedSick)
+                        .remainingSickLeave(remainingSick)
+                        .specialLeaveQuota(specialCalc)
+                        .usedSpecialLeave(usedSpecial)
+                        .remainingSpecialLeave(remainingSpecial)
+                        .targetYear(targetYear)
+                        .isProRated(isProRated)
+                        .build();
+
+                userDetailsResponse.setLeaveBalance(balanceDto);
             }
         }
 

@@ -15,5 +15,4 @@ public class LeaveUpdateRequest {
     private LocalDate startDate;
     private LocalDate endDate;
     private String reason;
-    private String attachmentImage;
 }

@@ -166,7 +166,16 @@ export interface AttendanceModel {
 }
 
 export type LeaveStatusType = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
-export type LeaveTypeEnum = "ANNUAL" | "SICK" | "UNPAID" | "MATERNITY" | "SPECIAL";
+export type LeaveTypeEnum = "ANNUAL" | "SICK" | "UNPAID" | "MATERNITY" | "SPECIAL" | "OTHER";
+
+export interface LeaveStatusHistoryItem {
+  id: string;
+  status: LeaveStatusType;
+  note?: string;
+  changedByUserId?: string;
+  changedByName?: string;
+  changedAt?: string;
+}
 
 export interface LeaveModel {
   id: string;
@@ -178,17 +187,33 @@ export interface LeaveModel {
   endDate: string;
   totalDays: number;
   reason: string;
-  attachmentImage?: string;
   status: LeaveStatusType;
   actionBy?: string;
   actionUserInfo?: UserBasicInfo;
   actionAt?: string;
   actionNote?: string;
+  statusHistory?: LeaveStatusHistoryItem[];
   createdAt?: string;
   updatedAt?: string;
   createdBy?: string;
   updatedBy?: string;
 }
+
+export interface LeaveBalanceModel {
+  userId: string;
+  businessId: string;
+  enableLeaveManagement: boolean;
+  annualEntitlement: number;
+  annualUsedAndPending: number;
+  annualAvailable: number;
+  sickEntitlement: number;
+  sickUsedAndPending: number;
+  sickAvailable: number;
+  specialEntitlement: number;
+  specialUsedAndPending: number;
+  specialAvailable: number;
+}
+
 
 export interface WorkScheduleModel {
   id: string;
@@ -224,7 +249,8 @@ export interface AttendanceFilterPayload {
 export interface LeaveFilterPayload {
   businessId?: string;
   userId?: string;
-  status?: LeaveStatusType;
+  status?: LeaveStatusType;       // single (normalised to array in thunk)
+  statuses?: LeaveStatusType[];   // multi-status filter (preferred)
   leaveTypeEnum?: string;
   startDate?: string;
   endDate?: string;
