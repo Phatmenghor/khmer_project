@@ -143,21 +143,32 @@ export type AttendanceStatusType = "PRESENT" | "LATE" | "ABSENT" | "HALF_DAY" | 
 
 export interface AttendanceCheckIn {
   id: string;
+  referenceNumber?: string;
   checkInTime: string;
-  checkInType: "CHECK_IN" | "CHECK_OUT";
+  checkInType: "CHECK_IN" | "CHECK_OUT" | "START" | "END";
   latitude?: number;
   longitude?: number;
+  lateMinutes?: number;
+  earlyLeaveMinutes?: number;
+  overtimeMinutes?: number;
+  isLate?: boolean;
+  isEarly?: boolean;
+  isOvertime?: boolean;
   remarks?: string;
 }
 
 export interface AttendanceModel {
   id: string;
+  referenceNumber?: string;
   userInfo?: UserBasicInfo;
   businessId: string;
   workScheduleId?: string;
   attendanceDate: string;
   checkIns?: AttendanceCheckIn[];
   status: AttendanceStatusType;
+  lateMinutes?: number;
+  overtimeMinutes?: number;
+  earlyLeaveMinutes?: number;
   remarks?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -167,6 +178,7 @@ export interface AttendanceModel {
 
 export type LeaveStatusType = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
 export type LeaveTypeEnum = "ANNUAL" | "SICK" | "UNPAID" | "MATERNITY" | "SPECIAL" | "OTHER";
+export type LeaveSessionType = "FULL_DAY" | "MORNING_SESSION" | "AFTERNOON_SESSION";
 
 export interface LeaveStatusHistoryItem {
   id: string;
@@ -183,6 +195,7 @@ export interface LeaveModel {
   userInfo?: UserBasicInfo;
   businessId: string;
   leaveTypeEnum: LeaveTypeEnum | string;
+  leaveSession?: LeaveSessionType;
   startDate: string;
   endDate: string;
   totalDays: number;

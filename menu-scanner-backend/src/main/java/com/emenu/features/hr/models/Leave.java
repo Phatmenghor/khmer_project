@@ -1,5 +1,6 @@
 package com.emenu.features.hr.models;
 
+import com.emenu.enums.hr.LeaveSessionEnum;
 import com.emenu.enums.hr.LeaveStatusEnum;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.User;
@@ -50,6 +51,11 @@ public class Leave extends BaseUUIDEntity {
 
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "leave_session", length = 30)
+    @Builder.Default
+    private LeaveSessionEnum leaveSession = LeaveSessionEnum.FULL_DAY;
 
     @Column(name = "total_days")
     private Double totalDays;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
   selectBusinessName,
@@ -17,9 +17,13 @@ import {
   DEFAULT_STYLE,
   type QRConfig,
   type QRStyle,
+  type QRType,
+  type CardTemplate,
 } from "@/components/admin/qr-generator/use-qr-generator";
+import { getTemplateConfig } from "@/components/admin/qr-generator/card-templates";
+import { AppDefault } from "@/constants/app-resource/default/default";
 
-export default function QRGeneratorPage() {
+function QRGeneratorPageInner() {
   const dispatch = useAppDispatch();
   const businessSettings = useAppSelector(selectBusinessSettings);
   const businessName = useAppSelector(selectBusinessName);
@@ -35,39 +39,78 @@ export default function QRGeneratorPage() {
     }
   }, [dispatch, businessSettings]);
 
-  // Read pre-selected table parameter from URL if opened from Table Monitoring
+  // Read configuration & template parameters from URL search params on mount
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
+
+    const typeParam = params.get("type") as QRType | null;
     const tableNum = params.get("tableNumber") || params.get("table") || params.get("tableId");
-    if (tableNum) {
-      const cleanNum = decodeURIComponent(tableNum).replace(/^table-?/i, "").trim();
+    const titleParam = params.get("title");
+    const subtitleParam = params.get("subtitle");
+    const scanTextParam = params.get("scanText");
+    const templateParam = params.get("template") as CardTemplate | null;
+
+    if (typeParam || tableNum || titleParam || subtitleParam || scanTextParam) {
       setConfig((prev) => ({
         ...prev,
-        type: "table",
-        tableNumber: cleanNum,
+        type: typeParam || prev.type,
+        tableNumber: tableNum ? decodeURIComponent(tableNum).replace(/^table-?/i, "").trim() : prev.tableNumber,
+        cardTitle: titleParam ? decodeURIComponent(titleParam) : prev.cardTitle,
+        cardSubtitle: subtitleParam ? decodeURIComponent(subtitleParam) : prev.cardSubtitle,
+        scanText: scanTextParam ? decodeURIComponent(scanTextParam) : prev.scanText,
+      }));
+    }
+
+    if (templateParam) {
+      const tpl = getTemplateConfig(templateParam);
+      setStyle((prev) => ({
+        ...prev,
+        template: templateParam,
+        cardGradientFrom: tpl.gradientFrom,
+        cardGradientTo: tpl.gradientTo,
+        primaryColor: tpl.qrPrimaryColor,
       }));
     }
   }, []);
 
-  // Pre-fill cardTitle from businessName when business settings arrive
+  // Pre-fill cardTitle & businessId from businessName/businessSettings when business settings arrive
   useEffect(() => {
-    if (businessName) {
-      setConfig((prev) => ({
-        ...prev,
-        cardTitle: prev.cardTitle || businessName,
-      }));
-    }
-  }, [businessName]);
+    const bId = (businessSettings as any)?.id || AppDefault.BUSINESS_ID;
+    setConfig((prev) => ({
+      ...prev,
+      businessId: bId,
+      cardTitle: prev.cardTitle || businessName || "",
+    }));
+  }, [businessName, businessSettings]);
 
-  // Pre-fill logoDataUrl from businessLogo if available, else default to appImages.scanmekhLogo
+  // Pre-fill logoDataUrl & system --primary theme color for primary-theme template on mount
   useEffect(() => {
     const logoUrl = typeof businessLogo === "string" ? businessLogo : (businessLogo as any)?.sm || (businessLogo as any)?.md;
+    const tpl = getTemplateConfig(style.template);
     setStyle((prev) => ({
       ...prev,
+      cardGradientFrom: prev.template === "custom" ? prev.cardGradientFrom : tpl.gradientFrom,
+      cardGradientTo: prev.template === "custom" ? prev.cardGradientTo : tpl.gradientTo,
+      primaryColor: prev.template === "custom" ? prev.primaryColor : tpl.qrPrimaryColor,
       logoDataUrl: prev.logoDataUrl || logoUrl || appImages.scanmekhLogo,
     }));
   }, [businessLogo]);
+
+  // Safely sync state to URL search parameters AFTER render (fixes React Router setState warning)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams();
+    if (config.type) params.set("type", config.type);
+    if (config.tableNumber && config.type === "table") params.set("tableNumber", config.tableNumber);
+    if (config.cardTitle) params.set("title", config.cardTitle);
+    if (config.cardSubtitle) params.set("subtitle", config.cardSubtitle);
+    if (config.scanText) params.set("scanText", config.scanText);
+    if (style.template) params.set("template", style.template);
+
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState(null, "", newUrl);
+  }, [config.type, config.tableNumber, config.cardTitle, config.cardSubtitle, config.scanText, style.template]);
 
   const updateConfig = useCallback((updates: Partial<QRConfig>) => {
     setConfig((prev) => ({ ...prev, ...updates }));
@@ -100,5 +143,13 @@ export default function QRGeneratorPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function QRGeneratorPage() {
+  return (
+    <Suspense>
+      <QRGeneratorPageInner />
+    </Suspense>
   );
 }

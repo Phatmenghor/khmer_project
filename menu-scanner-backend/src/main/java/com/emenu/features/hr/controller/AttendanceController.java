@@ -44,6 +44,14 @@ public class AttendanceController {
         return ResponseEntity.ok(ApiResponse.success("Attendance record retrieved", response));
     }
 
+    @GetMapping("/today")
+    public ResponseEntity<ApiResponse<java.util.List<AttendanceResponse>>> getTodayAttendance(
+            @RequestParam UUID businessId) {
+        log.info("Endpoint: today-attendance - retrieving today's attendance records for businessId={}", businessId);
+        java.util.List<AttendanceResponse> response = service.getTodayAttendance(businessId);
+        return ResponseEntity.ok(ApiResponse.success("Today's attendance records retrieved", response));
+    }
+
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<AttendanceResponse>>> getAll(
             @Valid @RequestBody AttendanceFilterRequest filter) {
@@ -66,5 +74,12 @@ public class AttendanceController {
         log.info("Endpoint: delete-attendance - attendance deletion: id={}", id);
         AttendanceResponse response = service.delete(id);
         return ResponseEntity.ok(ApiResponse.success("Attendance record deleted", response));
+    }
+
+    @PostMapping("/process-absences")
+    public ResponseEntity<ApiResponse<Void>> processDailyAbsences() {
+        log.info("Endpoint: process-absences - manual trigger for daily attendance absence evaluation");
+        service.processDailyAbsences();
+        return ResponseEntity.ok(ApiResponse.success("Daily attendance absence process completed", null));
     }
 }

@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import {
   approveLeaveService,
   fetchLeaveListService,
+  fetchMyLeaveBalanceService,
   getLeaveByIdService,
 } from "@/features/hr/store/thunks/hr-thunks";
 import { clearSelectedLeave } from "@/features/hr/store/slice/hr-slice";
@@ -151,8 +152,9 @@ export function LeaveDetailModal({ leave, isOpen, onClose, onSuccess }: LeaveDet
       setConfirmStatus(null);
       // Refresh detail to get updated statusHistory
       dispatch(getLeaveByIdService(liveLeave.id));
-      // Refresh list in background
+      // Refresh list & balance in background
       dispatch(fetchLeaveListService({ businessId: AppDefault.BUSINESS_ID }));
+      dispatch(fetchMyLeaveBalanceService());
       if (onSuccess) onSuccess();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to process leave request";
@@ -196,6 +198,16 @@ export function LeaveDetailModal({ leave, isOpen, onClose, onSuccess }: LeaveDet
               <SectionTitle>Leave Information</SectionTitle>
               <InfoRow label="Reference Number" value={liveLeave.referenceNumber || "-"} />
               <InfoRow label="Leave Type" value={liveLeave.leaveTypeEnum} />
+              <InfoRow
+                label="Leave Session"
+                value={
+                  liveLeave.leaveSession === "MORNING_SESSION"
+                    ? "Section 1 - Morning (0.5 Day)"
+                    : liveLeave.leaveSession === "AFTERNOON_SESSION"
+                    ? "Section 2 - Afternoon (0.5 Day)"
+                    : "Full Day (1.0 Day)"
+                }
+              />
               <InfoRow label="Start Date" value={liveLeave.startDate} />
               <InfoRow label="End Date" value={liveLeave.endDate} />
               <InfoRow label="Total Days" value={`${liveLeave.totalDays} Day(s)`} />

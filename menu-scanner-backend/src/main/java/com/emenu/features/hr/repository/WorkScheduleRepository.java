@@ -20,6 +20,8 @@ public interface WorkScheduleRepository extends JpaRepository<WorkSchedule, UUID
 
     List<WorkSchedule> findByUserIdAndIsDeletedFalse(UUID userId);
 
+    List<WorkSchedule> findByBusinessIdAndIsDeletedFalse(UUID businessId);
+
     @Query("SELECT w FROM WorkSchedule w LEFT JOIN w.user u LEFT JOIN u.profile p WHERE w.isDeleted = false " +
            "AND (:businessId IS NULL OR w.businessId = :businessId) " +
            "AND (:userId IS NULL OR w.userId = :userId) " +

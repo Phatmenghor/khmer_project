@@ -20,6 +20,7 @@ export type WorkScheduleFormValues = z.infer<typeof workScheduleSchema>;
 export const leaveSchema = z.object({
   leaveType: z.string().min(1, "Please select a leave type"),
   otherLeaveType: z.string().optional(),
+  leaveSession: z.enum(["FULL_DAY", "MORNING_SESSION", "AFTERNOON_SESSION"]).default("FULL_DAY"),
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
   reason: z.string().trim().min(1, "Reason for leave is required"),

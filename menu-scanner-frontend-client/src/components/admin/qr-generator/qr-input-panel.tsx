@@ -19,6 +19,28 @@ export function QRInputPanel({ config, onUpdate, businessNameFromSettings }: QRI
     label: `${opt.label} (${opt.description})`,
   }));
 
+  const handleTypeChange = (val: QRType) => {
+    if (val === "attendance_kiosk") {
+      onUpdate({
+        type: val,
+        cardSubtitle: "Scan to Clock In / Out",
+        scanText: "ATTENDANCE QR",
+      });
+    } else if (val === "table") {
+      onUpdate({
+        type: val,
+        cardSubtitle: "Scan to view menu & order",
+        scanText: "TABLE ORDERING",
+      });
+    } else {
+      onUpdate({
+        type: val,
+        cardSubtitle: "Scan to view menu",
+        scanText: "SCAN QR",
+      });
+    }
+  };
+
   return (
     <Card className="border border-border shadow-2xs bg-card overflow-hidden">
       <CardHeader className="pb-3 border-b border-border bg-muted/20">
@@ -29,7 +51,7 @@ export function QRInputPanel({ config, onUpdate, businessNameFromSettings }: QRI
             </div>
             <div>
               <CardTitle className="text-xs font-bold text-foreground">QR Configuration</CardTitle>
-              <p className="text-[11px] text-muted-foreground">Select type &amp; setup labels</p>
+              <p className="text-[11px] text-muted-foreground">Select type &amp; labels</p>
             </div>
           </div>
         </div>
@@ -42,7 +64,7 @@ export function QRInputPanel({ config, onUpdate, businessNameFromSettings }: QRI
           required
           options={typeOptions}
           value={config.type}
-          onValueChange={(val) => onUpdate({ type: val as QRType })}
+          onValueChange={(val) => handleTypeChange(val as QRType)}
           size="sm"
         />
 
@@ -74,7 +96,7 @@ export function QRInputPanel({ config, onUpdate, businessNameFromSettings }: QRI
               <button
                 type="button"
                 onClick={() => onUpdate({ cardTitle: businessNameFromSettings })}
-                className="text-[10px] text-primary hover:underline flex items-center gap-1 font-medium"
+                className="text-[10px] text-primary hover:underline flex items-center gap-1 font-medium cursor-pointer"
                 title="Reset to Business Name from Settings"
               >
                 <RefreshCw className="w-2.5 h-2.5" />
@@ -95,7 +117,7 @@ export function QRInputPanel({ config, onUpdate, businessNameFromSettings }: QRI
 
           <CustomInput
             label="Subtitle"
-            placeholder="e.g. Scan to view our menu"
+            placeholder="e.g. Scan to Clock In / Out"
             value={config.cardSubtitle}
             onChange={(e) => onUpdate({ cardSubtitle: e.target.value })}
             leftIcon={<Sparkles className="w-3.5 h-3.5 text-muted-foreground" />}
@@ -104,7 +126,7 @@ export function QRInputPanel({ config, onUpdate, businessNameFromSettings }: QRI
 
           <CustomInput
             label="Scan Button Text"
-            placeholder="e.g. SCAN QR CODE"
+            placeholder="e.g. ATTENDANCE QR"
             value={config.scanText}
             onChange={(e) => onUpdate({ scanText: e.target.value })}
             leftIcon={<Layers className="w-3.5 h-3.5 text-muted-foreground" />}

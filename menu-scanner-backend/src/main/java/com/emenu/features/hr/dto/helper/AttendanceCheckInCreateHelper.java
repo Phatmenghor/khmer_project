@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AttendanceCheckInCreateHelper {
+    private String referenceNumber;
     private CheckInType checkInType;
     private LocalDateTime checkInTime;
     private BigDecimal latitude;

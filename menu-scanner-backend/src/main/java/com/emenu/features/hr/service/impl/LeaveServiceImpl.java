@@ -1,5 +1,6 @@
 package com.emenu.features.hr.service.impl;
 
+import com.emenu.enums.hr.LeaveSessionEnum;
 import com.emenu.enums.hr.LeaveStatusEnum;
 import com.emenu.exception.custom.BusinessValidationException;
 import com.emenu.exception.custom.ResourceNotFoundException;
@@ -55,11 +56,15 @@ public class LeaveServiceImpl implements LeaveService {
 
     @Override
     public LeaveResponse create(LeaveCreateRequest request, UUID userId, UUID businessId) {
-        double totalDays = ChronoUnit.DAYS.between(request.getStartDate(), request.getEndDate()) + 1;
+        LeaveSessionEnum session = request.getLeaveSession() != null ? request.getLeaveSession() : LeaveSessionEnum.FULL_DAY;
+        double rawDays = ChronoUnit.DAYS.between(request.getStartDate(), request.getEndDate()) + 1;
 
-        if (totalDays <= 0) {
+        if (rawDays <= 0) {
             throw new BusinessValidationException("End date must be on or after start date");
         }
+
+        double multiplier = (session == LeaveSessionEnum.MORNING_SESSION || session == LeaveSessionEnum.AFTERNOON_SESSION) ? 0.5 : 1.0;
+        double totalDays = rawDays * multiplier;
 
         // Validate available leave balance before creating PENDING request
         validateAndDeductLeaveBalance(userId, businessId, request.getLeaveTypeEnum(), totalDays);
@@ -67,6 +72,7 @@ public class LeaveServiceImpl implements LeaveService {
         Leave leave = mapper.toEntity(request);
         leave.setUserId(userId);
         leave.setBusinessId(businessId);
+        leave.setLeaveSession(session);
         leave.setTotalDays(totalDays);
         leave.setStatus(LeaveStatusEnum.PENDING);
 
@@ -134,10 +140,14 @@ public class LeaveServiceImpl implements LeaveService {
 
         mapper.updateEntity(request, leave);
 
-        if (request.getStartDate() != null && request.getEndDate() != null) {
-            double totalDays = ChronoUnit.DAYS.between(leave.getStartDate(), leave.getEndDate()) + 1;
-            leave.setTotalDays(totalDays);
+        if (request.getLeaveSession() != null) {
+            leave.setLeaveSession(request.getLeaveSession());
         }
+
+        LeaveSessionEnum session = leave.getLeaveSession() != null ? leave.getLeaveSession() : LeaveSessionEnum.FULL_DAY;
+        double rawDays = ChronoUnit.DAYS.between(leave.getStartDate(), leave.getEndDate()) + 1;
+        double multiplier = (session == LeaveSessionEnum.MORNING_SESSION || session == LeaveSessionEnum.AFTERNOON_SESSION) ? 0.5 : 1.0;
+        leave.setTotalDays(rawDays * multiplier);
 
         Leave updatedLeave = repository.save(leave);
         log.info("Leave request updated successfully: id={}", id);

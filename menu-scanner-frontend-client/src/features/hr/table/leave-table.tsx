@@ -102,10 +102,21 @@ export const leaveTableColumns = ({
     },
     {
       key: "totalDays",
-      label: "Days",
-      render: (item: LeaveModel) => (
-        <span className="font-bold text-foreground text-xs">{item.totalDays} day(s)</span>
-      ),
+      label: "Days & Session",
+      render: (item: LeaveModel) => {
+        const sessionLabel =
+          item.leaveSession === "MORNING_SESSION"
+            ? "Sec 1 (Morning)"
+            : item.leaveSession === "AFTERNOON_SESSION"
+            ? "Sec 2 (Afternoon)"
+            : "Full Day";
+        return (
+          <div className="flex flex-col">
+            <span className="font-bold text-foreground text-xs">{item.totalDays} day(s)</span>
+            <span className="text-[10px] text-muted-foreground font-semibold">{sessionLabel}</span>
+          </div>
+        );
+      },
     },
     {
       key: "status",

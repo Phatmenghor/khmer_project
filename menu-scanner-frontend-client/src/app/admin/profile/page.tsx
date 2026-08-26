@@ -11,6 +11,7 @@ import {
   updateProfileService,
   deleteAccountService,
 } from "@/features/auth/store/thunks/auth-thunks";
+import { fetchMyLeaveBalanceService } from "@/features/hr/store/thunks/hr-thunks";
 import {
   selectProfile,
   selectIsProfileLoading,
@@ -153,6 +154,10 @@ export default function AdminProfilePage() {
         }))
       : [],
   });
+
+  useEffect(() => {
+    dispatch(fetchMyLeaveBalanceService());
+  }, [dispatch]);
 
   useEffect(() => {
     if (userProfile) {

@@ -43,7 +43,7 @@ public class Attendance extends BaseUUIDEntity {
     @JoinColumn(name = "business_id", insertable = false, updatable = false)
     private Business business;
 
-    @Column(name = "work_schedule_id", nullable = false)
+    @Column(name = "work_schedule_id", nullable = true)
     private UUID workScheduleId;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -17,6 +17,7 @@ import {
   fetchLeaveListService,
   approveLeaveService,
   deleteLeaveService,
+  fetchMyLeaveBalanceService,
 } from "@/features/hr/store/thunks/hr-thunks";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
@@ -84,6 +85,7 @@ function LeavePageInner() {
       await dispatch(deleteLeaveService(leaveToDelete.id)).unwrap();
       showToast.success("Leave application deleted successfully!");
       setLeaveToDelete(null);
+      dispatch(fetchMyLeaveBalanceService());
       dispatch(
         fetchLeaveListService({
           businessId: AppDefault.BUSINESS_ID,
@@ -111,6 +113,7 @@ function LeavePageInner() {
       ).unwrap();
       showToast.success(`Leave request ${decisionTarget.status.toLowerCase()} successfully!`);
       setDecisionTarget(null);
+      dispatch(fetchMyLeaveBalanceService());
       dispatch(
         fetchLeaveListService({
           businessId: AppDefault.BUSINESS_ID,

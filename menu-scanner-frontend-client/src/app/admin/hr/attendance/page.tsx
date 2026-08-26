@@ -4,21 +4,22 @@ import React, { useEffect, useState, useMemo, Suspense } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { useActionRouting } from "@/hooks/use-action-routing";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/constants/app-routes/routes";
 
 import {
   CollapsibleFilterPanel,
   FilterPanelConfig,
 } from "@/components/shared/common/collapsible-filter-panel";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
-import { CancelButton, SubmitButton } from "@/components/shared/button/custom-button";
+import { CancelButton, SubmitButton, CustomButton } from "@/components/shared/button/custom-button";
 import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
-import { TextField } from "@/components/shared/form-field/text-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { ComboboxSelectUser } from "@/components/shared/combobox/combobox_select_user";
+import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { attendanceTableColumns } from "@/features/hr/table/attendance-table";
 import { attendanceSchema, AttendanceFormValues } from "@/features/hr/store/models/schema/hr.schema";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -39,22 +40,60 @@ import {
   AttendanceModel,
   AttendanceStatusType,
 } from "@/features/hr/store/models/hr-models";
+import { AttendanceQrScannerModal } from "@/features/hr/components/attendance-qr-scanner-modal";
+import { AttendanceDetailModal } from "@/features/hr/components/attendance-detail-modal";
+import { useAdminTableUrlState } from "@/hooks/use-admin-table-url-state";
+import { QrCode, ScanLine } from "lucide-react";
 
 function AttendancePageInner() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const usersContent = useAppSelector(selectUsersContent);
 
-  const { attendanceList, attendanceTotalItems, attendanceLoading } = useHRState();
-
-  // URL Route Action State Sync (?create=true)
-  const { createMode, openCreate, closeModal } = useActionRouting();
+  const { attendanceList, attendanceTotalItems, attendanceLoading, selectedAttendance } = useHRState();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isQrScannerOpen, setIsQrScannerOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const debouncedSearch = useDebounce(searchQuery, AppDefault.DEFAULT_DEBOUNCE_MS);
+
+  const {
+    isHydrated,
+    viewId,
+    deleteId,
+    createMode,
+    openView,
+    openDelete,
+    openCreate,
+    closeModal,
+  } = useAdminTableUrlState({
+    baseRoute: ROUTES.ADMIN.HR_ATTENDANCE,
+    filters: {
+      search: searchQuery,
+      status: statusFilter !== "ALL" ? statusFilter : "",
+      pageNo: currentPage,
+      pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
+    },
+    onInit: (params) => {
+      if (params.search) setSearchQuery(params.search);
+      if (params.status) setStatusFilter(params.status);
+      if (params.pageNo) setCurrentPage(Number(params.pageNo));
+      if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
+    },
+    syncPageToRedux: (page) => setCurrentPage(page),
+  });
+
+  const deleteAttendance = useMemo(() => {
+    if (!deleteId) return null;
+    return (
+      attendanceList.find((a: AttendanceModel) => a.id === deleteId) ||
+      (selectedAttendance?.id === deleteId ? selectedAttendance : null)
+    );
+  }, [deleteId, attendanceList, selectedAttendance]);
 
   // React Hook Form with Zod Resolver validation
   const checkInForm = useForm<AttendanceFormValues>({
@@ -71,6 +110,7 @@ function AttendancePageInner() {
 
   // Fetch Attendance & Business Staff List
   useEffect(() => {
+    if (!isHydrated) return;
     dispatch(fetchAllUsersService({ pageNo: 1, pageSize: 100 }));
     dispatch(
       fetchAttendanceListService({
@@ -81,7 +121,7 @@ function AttendancePageInner() {
         pageSize: globalPageSize,
       })
     );
-  }, [dispatch, debouncedSearch, statusFilter, currentPage, globalPageSize]);
+  }, [dispatch, debouncedSearch, statusFilter, currentPage, globalPageSize, isHydrated]);
 
   const onCheckInSubmit = async (data: AttendanceFormValues) => {
     try {
@@ -109,9 +149,13 @@ function AttendancePageInner() {
     }
   };
 
-  const handleDeleteAttendance = async (item: AttendanceModel) => {
-    if (window.confirm("Delete this attendance log?")) {
-      await dispatch(deleteAttendanceService(item.id));
+  const handleConfirmDelete = async () => {
+    if (!deleteId) return;
+    setIsDeleting(true);
+    try {
+      await dispatch(deleteAttendanceService(deleteId)).unwrap();
+      showToast.success("Attendance record deleted successfully");
+      closeModal();
       dispatch(
         fetchAttendanceListService({
           businessId: AppDefault.BUSINESS_ID,
@@ -121,7 +165,19 @@ function AttendancePageInner() {
           pageSize: globalPageSize,
         })
       );
+    } catch (err: any) {
+      showToast.error(err?.message || "Failed to delete attendance record");
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const handleViewDetail = (item: AttendanceModel) => {
+    openView(item.id);
+  };
+
+  const handleDeleteItem = (item: AttendanceModel) => {
+    openDelete(item.id);
   };
 
   const columns = useMemo(
@@ -129,9 +185,10 @@ function AttendancePageInner() {
       attendanceTableColumns({
         currentPage,
         pageSize: globalPageSize,
-        onDelete: handleDeleteAttendance,
+        onViewDetail: handleViewDetail,
+        onDelete: handleDeleteItem,
       }),
-    [currentPage, globalPageSize, debouncedSearch, statusFilter]
+    [currentPage, globalPageSize]
   );
 
   const filterConfig = useMemo(
@@ -145,6 +202,28 @@ function AttendancePageInner() {
       },
       buttonText: "Clock In / Out",
       onButtonClick: openCreate,
+      extraActions: (
+        <div className="flex items-center gap-1.5">
+          <CustomButton
+            variant="outline"
+            size="sm"
+            className="h-9 px-3 text-xs font-bold gap-1.5 rounded-xl border-primary/30 text-primary hover:bg-primary/10"
+            onClick={() => router.push(ROUTES.ADMIN.HR_ATTENDANCE_SCANNER)}
+          >
+            <ScanLine className="w-4 h-4" />
+            <span>Scanner Station</span>
+          </CustomButton>
+          <CustomButton
+            variant="ghost"
+            size="sm"
+            className="h-9 w-9 p-0 rounded-xl hover:bg-muted text-muted-foreground"
+            onClick={() => setIsQrScannerOpen(true)}
+            title="Scan QR Code"
+          >
+            <QrCode className="w-4 h-4 text-primary" />
+          </CustomButton>
+        </div>
+      ),
       filters: [
         {
           id: "statusFilter",
@@ -166,7 +245,7 @@ function AttendancePageInner() {
         },
       ],
     }),
-    [searchQuery, statusFilter, openCreate]
+    [searchQuery, statusFilter, openCreate, router]
   );
 
   return (
@@ -195,6 +274,23 @@ function AttendancePageInner() {
           pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
       </div>
+
+      {/* Interactive Attendance QR Scanner & Upload Modal */}
+      <AttendanceQrScannerModal
+        isOpen={isQrScannerOpen}
+        onClose={() => setIsQrScannerOpen(false)}
+        onSuccess={() => {
+          dispatch(
+            fetchAttendanceListService({
+              businessId: AppDefault.BUSINESS_ID,
+              searchQuery: debouncedSearch || undefined,
+              status: statusFilter === "ALL" ? undefined : (statusFilter as AttendanceStatusType),
+              pageNo: currentPage,
+              pageSize: globalPageSize,
+            })
+          );
+        }}
+      />
 
       {/* URL Route Synced Clock In / Out Modal with Zod Validation */}
       <CustomModal
@@ -241,14 +337,6 @@ function AttendancePageInner() {
                 { value: "HALF_DAY", label: "Half Day" },
               ]}
             />
-            <TextField
-              control={checkInForm.control}
-              name="notes"
-              label="Remarks / Notes"
-              disabled={isSubmitting}
-              placeholder="E.g. On-site shift check-in"
-              error={errors.notes}
-            />
           </FormBody>
           <FormFooter
             isSubmitting={isSubmitting}
@@ -267,6 +355,22 @@ function AttendancePageInner() {
           </FormFooter>
         </form>
       </CustomModal>
+
+      <AttendanceDetailModal
+        attendanceId={viewId || undefined}
+        isOpen={!!viewId}
+        onClose={closeModal}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={!!deleteId}
+        onClose={closeModal}
+        onDelete={handleConfirmDelete}
+        title="Delete Attendance Record"
+        description="Are you sure you want to delete this attendance log?"
+        itemName={deleteAttendance ? `${deleteAttendance.userInfo?.firstName || "Staff"} (${deleteAttendance.attendanceDate})` : "Attendance Log"}
+        isSubmitting={isDeleting}
+      />
     </div>
   );
 }

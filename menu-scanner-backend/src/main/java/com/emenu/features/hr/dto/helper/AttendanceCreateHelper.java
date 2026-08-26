@@ -14,6 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AttendanceCreateHelper {
+    private String referenceNumber;
     private UUID userId;
     private UUID businessId;
     private UUID workScheduleId;

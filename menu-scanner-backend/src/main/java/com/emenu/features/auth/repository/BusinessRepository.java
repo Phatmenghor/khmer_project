@@ -17,4 +17,6 @@ public interface BusinessRepository extends JpaRepository<Business, UUID>, JpaSp
     boolean existsBySubdomainAndIsDeletedFalse(String subdomain);
 
     Optional<Business> findBySubdomainAndIsDeletedFalse(String subdomain);
+
+    java.util.List<Business> findAllByIsDeletedFalse();
 }

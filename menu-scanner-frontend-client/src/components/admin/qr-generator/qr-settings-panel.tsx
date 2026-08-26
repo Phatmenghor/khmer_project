@@ -110,13 +110,14 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
 
           <div className="grid grid-cols-3 gap-1.5">
             {/* Preset templates */}
-            {CARD_TEMPLATES.map((tpl) => {
-              const isSelected = style.template === tpl.id;
+            {CARD_TEMPLATES.map((tplItem) => {
+              const isSelected = style.template === tplItem.id;
+              const tpl = getTemplateConfig(tplItem.id);
               return (
                 <CustomButton variant="unstyled" size="unstyled"
-                  key={tpl.id}
+                  key={tplItem.id}
                   type="button"
-                  onClick={() => handleSelectTemplate(tpl.id)}
+                  onClick={() => handleSelectTemplate(tplItem.id)}
                   className={`relative rounded-md overflow-hidden border-2 transition-all duration-150 cursor-pointer ${
                     isSelected
                       ? "border-primary shadow-md scale-[1.02]"

@@ -7,6 +7,8 @@ import { DateTimePickerField } from "@/components/shared/form-field/date-picker-
 import { DisplayField } from "@/components/shared/form-field/display-field";
 import { formatDate } from "@/utils/date/date-time-format";
 
+import { useHRState } from "@/features/hr/store/state/hr-state";
+
 interface EmploymentInfoCardProps {
   control: any;
   errors: any;
@@ -22,7 +24,10 @@ export function EmploymentInfoCard({
   watch,
   userProfile,
 }: EmploymentInfoCardProps) {
+  const { myLeaveBalance } = useHRState();
+
   const leaveBalance =
+    myLeaveBalance ||
     userProfile?.leaveBalance ||
     userProfile?.leaveQuota ||
     userProfile?.leaveSummary ||

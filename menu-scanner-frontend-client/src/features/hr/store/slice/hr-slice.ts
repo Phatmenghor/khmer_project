@@ -6,23 +6,31 @@ import {
 } from "../models/hr-models";
 import {
   fetchAttendanceListService,
+  fetchTodayAttendanceService,
+  getAttendanceByIdService,
   fetchLeaveListService,
   getLeaveByIdService,
   approveLeaveService,
   deleteLeaveService,
+  fetchMyLeaveBalanceService,
   fetchWorkScheduleListService,
 } from "../thunks/hr-thunks";
+import { LeaveBalanceModel } from "../models/hr-models";
 
 interface HRState {
   attendanceList: AttendanceModel[];
+  todayAttendanceList: AttendanceModel[];
   attendanceTotalItems: number;
   attendanceLoading: boolean;
+  selectedAttendance: AttendanceModel | null;
+  selectedAttendanceLoading: boolean;
 
   leaveList: LeaveModel[];
   leaveTotalItems: number;
   leaveLoading: boolean;
   selectedLeave: LeaveModel | null;
   selectedLeaveLoading: boolean;
+  myLeaveBalance: LeaveBalanceModel | null;
 
   workScheduleList: WorkScheduleModel[];
   workScheduleTotalItems: number;
@@ -33,14 +41,18 @@ interface HRState {
 
 const initialState: HRState = {
   attendanceList: [],
+  todayAttendanceList: [],
   attendanceTotalItems: 0,
   attendanceLoading: false,
+  selectedAttendance: null,
+  selectedAttendanceLoading: false,
 
   leaveList: [],
   leaveTotalItems: 0,
   leaveLoading: false,
   selectedLeave: null,
   selectedLeaveLoading: false,
+  myLeaveBalance: null,
 
   workScheduleList: [],
   workScheduleTotalItems: 0,
@@ -55,6 +67,9 @@ export const hrSlice = createSlice({
   reducers: {
     clearSelectedLeave(state) {
       state.selectedLeave = null;
+    },
+    clearSelectedAttendance(state) {
+      state.selectedAttendance = null;
     },
   },
   extraReducers: (builder) => {
@@ -72,6 +87,21 @@ export const hrSlice = createSlice({
     builder.addCase(fetchAttendanceListService.rejected, (state, action) => {
       state.attendanceLoading = false;
       state.error = action.error?.message || "Failed to fetch attendance records";
+    });
+
+    builder.addCase(fetchTodayAttendanceService.fulfilled, (state, action) => {
+      state.todayAttendanceList = action.payload || [];
+    });
+
+    builder.addCase(getAttendanceByIdService.pending, (state) => {
+      state.selectedAttendanceLoading = true;
+    });
+    builder.addCase(getAttendanceByIdService.fulfilled, (state, action) => {
+      state.selectedAttendanceLoading = false;
+      state.selectedAttendance = (action.payload as any)?.data || action.payload;
+    });
+    builder.addCase(getAttendanceByIdService.rejected, (state) => {
+      state.selectedAttendanceLoading = false;
     });
 
     // ── Leave list ──
@@ -114,6 +144,11 @@ export const hrSlice = createSlice({
       if (state.selectedLeave?.id === updated.id) state.selectedLeave = updated;
     });
 
+    // ── My Leave Balance ──
+    builder.addCase(fetchMyLeaveBalanceService.fulfilled, (state, action) => {
+      state.myLeaveBalance = action.payload as LeaveBalanceModel;
+    });
+
     // ── Delete — remove from local list ──
     builder.addCase(deleteLeaveService.fulfilled, (state, action) => {
       const deleted = action.payload as LeaveModel;
@@ -140,5 +175,5 @@ export const hrSlice = createSlice({
   },
 });
 
-export const { clearSelectedLeave } = hrSlice.actions;
+export const { clearSelectedLeave, clearSelectedAttendance } = hrSlice.actions;
 export const hrReducer = hrSlice.reducer;

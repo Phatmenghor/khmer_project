@@ -1,5 +1,6 @@
 package com.emenu.features.hr.dto.response;
 
+import com.emenu.enums.hr.LeaveSessionEnum;
 import com.emenu.enums.hr.LeaveStatusEnum;
 import com.emenu.features.auth.dto.response.UserBasicInfo;
 import com.emenu.shared.dto.BaseAuditResponse;
@@ -19,6 +20,7 @@ public class LeaveResponse extends BaseAuditResponse {
     private UUID businessId;
     private String referenceNumber;
     private String leaveTypeEnum;
+    private LeaveSessionEnum leaveSession;
     private LocalDate startDate;
     private LocalDate endDate;
     private Double totalDays;

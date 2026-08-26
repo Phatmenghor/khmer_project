@@ -21,30 +21,35 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
   const headerTo = style.cardGradientTo;
   const bgColor = style.backgroundColor || "#ffffff";
 
+  const isJsonPayload = qrUrl.trim().startsWith("{");
+
   const getDisplayTitle = () => {
     if (config.type === "table") {
       return `${config.cardTitle || "Business"} - Table ${config.tableNumber || 1}`;
     }
+    if (config.type === "attendance_kiosk") {
+      return `${config.cardTitle || "Business"} - Attendance Station`;
+    }
     return config.cardTitle || "Your Business Name";
   };
 
-  const displaySubtitle = config.cardSubtitle || "Scan to view our menu";
-  const displayScanText = config.scanText || "SCAN QR CODE";
+  const displaySubtitle = config.cardSubtitle || "Scan to Clock In / Out";
+  const displayScanText = config.scanText || "ATTENDANCE QR";
 
   const handleCopyUrl = async () => {
     if (!qrUrl) return;
     try {
       await navigator.clipboard.writeText(qrUrl);
       setCopied(true);
-      showToast.success("QR URL copied to clipboard!");
+      showToast.success(isJsonPayload ? "QR Business Payload copied!" : "QR URL copied!");
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      showToast.error("Failed to copy URL");
+      showToast.error("Failed to copy QR payload");
     }
   };
 
   return (
-    <Card className="flex flex-col border border-border shadow-2xs bg-card overflow-hidden">
+    <Card className="flex flex-col border border-border shadow-2xs bg-card overflow-hidden w-full">
       <CardHeader className="pb-3 border-b border-border bg-muted/20">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -62,9 +67,9 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col items-center gap-4 flex-1 pt-4">
+      <CardContent className="flex flex-col items-center gap-4 flex-1 pt-4 w-full">
         {/* Unified QR generator */}
-        <div className="w-full flex justify-center py-1">
+        <div className="w-full flex justify-center py-1 overflow-x-auto">
           <QRGenerator
             link={qrUrl}
             businessName={getDisplayTitle()}
@@ -83,25 +88,27 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
           />
         </div>
 
-        {/* Target URL card */}
-        <div className="w-full rounded-lg border border-border bg-muted/40 p-2.5 space-y-1.5">
+        {/* Target URL / Business Payload card */}
+        <div className="w-full rounded-xl border border-border bg-muted/40 p-3 space-y-1.5 overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Target URL
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              {isJsonPayload ? "Target Business Payload" : "Target URL"}
             </span>
             <CustomButton
               variant="ghost"
               size="sm"
-              className="h-6 px-2 text-[10px] font-medium gap-1 text-primary hover:bg-primary/10"
+              className="h-6 px-2 text-[10px] font-bold gap-1 text-primary hover:bg-primary/10 cursor-pointer"
               onClick={handleCopyUrl}
             >
               {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-              {copied ? "Copied" : "Copy Link"}
+              {copied ? "Copied" : "Copy Payload"}
             </CustomButton>
           </div>
-          <div className="flex items-center gap-1.5 font-mono text-xs text-foreground bg-background p-2 rounded border border-border/80 break-all select-all">
-            <ExternalLink className="w-3 h-3 text-primary shrink-0" />
-            <span className="truncate">{qrUrl}</span>
+          <div className="flex items-start gap-2 text-xs font-semibold text-foreground bg-background p-2.5 rounded-lg border border-border/80 overflow-hidden">
+            <ExternalLink className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+            <span className="font-mono text-[11px] text-foreground break-all select-all leading-relaxed" title={qrUrl}>
+              {qrUrl}
+            </span>
           </div>
         </div>
       </CardContent>

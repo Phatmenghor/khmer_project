@@ -1,5 +1,6 @@
 package com.emenu.features.hr.dto.request;
 
+import com.emenu.enums.hr.LeaveSessionEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,8 @@ import java.time.LocalDate;
 public class LeaveCreateRequest {
     @NotNull(message = "Leave type required")
     private String leaveTypeEnum;
+
+    private LeaveSessionEnum leaveSession;
 
     @NotNull(message = "Start date required")
     private LocalDate startDate;

@@ -6,6 +6,7 @@ import {
   AttendanceModel,
   AttendanceFilterPayload,
   LeaveModel,
+  LeaveSessionType,
   LeaveFilterPayload,
   LeaveBalanceModel,
   WorkScheduleModel,
@@ -30,11 +31,28 @@ export const fetchAttendanceListService = createApiThunk<
   return response.data?.data || response.data;
 });
 
+export const fetchTodayAttendanceService = createApiThunk<
+  AttendanceModel[],
+  { businessId: string }
+>("hr/fetchTodayAttendance", async ({ businessId }) => {
+  const response = await axiosClientWithAuth.get(`/api/v1/hr/attendance/today?businessId=${businessId}`);
+  return response.data?.data || response.data || [];
+});
+
+export const getAttendanceByIdService = createApiThunk<
+  AttendanceModel,
+  string
+>("hr/getAttendanceById", async (id) => {
+  const response = await axiosClientWithAuth.get(`/api/v1/hr/attendance/${id}`);
+  return response.data?.data || response.data;
+});
+
 export const checkInAttendanceService = createApiThunk<
   AttendanceModel,
   {
-    checkInType: "CHECK_IN" | "CHECK_OUT";
+    checkInType?: "CHECK_IN" | "CHECK_OUT";
     userId?: string;
+    businessId?: string;
     latitude?: number;
     longitude?: number;
     remarks?: string;
@@ -93,6 +111,7 @@ export const createLeaveService = createApiThunk<
   LeaveModel,
   {
     leaveTypeEnum: string;
+    leaveSession?: LeaveSessionType;
     startDate: string;
     endDate: string;
     reason: string;
@@ -104,7 +123,7 @@ export const createLeaveService = createApiThunk<
 
 export const updateLeaveService = createApiThunk<
   LeaveModel,
-  { id: string; startDate?: string; endDate?: string; reason?: string }
+  { id: string; leaveTypeEnum?: string; leaveSession?: LeaveSessionType; startDate?: string; endDate?: string; reason?: string }
 >("hr/updateLeave", async ({ id, ...payload }) => {
   const response = await axiosClientWithAuth.put(`/api/v1/hr/leave/${id}`, payload);
   return response.data?.data || response.data;

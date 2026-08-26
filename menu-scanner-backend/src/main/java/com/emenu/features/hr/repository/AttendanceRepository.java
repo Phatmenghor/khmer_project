@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,6 +21,8 @@ public interface AttendanceRepository extends JpaRepository<Attendance, UUID>, J
     Optional<Attendance> findByIdAndIsDeletedFalse(UUID id);
 
     Optional<Attendance> findByUserIdAndAttendanceDateAndIsDeletedFalse(UUID userId, LocalDate date);
+
+    List<Attendance> findByBusinessIdAndAttendanceDateAndIsDeletedFalseOrderByCreatedAtDesc(UUID businessId, LocalDate attendanceDate);
 
     @Query("SELECT a FROM Attendance a LEFT JOIN a.user u LEFT JOIN u.profile p WHERE a.isDeleted = false " +
            "AND (:businessId IS NULL OR a.businessId = :businessId) " +

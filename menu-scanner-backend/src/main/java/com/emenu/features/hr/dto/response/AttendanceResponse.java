@@ -14,11 +14,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AttendanceResponse extends BaseAuditResponse {
+    private String referenceNumber;
     private UserBasicInfo userInfo;
     private UUID businessId;
     private UUID workScheduleId;
     private LocalDate attendanceDate;
     private List<AttendanceCheckInResponse> checkIns;
     private AttendanceStatusEnum status;
-    private String remarks;
+    private Long lateMinutes;
+    private Long overtimeMinutes;
+    private Long earlyLeaveMinutes;
 }

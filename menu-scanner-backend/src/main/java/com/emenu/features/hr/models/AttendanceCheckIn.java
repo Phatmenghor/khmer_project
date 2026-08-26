@@ -34,10 +34,10 @@ public class AttendanceCheckIn extends BaseUUIDEntity {
     @Column(name = "check_in_time", nullable = false)
     private LocalDateTime checkInTime;
     
-    @Column(name = "latitude", nullable = false)
+    @Column(name = "latitude", nullable = true)
     private Double latitude;
     
-    @Column(name = "longitude", nullable = false)
+    @Column(name = "longitude", nullable = true)
     private Double longitude;
     
     @Column(name = "remarks", columnDefinition = "TEXT")

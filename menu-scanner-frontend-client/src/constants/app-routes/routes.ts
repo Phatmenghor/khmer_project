@@ -57,6 +57,7 @@ export const ROUTES = {
     PORTFOLIO_REVIEWS: "/admin/portfolio/reviews",
     HR: "/admin/hr/attendance",
     HR_ATTENDANCE: "/admin/hr/attendance",
+    HR_ATTENDANCE_SCANNER: "/admin/hr/attendance/scanner",
     HR_LEAVE: "/admin/hr/leave",
     HR_WORK_SCHEDULE: "/admin/hr/work-schedule",
     HR_SETTINGS: "/admin/hr/settings",
@@ -112,6 +113,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "Attendance Logs",
         href: ROUTES.ADMIN.HR_ATTENDANCE,
+      },
+      {
+        title: "Attendance Scanner",
+        href: ROUTES.ADMIN.HR_ATTENDANCE_SCANNER,
       },
       {
         title: "Leave Requests",
