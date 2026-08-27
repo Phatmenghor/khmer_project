@@ -6,8 +6,8 @@ import { ReactNode } from "react";
 import Script from "next/script";
 import PageProgressBar from "@/components/shared/progressbar/global-n-progress";
 import { ClientProviders } from "@/context/client-provider";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 
-// Font Configuration with optimized settings
 const geistSans = localFont({
   src: "../../public/fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -32,6 +32,9 @@ interface RootLayoutProps {
 
 // Enhanced metadata (removed viewport - now separate export)
 export const metadata = {
+  ...(process.env.NEXT_PUBLIC_APP_URL
+    ? { metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL) }
+    : {}),
   title: {
     template: "%s | ScanMeKH",
     default: "ScanMeKH - Professional Restaurant Management",
@@ -43,15 +46,15 @@ export const metadata = {
   creator: "ScanMeKH",
   publisher: "ScanMeKH",
   icons: {
-    icon: "/images/logo/my_logo.png",
-    shortcut: "/images/logo/my_logo.png",
-    apple: "/images/logo/my_logo.png",
+    icon: appImages.myLogo,
+    shortcut: appImages.myLogo,
+    apple: appImages.myLogo,
   },
   openGraph: {
     title: "ScanMeKH",
     description:
       "Professional dashboard for menu scanning and restaurant management",
-    images: [{ url: "/images/logo/my_logo.png" }],
+    images: [{ url: appImages.myLogo }],
   },
   formatDetection: {
     email: false,
@@ -88,7 +91,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       suppressHydrationWarning
     >
       <head>
-        <link rel="icon" href="/images/logo/my_logo.png" />
+        <link rel="icon" href={appImages.myLogo} />
         <link rel="preconnect" href="http://165.22.247.142:8080" />
         <link rel="dns-prefetch" href="http://165.22.247.142:8080" />
         <meta name="mobile-web-app-capable" content="yes" />

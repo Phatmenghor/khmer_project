@@ -9,11 +9,12 @@ import { Control, FieldError, FieldValues, Path } from "react-hook-form";
  */
 export interface BaseFieldProps<T extends FieldValues = FieldValues> {
   name: Path<T>;
-  label: string;
+  label?: string;
   control: Control<T>;
   error?: FieldError;
   disabled?: boolean;
   required?: boolean;
+  placeholder?: string;
   className?: string;
   inputClassName?: string;
   labelClassName?: string;
@@ -21,27 +22,40 @@ export interface BaseFieldProps<T extends FieldValues = FieldValues> {
 
 export interface TextFieldProps<T extends FieldValues = FieldValues>
   extends BaseFieldProps<T> {
-  type?: "text" | "email" | "tel" | "password" | "url" | "number";
-  placeholder?: string;
+  type?:
+    | "text"
+    | "email"
+    | "tel"
+    | "password"
+    | "number"
+    | "url"
+    | "date"
+    | "time"
+    | "datetime-local"
+    | "color";
+  valueAsNumber?: boolean;
+  min?: number;
+  max?: number;
+  step?: number | string;
+  allowZero?: boolean;
   pattern?: string;
+  onCustomChange?: (value: string) => void;
+  autoComplete?: string;
 }
 
 export interface PasswordFieldProps<T extends FieldValues = FieldValues>
   extends BaseFieldProps<T> {
-  placeholder?: string;
   showPassword?: boolean;
   onTogglePassword?: () => void;
 }
 
 export interface SelectFieldProps<T extends FieldValues = FieldValues>
   extends BaseFieldProps<T> {
-  options: Array<{ value: string; label: string }>;
-  placeholder?: string;
-  onValueChange?: (value: string) => void;
+  options: Array<{ value: string | number; label: string }>;
+  onValueChange?: (value: string | number) => void;
 }
 
 export interface TextareaFieldProps<T extends FieldValues = FieldValues>
   extends BaseFieldProps<T> {
-  placeholder?: string;
   rows?: number;
 }

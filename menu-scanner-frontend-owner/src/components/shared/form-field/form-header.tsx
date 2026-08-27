@@ -7,30 +7,20 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
-import { ImageTile } from "@/components/shared/avatar/image-tile";
 import { Plus, Edit, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type FormHeaderVariant = "default" | "destructive";
 
-interface FormHeaderProps {
+export interface FormHeaderProps {
   title: string;
   description?: string;
-  /**
-   * Optional image URL. Pair with `useImageTile` (or just pass
-   * `imageUrl` — its presence implies `useImageTile`). When the image
-   * is missing the tile falls back to the icon.
-   */
-  imageUrl?: string;
-  /**
-   * Force the 12×12 image tile even when imageUrl is not yet loaded
-   * (e.g. while fetching). The tile shows the icon as a fallback so
-   * the layout doesn't jump when the URL arrives.
-   */
-  useImageTile?: boolean;
-  /** Alt text + fallback for the image tile. */
+  subtitle?: string;
   avatarName?: string;
   avatarImageUrl?: string;
+  imageUrl?: string;
+  useImageTile?: boolean;
+  avatarIcon?: React.ReactNode;
   showAvatar?: boolean;
   isCreate?: boolean;
   icon?: LucideIcon;
@@ -41,17 +31,22 @@ interface FormHeaderProps {
 export function FormHeader({
   title,
   description,
-  imageUrl,
-  useImageTile,
+  subtitle,
   avatarName,
   avatarImageUrl,
-  showAvatar = false,
+  imageUrl,
+  useImageTile,
+  avatarIcon,
+  showAvatar,
   isCreate = true,
   icon,
   variant = "default",
   className,
 }: FormHeaderProps) {
   const Icon = icon ?? (isCreate ? Plus : Edit);
+  const displayDescription = description ?? subtitle;
+  const resolvedImageUrl = avatarImageUrl ?? imageUrl;
+  const shouldShowAvatar = showAvatar ?? Boolean(resolvedImageUrl || avatarName || useImageTile);
 
   const isDestructive = variant === "destructive";
   const iconBoxClass = isDestructive
@@ -59,54 +54,48 @@ export function FormHeader({
     : "bg-primary/10 border-primary/30";
   const iconColorClass = isDestructive ? "text-destructive" : "text-primary";
 
-  // Resolve the image tile: explicit imageUrl wins, then avatarImageUrl
-  // (legacy prop). Used to decide between image and icon fallback.
-  const tileImage = imageUrl || avatarImageUrl;
-  // Render the 12×12 tile when the caller explicitly asks for it,
-  // when they pass imageUrl, or when they opted into the legacy
-  // showAvatar path with a real image URL.
-  const showImageTile =
-    !!useImageTile || !!imageUrl || (showAvatar && !!avatarImageUrl);
-  const showLegacyAvatar = showAvatar && !imageUrl && !useImageTile;
-
   return (
     <DialogHeader
-      className={cn("-mx-4 -mt-4 px-4 pt-3 pb-3.5 border-b border-primary/30 flex-shrink-0", className)}
+      className={cn(
+        "m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4 border-b border-border/80 flex-shrink-0 bg-background",
+        className,
+      )}
     >
-      <div className="flex items-center gap-2">
-        {showLegacyAvatar ? (
-          // Legacy avatar path — still supported for callers that want
-          // initials when the record has no image.
-          <CustomAvatar size="xl" name={avatarName} imageUrl={avatarImageUrl} />
-        ) : showImageTile ? (
-          // 12×12 image tile — image opens a click-to-zoom preview when present
-          <ImageTile
-            imageUrl={tileImage}
-            name={avatarName || title}
-            icon={Icon}
-          />
+      <div className="flex items-center gap-3">
+        {shouldShowAvatar ? (
+          avatarIcon ? (
+            <div
+              className={cn(
+                "flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg shrink-0 border",
+                iconBoxClass,
+              )}
+            >
+              {avatarIcon}
+            </div>
+          ) : (
+            <CustomAvatar size="xl" name={avatarName} imageUrl={resolvedImageUrl} />
+          )
         ) : (
-          // Small admin-modal icon tile (no image expected).
           <div
             className={cn(
-              "p-1.5 border rounded shrink-0",
+              "flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg shrink-0 border",
               iconBoxClass,
             )}
           >
             <Icon
-              className={cn("h-4 w-4", iconColorClass)}
+              className={cn("h-5 w-5", iconColorClass)}
               strokeWidth={2.25}
             />
           </div>
         )}
 
         <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-          <DialogTitle className="text-xs font-semibold leading-tight">
+          <DialogTitle className="text-sm md:text-base font-semibold leading-tight text-foreground">
             {title}
           </DialogTitle>
-          {description && (
-            <DialogDescription className="text-[11px] leading-snug">
-              {description}
+          {displayDescription && (
+            <DialogDescription className="text-xs text-muted-foreground leading-snug">
+              {displayDescription}
             </DialogDescription>
           )}
         </div>

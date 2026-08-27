@@ -10,8 +10,12 @@ import FaqSection from "@/components/landing/faq-section";
 import CtaSection from "@/components/landing/cta-section";
 import Footer from "@/components/landing/footer";
 import { ScrollToTop } from "@/components/landing/scroll-to-top";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 
 export const metadata = {
+  ...(process.env.NEXT_PUBLIC_APP_URL
+    ? { metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL) }
+    : {}),
   title: "ScanMeKH — Transform Your Restaurant Into a Digital Powerhouse",
   description:
     "Professional restaurant management platform with QR menus, integrated POS, real-time order management, customer loyalty programs, advanced analytics, and payment processing. Everything restaurant owners need to succeed.",
@@ -31,7 +35,7 @@ export const metadata = {
     description:
       "Complete restaurant platform with QR menus, POS, real-time orders, loyalty programs, analytics. Free trial available.",
     type: "website",
-    images: [{ url: "/images/logo/my_logo.png" }],
+    images: [{ url: appImages.myLogo }],
   },
 };
 

@@ -330,7 +330,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
                         disabled={isSubmitting}
                         error={getFieldError(errors.roles)}
                         onValueChange={(value) =>
-                          setValue("roles", [value], { shouldDirty: true, shouldValidate: true })
+                          setValue("roles", [String(value)], { shouldDirty: true, shouldValidate: true })
                         }
                       />
                       <SelectField
@@ -366,7 +366,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
                           disabled={isSubmitting}
                           error={getFieldError(errors.roles)}
                           onValueChange={(value) =>
-                            setValue("roles", [value], { shouldDirty: true, shouldValidate: true })
+                            setValue("roles", [String(value)], { shouldDirty: true, shouldValidate: true })
                           }
                         />
                         <SelectField

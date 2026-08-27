@@ -7,7 +7,7 @@ import {
   AllPaymentResponseModel,
   PaymentResponseModel,
 } from "../store/models/response/payment-response";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 
 interface PaymentTableHandlers {
   handleEditPayment: (business: PaymentResponseModel) => void;

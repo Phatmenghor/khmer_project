@@ -1,194 +1,189 @@
 "use client";
 
+import { CustomButton, CancelButton } from "@/components/shared/button/custom-button";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Loader2, LogIn } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { LogIn } from "lucide-react";
+
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
+import { FormHeader } from "@/components/shared/form-field/form-header";
+import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
+import { loginService } from "@/redux/features/auth/store/thunks/auth-thunks";
+import { telegramAuthenticateService } from "@/redux/features/auth/store/thunks/social-auth-thunks";
 import { showToast } from "@/components/shared/common/show-toast";
-import { axiosClient } from "@/utils/axios";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useRouter } from "next/navigation";
-import { ROUTES } from "@/constants/app-routes/routes";
-
-const schema = z.object({
-  userIdentifier: z.string().min(1, "Email or username is required"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-type FormData = z.infer<typeof schema>;
+import { TelegramLoginButton } from "@/components/shared/telegram/telegram-login-widget";
+import { TelegramAuthData } from "@/redux/features/auth/store/models/request/social-auth-request";
+import { SocialAuthConfig } from "@/constants/app-resource/default/default";
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onRegisterClick?: () => void;
 }
+
+const loginSchema = z.object({
+  userIdentifier: z.string().min(1, "User Identifier is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
+  const [isTelegramLoading, setIsTelegramLoading] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      userIdentifier: "",
-      password: "",
-    },
-    mode: "onChange",
+  const { isLoading, dispatch } = useAuthState();
+  const isAnyLoading = isLoading || isTelegramLoading;
+
+  const loginForm = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { userIdentifier: "", password: "" },
   });
 
-  async function onSubmit(values: FormData) {
-    setIsSubmitting(true);
+  async function onLoginSubmit(values: LoginFormData) {
     try {
-      const response = await axiosClient.post("/api/v1/auth/login", {
-        userIdentifier: values.userIdentifier,
-        password: values.password,
-        userType: "PLATFORM_USER",
-      });
+      await dispatch(
+        loginService({
+          userIdentifier: values.userIdentifier,
+          password: values.password,
+          userType: "PLATFORM_USER",
+        }),
+      ).unwrap();
 
-      if (response?.data?.data?.accessToken) {
-        localStorage.setItem("accessToken", response.data.data.accessToken);
-        if (response.data.data.refreshToken) {
-          localStorage.setItem("refreshToken", response.data.data.refreshToken);
-        }
-        showToast.success("Welcome back! Redirecting to dashboard...");
-        reset();
-        onClose();
-        setTimeout(() => {
-          router.push(ROUTES.DASHBOARD.INDEX);
-        }, 500);
-      }
+      showToast.success("Welcome back! Redirecting to dashboard...");
+      onClose();
+      loginForm.reset();
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (err: any) {
-      let errorMessage: string = "Login failed. Please try again.";
+      let errorMessage: string = "Login failed. Please check your credentials.";
 
-      if (typeof err === 'string') {
+      if (typeof err === "string") {
         errorMessage = err;
       } else if (err?.message) {
         errorMessage = err.message;
-      } else if (err?.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      } else if (err?.response?.data?.error) {
-        errorMessage = err.response.data.error;
+      } else if (err?.payload) {
+        if (typeof err.payload === "string") {
+          errorMessage = err.payload;
+        } else if (err.payload?.message) {
+          errorMessage = err.payload.message;
+        }
       }
 
       showToast.error(errorMessage);
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
+  const handleTelegramAuth = async (telegramData: TelegramAuthData) => {
+    setIsTelegramLoading(true);
+    try {
+      const result = await dispatch(
+        telegramAuthenticateService({ telegramData, userType: "PLATFORM_USER" }),
+      ).unwrap();
+
+      if (result) {
+        showToast.success("Welcome back! Redirecting to dashboard...");
+        onClose();
+        window.location.reload();
+      }
+    } catch (err: unknown) {
+      showToast.error((err as { message?: string })?.message || "Telegram login failed");
+    } finally {
+      setIsTelegramLoading(false);
+    }
+  };
+
   const handleClose = () => {
-    if (!isSubmitting) {
+    if (!isAnyLoading) {
       onClose();
-      reset();
+      loginForm.reset();
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-screen sm:w-full sm:max-w-sm max-h-[100dvh] sm:max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden rounded-none sm:rounded">
-        {/* Mobile drag handle */}
-        <div className="sm:hidden h-1 bg-slate-300 rounded-full w-8 mx-auto mt-2"></div>
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="sm">
+      {/* Header */}
+      <FormHeader
+        title="Sign In"
+        description="Sign in to your owner account to continue"
+        icon={LogIn}
+        showAvatar={false}
+      />
 
-        {/* Header — admin FormHeader style with icon tile */}
-        <DialogHeader className="px-3 pt-3 pb-2 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 border border-primary/30 bg-primary/10 rounded shrink-0">
-              <LogIn className="h-4 w-4 text-primary" strokeWidth={2.25} />
+      {/* Form Body */}
+      <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="flex flex-col flex-1">
+        <div className="p-4 space-y-3.5">
+          <TextField
+            name="userIdentifier"
+            label="User Identifier"
+            placeholder="Enter username or email"
+            control={loginForm.control}
+            error={loginForm.formState.errors.userIdentifier}
+            disabled={isAnyLoading}
+            required
+            inputClassName="h-9 text-xs rounded-xl"
+          />
+
+          <PasswordField
+            name="password"
+            label="Password"
+            placeholder="Enter your password"
+            control={loginForm.control}
+            error={loginForm.formState.errors.password}
+            disabled={isAnyLoading}
+            required
+            showPassword={showPassword}
+            onTogglePassword={() => setShowPassword((v) => !v)}
+            inputClassName="h-9 text-xs rounded-xl"
+          />
+
+          {/* Social Divider */}
+          <div className="relative py-1">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border/60" />
             </div>
-            <div className="flex flex-col gap-0.5 flex-1 min-w-0 text-left">
-              <DialogTitle className="text-xs font-semibold leading-tight">
-                Welcome Back
-              </DialogTitle>
-              <DialogDescription className="text-[11px] leading-snug">
-                Sign in to your platform account
-              </DialogDescription>
+            <div className="relative flex justify-center">
+              <span className="bg-card px-2.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                Or continue with
+              </span>
             </div>
           </div>
-        </DialogHeader>
 
-        {/* Content */}
-        <ScrollArea className="flex-1 min-h-0">
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col"
+          {/* Telegram Login */}
+          <TelegramLoginButton
+            botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
+            botId={SocialAuthConfig.TELEGRAM_BOT_ID}
+            onAuth={handleTelegramAuth}
+            disabled={isAnyLoading}
+            loading={isTelegramLoading}
+            className="w-full h-9 text-xs font-bold rounded-xl"
+          />
+        </div>
+
+        {/* Footer */}
+        <div className="px-4 py-3 border-t border-border/70 bg-gradient-to-r from-muted/50 to-muted/30 flex-shrink-0 flex items-center justify-end gap-2">
+          <CancelButton
+            onClick={handleClose}
+            disabled={isAnyLoading}
+            customText="Cancel"
+            className="h-9 text-xs font-bold rounded-xl px-4"
+          />
+          <CustomButton
+            type="submit"
+            disabled={isAnyLoading}
+            isLoading={isLoading}
+            className="h-9 min-w-[95px] text-xs font-bold rounded-xl gap-1.5 px-4"
           >
-            <div className="px-3 py-3 space-y-3">
-              <TextField
-                name="userIdentifier"
-                label="Email or Username"
-                placeholder="name@example.com"
-                control={control}
-                error={errors.userIdentifier}
-                disabled={isSubmitting}
-                required
-              />
-
-              <PasswordField
-                name="password"
-                label="Password"
-                placeholder="Enter your password"
-                control={control}
-                error={errors.password}
-                disabled={isSubmitting}
-                required
-                showPassword={showPassword}
-                onTogglePassword={() => setShowPassword((v) => !v)}
-              />
-            </div>
-
-            {/* Footer — admin FormFooter style */}
-            <div className="flex flex-col gap-1.5 px-2.5 py-2 border-t bg-muted/30 flex-shrink-0 sm:flex-row sm:items-center sm:justify-between sm:px-3">
-              <div className="text-[11px] text-muted-foreground flex items-center gap-1 order-2 sm:order-1">
-                {isSubmitting && (
-                  <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
-                )}
-                <span>{isSubmitting ? "Signing in..." : "Ready to sign in"}</span>
-              </div>
-              <div className="flex gap-2 order-1 sm:order-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleClose}
-                  disabled={isSubmitting}
-                  className="h-6 px-3 text-xs"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="h-6 min-w-[96px] px-3 text-xs bg-primary hover:bg-primary/90"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                      Signing in...
-                    </>
-                  ) : (
-                    "Sign In"
-                  )}
-                </Button>
-              </div>
-            </div>
-          </form>
-        </ScrollArea>
-      </DialogContent>
-    </Dialog>
+            <LogIn className="w-3.5 h-3.5" />
+            {isLoading ? "Signing in..." : "Sign In"}
+          </CustomButton>
+        </div>
+      </form>
+    </CustomModal>
   );
 }

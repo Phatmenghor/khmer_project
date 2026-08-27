@@ -3,7 +3,6 @@ import {
   Users,
   LucideIcon,
   Database,
-  Pin,
   Building2,
 } from "lucide-react";
 
@@ -28,12 +27,7 @@ export const ROUTES = {
     SUBSCRIPTION_HISTORY: "/admin/subscription-history",
     PAYMENT: "/admin/payment",
     USERS_BUSINESS: "/admin/users",
-    CUSTOMER_USER: "/admin/customer-user",
     SUBSCRIPTION_PLAN: "/admin/subscription-plan",
-    PROVINCE: "/admin/province",
-    DISTRICT: "/admin/district",
-    VILLAGE: "/admin/village",
-    COMMUNE: "/admin/commune",
   },
 } as const;
 
@@ -99,33 +93,6 @@ export const sidebarItems: SidebarItem[] = [
       {
         title: "Business Users",
         href: ROUTES.DASHBOARD.BUSINESS_USER,
-      },
-      {
-        title: "Customer Users",
-        href: ROUTES.DASHBOARD.CUSTOMER_USER,
-      },
-    ],
-  },
-  {
-    title: "Locations",
-    section: "Locations",
-    icon: Pin,
-    subroutes: [
-      {
-        title: "province",
-        href: ROUTES.DASHBOARD.PROVINCE,
-      },
-      {
-        title: "district",
-        href: ROUTES.DASHBOARD.DISTRICT,
-      },
-      {
-        title: "commune",
-        href: ROUTES.DASHBOARD.COMMUNE,
-      },
-      {
-        title: "village",
-        href: ROUTES.DASHBOARD.VILLAGE,
       },
     ],
   },

@@ -19,10 +19,12 @@ export function TextareaField<T extends FieldValues = FieldValues>({
 }: TextareaFieldProps<T>) {
   return (
     <div className={`flex flex-col gap-1 w-full ${className}`}>
-      <Label htmlFor={name} className="text-xs font-semibold text-foreground leading-tight flex items-center min-h-[16px]">
-        <span>{label}</span>
-        {required && <span className="text-destructive ml-0.5">*</span>}
-      </Label>
+      {label && (
+        <Label htmlFor={name} className="text-xs font-semibold text-foreground leading-tight flex items-center min-h-[16px]">
+          <span>{label}</span>
+          {required && <span className="text-destructive ml-0.5">*</span>}
+        </Label>
+      )}
       <Controller
         control={control}
         name={name}
@@ -40,7 +42,11 @@ export function TextareaField<T extends FieldValues = FieldValues>({
           />
         )}
       />
-      {error && <p className="text-xs text-destructive font-medium">{error.message}</p>}
+      {error?.message && (
+        <p className="text-xs text-destructive font-medium mt-1">
+          {error.message}
+        </p>
+      )}
     </div>
   );
 }

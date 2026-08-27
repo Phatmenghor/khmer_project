@@ -1,6 +1,7 @@
 // src/app/(dashboard)/layout.tsx
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { WebSocketProvider } from "@/components/layout/websocket-provider";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 import type { ReactNode } from "react";
 
 interface DashboardGroupLayoutProps {
@@ -8,15 +9,18 @@ interface DashboardGroupLayoutProps {
 }
 
 export const metadata = {
+  ...(process.env.NEXT_PUBLIC_APP_URL
+    ? { metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL) }
+    : {}),
   title: {
     template: "%s | ScanMeKH",
     default: "Dashboard | ScanMeKH",
   },
   description: "ScanMeKH Dashboard - Manage your restaurant operations",
   icons: {
-    icon: "/images/logo/my_logo.png",
-    shortcut: "/images/logo/my_logo.png",
-    apple: "/images/logo/my_logo.png",
+    icon: appImages.myLogo,
+    shortcut: appImages.myLogo,
+    apple: appImages.myLogo,
   },
 };
 

@@ -24,12 +24,15 @@ const config: Config = {
         "safe-top": "env(safe-area-inset-top)",
         "screen-dvh": "100dvh",
         "screen-svh": "100svh",
+        "tg-viewport": "var(--tg-viewport-stable-height, 100dvh)",
       },
       minHeight: {
         "screen-dvh": "100dvh",
+        "tg-viewport": "var(--tg-viewport-stable-height, 100dvh)",
       },
       maxHeight: {
         "screen-dvh": "100dvh",
+        "tg-viewport": "var(--tg-viewport-stable-height, 100dvh)",
       },
       colors: {
         brand: {
@@ -269,6 +272,11 @@ const config: Config = {
         fast: "var(--transition-fast)",
         normal: "var(--transition-normal)",
         slow: "var(--transition-slow)",
+      },
+      maxWidth: {
+        "7xl": "1140px",
+        "8xl": "1340px",
+        "9xl": "1600px",
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-in-out",

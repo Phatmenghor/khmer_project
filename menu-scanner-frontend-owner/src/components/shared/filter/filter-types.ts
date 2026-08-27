@@ -1,4 +1,4 @@
-import { BusinessOption } from "@/components/shared/combo-box/combobox-business";
+import { BusinessOption } from "@/components/shared/combobox/combobox-business";
 
 export interface FilterOption {
   value: string | undefined;

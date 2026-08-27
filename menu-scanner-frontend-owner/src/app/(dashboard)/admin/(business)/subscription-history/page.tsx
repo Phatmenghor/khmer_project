@@ -11,7 +11,7 @@ import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { usePagination } from "@/redux/store/use-pagination";
 import { CollapsibleFilterPanel } from "@/components/shared/filter/collapsible-filter-panel";
 import { FilterPanelConfig } from "@/components/shared/filter/filter-types";
-import { BusinessOption } from "@/components/shared/combo-box/combobox-business";
+import { BusinessOption } from "@/components/shared/combobox/combobox-business";
 import { useSubscriptionHistoryState } from "@/redux/features/subscription/store/state/subscription-history-state";
 import {
   setBusinessIdFilter,

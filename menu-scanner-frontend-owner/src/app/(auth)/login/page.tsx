@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2, ShieldCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { loginService } from "@/redux/features/auth/store/thunks/auth-thunks";
@@ -37,7 +37,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (authReady && accessToken) {
-      router.replace(ROUTES.DASHBOARD.USERS);
+      router.replace(ROUTES.DASHBOARD.INDEX);
     }
   }, [authReady, accessToken, router]);
 
@@ -79,7 +79,7 @@ export default function LoginPage() {
         }),
       ).unwrap();
       showToast.success("Welcome back! Redirecting to dashboard...");
-      router.replace(ROUTES.DASHBOARD.USERS);
+      router.replace(ROUTES.DASHBOARD.INDEX);
     } catch (err: any) {
       const errorMessage =
         err?.response?.data?.message ||
@@ -97,117 +97,113 @@ export default function LoginPage() {
   const isAnyLoading = isLoading || isTelegramLoading;
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-x-hidden">
-      {/* Full screen background image */}
-      <div className="absolute inset-0 z-0">
-        <Image
+    <div className="relative min-h-screen w-full flex overflow-x-hidden">
+      {/* Background image: full-screen on small screens, left 50% panel on lg+ */}
+      <div className="absolute inset-0 lg:relative lg:inset-auto lg:w-1/2 lg:h-screen">
+        <SmartImage
           src={appImages.loginBg}
           alt="Background"
           fill
-          sizes="100vw"
-          className="object-cover"
+          sizes="(min-width: 1024px) 50vw, 100vw"
           priority
         />
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+        {/* Dark overlay for readability on mobile */}
+        <div className="absolute inset-0 bg-black/50 lg:hidden" />
       </div>
 
-      <div className="relative z-10 w-full max-w-sm flex flex-col items-center gap-4">
-        {/* Branding Header */}
-        <div className="flex flex-col items-center text-center text-white mb-2">
-          <div className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-lg mb-2">
-            <ShieldCheck className="h-5 w-5 text-primary" />
-          </div>
-          <h1 className="text-xl font-bold tracking-tight text-white">ScanMeKH</h1>
-          <p className="text-xs text-white/70">Owner Control Panel</p>
-        </div>
-
-        <Card className="w-full shadow-2xl border border-border/60 rounded overflow-hidden bg-background/95 backdrop-blur-md">
-          {/* Card header */}
-          <div className="bg-primary/5 border-b border-border/50 px-4 pt-4 pb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded bg-primary flex items-center justify-center shadow-sm shrink-0">
-                <ShieldCheck className="h-3 w-3 text-primary-foreground" />
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
-                Owner Panel
-              </span>
-            </div>
-            <h1 className="text-lg font-bold text-foreground leading-tight mt-1.5">
-              Welcome back
-            </h1>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Sign in to your account to continue
-            </p>
-          </div>
-
-          {/* Card body */}
-          <CardContent className="px-4 py-4 space-y-3">
-            {/* Credentials form */}
-            <form
-              onSubmit={form.handleSubmit(handleLoginSubmit)}
-              className="space-y-3"
-            >
-              <TextField
-                name="userIdentifier"
-                label="Email or Username"
-                placeholder="name@example.com"
-                control={form.control}
-                error={form.formState.errors.userIdentifier}
-                disabled={isAnyLoading}
-                required
-              />
-
-              <PasswordField
-                name="password"
-                label="Password"
-                placeholder="Enter your password"
-                control={form.control}
-                error={form.formState.errors.password}
-                disabled={isAnyLoading}
-                required
-                showPassword={showPassword}
-                onTogglePassword={() => setShowPassword((v) => !v)}
-              />
-
-              <Button
-                type="submit"
-                className="w-full font-semibold"
-                disabled={isAnyLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  "Sign In"
-                )}
-              </Button>
-            </form>
-
-            {/* Divider */}
-            <div className="relative py-0.5">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center">
-                <span className="bg-background px-2 text-[10px] text-muted-foreground uppercase tracking-wider">
-                  or continue with
+      {/* Form panel: overlays image on small screens, plain right-hand panel on lg+ */}
+      <div className="relative z-10 w-full min-h-screen flex items-center justify-center p-4 lg:w-1/2 lg:bg-background">
+        <div className="relative z-10 w-full max-w-sm flex flex-col items-center gap-4">
+          <Card className="w-full shadow-2xl border border-border/70 rounded-3xl overflow-hidden bg-background/95 dark:bg-card/95 backdrop-blur-xl transition-all duration-300">
+            {/* Card header */}
+            <div className="bg-gradient-to-b from-primary/10 via-primary/5 to-transparent border-b border-border/50 px-6 pt-6 pb-4 rounded-t-3xl">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-xl bg-primary flex items-center justify-center shadow-xs shrink-0">
+                  <ShieldCheck className="h-3.5 w-3.5 text-primary-foreground" />
+                </div>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary">
+                  Owner Admin Panel
                 </span>
               </div>
+              <h1 className="text-xl font-black text-foreground leading-tight mt-2 tracking-tight">
+                Welcome back
+              </h1>
+              <p className="text-xs text-muted-foreground mt-0.5 font-medium">
+                Sign in to your account to continue
+              </p>
             </div>
 
-            {/* Telegram */}
-            <TelegramLoginButton
-              botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
-              botId={SocialAuthConfig.TELEGRAM_BOT_ID}
-              onAuth={handleTelegramAuth}
-              disabled={isAnyLoading}
-              loading={isTelegramLoading}
-              className="w-full"
-            />
-          </CardContent>
-        </Card>
+            {/* Card body */}
+            <CardContent className="px-6 py-5 space-y-4">
+              {/* Credentials form */}
+              <form
+                onSubmit={form.handleSubmit(handleLoginSubmit)}
+                className="space-y-3.5"
+              >
+                <TextField
+                  name="userIdentifier"
+                  label="Email or Username"
+                  placeholder="name@example.com"
+                  control={form.control}
+                  error={form.formState.errors.userIdentifier}
+                  disabled={isAnyLoading}
+                  required
+                  inputClassName="h-9 text-xs rounded-xl"
+                />
+
+                <PasswordField
+                  name="password"
+                  label="Password"
+                  placeholder="Enter your password"
+                  control={form.control}
+                  error={form.formState.errors.password}
+                  disabled={isAnyLoading}
+                  required
+                  showPassword={showPassword}
+                  onTogglePassword={() => setShowPassword((v) => !v)}
+                  inputClassName="h-9 text-xs rounded-xl"
+                />
+
+                <CustomButton
+                  type="submit"
+                  className="w-full h-9 rounded-xl text-xs font-bold shadow-xs hover:shadow transition-all cursor-pointer"
+                  disabled={isAnyLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign In"
+                  )}
+                </CustomButton>
+              </form>
+
+              {/* Divider */}
+              <div className="relative py-1">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border/70" />
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-background px-3 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                    or continue with
+                  </span>
+                </div>
+              </div>
+
+              {/* Telegram */}
+              <TelegramLoginButton
+                botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
+                botId={SocialAuthConfig.TELEGRAM_BOT_ID}
+                onAuth={handleTelegramAuth}
+                disabled={isAnyLoading}
+                loading={isTelegramLoading}
+                className="w-full"
+              />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

@@ -11,11 +11,6 @@ import paymentReducer from "../features/master-data/store/slice/payment-slice";
 
 import notificationReducer from "../features/notification/store/slice/notification-slice";
 
-import communeReducer from "../features/location/store/slice/commune-slice";
-import provinceReducer from "../features/location/store/slice/province-slice";
-import districtReducer from "../features/location/store/slice/district-slice";
-import villageReducer from "../features/location/store/slice/village-slice";
-
 import subscriptionHistoryReducer from "../features/subscription/store/slice/subscription-history-slice";
 import ownerDashboardReducer from "../features/owner-dashboard/store/slice/owner-dashboard-slice";
 
@@ -30,10 +25,6 @@ export const reducers = {
   subscriptionPlan: subscriptionPlanReducer,
   payment: paymentReducer,
   notification: notificationReducer,
-  commune: communeReducer,
-  province: provinceReducer,
-  district: districtReducer,
-  village: villageReducer,
   subscriptionHistory: subscriptionHistoryReducer,
   ownerDashboard: ownerDashboardReducer,
 };

@@ -2,15 +2,13 @@
 
 import React from "react";
 import { Controller, FieldValues } from "react-hook-form";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { SelectFieldProps } from ".";
+import { SelectFieldProps as BaseSelectFieldProps } from ".";
+import { CustomSelect } from "@/components/shared/common/custom-select";
+
+interface SelectFieldProps<T extends FieldValues = FieldValues> extends BaseSelectFieldProps<T> {
+  loading?: boolean;
+  loadingPlaceholder?: string;
+}
 
 export function SelectField<T extends FieldValues = FieldValues>({
   name,
@@ -23,52 +21,53 @@ export function SelectField<T extends FieldValues = FieldValues>({
   placeholder = "Select an option",
   onValueChange,
   className = "",
+  loading = false,
+  loadingPlaceholder = "Loading...",
 }: SelectFieldProps<T>) {
+  const mappedOptions = options.map((opt) => ({
+    value: String(opt.value),
+    label: opt.label,
+  }));
+
   return (
-    <div className={`space-y-1 ${className}`}>
-      <Label htmlFor={name} className="text-xs sm:text-xs font-semibold text-foreground">
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
+    <div className={`flex flex-col gap-1 w-full ${className}`}>
       <Controller
         control={control}
         name={name}
         render={({ field }) => {
-          // Handle array values (for roles field)
           const currentValue = Array.isArray(field.value)
-            ? field.value[0] || ""
-            : field.value || "";
+            ? String(field.value[0] ?? "")
+            : String(field.value ?? "");
 
           return (
-            <Select
+            <CustomSelect
+              id={name as string}
+              label={label}
+              required={required}
+              options={mappedOptions}
               value={currentValue}
-              onValueChange={(value) => {
+              placeholder={loading ? loadingPlaceholder : placeholder}
+              disabled={disabled || loading}
+              error={!!error}
+              onValueChange={(val) => {
+                const originalOption = options.find((opt) => String(opt.value) === val);
+                const selectedValue = originalOption ? originalOption.value : val;
+
                 if (onValueChange) {
-                  onValueChange(value);
+                  onValueChange(selectedValue);
                 } else {
-                  field.onChange(value);
+                  field.onChange(selectedValue);
                 }
               }}
-              disabled={disabled}
-            >
-              <SelectTrigger
-                className={`transition-colors ${
-                  error ? "border-destructive focus:border-destructive" : ""
-                }`}
-              >
-                <SelectValue placeholder={placeholder} />
-              </SelectTrigger>
-              <SelectContent>
-                {options.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           );
         }}
       />
-      {error && <p className="text-xs text-destructive font-medium">{error?.message}</p>}
+      {error?.message && (
+        <p className="text-xs text-destructive font-medium mt-1">
+          {error.message}
+        </p>
+      )}
     </div>
   );
 }

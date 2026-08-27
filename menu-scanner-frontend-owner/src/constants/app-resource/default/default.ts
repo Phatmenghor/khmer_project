@@ -13,6 +13,8 @@ export const AppDefault = {
     return getBusinessId();
   },
   PAGE_SIZE: 15,
+  DEFAULT_PAGE_SIZE: 15,
+  DEFAULT_DEBOUNCE_MS: 350,
   PAGE_SIZE_OPTIONS: [10, 15, 20, 50, 100],
 };
 

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { CustomSelect } from "@/components/shared/common/custom-select";
-import { ComboboxBusiness, BusinessOption } from "@/components/shared/combo-box/combobox-business";
+import { ComboboxBusiness, BusinessOption } from "@/components/shared/combobox/combobox-business";
 import { CustomDateTimePicker } from "@/components/shared/common/custom-date-picker";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,10 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
         return (
           <CustomSelect
             key={filter.id}
-            options={filter.options}
+            options={(filter.options || []).map((opt) => ({
+              label: opt.label,
+              value: opt.value ?? "",
+            }))}
             value={filter.value != null ? String(filter.value) : undefined}
             placeholder={filter.placeholder || "Select..."}
             onValueChange={filter.onChange}

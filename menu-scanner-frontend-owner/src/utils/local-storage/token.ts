@@ -1,22 +1,47 @@
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
+import { COOKIE_KEYS } from "@/constants/cookie-keys";
 
-const ACCESS_TOKEN_KEY = "platform-auth-token";
-const REFRESH_TOKEN_KEY = "platform-auth-refresh-token";
+function setNativeCookie(name: string, value: string, maxAge: number): void {
+  if (typeof window === "undefined") return;
+  const expires = new Date();
+  expires.setSeconds(expires.getSeconds() + maxAge);
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; expires=${expires.toUTCString()}`;
+}
 
-function getMaxAgeFromToken(token: string, fallbackSeconds: number): number {
+function deleteNativeCookie(name: string): void {
+  if (typeof window === "undefined") return;
+  document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
+}
+
+const ACCESS_TOKEN_KEY = COOKIE_KEYS.ACCESS_TOKEN;
+const REFRESH_TOKEN_KEY = COOKIE_KEYS.REFRESH_TOKEN;
+
+function getMaxAgeFromToken(
+  token: string,
+  fallbackSeconds: number
+): number {
   try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return fallbackSeconds;
-    const payload = parts[1];
-    const decoded = JSON.parse(
-      atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
-    );
+    const decoded = decodeToken(token);
     if (decoded?.exp) {
-      const remaining = decoded.exp - Math.floor(Date.now() / 1000);
+      const now = Math.floor(Date.now() / 1000);
+      const remaining = decoded.exp - now;
       if (remaining > 0) return remaining;
     }
-  } catch {}
+  } catch {
+    // Swallow error
+  }
   return fallbackSeconds;
+}
+
+export function storeTokenRemember(token: string | undefined): void {
+  if (typeof window === "undefined" || !token) return;
+  const maxAge = getMaxAgeFromToken(token, 365 * 24 * 60 * 60);
+  setCookie(ACCESS_TOKEN_KEY, token, { maxAge, path: "/" });
+}
+
+export function getToken(): string | undefined {
+  const token = getCookie(ACCESS_TOKEN_KEY);
+  return token as string | undefined;
 }
 
 export function storeToken(token: string | undefined): void {
@@ -31,20 +56,17 @@ export function storeRefreshToken(refreshToken: string | undefined): void {
   setCookie(REFRESH_TOKEN_KEY, refreshToken, { maxAge, path: "/" });
 }
 
+export function getRefreshToken(): string | undefined {
+  const token = getCookie(REFRESH_TOKEN_KEY);
+  return token as string | undefined;
+}
+
 export function storeTokens(
   accessToken: string | undefined,
   refreshToken: string | undefined
 ): void {
   storeToken(accessToken);
   storeRefreshToken(refreshToken);
-}
-
-export function getToken(): string | undefined {
-  return getCookie(ACCESS_TOKEN_KEY) as string | undefined;
-}
-
-export function getRefreshToken(): string | undefined {
-  return getCookie(REFRESH_TOKEN_KEY) as string | undefined;
 }
 
 export function clearToken(): void {
@@ -60,6 +82,76 @@ export function clearAllTokens(): void {
   clearRefreshToken();
 }
 
+export function storeAdminToken(token: string | undefined): void {
+  if (typeof window === "undefined" || !token) return;
+  const maxAge = getMaxAgeFromToken(token, 7 * 24 * 60 * 60);
+  setNativeCookie(COOKIE_KEYS.ADMIN_ACCESS_TOKEN, token, maxAge);
+}
+
+export function storeAdminRefreshToken(refreshToken: string | undefined): void {
+  if (typeof window === "undefined" || !refreshToken) return;
+  const maxAge = getMaxAgeFromToken(refreshToken, 30 * 24 * 60 * 60);
+  setNativeCookie(COOKIE_KEYS.ADMIN_REFRESH_TOKEN, refreshToken, maxAge);
+}
+
+export function storeAdminTokens(
+  accessToken: string | undefined,
+  refreshToken: string | undefined
+): void {
+  storeAdminToken(accessToken);
+  storeAdminRefreshToken(refreshToken);
+}
+
+export function getAdminToken(): string | undefined {
+  return getCookie(COOKIE_KEYS.ADMIN_ACCESS_TOKEN) as string | undefined;
+}
+
+export function getAdminRefreshToken(): string | undefined {
+  return getCookie(COOKIE_KEYS.ADMIN_REFRESH_TOKEN) as string | undefined;
+}
+
+export function clearAdminTokens(): void {
+  deleteNativeCookie(COOKIE_KEYS.ADMIN_ACCESS_TOKEN);
+  deleteNativeCookie(COOKIE_KEYS.ADMIN_REFRESH_TOKEN);
+}
+
 export function isAuthenticated(): boolean {
-  return !!getCookie(ACCESS_TOKEN_KEY);
+  const token = getCookie(ACCESS_TOKEN_KEY);
+  return !!token;
+}
+
+export function hasRefreshToken(): boolean {
+  const token = getCookie(REFRESH_TOKEN_KEY);
+  return !!token;
+}
+
+export function decodeToken(token: string): {
+  sub?: string;
+  userId?: string;
+  userType?: string;
+  roles?: string[];
+  exp?: number;
+  iat?: number;
+} | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+
+    const payload = parts[1];
+    const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(decoded);
+  } catch {
+    return null;
+  }
+}
+
+export function isTokenExpired(bufferSeconds: number = 300): boolean {
+  const token = getToken();
+  if (!token) return true;
+
+  const decoded = decodeToken(token as string);
+  if (!decoded?.exp) return true;
+
+  const currentTime = Math.floor(Date.now() / 1000);
+  return decoded.exp < currentTime + bufferSeconds;
 }

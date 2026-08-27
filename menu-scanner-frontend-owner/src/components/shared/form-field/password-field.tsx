@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Controller, FieldValues } from "react-hook-form";
+import { PasswordFieldProps } from ".";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { Eye, EyeOff } from "lucide-react";
-import { PasswordFieldProps } from ".";
 
 export function PasswordField<T extends FieldValues = FieldValues>({
   name,
@@ -22,10 +23,13 @@ export function PasswordField<T extends FieldValues = FieldValues>({
   labelClassName = "",
 }: PasswordFieldProps<T>) {
   return (
-    <div className={`space-y-1 ${className}`}>
-      <Label htmlFor={name} className={`text-xs sm:text-xs font-semibold text-foreground ${labelClassName}`}>
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
+    <div className={`flex flex-col gap-1 w-full ${className}`}>
+      {label && (
+        <Label htmlFor={name} className={cn("text-xs font-semibold text-foreground flex items-center min-h-[16px]", labelClassName)}>
+          <span>{label}</span>
+          {required && <span className="text-destructive ml-0.5">*</span>}
+        </Label>
+      )}
       <div className="relative">
         <Controller
           control={control}
@@ -39,28 +43,36 @@ export function PasswordField<T extends FieldValues = FieldValues>({
               placeholder={placeholder}
               disabled={disabled}
               autoComplete="new-password"
-              className={`pr-8 transition-colors ${
-                error ? "border-destructive focus:border-destructive" : ""
-              } ${inputClassName}`}
+              className={cn(
+                "pr-8",
+                error && "border-destructive focus:border-destructive focus:ring-destructive/30",
+                inputClassName
+              )}
             />
           )}
         />
         {onTogglePassword && (
-          <button
+          <CustomButton
+            variant="unstyled"
+            size="unstyled"
             type="button"
             onClick={onTogglePassword}
-            className="absolute inset-y-0 right-0 flex items-center pr-2"
+            className="absolute inset-y-0 right-0 flex items-center pr-2.5 cursor-pointer"
             tabIndex={-1}
           >
             {showPassword ? (
-              <EyeOff className="h-4 w-4 text-gray-500" />
+              <EyeOff className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
             ) : (
-              <Eye className="h-4 w-4 text-gray-500" />
+              <Eye className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
             )}
-          </button>
+          </CustomButton>
         )}
       </div>
-      {error && <p className="text-xs text-destructive font-medium">{error.message}</p>}
+      {error?.message && (
+        <p className="text-xs text-destructive font-medium mt-1">
+          {error.message}
+        </p>
+      )}
     </div>
   );
 }

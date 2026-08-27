@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { COOKIE_KEYS } from "@/constants/cookie-keys";
 
 export default function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -16,10 +17,11 @@ export default function proxy(req: NextRequest) {
     }
   }
 
-  // Skip static assets and API routes
+  // Skip static assets, API routes, and WebSocket routes
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
+    pathname.startsWith("/ws") ||
     pathname.startsWith("/.well-known") ||
     pathname.includes(".") ||
     pathname.startsWith("/favicon")
@@ -27,7 +29,9 @@ export default function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = req.cookies.get("platform-auth-token")?.value;
+  const token =
+    req.cookies.get(COOKIE_KEYS.ACCESS_TOKEN)?.value ||
+    req.cookies.get(COOKIE_KEYS.ADMIN_ACCESS_TOKEN)?.value;
 
   // Public routes — always allow through
   const publicPaths = ["/", "/register"];
@@ -53,5 +57,5 @@ export default function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|\\.well-known).*)"],
+  matcher: ["/((?!api|ws|_next/static|_next/image|favicon.ico|\\.well-known).*)"],
 };

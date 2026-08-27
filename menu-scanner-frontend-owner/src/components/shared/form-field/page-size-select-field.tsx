@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   Popover,
   PopoverContent,
@@ -28,59 +28,63 @@ export function PageSizeSelectField({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className={`flex items-center gap-1 ${className}`}>
+    <div className={cn("flex items-center gap-2", className)}>
       {label && (
-        <span className="text-xs sm:text-xs text-muted-foreground font-semibold whitespace-nowrap">
+        <span className="text-xs text-muted-foreground font-bold whitespace-nowrap">
           {label}
         </span>
       )}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
+          <CustomButton
+            variant="unstyled"
+            size="unstyled"
             className={cn(
-              "justify-between gap-1 min-w-[80px] h-6 px-2 transition-all duration-200",
-              "hover:bg-primary/10 hover:border-primary hover:text-primary",
-              open && "bg-primary/20 border-primary text-primary"
+              "h-8 px-2.5 rounded-[8px] border border-border/80 bg-background flex items-center justify-between gap-1.5 text-xs font-extrabold transition-all duration-200 min-w-[76px]",
+              "hover:border-primary/50 hover:bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/30 shadow-2xs"
             )}
+            aria-label={`Select rows per page, currently showing ${pageSize} rows`}
             aria-expanded={open}
+            aria-haspopup="listbox"
           >
-            <span className="font-medium text-xs">{pageSize}</span>
+            <span>{pageSize}</span>
             <ChevronDown
               className={cn(
-                "h-3 w-3 opacity-50 shrink-0 transition-transform duration-200",
-                open && "rotate-180 opacity-100"
+                "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
+                open && "rotate-180 text-primary"
               )}
             />
-          </Button>
+          </CustomButton>
         </PopoverTrigger>
-        <PopoverContent className="w-[100px] p-0" align="start" side="bottom">
-          <div className="space-y-1 p-1">
+        <PopoverContent
+          className="w-[110px] p-1 rounded-[10px] border border-border shadow-md"
+          align="start"
+          side="top"
+        >
+          <div className="space-y-0.5" role="listbox">
             {pageSizeOptions.map((size) => (
-              <button
+              <CustomButton
+                variant="unstyled"
+                size="unstyled"
                 key={size}
                 type="button"
+                role="option"
+                aria-selected={pageSize === size}
                 onClick={() => {
                   onPageSizeChange(size);
                   setOpen(false);
                 }}
                 className={cn(
-                  "w-full flex items-center gap-1 px-2 py-1 text-xs text-left rounded transition-colors cursor-pointer",
-                  "hover:bg-accent hover:text-accent-foreground",
+                  "w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-bold rounded-[6px] transition-all cursor-pointer",
                   pageSize === size
-                    ? "bg-accent text-accent-foreground font-medium"
-                    : "text-foreground"
+                    ? "bg-primary/10 text-primary font-black"
+                    : "text-foreground hover:bg-muted"
                 )}
+                aria-label={`Show ${size} rows per page`}
               >
-                <Check
-                  className={cn(
-                    "h-3 w-3 flex-shrink-0",
-                    pageSize === size ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                <span>{size}</span>
-              </button>
+                <span>{size} rows</span>
+                {pageSize === size && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
+              </CustomButton>
             ))}
           </div>
         </PopoverContent>

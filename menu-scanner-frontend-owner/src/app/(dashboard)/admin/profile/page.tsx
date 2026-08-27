@@ -33,7 +33,7 @@ import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { clearAllTokens } from "@/utils/local-storage/token";
 import { clearUserInfo } from "@/utils/local-storage/userInfo";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { SpacesMultiSizeResult } from "@/services/spaces-service";
 import { GENDER_OPTIONS } from "@/constants/app-resource/status/create-update-status";
 import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
