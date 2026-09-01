@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import {
   OwnerDashboardPlanBreakdownResponse,
   PlanStat,
-} from "@/redux/features/owner-dashboard/store/models/response/owner-dashboard-response";
+} from "@/features/owner-dashboard/store/models/response/owner-dashboard-response";
 
 const PLAN_COLORS = [
   { bar: "bg-primary", text: "text-primary" },

@@ -1,0 +1,62 @@
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { AppDefault } from "@/constants/app-resource/default/default";
+
+const STORAGE_KEY = "global-settings";
+
+interface GlobalSettingsState {
+  pageSize: number;
+}
+
+
+const loadInitialState = (): GlobalSettingsState => {
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return {
+          pageSize: parsed.pageSize || AppDefault.PAGE_SIZE,
+        };
+      }
+    } catch (error) {
+    }
+  }
+  return {
+    pageSize: AppDefault.PAGE_SIZE,
+  };
+};
+
+const initialState: GlobalSettingsState = loadInitialState();
+
+const globalSettingsSlice = createSlice({
+  name: "globalSettings",
+  initialState,
+  reducers: {
+    setGlobalPageSize: (state, action: PayloadAction<number>) => {
+      state.pageSize = action.payload;
+
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (error) {
+        }
+      }
+    },
+    resetGlobalSettings: () => {
+      const resetState = {
+        pageSize: AppDefault.PAGE_SIZE,
+      };
+
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (error) {
+        }
+      }
+      return resetState;
+    },
+  },
+});
+
+export const { setGlobalPageSize, resetGlobalSettings } = globalSettingsSlice.actions;
+export default globalSettingsSlice.reducer;

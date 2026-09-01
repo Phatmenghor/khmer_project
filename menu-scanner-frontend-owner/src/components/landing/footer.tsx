@@ -17,7 +17,7 @@ export default function Footer() {
             <div>
               <Link href={ROUTES.PUBLIC.HOME} className="inline-block">
                 <Image
-                  src={appImages.myLogo}
+                  src={appImages.scanmekhLogo}
                   alt="ScanMeKH Logo"
                   width={200}
                   height={110}

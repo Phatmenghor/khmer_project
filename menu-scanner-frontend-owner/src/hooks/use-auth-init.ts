@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { usePathname } from "next/navigation";
+import { useAppDispatch, useAppSelector } from "@/store";
 import {
   setUser,
   setAuthReady,
-} from "@/redux/features/auth/store/slice/auth-slice";
-import { selectAuthReady } from "@/redux/features/auth/store/selectors/auth-selectors";
+} from "@/features/auth/store/slice/auth-slice";
+import { selectAuthReady, selectUser } from "@/features/auth/store/selectors/auth-selectors";
+import { COOKIE_KEYS } from "@/constants/cookie-keys";
 
-const ACCESS_TOKEN_KEY = "platform-auth-token";
-const USER_INFO_KEY = "platform-user-info";
 
 function getCookieValue(name: string): string | null {
   if (typeof window === "undefined") return null;
@@ -19,30 +19,40 @@ function getCookieValue(name: string): string | null {
   return null;
 }
 
+
 export function useAuthInit() {
   const dispatch = useAppDispatch();
+  const pathname = usePathname();
   const authReady = useAppSelector(selectAuthReady);
+  const currentUser = useAppSelector(selectUser);
 
   useEffect(() => {
-    if (authReady) return;
 
-    const token = getCookieValue(ACCESS_TOKEN_KEY);
-    const userInfoStr = getCookieValue(USER_INFO_KEY);
+    const isAdminRoute = pathname?.startsWith("/admin") === true;
 
-    try {
-      const userInfo = userInfoStr
-        ? JSON.parse(decodeURIComponent(userInfoStr))
-        : null;
 
-      if (token && userInfo) {
-        dispatch(setUser({ ...userInfo, accessToken: token }));
-      } else {
+    const tokenCookieName = isAdminRoute ? COOKIE_KEYS.ADMIN_ACCESS_TOKEN : COOKIE_KEYS.ACCESS_TOKEN;
+    const userInfoCookieName = isAdminRoute ? COOKIE_KEYS.ADMIN_USER_INFO : COOKIE_KEYS.USER_INFO;
+
+    const token = getCookieValue(tokenCookieName);
+    const userInfoStr = getCookieValue(userInfoCookieName);
+    const userInfo = userInfoStr ? JSON.parse(decodeURIComponent(userInfoStr)) : null;
+
+
+    if (token && userInfo) {
+      if (!currentUser || currentUser.userId !== userInfo.userId) {
+        dispatch(setUser(userInfo));
+      }
+      if (!authReady) {
         dispatch(setAuthReady());
       }
-    } catch {
-      dispatch(setAuthReady());
+    } else {
+
+      if (!authReady) {
+        dispatch(setAuthReady());
+      }
     }
-  }, [dispatch, authReady]);
+  }, [pathname, dispatch, authReady, currentUser]);
 
   return { authReady };
 }

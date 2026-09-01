@@ -34,10 +34,8 @@ export function FormHeader({
   subtitle,
   avatarName,
   avatarImageUrl,
-  imageUrl,
-  useImageTile,
   avatarIcon,
-  showAvatar,
+  showAvatar = false,
   isCreate = true,
   icon,
   variant = "default",
@@ -45,8 +43,6 @@ export function FormHeader({
 }: FormHeaderProps) {
   const Icon = icon ?? (isCreate ? Plus : Edit);
   const displayDescription = description ?? subtitle;
-  const resolvedImageUrl = avatarImageUrl ?? imageUrl;
-  const shouldShowAvatar = showAvatar ?? Boolean(resolvedImageUrl || avatarName || useImageTile);
 
   const isDestructive = variant === "destructive";
   const iconBoxClass = isDestructive
@@ -62,7 +58,7 @@ export function FormHeader({
       )}
     >
       <div className="flex items-center gap-3">
-        {shouldShowAvatar ? (
+        {showAvatar ? (
           avatarIcon ? (
             <div
               className={cn(
@@ -73,7 +69,7 @@ export function FormHeader({
               {avatarIcon}
             </div>
           ) : (
-            <CustomAvatar size="xl" name={avatarName} imageUrl={resolvedImageUrl} />
+            <CustomAvatar size="xl" name={avatarName} imageUrl={avatarImageUrl} />
           )
         ) : (
           <div

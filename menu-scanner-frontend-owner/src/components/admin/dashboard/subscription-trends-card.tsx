@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { ChartSkeleton } from "./chart-skeleton";
-import { OwnerDashboardTrendsResponse } from "@/redux/features/owner-dashboard/store/models/response/owner-dashboard-response";
+import { OwnerDashboardTrendsResponse } from "@/features/owner-dashboard/store/models/response/owner-dashboard-response";
 
 function TrendsTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;

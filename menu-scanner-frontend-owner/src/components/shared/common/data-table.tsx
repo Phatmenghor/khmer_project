@@ -64,7 +64,7 @@ export function DataTableWithPagination<T = any>({
   pageSize = 10,
   totalElements = 0,
   onPageSizeChange = () => {},
-  pageSizeOptions = [10, 15, 20, 50, 100],
+  pageSizeOptions = [10, 20, 50, 100],
   showPageSizeSelector = true,
 }: DataTableWithPaginationProps<T>) {
   const tableData: T[] = Array.isArray(data) ? data : [];
@@ -126,6 +126,7 @@ export function DataTableWithPagination<T = any>({
     const beginMomentum = () => {
       cancelAnimationFrame(momentumID);
       
+      // If the user stopped moving before release, do not apply momentum
       if (Date.now() - lastTime > 80) {
         velX = 0;
         return;
@@ -133,7 +134,7 @@ export function DataTableWithPagination<T = any>({
 
       const step = () => {
         container.scrollLeft -= velX;
-        velX *= 0.95;
+        velX *= 0.95; // Premium friction decay
         if (Math.abs(velX) > 0.15) {
           momentumID = requestAnimationFrame(step);
         } else {
@@ -148,10 +149,12 @@ export function DataTableWithPagination<T = any>({
       if (e.button !== 0) return;
       const target = e.target as HTMLElement;
       
+      // Ignore dragging if clicking interactive controls
       if (target.closest("button") || target.closest("a") || target.closest("input") || target.closest("select") || target.closest("[role='checkbox']") || target.closest("[role='switch']")) {
         return;
       }
 
+      // Ignore dragging if clicking in index or action columns
       const cell = target.closest("td") || target.closest("th");
       if (cell) {
         const columnKey = cell.getAttribute("data-column-key");
@@ -202,6 +205,7 @@ export function DataTableWithPagination<T = any>({
       const dt = now - lastTime;
       if (dt > 0) {
         const dx = e.pageX - lastX;
+        // Low pass filter to reduce noise & smooth out sudden spikes
         velX = velX * 0.25 + ((dx / dt) * 16) * 0.75;
       }
       lastX = e.pageX;
@@ -365,6 +369,7 @@ export function DataTableWithPagination<T = any>({
           </div>
           {(showLeftScroll || showRightScroll) && (
             <div className="flex items-center gap-1.5 flex-shrink-0">
+              {/* Single toggle button for Action column pinning (default pinned) */}
               <CustomButton
                 variant="outline"
                 size="sm"
@@ -543,6 +548,7 @@ export function DataTableWithPagination<T = any>({
 
           {totalPages > 1 && (
             <div className="flex items-center gap-1.5">
+              {/* Previous Page Button */}
               <CustomButton
                 variant="unstyled"
                 size="unstyled"
@@ -559,6 +565,7 @@ export function DataTableWithPagination<T = any>({
                 <span className="hidden sm:inline">Previous</span>
               </CustomButton>
 
+              {/* Page Number Buttons */}
               <div className="flex items-center gap-1">
                 {getPaginationItems().map((item, index) => {
                   if (item === "ellipsis") {
@@ -591,6 +598,7 @@ export function DataTableWithPagination<T = any>({
                 })}
               </div>
 
+              {/* Next Page Button */}
               <CustomButton
                 variant="unstyled"
                 size="unstyled"

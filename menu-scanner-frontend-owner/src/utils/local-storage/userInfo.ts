@@ -1,6 +1,7 @@
+
 import { getCookie, setCookie, deleteCookie } from "cookies-next";
 import { COOKIE_KEYS } from "@/constants/cookie-keys";
-import type { UserAuthResponseModel } from "@/redux/features/auth/store/models/response/auth-resposne";
+
 
 function setNativeCookie(name: string, value: string): void {
   if (typeof window === "undefined") return;
@@ -16,8 +17,8 @@ function deleteNativeCookie(name: string): void {
 
 const USER_INFO_KEY = COOKIE_KEYS.USER_INFO;
 
-export function storeUserInfo(userInfo: UserAuthResponseModel | Record<string, unknown> | undefined): void {
-  if (typeof window === "undefined" || !userInfo) {
+export function storeUserInfo(userInfo: Record<string, unknown>): void {
+  if (typeof window === "undefined") {
     return;
   }
 
@@ -27,13 +28,13 @@ export function storeUserInfo(userInfo: UserAuthResponseModel | Record<string, u
   });
 }
 
-export function getUserInfo(): UserAuthResponseModel | null {
+export function getUserInfo() {
   const userInfo = getCookie(USER_INFO_KEY);
 
   if (userInfo) {
     try {
       return JSON.parse(userInfo as string);
-    } catch {
+    } catch (error) {
       return null;
     }
   }
@@ -44,6 +45,7 @@ export function getUserInfo(): UserAuthResponseModel | null {
 export function clearUserInfo(): void {
   deleteCookie(USER_INFO_KEY);
 }
+
 
 export function storeAdminUserInfo(userInfo: Record<string, unknown>): void {
   if (typeof window === "undefined") return;

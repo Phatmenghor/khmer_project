@@ -2,12 +2,13 @@
 
 import React, { useRef } from "react";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Upload, X, ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { FieldError } from "react-hook-form";
 
-type AspectRatio = "square" | "banner" | "portrait" | "landscape" | "auto";
+type AspectRatio = "square" | "banner" | "portrait" | "landscape" | "auto" | "video";
 
 interface ClickableImageUploadProps {
   label: string;
@@ -55,22 +56,27 @@ export function ClickableImageUpload({
     return "w-full";
   };
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
     if (!file.type.startsWith("image/")) {
       alert("Please select an image file");
       return;
     }
+
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > maxSize) {
       alert(`File size must be less than ${maxSize}MB`);
       return;
     }
+
     try {
       const base64 = await fileToBase64(file);
       onChange(base64);
-    } catch {
+    } catch (error) {
       alert("Failed to read image. Please try again.");
     }
   };
@@ -79,8 +85,11 @@ export function ClickableImageUpload({
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
-        if (typeof reader.result === "string") resolve(reader.result);
-        else reject(new Error("Failed to convert file to base64"));
+        if (typeof reader.result === "string") {
+          resolve(reader.result);
+        } else {
+          reject(new Error("Failed to convert file to base64"));
+        }
       };
       reader.onerror = reject;
       reader.readAsDataURL(file);
@@ -90,20 +99,24 @@ export function ClickableImageUpload({
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
     onChange("");
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleClick = () => {
-    if (!disabled) fileInputRef.current?.click();
+    if (!disabled) {
+      fileInputRef.current?.click();
+    }
   };
 
   const isSquare = aspectRatio === "square" && !height;
 
   return (
     <div className="space-y-1">
-      <Label className="text-xs sm:text-xs font-semibold text-foreground">
+      <Label className="text-xs font-medium">
         {label}
-        {required && <span className="text-destructive ml-1">*</span>}
+        {required && <span className="text-red-500 ml-1">*</span>}
       </Label>
 
       <div className="space-y-2">
@@ -116,7 +129,9 @@ export function ClickableImageUpload({
             value
               ? "border-border/80 shadow-2xs hover:border-primary/50"
               : "border-dashed border-primary/25 bg-muted/20 hover:bg-primary/5 hover:border-primary/60 shadow-2xs",
-            disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:shadow-md",
+            disabled
+              ? "opacity-50 cursor-not-allowed"
+              : "cursor-pointer hover:shadow-md",
             error && "border-destructive",
           )}
         >
@@ -132,20 +147,24 @@ export function ClickableImageUpload({
           {value ? (
             <div className="relative w-full h-full group/overlay">
               {isSquare ? (
-                <div className="w-full h-full flex items-center justify-center bg-muted/10">
-                  <div className="w-36 h-36 rounded-[10px] overflow-hidden flex-shrink-0 border border-border/50">
-                    <img
+                <div className="w-full h-full flex items-center justify-center bg-muted/10 p-1">
+                  <div className="relative h-full aspect-square max-h-full rounded-[10px] overflow-hidden flex-shrink-0 border border-border/50">
+                    <SmartImage
                       src={value}
                       alt="Preview"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover/overlay:scale-105"
+                      fill
+                      showSkeleton={false}
+                      className="object-cover transition-transform duration-500 group-hover/overlay:scale-105"
                     />
                   </div>
                 </div>
               ) : (
-                <img
+                <SmartImage
                   src={value}
                   alt="Preview"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover/overlay:scale-105"
+                  fill
+                  showSkeleton={false}
+                  className="object-cover transition-transform duration-500 group-hover/overlay:scale-105"
                 />
               )}
 
@@ -173,7 +192,9 @@ export function ClickableImageUpload({
                 <ImageIcon className="h-6 w-6" />
               </div>
               <div className="text-center px-3">
-                <p className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">{placeholder}</p>
+                <p className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">
+                  {placeholder}
+                </p>
                 <p className="text-[11px] text-muted-foreground/80 mt-0.5 font-normal">
                   {helperText || `PNG, JPG, GIF up to ${maxSize}MB`}
                 </p>
@@ -189,7 +210,7 @@ export function ClickableImageUpload({
         )}
       </div>
 
-      {error && <p className="text-xs text-destructive font-medium">{error.message}</p>}
+      {error && <p className="text-xs text-red-500">{error.message}</p>}
     </div>
   );
 }

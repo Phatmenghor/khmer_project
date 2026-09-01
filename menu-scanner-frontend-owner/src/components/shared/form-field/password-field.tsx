@@ -2,7 +2,7 @@
 
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { Controller, FieldValues } from "react-hook-form";
-import { PasswordFieldProps } from ".";
+import { PasswordFormFieldProps } from "./form-field-types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -21,15 +21,12 @@ export function PasswordField<T extends FieldValues = FieldValues>({
   className = "",
   inputClassName = "",
   labelClassName = "",
-}: PasswordFieldProps<T>) {
+}: PasswordFormFieldProps<T>) {
   return (
     <div className={`flex flex-col gap-1 w-full ${className}`}>
-      {label && (
-        <Label htmlFor={name} className={cn("text-xs font-semibold text-foreground flex items-center min-h-[16px]", labelClassName)}>
-          <span>{label}</span>
-          {required && <span className="text-destructive ml-0.5">*</span>}
-        </Label>
-      )}
+      <Label htmlFor={name} className={`text-xs font-medium ${labelClassName}`}>
+        {label} {required && <span className="text-red-500">*</span>}
+      </Label>
       <div className="relative">
         <Controller
           control={control}
@@ -45,34 +42,28 @@ export function PasswordField<T extends FieldValues = FieldValues>({
               autoComplete="new-password"
               className={cn(
                 "pr-8",
-                error && "border-destructive focus:border-destructive focus:ring-destructive/30",
+                error && "border-red-500 focus:border-red-500 focus:ring-red-500/30",
                 inputClassName
               )}
             />
           )}
         />
         {onTogglePassword && (
-          <CustomButton
-            variant="unstyled"
-            size="unstyled"
+          <CustomButton variant="unstyled" size="unstyled"
             type="button"
             onClick={onTogglePassword}
-            className="absolute inset-y-0 right-0 flex items-center pr-2.5 cursor-pointer"
+            className="absolute inset-y-0 right-0 flex items-center pr-2"
             tabIndex={-1}
           >
             {showPassword ? (
-              <EyeOff className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+              <EyeOff className="h-4 w-4 text-gray-500" />
             ) : (
-              <Eye className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+              <Eye className="h-4 w-4 text-gray-500" />
             )}
           </CustomButton>
         )}
       </div>
-      {error?.message && (
-        <p className="text-xs text-destructive font-medium mt-1">
-          {error.message}
-        </p>
-      )}
+      <p className={`text-xs text-red-600 ${error?.message ? "min-h-[16px]" : ""}`}>{error?.message || ""}</p>
     </div>
   );
 }

@@ -12,20 +12,20 @@ import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { DatePickerField } from "@/components/shared/form-field/date-picker-field";
 import { DisplayField } from "@/components/shared/form-field/display-field";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
 import {
   getBusinessProfileService,
   updateBusinessProfileService,
   deleteAccountService,
-} from "@/redux/features/auth/store/thunks/auth-thunks";
+} from "@/features/auth/store/thunks/auth-thunks";
 import {
   selectProfile,
   selectIsProfileLoading,
   selectError,
-} from "@/redux/features/auth/store/selectors/auth-selectors";
+} from "@/features/auth/store/selectors/auth-selectors";
 import { showToast } from "@/components/shared/common/show-toast";
-import { clearError } from "@/redux/features/auth/store/slice/auth-slice";
+import { clearError } from "@/features/auth/store/slice/auth-slice";
 import ChangePasswordModal from "@/components/shared/modal/change-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { ProfilePictureModal } from "@/components/shared/modal/profile-picture-modal";
@@ -41,7 +41,7 @@ import Loading from "@/components/shared/common/loading";
 import {
   profileUpdateSchema,
   ProfileFormData,
-} from "@/redux/features/auth/store/models/schema/user.schema";
+} from "@/features/auth/store/models/schema/user.schema";
 import { TelegramSyncCard } from "@/components/shared/telegram/telegram-sync-card";
 import { formatEnumLabel } from "@/utils/common/enum-convert";
 

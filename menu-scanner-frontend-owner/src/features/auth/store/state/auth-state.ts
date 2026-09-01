@@ -1,0 +1,59 @@
+
+
+
+import { useAppDispatch, useAppSelector } from "@/store";
+import {
+  selectError,
+  selectIsLoading,
+  selectIsAuthenticated,
+  selectAuthReady,
+  selectUser,
+  selectProfile,
+  selectIsProfileLoading,
+  selectUserFullName,
+  selectUserEmail,
+  selectUserProfileImage,
+  selectUserRoles,
+  selectAccessToken,
+} from "../selectors/auth-selectors";
+
+export const useAuthState = () => {
+  const dispatch = useAppDispatch();
+
+
+  const isLoading = useAppSelector(selectIsLoading);
+  const isProfileLoading = useAppSelector(selectIsProfileLoading);
+  const error = useAppSelector(selectError);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const authReady = useAppSelector(selectAuthReady);
+  const user = useAppSelector(selectUser);
+  const profile = useAppSelector(selectProfile);
+  const fullName = useAppSelector(selectUserFullName);
+  const email = useAppSelector(selectUserEmail);
+  const profileImage = useAppSelector(selectUserProfileImage);
+  const roles = useAppSelector(selectUserRoles);
+  const accessToken = useAppSelector(selectAccessToken);
+
+  return {
+
+    isLoading,
+    isProfileLoading,
+    error,
+
+
+    isAuthenticated,
+    authReady,
+    user,
+    profile,
+
+
+    fullName,
+    email,
+    profileImage,
+    roles,
+    accessToken,
+
+
+    dispatch,
+  };
+};

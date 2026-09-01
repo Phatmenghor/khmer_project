@@ -13,7 +13,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { OwnerDashboardSummaryResponse } from "@/redux/features/owner-dashboard/store/models/response/owner-dashboard-response";
+import { OwnerDashboardSummaryResponse } from "@/features/owner-dashboard/store/models/response/owner-dashboard-response";
 
 interface KpiCardProps {
   title: string;

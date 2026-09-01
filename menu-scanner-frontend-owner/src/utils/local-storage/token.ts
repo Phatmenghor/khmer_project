@@ -1,6 +1,7 @@
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { COOKIE_KEYS } from "@/constants/cookie-keys";
 
+
 function setNativeCookie(name: string, value: string, maxAge: number): void {
   if (typeof window === "undefined") return;
   const expires = new Date();
@@ -13,8 +14,10 @@ function deleteNativeCookie(name: string): void {
   document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
 }
 
+
 const ACCESS_TOKEN_KEY = COOKIE_KEYS.ACCESS_TOKEN;
 const REFRESH_TOKEN_KEY = COOKIE_KEYS.REFRESH_TOKEN;
+
 
 function getMaxAgeFromToken(
   token: string,
@@ -25,16 +28,20 @@ function getMaxAgeFromToken(
     if (decoded?.exp) {
       const now = Math.floor(Date.now() / 1000);
       const remaining = decoded.exp - now;
+
       if (remaining > 0) return remaining;
     }
   } catch {
-    // Swallow error
+
   }
   return fallbackSeconds;
 }
 
 export function storeTokenRemember(token: string | undefined): void {
-  if (typeof window === "undefined" || !token) return;
+  if (typeof window === "undefined" || !token) {
+    return;
+  }
+
   const maxAge = getMaxAgeFromToken(token, 365 * 24 * 60 * 60);
   setCookie(ACCESS_TOKEN_KEY, token, { maxAge, path: "/" });
 }
@@ -44,22 +51,32 @@ export function getToken(): string | undefined {
   return token as string | undefined;
 }
 
+
 export function storeToken(token: string | undefined): void {
-  if (typeof window === "undefined" || !token) return;
+  if (typeof window === "undefined" || !token) {
+    return;
+  }
+
   const maxAge = getMaxAgeFromToken(token, 7 * 24 * 60 * 60);
   setCookie(ACCESS_TOKEN_KEY, token, { maxAge, path: "/" });
 }
 
+
 export function storeRefreshToken(refreshToken: string | undefined): void {
-  if (typeof window === "undefined" || !refreshToken) return;
+  if (typeof window === "undefined" || !refreshToken) {
+    return;
+  }
+
   const maxAge = getMaxAgeFromToken(refreshToken, 30 * 24 * 60 * 60);
   setCookie(REFRESH_TOKEN_KEY, refreshToken, { maxAge, path: "/" });
 }
+
 
 export function getRefreshToken(): string | undefined {
   const token = getCookie(REFRESH_TOKEN_KEY);
   return token as string | undefined;
 }
+
 
 export function storeTokens(
   accessToken: string | undefined,
@@ -69,18 +86,22 @@ export function storeTokens(
   storeRefreshToken(refreshToken);
 }
 
+
 export function clearToken(): void {
   deleteCookie(ACCESS_TOKEN_KEY);
 }
+
 
 export function clearRefreshToken(): void {
   deleteCookie(REFRESH_TOKEN_KEY);
 }
 
+
 export function clearAllTokens(): void {
   clearToken();
   clearRefreshToken();
 }
+
 
 export function storeAdminToken(token: string | undefined): void {
   if (typeof window === "undefined" || !token) return;
@@ -115,15 +136,18 @@ export function clearAdminTokens(): void {
   deleteNativeCookie(COOKIE_KEYS.ADMIN_REFRESH_TOKEN);
 }
 
+
 export function isAuthenticated(): boolean {
   const token = getCookie(ACCESS_TOKEN_KEY);
   return !!token;
 }
 
+
 export function hasRefreshToken(): boolean {
   const token = getCookie(REFRESH_TOKEN_KEY);
   return !!token;
 }
+
 
 export function decodeToken(token: string): {
   sub?: string;
@@ -144,6 +168,7 @@ export function decodeToken(token: string): {
     return null;
   }
 }
+
 
 export function isTokenExpired(bufferSeconds: number = 300): boolean {
   const token = getToken();

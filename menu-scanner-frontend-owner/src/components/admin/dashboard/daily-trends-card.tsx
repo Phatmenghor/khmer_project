@@ -13,7 +13,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChartSkeleton } from "./chart-skeleton";
-import { OwnerDashboardDailyTrendsResponse } from "@/redux/features/owner-dashboard/store/models/response/owner-dashboard-response";
+import { OwnerDashboardDailyTrendsResponse } from "@/features/owner-dashboard/store/models/response/owner-dashboard-response";
 
 type Mode = "count" | "amount";
 

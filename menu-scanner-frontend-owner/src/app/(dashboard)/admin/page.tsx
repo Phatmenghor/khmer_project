@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { format } from "date-fns";
 import { showToast } from "@/components/shared/common/show-toast";
-import { useAppSelector } from "@/redux/store";
-import { useOwnerDashboardState } from "@/redux/features/owner-dashboard/store/state/owner-dashboard-state";
+import { useAppSelector } from "@/store";
+import { useOwnerDashboardState } from "@/features/owner-dashboard/store/state/owner-dashboard-state";
 import {
   fetchOwnerDashboardSummaryService,
   fetchOwnerDashboardTrendsService,
@@ -14,7 +14,7 @@ import {
   fetchOwnerDashboardCustomerTrendsService,
   fetchOwnerDashboardUserTrendsService,
   fetchOwnerDashboardPaymentTrendsService,
-} from "@/redux/features/owner-dashboard/store/thunks/owner-dashboard-thunks";
+} from "@/features/owner-dashboard/store/thunks/owner-dashboard-thunks";
 import dynamic from "next/dynamic";
 import { ChartSkeleton } from "@/components/admin/dashboard/chart-skeleton";
 import { DashboardHeader } from "@/components/admin/dashboard/dashboard-header";
@@ -50,6 +50,8 @@ export default function AdminDashboardPage() {
   } = useOwnerDashboardState();
 
   const wsVersion = useAppSelector((state) => state.websocket.versions.dashboard);
+  const initialMountRef = useRef(true);
+  const prevWsVersionRef = useRef(wsVersion);
 
   const fetchAll = useCallback(() => {
     dispatch(fetchOwnerDashboardSummaryService());
@@ -63,7 +65,16 @@ export default function AdminDashboardPage() {
   }, [dispatch]);
 
   useEffect(() => {
-    fetchAll();
+    if (initialMountRef.current) {
+      initialMountRef.current = false;
+      fetchAll();
+      return;
+    }
+
+    if (wsVersion !== prevWsVersionRef.current) {
+      prevWsVersionRef.current = wsVersion;
+      fetchAll();
+    }
   }, [fetchAll, wsVersion]);
 
   useEffect(() => {

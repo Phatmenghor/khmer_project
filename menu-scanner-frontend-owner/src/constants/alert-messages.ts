@@ -1,5 +1,5 @@
 /**
- * Centralized alert and warning messages for the owner frontend
+ * Centralized alert and warning messages for the client frontend
  */
 
 export const AlertMessages = {

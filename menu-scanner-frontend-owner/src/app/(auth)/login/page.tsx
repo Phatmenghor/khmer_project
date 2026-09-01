@@ -11,15 +11,17 @@ import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import { useRouter } from "next/navigation";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
-import { loginService } from "@/redux/features/auth/store/thunks/auth-thunks";
-import { telegramAuthenticateService } from "@/redux/features/auth/store/thunks/social-auth-thunks";
+import Link from "next/link";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
+import { loginService, getProfileService } from "@/features/auth/store/thunks/auth-thunks";
+import { telegramAuthenticateService } from "@/features/auth/store/thunks/social-auth-thunks";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
 import { SocialAuthConfig } from "@/constants/app-resource/default/default";
 import { TelegramLoginButton } from "@/components/shared/telegram/telegram-login-widget";
-import { TelegramAuthData } from "@/redux/features/auth/store/models/request/social-auth-request";
+import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
 import { appImages } from "@/constants/app-resource/icons/app-images";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 
 const formSchema = z.object({
   userIdentifier: z.string().min(1, "Email or username is required"),
@@ -55,17 +57,11 @@ export default function LoginPage() {
           userType: "PLATFORM_USER",
         }),
       ).unwrap();
+      dispatch(getProfileService());
       showToast.success("Welcome back! Redirecting to dashboard...");
       router.replace(ROUTES.DASHBOARD.INDEX);
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.message ||
-        err?.payload?.message ||
-        err?.payload ||
-        err?.message ||
-        (typeof err === "string" ? err : null) ||
-        "Login failed. Please try again.";
-      showToast.error(errorMessage);
+    } catch (err) {
+      showToast.error(getErrorMessage(err, "Login failed. Please try again."));
     }
   }
 
@@ -80,15 +76,8 @@ export default function LoginPage() {
       ).unwrap();
       showToast.success("Welcome back! Redirecting to dashboard...");
       router.replace(ROUTES.DASHBOARD.INDEX);
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.message ||
-        err?.payload?.message ||
-        err?.payload ||
-        err?.message ||
-        (typeof err === "string" ? err : null) ||
-        "Telegram login failed. Please try again.";
-      showToast.error(errorMessage);
+    } catch (err) {
+      showToast.error(getErrorMessage(err, "Telegram login failed. Please try again."));
     } finally {
       setIsTelegramLoading(false);
     }
@@ -107,7 +96,7 @@ export default function LoginPage() {
           sizes="(min-width: 1024px) 50vw, 100vw"
           priority
         />
-        {/* Dark overlay for readability on mobile */}
+        {/* Dark overlay for readability, only needed when form sits on top of the image (small screens) */}
         <div className="absolute inset-0 bg-black/50 lg:hidden" />
       </div>
 
@@ -166,8 +155,9 @@ export default function LoginPage() {
 
                 <CustomButton
                   type="submit"
-                  className="w-full h-9 rounded-xl text-xs font-bold shadow-xs hover:shadow transition-all cursor-pointer"
+                  isLoading={isLoading}
                   disabled={isAnyLoading}
+                  className="w-full h-9 rounded-xl text-xs font-bold shadow-xs hover:shadow transition-all cursor-pointer"
                 >
                   {isLoading ? (
                     <>
@@ -201,6 +191,17 @@ export default function LoginPage() {
                 loading={isTelegramLoading}
                 className="w-full"
               />
+
+              {/* Sign up link */}
+              <div className="text-center text-xs pt-1">
+                <span className="text-muted-foreground font-medium">Don't have an account? </span>
+                <Link
+                  href="/register"
+                  className="text-primary hover:underline font-bold"
+                >
+                  Sign up
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>

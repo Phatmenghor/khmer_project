@@ -22,7 +22,7 @@ export const LANDING_CONFIG = {
   // Navigation
   nav: {
     logo: "ScanMeKH",
-    logoUrl: appImages.myLogo,
+    logoUrl: appImages.scanmekhLogo,
   },
 
   // Hero Section

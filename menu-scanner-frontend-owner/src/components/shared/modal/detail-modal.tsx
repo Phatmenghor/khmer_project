@@ -1,19 +1,12 @@
 "use client";
 
+import { CustomModal, type ModalSize } from "./custom-modal";
 import type React from "react";
 import { ReactNode } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Eye, type LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import Loading from "@/components/shared/common/loading";
-import { ImageTile } from "@/components/shared/avatar/image-tile";
+import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
+import { CustomImagePreview } from "@/components/shared/image/custom-image-preview";
+import { Loading } from "../common/loading";
 
 interface DetailModalProps {
   isOpen: boolean;
@@ -21,101 +14,84 @@ interface DetailModalProps {
   isLoading?: boolean;
   title?: string;
   description?: string;
-  /** Image URL — rendered as the 12x12 image tile on the left of the header. */
-  imageUrl?: string;
-  /**
-   * Alias for imageUrl. Kept so callers passing `avatarUrl` (the original
-   * DetailModal prop) keep working.
-   */
   avatarUrl?: string;
-  /** Used as alt text and as the avatar fallback letter. */
+  imageUrl?: string;
   avatarName?: string;
-  /** Icon shown inside the image tile when no image is provided. Defaults to Eye. */
-  icon?: LucideIcon;
   badges?: ReactNode;
-  /** Override the max-width. Default is sm:max-w-5xl (matches client modals). */
+  icon?: React.ElementType;
   maxWidthClass?: string;
+  size?: ModalSize;
   isEmpty?: boolean;
   emptyMessage?: string;
   children: ReactNode;
 }
 
-/**
- * Standard detail-modal shell.
- * Header matches the client project pattern: a 12×12 rounded image tile
- * on the left (image OR fallback icon), then a text-sm font-bold title
- * with a text-xs muted description underneath.
- */
 export function DetailModal({
   isOpen,
   onClose,
   isLoading = false,
   title = "Details",
   description,
-  imageUrl,
   avatarUrl,
+  imageUrl,
   avatarName,
-  icon: Icon = Eye,
   badges,
-  maxWidthClass = "sm:max-w-5xl",
+  size = "6xl",
   isEmpty = false,
   emptyMessage = "No data available",
   children,
 }: DetailModalProps) {
-  const image = imageUrl || avatarUrl;
-
+  const displayImage = avatarUrl || imageUrl;
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent
-        className={cn(
-          // Fixed height so the inner flex-1 ScrollArea actually scrolls.
-          "w-full h-[92dvh] max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden",
-          maxWidthClass,
-        )}
-      >
-        <DialogHeader className="px-4 pt-3 pb-3.5 border-b border-primary/30 -mx-4 -mt-4 bg-muted/30 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            {/* 12x12 image tile — image opens a click-to-zoom preview when present */}
-            <ImageTile
-              imageUrl={image}
-              name={avatarName || title}
-              icon={Icon}
+    <CustomModal
+      isOpen={isOpen}
+      onClose={onClose}
+      size={size}
+      className="max-h-[92vh] gap-0 flex flex-col"
+      disableScrollWrapper={true}
+    >
+      <DialogHeader className="px-4 py-3 border-b border-border/60 m-0 bg-muted/30 flex-shrink-0">
+        <div className="flex items-center gap-3 pr-4">
+          {displayImage ? (
+            <CustomImagePreview
+              src={displayImage}
+              alt={avatarName || title}
+              fallbackText={avatarName}
+              className="h-10 w-10 rounded-[10px]"
             />
+          ) : avatarName ? (
+            <CustomAvatar name={avatarName} size="lg" />
+          ) : null}
 
-            <div className="flex flex-col gap-0.5 flex-1 min-w-0 text-left">
-              <DialogTitle className="text-xs font-semibold leading-tight text-foreground truncate">
-                {title}
-              </DialogTitle>
-              {description && (
-                <DialogDescription className="text-[11px] text-muted-foreground leading-snug truncate">
-                  {description}
-                </DialogDescription>
-              )}
-              {badges && (
-                <div className="flex items-center gap-1 mt-1 flex-wrap">
-                  {badges}
-                </div>
-              )}
-            </div>
-          </div>
-        </DialogHeader>
-
-        <ScrollArea className="flex-1 min-h-0">
-          <div className="py-3 px-0.5 space-y-3">
-            {isLoading ? (
-              <div className="flex items-center justify-center min-h-[300px]">
-                <Loading />
-              </div>
-            ) : isEmpty ? (
-              <div className="flex items-center justify-center min-h-[200px]">
-                <p className="text-xs text-muted-foreground">{emptyMessage}</p>
-              </div>
-            ) : (
-              children
+          <div className="flex-1 min-w-0 text-left">
+            <DialogTitle className="text-sm md:text-base font-semibold leading-tight text-foreground truncate">
+              {title}
+            </DialogTitle>
+            {description && (
+              <DialogDescription className="text-xs text-muted-foreground leading-snug truncate">
+                {description}
+              </DialogDescription>
+            )}
+            {badges && (
+              <div className="flex items-center gap-1 mt-1">{badges}</div>
             )}
           </div>
-        </ScrollArea>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </DialogHeader>
+
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+        {isLoading ? (
+          <div className="flex items-center justify-center min-h-[50vh] w-full flex-1">
+            <Loading />
+          </div>
+        ) : isEmpty ? (
+          <div className="flex items-center justify-center min-h-[50vh] w-full flex-1">
+            <p className="text-xs text-muted-foreground">{emptyMessage}</p>
+          </div>
+        ) : (
+          children
+        )}
+      </div>
+    </CustomModal>
   );
 }

@@ -18,9 +18,9 @@ export const metadata = {
   },
   description: "ScanMeKH Dashboard - Manage your restaurant operations",
   icons: {
-    icon: appImages.myLogo,
-    shortcut: appImages.myLogo,
-    apple: appImages.myLogo,
+    icon: appImages.scanmekhLogo,
+    shortcut: appImages.scanmekhLogo,
+    apple: appImages.scanmekhLogo,
   },
 };
 

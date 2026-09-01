@@ -1,0 +1,15 @@
+
+
+
+export const BUSINESS_SETTINGS_DEFAULTS = {
+
+  BUSINESS_NAME: "ScanMeKH",
+
+
+  PRIMARY_COLOR: null,
+
+
+  TAX_PERCENTAGE: 0,
+
+  LOW_STOCK_THRESHOLD: 5,
+} as const;

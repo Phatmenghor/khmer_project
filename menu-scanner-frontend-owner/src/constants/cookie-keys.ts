@@ -1,7 +1,11 @@
+
+
+
 export const COOKIE_KEYS = {
-  ACCESS_TOKEN: "platform-auth-token",
-  REFRESH_TOKEN: "platform-auth-refresh-token",
-  USER_INFO: "platform-user-info",
+
+  ACCESS_TOKEN: "auth-token-client",
+  REFRESH_TOKEN: "auth-refresh-token",
+  USER_INFO: "user-info",
 
   ADMIN_ACCESS_TOKEN: "admin-auth-token",
   ADMIN_REFRESH_TOKEN: "admin-auth-refresh-token",

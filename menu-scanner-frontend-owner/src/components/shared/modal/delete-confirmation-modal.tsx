@@ -1,15 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { AlertTriangle, Trash2, type LucideIcon } from "lucide-react";
+import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomModal } from "./custom-modal";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle, Trash2, Loader2, type LucideIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { FormHeader } from "@/components/shared/form-field/form-header";
-import { FormBody } from "@/components/shared/form-field/form-body";
-import { FormFooter } from "@/components/shared/form-field/form-footer";
 
 interface DeleteConfirmationDialogProps {
   isOpen: boolean;
@@ -70,7 +67,7 @@ export function DeleteConfirmationModal({
   const isCritical = variant === "critical";
   const isDeleteDisabled =
     inFlight ||
-    (requireConfirmation && confirmationValue !== confirmationText);
+    (requireConfirmation && confirmationValue.trim() !== confirmationText);
 
   const buttonLabel = confirmButtonText
     ? confirmButtonText
@@ -78,112 +75,107 @@ export function DeleteConfirmationModal({
       ? "Delete Permanently"
       : "Delete";
 
+  const IconComponent = icon ?? Trash2;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-sm p-0 flex flex-col">
-        <FormHeader
-          title={title}
-          description="Confirm deletion"
-          icon={icon ?? Trash2}
-          variant="destructive"
-        />
+    <CustomModal isOpen={isOpen} onClose={onClose} title={title} size="sm">
+      {/* ── Header ── */}
+      <div className="flex items-center gap-3 p-4 px-5 border-b border-border/60 bg-gradient-to-r from-background via-card to-background shrink-0">
+        <div className="p-2.5 rounded-2xl bg-destructive/10 text-destructive border border-destructive/20 shrink-0 shadow-2xs">
+          <IconComponent className="w-5 h-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-extrabold text-base text-foreground leading-tight">{title}</h3>
+          <p className="text-xs text-muted-foreground mt-0.5 font-medium">Action cannot be undone</p>
+        </div>
+      </div>
 
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <FormBody>
-            {description && (
-              <p className="text-xs text-foreground leading-relaxed">
-                {description}
-              </p>
-            )}
+      {/* ── Body ── */}
+      <div className="p-4 px-5 space-y-3.5 bg-card/40">
+        {description && (
+          <p className="text-xs text-muted-foreground/90 leading-relaxed font-medium">
+            {description}
+          </p>
+        )}
 
+        {(itemName || isCritical) && (
+          <div className="p-3.5 bg-destructive/5 rounded-2xl border border-destructive/15 space-y-2">
             {itemName && (
-              <div className="px-2.5 py-2 bg-muted/60 rounded border border-border">
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
-                  Item
-                </p>
-                <p className="text-xs font-semibold text-foreground mt-0.5 truncate">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[11px] font-bold text-destructive flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />
+                  Target Item
+                </span>
+                <span className="text-xs font-semibold text-foreground truncate">
                   {itemName}
-                </p>
+                </span>
               </div>
             )}
 
             {isCritical && (
-              <Alert className="border-destructive/30 bg-destructive/5 py-2">
-                <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
-                <AlertDescription className="text-xs text-destructive font-medium">
-                  This action cannot be undone.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {requireConfirmation && (
-              <div className="space-y-1">
-                <Label htmlFor="confirmation" className="text-xs font-medium">
-                  Type{" "}
-                  <code className="bg-muted px-1 py-0.5 rounded text-destructive font-mono text-xs">
-                    {confirmationText}
-                  </code>{" "}
-                  to confirm:
-                </Label>
-                <Input
-                  id="confirmation"
-                  value={confirmationValue}
-                  onChange={(e) => setConfirmationValue(e.target.value)}
-                  placeholder="Type to confirm"
-                  className="font-mono"
-                  autoComplete="off"
-                  disabled={inFlight}
-                />
+              <div className="flex items-center gap-2 pt-1 border-t border-destructive/10 text-destructive text-xs font-medium">
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-destructive" />
+                <span>Warning: This action will permanently remove selected data.</span>
               </div>
             )}
+          </div>
+        )}
 
-            {(error || errorMessage) && (
-              <Alert variant="destructive" className="py-2">
-                <AlertTriangle className="h-3.5 w-3.5" />
-                <AlertDescription className="text-xs">
-                  {error || errorMessage}
-                </AlertDescription>
-              </Alert>
-            )}
-          </FormBody>
-
-          <FormFooter
-            isSubmitting={false}
-            showStatusText={!inFlight}
-            isDirty={!requireConfirmation || confirmationValue === confirmationText}
-            isCreate={false}
-            noChangesMessage={
-              requireConfirmation
-                ? `Type ${confirmationText} to enable delete`
-                : "Confirm to delete"
-            }
-          >
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
+        {requireConfirmation && (
+          <div className="space-y-1.5 pt-1">
+            <Label htmlFor="confirmation" className="text-xs font-bold text-foreground flex items-center gap-1 flex-wrap">
+              <span>Type</span>
+              <code className="bg-destructive/10 text-destructive border border-destructive/20 px-1.5 py-0.5 rounded text-xs font-mono font-extrabold">
+                {confirmationText}
+              </code>
+              <span>to confirm:</span>
+            </Label>
+            <Input
+              id="confirmation"
+              value={confirmationValue}
+              onChange={(e) => setConfirmationValue(e.target.value)}
+              placeholder={`Type "${confirmationText}" to confirm`}
+              className="font-mono text-xs h-9 uppercase tracking-wider border-destructive/30 focus-visible:border-destructive focus-visible:ring-destructive/25 rounded-xl"
+              autoComplete="off"
               disabled={inFlight}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isDeleteDisabled}
-            >
-              {inFlight ? (
-                <>
-                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin shrink-0" />
-                  Deleting...
-                </>
-              ) : (
-                buttonLabel
-              )}
-            </Button>
-          </FormFooter>
-        </div>
-      </DialogContent>
-    </Dialog>
+            />
+          </div>
+        )}
+
+        {(error || errorMessage) && (
+          <Alert variant="destructive" className="py-2.5 rounded-xl flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+            <AlertDescription className="text-xs font-bold">
+              {error || errorMessage}
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
+
+      {/* ── Footer ── */}
+      <div className="p-4 px-5 border-t border-border/60 bg-background flex items-center justify-end gap-2.5 shrink-0">
+        <CustomButton
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={onClose}
+          disabled={inFlight}
+          className="font-bold min-w-[85px] rounded-xl border-border/60 hover:bg-muted/50 text-xs py-2 cursor-pointer"
+        >
+          Cancel
+        </CustomButton>
+        <CustomButton
+          type="button"
+          variant="destructive"
+          size="sm"
+          onClick={handleDelete}
+          disabled={isDeleteDisabled}
+          isLoading={inFlight}
+          className="font-bold min-w-[125px] rounded-xl bg-destructive hover:bg-destructive/90 text-white text-xs py-2 shadow-xs cursor-pointer"
+        >
+          {inFlight ? "Processing..." : buttonLabel}
+        </CustomButton>
+      </div>
+    </CustomModal>
   );
 }

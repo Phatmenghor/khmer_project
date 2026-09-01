@@ -93,7 +93,7 @@ export function useInfiniteComboboxData<T, P extends object = object>(
         setPage(result.pageNo);
         setLastPage(result.last);
       } catch {
-        // Swallow
+        // Swallow — matches existing behavior across all 17 comboboxes
       } finally {
         if (reqId === requestIdRef.current) {
           setLoading(false);
@@ -110,7 +110,7 @@ export function useInfiniteComboboxData<T, P extends object = object>(
     if (enabled) {
       fetchPage(debouncedSearch, 1);
     }
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, enabled, extraParamsKey]);
 
   useEffect(() => {
@@ -123,7 +123,7 @@ export function useInfiniteComboboxData<T, P extends object = object>(
     ) {
       fetchPage(debouncedSearch, page + 1);
     }
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView, page, data.length, enabled]);
 
   const reset = useCallback(() => {

@@ -6,8 +6,8 @@ import { Download, FileSpreadsheet, Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { downloadPlatformUserTemplate } from "@/utils/excel/user-excel.utils";
 import { ROUTES } from "@/constants/app-routes/routes";
+import { AccountStatus } from "@/constants/status/status";
 import {
-  AccountStatus,
   ModalMode,
   UserRole,
   UserGropeType,
@@ -16,36 +16,36 @@ import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import ResetPasswordModal from "@/components/shared/modal/reset-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
-import { userPlatformTableColumns } from "@/redux/features/auth/table/users-platform-table";
+import { userPlatformTableColumns } from "@/features/auth/table/users-platform-table";
 import {
   ACCOUNT_STATUS_FILTER,
 } from "@/constants/app-resource/status/filter-status";
-import { fetchAllRolesListService } from "@/redux/features/auth/store/thunks/role-thunks";
-import { selectRolesList } from "@/redux/features/auth/store/selectors/role-selectors";
+import { fetchAllRolesListService } from "@/features/auth/store/thunks/role-thunks";
+import { selectRolesList } from "@/features/auth/store/selectors/role-selectors";
 import { convertEnumOrString } from "@/utils/common/enum-convert";
-import { useAppSelector } from "@/redux/store";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { useUsersState } from "@/redux/features/auth/store/state/users-state";
-import { usePagination } from "@/redux/store/use-pagination";
+import { useUsersState } from "@/features/auth/store/state/users-state";
+import { usePagination } from "@/hooks/use-pagination";
 import {
   deleteUserService,
   fetchAllUsersService,
   toggleUserStatusService,
-} from "@/redux/features/auth/store/thunks/users-thunks";
+} from "@/features/auth/store/thunks/users-thunks";
 import {
   setAccountStatusFilter,
   setPageNo,
   setRoleFilter,
   setSearchFilter,
-} from "@/redux/features/auth/store/slice/users-slice";
-import UserPlatformModal from "@/redux/features/auth/components/user-platform-modal";
-import { UserPlatformDetailModal } from "@/redux/features/auth/components/user-platform-detail-modal";
-import { UserResponseModel } from "@/redux/features/auth/store/models/response/users-response";
-import UserImportModal from "@/redux/features/auth/components/user-import-modal";
+} from "@/features/auth/store/slice/users-slice";
+import UserPlatformModal from "@/features/auth/components/user-platform-modal";
+import { UserPlatformDetailModal } from "@/features/auth/components/user-platform-detail-modal";
+import { UserResponseModel } from "@/features/auth/store/models/response/users-response";
+import UserImportModal from "@/features/auth/components/user-import-modal";
 
 export default function UserPage() {
   const searchParams = useSearchParams();

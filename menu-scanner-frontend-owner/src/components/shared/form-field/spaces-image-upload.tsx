@@ -2,25 +2,26 @@
 
 import React, { useRef, useState } from "react";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Upload, X, ImageIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { FieldError } from "react-hook-form";
 import {
+  uploadImage,
   uploadMultiSize,
   deleteImage,
+  SpacesUploadResult,
   SpacesMultiSizeResult,
 } from "@/services/spaces-service";
 
-type AspectRatio = "square" | "banner" | "portrait" | "auto";
+type AspectRatio = "square" | "banner" | "portrait" | "auto" | "1:1" | "16:9" | "4:3";
 type UploadState = "idle" | "uploading" | "done" | "error";
 
-export interface SpacesImageUploadProps {
+interface BaseProps {
   label: string;
+  businessId: string;
   value?: string;
-  imageKeys?: Partial<SpacesMultiSizeResult>;
-  onChange: (result: SpacesMultiSizeResult) => void;
-  onRemove?: () => void;
   disabled?: boolean;
   required?: boolean;
   error?: FieldError | string;
@@ -29,32 +30,49 @@ export interface SpacesImageUploadProps {
   height?: string;
   placeholder?: string;
   helperText?: string;
+  onRemove?: () => void;
   /**
-   * When true, picking a file does NOT call the Spaces API immediately.
-   * The component fires onFileSelected(file) with a local preview URL so the
-   * parent can show a preview and upload only when the form is submitted.
+   * When true, picking a file does NOT call the Spaces API. The component
+   * fires onFileSelected(file) with a local preview; the parent is
+   * responsible for uploading on submit. Avoids orphaned uploads when the
+   * user cancels the form.
    */
   deferred?: boolean;
   onFileSelected?: (file: File | null) => void;
 }
 
-export function SpacesImageUpload({
-  label,
-  value,
-  imageKeys,
-  onChange,
-  onRemove,
-  disabled = false,
-  required = false,
-  error,
-  maxSizeMb = 5,
-  aspectRatio = "square",
-  height,
-  placeholder = "Click to upload image",
-  helperText,
-  deferred = false,
-  onFileSelected,
-}: SpacesImageUploadProps) {
+interface SingleProps extends BaseProps {
+  multiSize?: false;
+  imageKey?: string;
+  onChange?: (result: SpacesUploadResult) => void;
+}
+
+interface MultiProps extends BaseProps {
+  multiSize: true;
+  imageKeys?: SpacesMultiSizeResult;
+  onChange?: (result: SpacesMultiSizeResult) => void;
+}
+
+type SpacesImageUploadProps = SingleProps | MultiProps;
+
+export function SpacesImageUpload(props: SpacesImageUploadProps) {
+  const {
+    label,
+    businessId,
+    value,
+    disabled = false,
+    required = false,
+    error,
+    maxSizeMb = 5,
+    aspectRatio = "square",
+    height,
+    placeholder = "Click to upload image",
+    helperText,
+    onRemove,
+    deferred = false,
+    onFileSelected,
+  } = props;
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -71,9 +89,14 @@ export function SpacesImageUpload({
     errorMsg ?? (typeof error === "string" ? error : error?.message ?? null);
 
   const deleteOldKeys = async () => {
-    if (imageKeys) {
-      const keys = [imageKeys.sm?.key, imageKeys.md?.key, imageKeys.o?.key].filter(Boolean) as string[];
-      await Promise.allSettled(keys.map(deleteImage));
+    if (props.multiSize) {
+      const keys = props.imageKeys;
+      if (keys) {
+        const all = [keys.sm?.key, keys.md?.key, keys.o?.key].filter(Boolean) as string[];
+        await Promise.allSettled(all.map(deleteImage));
+      }
+    } else {
+      if (props.imageKey) await deleteImage(props.imageKey).catch(() => {});
     }
   };
 
@@ -86,15 +109,14 @@ export function SpacesImageUpload({
       return;
     }
     if (file.size / 1024 / 1024 > maxSizeMb) {
-      setErrorMsg(`File must be under ${maxSizeMb}MB`);
+      setErrorMsg(`Image must be under ${maxSizeMb}MB`);
       return;
     }
 
     setErrorMsg(null);
 
     if (deferred) {
-      // Hand the File to the parent — no API call yet, parent previews locally
-      // and uploads on form submit.
+      // No API call yet — hand the File to the parent for preview/upload-on-submit.
       onFileSelected?.(file);
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
@@ -104,12 +126,18 @@ export function SpacesImageUpload({
     setUploadState("uploading");
 
     try {
-      const result = await uploadMultiSize(file);
-      setUploadState("done");
-      onChange(result);
-    } catch (err: any) {
+      if (props.multiSize) {
+        const result = await uploadMultiSize(file, businessId);
+        setUploadState("done");
+        props.onChange?.(result);
+      } else {
+        const result = await uploadImage(file, businessId);
+        setUploadState("done");
+        props.onChange?.(result);
+      }
+    } catch {
       setUploadState("error");
-      setErrorMsg(err?.message || "Upload failed — please try again");
+      setErrorMsg("Upload failed — please try again");
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
@@ -143,11 +171,11 @@ export function SpacesImageUpload({
       <div
         onClick={handleClick}
         className={cn(
-          "relative w-full rounded overflow-hidden border-2 transition-all",
+          "relative w-full rounded-[14px] overflow-hidden border-2 transition-all duration-300 group",
           containerHeight,
           value
-            ? "border-border hover:border-primary/50"
-            : "border-dashed border-border hover:border-primary",
+            ? "border-border/80 shadow-2xs hover:border-primary/50"
+            : "border-dashed border-primary/25 bg-muted/20 hover:bg-primary/5 hover:border-primary/60 shadow-2xs",
           disabled || isUploading
             ? "opacity-60 cursor-not-allowed"
             : "cursor-pointer hover:shadow-md",
@@ -163,63 +191,59 @@ export function SpacesImageUpload({
           className="hidden"
         />
 
-        {/* Uploading overlay */}
         {isUploading && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-background/80">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            <p className="text-xs font-medium text-foreground">Generating sizes…</p>
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-background/85 backdrop-blur-xs">
+            <Loader2 className="h-7 w-7 animate-spin text-primary" />
+            <p className="text-xs font-semibold text-foreground">
+              {props.multiSize ? "Generating sizes…" : "Uploading…"}
+            </p>
           </div>
         )}
 
-        {/* Preview */}
         {value && !isUploading ? (
-          <>
-            {aspectRatio === "square" ? (
-              <div className="w-full h-full flex items-center justify-center bg-muted/10">
-                <div className="w-40 h-40 rounded overflow-hidden flex-shrink-0">
-                  <img
-                    src={value}
-                    alt="Preview"
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-              </div>
-            ) : (
-              <img
+          <div className="relative w-full h-full group/overlay flex items-center justify-center p-1 bg-muted/10">
+            <div className={cn(
+              "relative rounded-[10px] overflow-hidden border border-border/50 shadow-2xs",
+              aspectRatio === "square" ? "h-full aspect-square max-h-full" : "w-full h-full"
+            )}>
+              <SmartImage
                 src={value}
                 alt="Preview"
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                fill
+                showSkeleton={false}
+                className="object-cover transition-transform duration-500 group-hover/overlay:scale-105"
               />
-            )}
 
-            <div className="absolute inset-0 group/overlay bg-black/0 hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
-              <div className="opacity-0 group-hover/overlay:opacity-100 transition-opacity flex flex-col items-center gap-1 text-white">
-                <Upload className="h-5 w-5" />
-                <p className="text-xs font-medium">Click to change</p>
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover/overlay:opacity-100 transition-all duration-300 flex items-center justify-center p-1">
+                <div className="px-2 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-[10px] font-medium text-white flex items-center gap-1 shadow-md">
+                  <Upload className="h-3 w-3" />
+                  <span className="hidden sm:inline">Change</span>
+                </div>
               </div>
-            </div>
 
-            {!disabled && (
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                className="absolute top-2 right-2 z-10"
-                onClick={handleRemove}
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            )}
-          </>
-        ) : !isUploading ? (
-          <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-muted/30">
-            <div className="p-3 bg-muted rounded-full">
-              <ImageIcon className="h-7 w-7 text-muted-foreground" />
+              {!disabled && (
+                <button
+                  type="button"
+                  className="absolute top-1 right-1 z-20 h-5 w-5 rounded-full bg-destructive/90 text-destructive-foreground hover:bg-destructive hover:scale-110 shadow-md transition-all flex items-center justify-center cursor-pointer"
+                  onClick={handleRemove}
+                  title="Remove image"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              )}
             </div>
-            <div className="text-center px-3">
-              <p className="text-xs font-medium text-foreground">{placeholder}</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {helperText ?? `PNG, JPG, WebP up to ${maxSizeMb}MB`}
+          </div>
+        ) : !isUploading ? (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 p-2">
+            <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-full shadow-2xs group-hover:scale-110 group-hover:bg-primary/15 transition-all duration-300 shrink-0">
+              <ImageIcon className="h-4 w-4" />
+            </div>
+            <div className="text-center w-full px-1 min-w-0">
+              <p className="text-[10px] font-semibold text-foreground group-hover:text-primary transition-colors leading-tight line-clamp-2 break-words">
+                {placeholder}
+              </p>
+              <p className="text-[9px] text-muted-foreground/80 mt-0.5 font-normal hidden [@media(min-height:120px)]:block leading-tight line-clamp-1">
+                {helperText ?? `PNG, JPG up to ${maxSizeMb}MB`}
               </p>
             </div>
           </div>

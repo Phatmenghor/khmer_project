@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useAppSelector } from "@/redux/store";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -19,21 +19,21 @@ import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confir
 import { SUBSCRIPTION_PLAN_FILTER } from "@/constants/app-resource/status/filter-status";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { usePagination } from "@/redux/store/use-pagination";
-import { useSubscriptionPlanState } from "@/redux/features/master-data/store/state/subscription-plan-state";
+import { usePagination } from "@/hooks/use-pagination";
+import { useSubscriptionPlanState } from "@/features/master-data/store/state/subscription-plan-state";
 import {
   setPageNo,
   setSearchFilter,
-} from "@/redux/features/master-data/store/slice/subscription-plan-slice";
+} from "@/features/master-data/store/slice/subscription-plan-slice";
 import {
   deleteSubscriptionPlanService,
   fetchAllSubscriptionPlanService,
-} from "@/redux/features/master-data/store/thunks/subscription-plan-thunks";
-import { subscriptionPlanTableColumns } from "@/redux/features/master-data/table/subscription-plan-table";
-import { SubscriptionPlanResponseModel } from "@/redux/features/master-data/store/models/response/subscription-plan-response";
-import { setSubscriptionPlanStatusFilter } from "@/redux/features/master-data/store/slice/subscription-plan-slice";
-import SubscriptionPlanModal from "@/redux/features/master-data/components/subscription-plan-modal";
-import { SubscriptionPlanDetailModal } from "@/redux/features/master-data/components/subscription-plan-detail-modal";
+} from "@/features/master-data/store/thunks/subscription-plan-thunks";
+import { subscriptionPlanTableColumns } from "@/features/master-data/table/subscription-plan-table";
+import { SubscriptionPlanResponseModel } from "@/features/master-data/store/models/response/subscription-plan-response";
+import { setSubscriptionPlanStatusFilter } from "@/features/master-data/store/slice/subscription-plan-slice";
+import SubscriptionPlanModal from "@/features/master-data/components/subscription-plan-modal";
+import { SubscriptionPlanDetailModal } from "@/features/master-data/components/subscription-plan-detail-modal";
 
 export default function SubscriptionPlanPage() {
   const searchParams = useSearchParams();

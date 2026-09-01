@@ -1,4 +1,4 @@
-export interface Pagination {
+export interface BasePagination {
   pageNo: number;
   pageSize: number;
   totalElements: number;
@@ -8,3 +8,10 @@ export interface Pagination {
   hasNext: boolean;
   hasPrevious: boolean;
 }
+
+export type Pagination = BasePagination;
+
+export interface PaginationResponseModel<T> extends BasePagination {
+  content: T[];
+}
+

@@ -5,15 +5,21 @@ import { usePathname } from "next/navigation";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CustomButton } from "@/components/shared/button/custom-button";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ROUTES, sidebarItems } from "@/constants/app-routes/routes";
+import { ROUTES, SIDEBAR_MENU } from "@/constants/app-routes/routes";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 import { UserAvatarCard } from "../shared/avatar/user-avatar-card";
-import { useIsMobile } from "@/redux/store/use-mobile";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
-import { getProfileService } from "@/redux/features/auth/store/thunks/auth-thunks";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
+import { useAppSelector } from "@/store";
+import {
+  selectBusinessSettings,
+  selectBusinessName,
+  selectBusinessLogo,
+} from "@/features/business/store/selectors/business-settings-selector";
+import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -24,20 +30,27 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const isMobile = useIsMobile();
 
-  const { profile, isProfileLoading, dispatch } = useAuthState();
+  const { profile, isProfileLoading, dispatch, accessToken, authReady } = useAuthState();
+
+
+  const businessSettings = useAppSelector(selectBusinessSettings);
+  const reduxBusinessName = useAppSelector(selectBusinessName);
+  const reduxLogoUrl = useAppSelector(selectBusinessLogo);
+
+
+  const businessName = reduxBusinessName;
+  const logoUrl = reduxLogoUrl;
+
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     "Master Data": true,
     Business: true,
-    "User Management": true,
+    Users: true,
+    "Stock Management": true,
+    Services: true,
+    Settings: true,
   });
   const [collapsed, setCollapsed] = useState(false);
-
-  useEffect(() => {
-    if (!profile && !isProfileLoading) {
-      dispatch(getProfileService());
-    }
-  }, [profile, isProfileLoading, dispatch]);
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({
@@ -56,13 +69,23 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
 
   const renderNavItems = (isCollapsed = false) => (
     <nav className="flex flex-col gap-1">
-      {sidebarItems.map((route) => {
-        const hasSubItems = route.subroutes && route.subroutes.length > 0;
+      {SIDEBAR_MENU.map((route) => {
+        const hasSubItems = route.items && route.items.length > 0;
         const isActive = route.href ? pathname === route.href : false;
-        const sectionKey = route.section || route.title;
 
         if (hasSubItems) {
-          const isOpen = sectionKey ? openSections[sectionKey] : false;
+
+          const filteredItems =
+            route.title === "Master Data" && businessSettings?.useSubcategories === false
+              ? route.items!.filter((item) => item.title !== "Subcategories")
+              : route.items!;
+
+
+          if (route.title === "Master Data" && filteredItems.length === 0) {
+            return null;
+          }
+
+          const isOpen = route.title ? openSections[route.title] : false;
 
           return (
             <div key={route.title} className="w-full">
@@ -73,7 +96,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                   isCollapsed ? "w-8 h-8 mx-auto px-0 justify-center" : "w-full justify-start",
                 )}
                 onClick={() =>
-                  sectionKey && !isCollapsed && toggleSection(sectionKey)
+                  route.title && !isCollapsed && toggleSection(route.title)
                 }
                 aria-expanded={isOpen}
                 title={isCollapsed ? route.title : undefined}
@@ -85,11 +108,11 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                   )}
                 >
                   {route.icon && (
-                    <route.icon className="w-3.5 h-3.5 flex-shrink-0 transition-colors duration-200 text-muted-foreground" />
+                    <route.icon className="w-3 h-3 flex-shrink-0 transition-colors duration-200" />
                   )}
                   {!isCollapsed && (
                     <>
-                      <span className="ml-2 truncate min-w-0 flex-1 text-left font-medium text-xs transition-colors duration-200">
+                      <span className="ml-2 truncate min-w-0 flex-1 text-left transition-colors duration-200">
                         {route.title}
                       </span>
                       <div className="ml-2 pr-1 flex-shrink-0">
@@ -106,9 +129,9 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
 
               {!isCollapsed && isOpen && (
                 <div className="relative ml-4 mt-1 space-y-1">
-                  <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-300 dark:bg-gray-700 z-0"></div>
+                  <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-300 z-0"></div>
 
-                  {route.subroutes!.map((subItem) => {
+                  {filteredItems.map((subItem) => {
                     const isSubItemActive = pathname === subItem.href;
 
                     return (
@@ -116,7 +139,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                         <div
                           className={cn(
                             "absolute left-0 top-1/2 w-3 h-px z-0 transition-colors duration-200",
-                            isSubItemActive ? "bg-primary/40" : "bg-gray-300 dark:bg-gray-700",
+                            isSubItemActive ? "bg-primary/40" : "bg-gray-300",
                           )}
                         ></div>
 
@@ -127,15 +150,15 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                           )}
                         ></div>
 
-                        <div className="absolute left-3 top-1/2 w-1 h-px z-0 transition-colors duration-200 bg-gray-200 dark:bg-gray-800"></div>
+                        <div className="absolute left-3 top-1/2 w-1 h-px z-0 transition-colors duration-200 bg-gray-200"></div>
 
                         <CustomButton
                           variant="ghost"
                           asChild
                           className={cn(
-                            "relative w-full justify-start hover:bg-primary/10 hover:text-primary pl-4 rounded z-20 border-l border-transparent hover:border-l-primary/30 transition-all duration-200 text-xs",
+                            "relative w-full justify-start hover:bg-primary/10 hover:text-primary pl-4 rounded z-20 border-l border-transparent hover:border-l-primary/30 transition-all duration-200",
                             isSubItemActive &&
-                              "bg-primary/20 text-primary font-bold border-l-2 border-primary shadow-2xs",
+                              "bg-primary/20 text-primary font-medium border-l-2 border-primary shadow-sm",
                           )}
                         >
                           <Link
@@ -160,10 +183,10 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             variant="ghost"
             asChild
             className={cn(
-              "hover:bg-primary/10 hover:text-primary rounded transition-all duration-200 text-xs",
+              "hover:bg-primary/10 hover:text-primary rounded transition-all duration-200",
               isCollapsed ? "w-8 h-8 mx-auto px-0 justify-center" : "w-full justify-start",
               isActive &&
-                "bg-primary/20 text-primary font-bold border-l-2 border-primary",
+                "bg-primary/20 text-primary font-medium border-l-2 border-primary",
             )}
           >
             <Link
@@ -174,7 +197,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               )}
               title={isCollapsed ? route.title : undefined}
             >
-              {route.icon && <route.icon className="w-3.5 h-3.5 flex-shrink-0" />}
+              {route.icon && <route.icon className="w-3 h-3 flex-shrink-0" />}
               {!isCollapsed && <span className="truncate">{route.title}</span>}
             </Link>
           </CustomButton>
@@ -212,41 +235,23 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               href="/"
               className="relative flex items-center gap-2 group transition-all duration-300 hover:scale-[1.02]"
             >
-              <div className="relative w-9 h-9 shrink-0 rounded-lg overflow-hidden border border-border/40 shadow-3xs bg-card flex items-center justify-center">
+              <div className="relative w-10 h-10 shrink-0 rounded-lg overflow-hidden border border-border/40 shadow-3xs bg-card flex items-center justify-center">
                 <SmartImage
-                  src={appImages.myLogo}
-                  fallbackSrc={appImages.noImage}
-                  alt="Emenu Cambodia"
+                  src={logoUrl}
+                  fallbackSrc={appImages.scanmekhLogo}
+                  alt={businessName || "Logo"}
                   fill
-                  objectFit="contain"
+                  objectFit="cover"
                   showSkeleton={false}
                 />
               </div>
               <div className="flex flex-col">
                 <span className="text-foreground font-bold text-xs leading-tight tracking-tight">
-                  Emenu Cambodia
+                  {businessName}
                 </span>
-                <span className="text-muted-foreground text-[10px] font-medium tracking-wide">
-                  Owner Dashboard
+                <span className="text-muted-foreground text-xs font-medium tracking-wide">
+                  Dashboard
                 </span>
-              </div>
-            </Link>
-          )}
-
-          {collapsed && (
-            <Link
-              href="/"
-              className="relative flex items-center justify-center group transition-all duration-300 hover:scale-[1.02]"
-            >
-              <div className="relative w-8 h-8 shrink-0 rounded-lg overflow-hidden border border-border/40 shadow-3xs bg-card flex items-center justify-center">
-                <SmartImage
-                  src={appImages.myLogo}
-                  fallbackSrc={appImages.noImage}
-                  alt="Logo"
-                  fill
-                  objectFit="contain"
-                  showSkeleton={false}
-                />
               </div>
             </Link>
           )}
@@ -279,7 +284,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             collapsed={collapsed}
             isOnline={true}
             isLoading={isProfileLoading}
-            profileLink={ROUTES.DASHBOARD.PROFILE}
+            profileLink={ROUTES.ADMIN.PROFILE}
             showEmail={true}
             showOnlineIndicator={true}
             avatarSize="md"

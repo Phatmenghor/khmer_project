@@ -2,17 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/redux/store";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { useAppSelector, useAppDispatch } from "@/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
-import { usePagination } from "@/redux/store/use-pagination";
-import { CollapsibleFilterPanel } from "@/components/shared/filter/collapsible-filter-panel";
-import { FilterPanelConfig } from "@/components/shared/filter/filter-types";
+import { usePagination } from "@/hooks/use-pagination";
+import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { BusinessOption } from "@/components/shared/combobox/combobox-business";
-import { useSubscriptionHistoryState } from "@/redux/features/subscription/store/state/subscription-history-state";
+import { useSubscriptionHistoryState } from "@/features/subscription/store/state/subscription-history-state";
 import {
   setBusinessIdFilter,
   setPlanIdFilter,
@@ -20,21 +19,21 @@ import {
   setToDateFilter,
   setStatusFilter,
   setPageNo,
-} from "@/redux/features/subscription/store/slice/subscription-history-slice";
-import { fetchAllSubscriptionHistoryService } from "@/redux/features/subscription/store/thunks/subscription-history-thunks";
-import { subscriptionHistoryTableColumns } from "@/redux/features/subscription/table/subscription-history-table";
-import { SubscriptionHistoryDetailModal } from "@/redux/features/subscription/components/subscription-history-detail-modal";
-import { SubscriptionHistoryResponseModel } from "@/redux/features/subscription/store/models/response/subscription-history-response";
-import { fetchAllSubscriptionPlanService } from "@/redux/features/master-data/store/thunks/subscription-plan-thunks";
+} from "@/features/subscription/store/slice/subscription-history-slice";
+import { fetchAllSubscriptionHistoryService } from "@/features/subscription/store/thunks/subscription-history-thunks";
+import { subscriptionHistoryTableColumns } from "@/features/subscription/table/subscription-history-table";
+import { SubscriptionHistoryDetailModal } from "@/features/subscription/components/subscription-history-detail-modal";
+import { SubscriptionHistoryResponseModel } from "@/features/subscription/store/models/response/subscription-history-response";
+import { fetchAllSubscriptionPlanService } from "@/features/master-data/store/thunks/subscription-plan-thunks";
 
 const SUBSCRIPTION_STATUS_OPTIONS = [
-  { value: undefined, label: "All Status" },
+  { value: "", label: "All Status" },
   { value: "ACTIVE", label: "Active" },
   { value: "EXPIRED", label: "Expired" },
 ];
 
 interface PlanOption {
-  value: string | undefined;
+  value: string;
   label: string;
 }
 
@@ -55,7 +54,7 @@ export default function SubscriptionHistoryPage() {
 
   const [selectedBusiness, setSelectedBusiness] = useState<BusinessOption | null>(null);
   const [planOptions, setPlanOptions] = useState<PlanOption[]>([
-    { value: undefined, label: "All Plans" },
+    { value: "", label: "All Plans" },
   ]);
   const [detailState, setDetailState] = useState({
     isOpen: false,
@@ -73,7 +72,7 @@ export default function SubscriptionHistoryPage() {
       .then((result: any) => {
         if (result?.content) {
           setPlanOptions([
-            { value: undefined, label: "All Plans" },
+            { value: "", label: "All Plans" },
             ...result.content.map((p: any) => ({
               value: p.id as string,
               label: p.name as string,
@@ -173,9 +172,9 @@ export default function SubscriptionHistoryPage() {
           type: "select" as const,
           label: "Status",
           placeholder: "All Status",
-          value: filters.status || undefined,
-          onChange: (val: string) =>
-            dispatch(setStatusFilter(val === "ALL" ? "" : val)),
+          value: filters.status || "",
+          onChange: (val: any) =>
+            dispatch(setStatusFilter(val === "ALL" || !val ? "" : String(val))),
           options: SUBSCRIPTION_STATUS_OPTIONS,
         },
         {
@@ -183,9 +182,9 @@ export default function SubscriptionHistoryPage() {
           type: "select" as const,
           label: "Plan",
           placeholder: "All Plans",
-          value: filters.planId || undefined,
-          onChange: (val: string) =>
-            dispatch(setPlanIdFilter(val === "All" ? "" : val)),
+          value: filters.planId || "",
+          onChange: (val: any) =>
+            dispatch(setPlanIdFilter(val === "All" || !val ? "" : String(val))),
           options: planOptions,
         },
         {
@@ -199,19 +198,19 @@ export default function SubscriptionHistoryPage() {
         },
         {
           id: "fromDate",
-          type: "date-picker" as const,
+          type: "date" as const,
           label: "From Date",
           placeholder: "Start date...",
           value: filters.fromDate,
-          onChange: (val: string) => dispatch(setFromDateFilter(val)),
+          onChange: (val: any) => dispatch(setFromDateFilter(val ? String(val) : "")),
         },
         {
           id: "toDate",
-          type: "date-picker" as const,
+          type: "date" as const,
           label: "To Date",
           placeholder: "End date...",
           value: filters.toDate,
-          onChange: (val: string) => dispatch(setToDateFilter(val)),
+          onChange: (val: any) => dispatch(setToDateFilter(val ? String(val) : "")),
         },
       ],
     }),

@@ -11,13 +11,14 @@ import { LogIn } from "lucide-react";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
 import { FormHeader } from "@/components/shared/form-field/form-header";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
-import { loginService } from "@/redux/features/auth/store/thunks/auth-thunks";
-import { telegramAuthenticateService } from "@/redux/features/auth/store/thunks/social-auth-thunks";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
+import { loginService } from "@/features/auth/store/thunks/auth-thunks";
+import { telegramAuthenticateService } from "@/features/auth/store/thunks/social-auth-thunks";
 import { showToast } from "@/components/shared/common/show-toast";
 import { TelegramLoginButton } from "@/components/shared/telegram/telegram-login-widget";
-import { TelegramAuthData } from "@/redux/features/auth/store/models/request/social-auth-request";
+import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
 import { SocialAuthConfig } from "@/constants/app-resource/default/default";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -60,22 +61,8 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       setTimeout(() => {
         window.location.reload();
       }, 500);
-    } catch (err: any) {
-      let errorMessage: string = "Login failed. Please check your credentials.";
-
-      if (typeof err === "string") {
-        errorMessage = err;
-      } else if (err?.message) {
-        errorMessage = err.message;
-      } else if (err?.payload) {
-        if (typeof err.payload === "string") {
-          errorMessage = err.payload;
-        } else if (err.payload?.message) {
-          errorMessage = err.payload.message;
-        }
-      }
-
-      showToast.error(errorMessage);
+    } catch (err) {
+      showToast.error(getErrorMessage(err, "Login failed. Please check your credentials."));
     }
   }
 
@@ -91,8 +78,8 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         onClose();
         window.location.reload();
       }
-    } catch (err: unknown) {
-      showToast.error((err as { message?: string })?.message || "Telegram login failed");
+    } catch (err) {
+      showToast.error(getErrorMessage(err, "Telegram login failed. Please try again."));
     } finally {
       setIsTelegramLoading(false);
     }

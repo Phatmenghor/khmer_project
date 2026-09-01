@@ -4,7 +4,7 @@ import { Controller, FieldValues } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import type { TextFieldProps } from ".";
+import type { TextFormFieldProps } from "./form-field-types";
 
 export function TextField<T extends FieldValues = FieldValues>({
   name,
@@ -26,7 +26,7 @@ export function TextField<T extends FieldValues = FieldValues>({
   inputClassName = "",
   labelClassName = "",
   autoComplete,
-}: TextFieldProps<T>) {
+}: TextFormFieldProps<T>) {
   return (
     <div className={`flex flex-col gap-1 w-full ${className}`}>
       {label && (
@@ -107,9 +107,9 @@ export function TextField<T extends FieldValues = FieldValues>({
           />
         )}
       />
-      {error?.message && (
+      {(error?.message || (typeof error === "string" ? error : null)) && (
         <p className="text-xs text-destructive font-medium mt-1">
-          {error.message}
+          {error?.message || error}
         </p>
       )}
     </div>

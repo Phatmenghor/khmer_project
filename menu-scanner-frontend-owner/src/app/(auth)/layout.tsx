@@ -13,9 +13,9 @@ export const metadata = {
   title: "Authentication | ScanMeKH",
   description: "Sign in to your account",
   icons: {
-    icon: appImages.myLogo,
-    shortcut: appImages.myLogo,
-    apple: appImages.myLogo,
+    icon: appImages.scanmekhLogo,
+    shortcut: appImages.scanmekhLogo,
+    apple: appImages.scanmekhLogo,
   },
 };
 

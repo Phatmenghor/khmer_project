@@ -35,7 +35,7 @@ export const metadata = {
     description:
       "Complete restaurant platform with QR menus, POS, real-time orders, loyalty programs, analytics. Free trial available.",
     type: "website",
-    images: [{ url: appImages.myLogo }],
+    images: [{ url: appImages.scanmekhLogo }],
   },
 };
 

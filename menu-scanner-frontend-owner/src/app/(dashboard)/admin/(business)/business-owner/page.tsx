@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useAppSelector } from "@/redux/store";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -17,33 +17,33 @@ import {
 import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
-import { usePagination } from "@/redux/store/use-pagination";
+import { usePagination } from "@/hooks/use-pagination";
 import { showToast } from "@/components/shared/common/show-toast";
 import {
   AUTO_RENEW_FILTER,
   SUBSCRIPTION_FILTER,
 } from "@/constants/app-resource/status/filter-status";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
-import { useBusinessOwnerState } from "@/redux/features/auth/store/state/business-owner-state";
-import { BusinessOwnerResponseModel } from "@/redux/features/auth/store/models/response/business-owner-response";
+import { useBusinessOwnerState } from "@/features/auth/store/state/business-owner-state";
+import { BusinessOwnerResponseModel } from "@/features/auth/store/models/response/business-owner-response";
 import {
   setAutoRenewFilter,
   setPageNo,
   setSearchFilter,
   setSubscriptionStatusFilter,
   updateBusinessOwnerDataSilently,
-} from "@/redux/features/auth/store/slice/business-owner-slice";
+} from "@/features/auth/store/slice/business-owner-slice";
 import {
   deleteBusinessOwnerService,
   fetchAllBusinessOwnerService,
   updateBusinessOwnerService,
-} from "@/redux/features/auth/store/thunks/business-owner-thunks";
-import { userBusinessOwnerTableColumns } from "@/redux/features/auth/table/business-owner-table";
-import CreateBusinessOwnerModal from "@/redux/features/auth/components/create-business-owner-modal";
-import { BusinessOwnerDetailModal } from "@/redux/features/auth/components/business-owner-detail-modal";
-import UpdateBusinessOwnerModal from "@/redux/features/auth/components/update-business-owner-modal";
+} from "@/features/auth/store/thunks/business-owner-thunks";
+import { userBusinessOwnerTableColumns } from "@/features/auth/table/business-owner-table";
+import CreateBusinessOwnerModal from "@/features/auth/components/create-business-owner-modal";
+import { BusinessOwnerDetailModal } from "@/features/auth/components/business-owner-detail-modal";
+import UpdateBusinessOwnerModal from "@/features/auth/components/update-business-owner-modal";
 import ResetPasswordModal from "@/components/shared/modal/reset-password-modal";
-import SubscriptionActionModal from "@/redux/features/auth/components/subscription-action-modal";
+import SubscriptionActionModal from "@/features/auth/components/subscription-action-modal";
 
 export default function BusinessOwnerPage() {
   const searchParams = useSearchParams();

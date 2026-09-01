@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { OwnerDashboardStatusBreakdownResponse } from "@/redux/features/owner-dashboard/store/models/response/owner-dashboard-response";
+import { OwnerDashboardStatusBreakdownResponse } from "@/features/owner-dashboard/store/models/response/owner-dashboard-response";
 
 interface StatusRowProps {
   label: string;

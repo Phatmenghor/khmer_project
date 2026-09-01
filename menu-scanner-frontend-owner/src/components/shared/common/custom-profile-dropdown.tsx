@@ -2,8 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { LogOut, ChevronDown, User, KeyRound } from "lucide-react";
+import { LogOut, ChevronDown, User, KeyRound, CreditCard } from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import {
@@ -15,9 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
-import { clearAllTokens } from "@/utils/local-storage/token";
-import { clearUserInfo } from "@/utils/local-storage/userInfo";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
+import { useLogout } from "@/hooks/use-logout";
 import { SignoutModal } from "@/components/shared/modal/signout-modal";
 
 interface CustomProfileDropdownProps {
@@ -34,27 +32,25 @@ function getInitials(name: string): string {
 }
 
 export function CustomProfileDropdown({ className }: CustomProfileDropdownProps) {
-  const router = useRouter();
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const { profile, fullName, profileImage } = useAuthState();
+  const { profile, fullName, profileImage, roles } = useAuthState();
+  const { logout: handleLogout } = useLogout();
 
   const confirmLogout = async () => {
     setIsLoggingOut(true);
-    clearAllTokens();
-    clearUserInfo();
     setShowLogoutAlert(false);
-    setTimeout(() => {
-      setIsLoggingOut(false);
-      router.replace(ROUTES.AUTH.LOGIN);
-    }, 100);
+    await handleLogout();
+    setIsLoggingOut(false);
   };
 
-  const displayName = fullName || profile?.fullName || "Owner Admin";
+  const displayName = fullName || profile?.fullName || "Customer";
   const displayEmail = profile?.email || "";
+  const userIdentifier = (profile as any)?.userIdentifier || (profile as any)?.employeeId || "";
   const profileImageUrl = typeof profileImage === "string"
     ? profileImage
-    : ((profileImage as any)?.sm ?? (profile?.profileImage as any)?.sm ?? profile?.profileImageUrl ?? "");
+    : (profileImage?.sm ?? profile?.profileImage?.sm ?? "");
+  const primaryRole = roles?.[0];
 
   return (
     <>
@@ -76,14 +72,14 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
               )}
             </div>
 
-            {/* Clean Name & Email */}
+            {/* Clean Name & User Identifier */}
             <div className="flex flex-col items-start leading-tight text-left hidden sm:flex">
               <span className="text-xs font-bold text-foreground truncate max-w-[150px] group-hover:text-primary transition-colors">
                 {displayName}
               </span>
-              {displayEmail && (
-                <span className="text-[10px] text-muted-foreground truncate max-w-[150px] mt-0.5">
-                  {displayEmail}
+              {userIdentifier && !userIdentifier.includes("@") && (
+                <span className="text-[10px] font-mono text-muted-foreground truncate max-w-[150px] mt-0.5">
+                  ID: {userIdentifier}
                 </span>
               )}
             </div>
@@ -94,19 +90,24 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
         <DropdownMenuContent align="end" className="w-64 p-1.5" sideOffset={8}>
           <DropdownMenuLabel className="font-normal px-2.5 py-2">
             <div className="flex flex-col gap-1">
-              <span className="font-bold text-sm truncate text-foreground">{displayName}</span>
-              {displayEmail && (
-                <span className="text-xs text-muted-foreground truncate font-medium">
-                  {displayEmail}
-                </span>
-              )}
+              <div className="flex items-center justify-between gap-2 min-w-0">
+                <span className="font-bold text-sm truncate text-foreground">{displayName}</span>
+                {userIdentifier && !userIdentifier.includes("@") && (
+                  <span className="text-[10px] font-mono font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded border border-primary/20 shrink-0">
+                    ID: {userIdentifier}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs text-muted-foreground truncate font-medium">
+                {displayEmail}
+              </span>
             </div>
           </DropdownMenuLabel>
 
           <DropdownMenuSeparator className="my-1" />
 
           <DropdownMenuItem asChild className="py-2 px-2.5 rounded-lg">
-            <Link href={ROUTES.DASHBOARD.PROFILE} className="cursor-pointer text-[13px] font-medium">
+            <Link href={ROUTES.ADMIN.PROFILE} className="cursor-pointer text-[13px] font-medium">
               <User className="h-4 w-4 mr-2.5 text-muted-foreground" />
               My Profile
             </Link>
@@ -114,11 +115,18 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
 
           <DropdownMenuItem asChild className="py-2 px-2.5 rounded-lg">
             <Link
-              href={`${ROUTES.DASHBOARD.PROFILE}?tab=security`}
+              href={`${ROUTES.ADMIN.PROFILE}?tab=security`}
               className="cursor-pointer text-[13px] font-medium"
             >
               <KeyRound className="h-4 w-4 mr-2.5 text-muted-foreground" />
               Change Password
+            </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem asChild className="py-2 px-2.5 rounded-lg">
+            <Link href="/admin/plan" className="cursor-pointer text-[13px] font-medium">
+              <CreditCard className="h-4 w-4 mr-2.5 text-muted-foreground" />
+              My Plan
             </Link>
           </DropdownMenuItem>
 

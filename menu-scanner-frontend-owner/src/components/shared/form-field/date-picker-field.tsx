@@ -1,23 +1,16 @@
 "use client";
 
 import React from "react";
-import { Controller, Control, FieldValues, Path, FieldError } from "react-hook-form";
+import {
+  Controller,
+  FieldValues,
+  Path,
+} from "react-hook-form";
+import { DatePickerFormFieldProps } from "./form-field-types";
 import { Label } from "@/components/ui/label";
 import { CustomDateTimePicker } from "../common/custom-date-picker";
 
-interface DatePickerFieldProps<T extends FieldValues> {
-  name: Path<T>;
-  label: string;
-  control: Control<T>;
-  error?: FieldError | any;
-  disabled?: boolean;
-  required?: boolean;
-  placeholder?: string;
-  className?: string;
-  mode?: "date" | "datetime";
-}
-
-export function DatePickerField<T extends FieldValues>({
+export function DateTimePickerField<T extends FieldValues = FieldValues>({
   name,
   label,
   control,
@@ -27,20 +20,24 @@ export function DatePickerField<T extends FieldValues>({
   placeholder = "Select date",
   className = "",
   mode = "date",
-}: DatePickerFieldProps<T>) {
+  inputClassName = "",
+}: DatePickerFormFieldProps<T> & { inputClassName?: string }) {
   return (
-    <div className="flex flex-col gap-1 w-full">
-      <Label htmlFor={name} className="text-xs font-semibold text-foreground leading-tight flex items-center min-h-[16px]">
+    <div className={`flex flex-col gap-1 w-full ${className}`}>
+      <Label
+        htmlFor={name}
+        className="text-xs font-semibold text-foreground leading-tight flex items-center min-h-[16px]"
+      >
         <span>{label}</span>
         {required && <span className="text-destructive ml-0.5">*</span>}
       </Label>
       <Controller
         control={control}
-        name={name}
+        name={name as Path<T>}
         render={({ field }) => (
           <CustomDateTimePicker
+            className={inputClassName}
             id={name}
-            className={className}
             value={field.value || ""}
             onChange={field.onChange}
             disabled={disabled}
@@ -50,9 +47,14 @@ export function DatePickerField<T extends FieldValues>({
           />
         )}
       />
-      {error && (
-        <p className="text-xs text-destructive font-medium">{error?.message}</p>
+      {error?.message && (
+        <p className="text-xs text-destructive font-medium mt-1">
+          {error.message}
+        </p>
       )}
     </div>
   );
 }
+
+export const DatePickerField = DateTimePickerField;
+

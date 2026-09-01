@@ -1,67 +1,29 @@
 /**
- * User Excel Utilities
+ * User Excel Utilities for E-Menu Client
  * - downloadUserTemplate: generates a blank Excel template with required columns
- * - exportUsersToExcel: exports all current users to a full-data Excel file
  * - parseUserImportFile: reads an uploaded Excel and returns row objects
  */
 
-// @ts-ignore
-import * as XLSX from "xlsx";
-import { UserResponseModel } from "@/redux/features/auth/store/models/response/users-response";
+import * as XLSX from "xlsx-js-style";
 
 // ── Column definitions ────────────────────────────────────────────────────────
 
-/** Required fields for batch user creation (matches CreateUserRequest) */
+/** Required fields for simplified user creation */
 export const USER_TEMPLATE_COLUMNS = [
-  { key: "userIdentifier", label: "Username *", required: true },
-  { key: "password",       label: "Password *", required: true },
-  { key: "firstName",      label: "First Name *", required: true },
-  { key: "lastName",       label: "Last Name *", required: true },
+  { key: "username",     label: "Username *", required: true },
+  { key: "password",     label: "Password *", required: true },
+  { key: "role",          label: "Role *", required: true },
   { key: "email",          label: "Email", required: false },
+  { key: "fullName",     label: "Full Name", required: false },
   { key: "phoneNumber",    label: "Phone Number", required: false },
-  { key: "gender",         label: "Gender (MALE/FEMALE/OTHER)", required: false },
-  { key: "dateOfBirth",    label: "Date of Birth (YYYY-MM-DD)", required: false },
-  { key: "roles",          label: "Roles (comma-separated)", required: false },
-  { key: "position",       label: "Position", required: false },
-  { key: "department",     label: "Department", required: false },
-  { key: "employmentType", label: "Employment Type (FULL_TIME/PART_TIME/CONTRACT)", required: false },
-  { key: "joinDate",       label: "Join Date (YYYY-MM-DD)", required: false },
-  { key: "shift",          label: "Shift", required: false },
-  { key: "remark",         label: "Remark", required: false },
-];
-
-/** Full export columns (matches UserResponseModel) */
-export const USER_EXPORT_COLUMNS: { key: keyof UserResponseModel; label: string }[] = [
-  { key: "userIdentifier",    label: "Username" },
-  { key: "fullName",          label: "Full Name" },
-  { key: "firstName",         label: "First Name" },
-  { key: "lastName",          label: "Last Name" },
-  { key: "email",             label: "Email" },
-  { key: "phoneNumber",       label: "Phone Number" },
-  { key: "gender",            label: "Gender" },
-  { key: "dateOfBirth",       label: "Date of Birth" },
-  { key: "userType",          label: "User Type" },
-  { key: "accountStatus",     label: "Account Status" },
-  { key: "roles",             label: "Roles" },
-  { key: "employeeId",        label: "Employee ID" },
-  { key: "position",          label: "Position" },
-  { key: "department",        label: "Department" },
-  { key: "employmentType",    label: "Employment Type" },
-  { key: "joinDate",          label: "Join Date" },
-  { key: "leaveDate",         label: "Leave Date" },
-  { key: "shift",             label: "Shift" },
-  { key: "telegramUsername",  label: "Telegram Username" },
-  { key: "lastLoginAt",       label: "Last Login" },
-  { key: "remark",            label: "Remark" },
-  { key: "createdAt",         label: "Created At" },
-  { key: "updatedAt",         label: "Updated At" },
-  { key: "createdBy",         label: "Created By" },
+  { key: "gender",         label: "Gender", required: false },
+  { key: "dateOfBirth",    label: "Date of Birth", required: false },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function autoFitColumns(ws: XLSX.WorkSheet, headers: string[]) {
-  const colWidths = headers.map((h) => ({ wch: Math.max(h.length + 4, 16) }));
+  const colWidths = headers.map((h) => ({ wch: Math.max(h.length + 4, 18) }));
   ws["!cols"] = colWidths;
 }
 
@@ -69,12 +31,191 @@ function styleHeaderRow(ws: XLSX.WorkSheet, headers: string[]) {
   headers.forEach((_, colIdx) => {
     const cellAddress = XLSX.utils.encode_cell({ r: 0, c: colIdx });
     if (!ws[cellAddress]) return;
+
+    // Required columns: Username (index 0), Password (index 1), Role (index 2), Email (index 3)
+    const isRequired = colIdx < 4;
+
     ws[cellAddress].s = {
-      font: { bold: true, color: { rgb: "FFFFFF" } },
-      fill: { fgColor: { rgb: "EC4899" } }, // pink-500
-      alignment: { horizontal: "center" },
+      fill: {
+        patternType: "solid",
+        fgColor: { rgb: isRequired ? "967430" : "475569" }, // brand primary colors (967430) for required, Slate-600 for optional
+      },
+      font: {
+        bold: true,
+        color: { rgb: "FFFFFF" },
+        name: "Segoe UI",
+        sz: 11,
+      },
+      alignment: {
+        horizontal: "center",
+        vertical: "center",
+      },
+      border: {
+        bottom: { style: "medium", color: { rgb: "1E293B" } },
+      }
     };
   });
+}
+
+// ── Build Instruction Sheet ───────────────────────────────────────────────────
+
+function buildInstructionSheet(wb: XLSX.WorkBook) {
+  const data: any[][] = [];
+
+  // Row 0: Title Block
+  data[0] = ["USER BATCH IMPORT INSTRUCTIONS", "", "", ""];
+  data[1] = ["", "", "", ""];
+
+  // Row 2: Column definitions section
+  data[2] = ["COLUMN DEFINITIONS & REQUIREMENTS", "", "", ""];
+  data[3] = ["Column Header", "Required?", "Allowed Format / Value", "Description"];
+
+  // Rows 4-11: Definitions data
+  data[4] = ["Username *", "YES", "Letters, numbers, and symbols (e.g. john.doe)", "Unique login identifier for the user."];
+  data[5] = ["Password *", "YES", "Min 6 characters", "User account login password."];
+  data[6] = ["Role *", "YES", "Staff, Super admin, Cashier, etc.", "Matches database role names. Must specify a valid business role."];
+  data[7] = ["Email *", "YES", "valid-email@domain.com", "User's email address."];
+  data[8] = ["Full Name", "NO", "First Name + Last Name (e.g. Dara Reach)", "Optional full name. Automatically split into First/Last name on import."];
+  data[9] = ["Phone Number", "NO", "Digits only (e.g. 012345678)", "User's contact phone number."];
+  data[10] = ["Gender", "NO", "Male / Female / Other", "User's gender classification."];
+  data[11] = ["Date of Birth", "NO", "DD-MM-YYYY format (e.g. 20-06-1995)", "User's birthdate format."];
+
+  data[12] = ["", "", "", ""];
+
+  // Row 13: Example section header
+  data[13] = ["VALID SPREADSHEET ROW EXAMPLES", "", "", "", "", "", "", ""];
+  data[14] = ["Username *", "Password *", "Role *", "Email *", "Full Name", "Phone Number", "Gender", "Date of Birth"];
+
+  // Row 15: Example data (ONLY 1 EXAMPLE ROW as requested)
+  data[15] = ["sok.san", "San12345", "Staff", "sok.san@gmail.com", "Sok San", "098765432", "Male", "15-12-1990"];
+
+  const ws = XLSX.utils.aoa_to_sheet(data);
+
+  // Layout Merges
+  ws["!merges"] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }, // Title block
+    { s: { r: 2, c: 0 }, e: { r: 2, c: 3 } }, // Col defs section
+    { s: { r: 13, c: 0 }, e: { r: 13, c: 7 } }, // Examples section
+  ];
+
+  // Column Widths
+  ws["!cols"] = [
+    { wch: 18 }, // A: Header
+    { wch: 12 }, // B: Required
+    { wch: 38 }, // C: Format
+    { wch: 60 }, // D: Description
+    { wch: 22 }, // E: Full Name
+    { wch: 16 }, // F: Phone
+    { wch: 12 }, // G: Gender
+    { wch: 15 }, // H: DOB
+  ];
+
+  // Styling Styles
+  const thinBorder = {
+    top: { style: "thin", color: { rgb: "CBD5E1" } },
+    bottom: { style: "thin", color: { rgb: "CBD5E1" } },
+    left: { style: "thin", color: { rgb: "CBD5E1" } },
+    right: { style: "thin", color: { rgb: "CBD5E1" } },
+  };
+
+  // 1. Title cell styling (using primary brand color 967430)
+  if (ws["A1"]) {
+    ws["A1"].s = {
+      fill: { patternType: "solid", fgColor: { rgb: "967430" } },
+      font: { name: "Segoe UI", bold: true, sz: 14, color: { rgb: "FFFFFF" } },
+      alignment: { horizontal: "center", vertical: "center" },
+    };
+  }
+
+  // 2. Col def title styling
+  if (ws["A3"]) {
+    ws["A3"].s = {
+      fill: { patternType: "solid", fgColor: { rgb: "475569" } },
+      font: { name: "Segoe UI", bold: true, sz: 11, color: { rgb: "FFFFFF" } },
+      alignment: { vertical: "center", indent: 1 },
+    };
+  }
+
+  // 3. Col def table header
+  for (let c = 0; c < 4; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 3, c });
+    if (ws[ref]) {
+      ws[ref].s = {
+        fill: { patternType: "solid", fgColor: { rgb: "E2E8F0" } },
+        font: { name: "Segoe UI", bold: true, sz: 10, color: { rgb: "1E293B" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: thinBorder,
+      };
+    }
+  }
+
+  // 4. Col def data rows
+  for (let r = 4; r < 12; r++) {
+    for (let c = 0; c < 4; c++) {
+      const ref = XLSX.utils.encode_cell({ r, c });
+      if (!ws[ref]) continue;
+
+      const isReqCol = c === 1;
+      const isYes = ws[ref].v === "YES";
+
+      ws[ref].s = {
+        font: {
+          name: "Segoe UI",
+          sz: 10,
+          bold: isReqCol,
+          color: isReqCol ? { rgb: isYes ? "967430" : "64748B" } : { rgb: "1E293B" },
+        },
+        alignment: {
+          horizontal: c === 1 ? "center" : "left",
+          vertical: "center",
+        },
+        border: thinBorder,
+      };
+    }
+  }
+
+  // 5. Example section title styling
+  if (ws["A14"]) {
+    ws["A14"].s = {
+      fill: { patternType: "solid", fgColor: { rgb: "15803D" } },
+      font: { name: "Segoe UI", bold: true, sz: 11, color: { rgb: "FFFFFF" } },
+      alignment: { vertical: "center", indent: 1 },
+    };
+  }
+
+  // 6. Example table header
+  for (let c = 0; c < 8; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 14, c });
+    if (ws[ref]) {
+      ws[ref].s = {
+        fill: { patternType: "solid", fgColor: { rgb: "E2E8F0" } },
+        font: { name: "Segoe UI", bold: true, sz: 9, color: { rgb: "1E293B" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: thinBorder,
+      };
+    }
+  }
+
+  // 7. Example data row (only row 15 is populated)
+  const exampleCellStyle = {
+    font: { name: "Segoe UI", sz: 9, color: { rgb: "334155" } },
+    alignment: { vertical: "center" },
+    border: thinBorder,
+  };
+  for (let c = 0; c < 8; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 15, c });
+    if (ws[ref]) {
+      ws[ref].s = {
+        ...exampleCellStyle,
+        alignment: {
+          horizontal: c === 7 ? "center" : "left",
+          vertical: "center",
+        },
+      };
+    }
+  }
+
+  XLSX.utils.book_append_sheet(wb, ws, "Instructions & Examples");
 }
 
 // ── Download blank template ───────────────────────────────────────────────────
@@ -82,160 +223,46 @@ function styleHeaderRow(ws: XLSX.WorkSheet, headers: string[]) {
 export function downloadUserTemplate() {
   const headers = USER_TEMPLATE_COLUMNS.map((c) => c.label);
 
-  // One example row so users understand the format
-  const exampleRow = [
-    "john.doe",        // userIdentifier
-    "Password@123",   // password
-    "John",           // firstName
-    "Doe",            // lastName
-    "john@email.com", // email
-    "012345678",      // phoneNumber
-    "MALE",           // gender
-    "1990-01-15",     // dateOfBirth
-    "STAFF",          // roles
-    "Developer",      // position
-    "IT",             // department
-    "FULL_TIME",      // employmentType
-    "2024-01-01",     // joinDate
-    "Morning",        // shift
-    "",               // remark
-  ];
-
-  const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
+  const ws = XLSX.utils.aoa_to_sheet([headers]);
   autoFitColumns(ws, headers);
+
+  // Add auto-filter for the header row (A1 to H1)
+  ws["!autofilter"] = { ref: `A1:${XLSX.utils.encode_col(headers.length - 1)}1` };
+
+  // Apply premium colors & styles to headers
   styleHeaderRow(ws, headers);
 
-  // Mark required columns with red font in example row
-  USER_TEMPLATE_COLUMNS.forEach((col, colIdx) => {
-    if (col.required) {
-      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: colIdx });
-      if (ws[cellAddress]) {
-        ws[cellAddress].s = {
-          ...ws[cellAddress].s,
-          fill: { fgColor: { rgb: "BE185D" } }, // darker pink for required
-        };
-      }
-    }
-  });
+  // Pre-initialize formatting for Date of Birth column (Column H / index 7) to display full dd-mm-yyyy
+  for (let r = 1; r <= 500; r++) {
+    const cellRef = XLSX.utils.encode_cell({ r, c: 7 });
+    ws[cellRef] = {
+      t: "s",
+      v: "",
+      z: "dd-mm-yyyy"
+    };
+  }
+  ws["!ref"] = `A1:H501`;
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Users Template");
 
-  // Add instruction sheet
-  const instructionData = [
-    ["INSTRUCTION", ""],
-    ["", ""],
-    ["* Required fields", ""],
-    ["Gender values:", "MALE, FEMALE, OTHER"],
-    ["Employment Type values:", "FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP"],
-    ["Account Status values:", "ACTIVE, INACTIVE"],
-    ["Roles:", "Comma-separated role names (e.g. STAFF,MANAGER)"],
-    ["Date format:", "YYYY-MM-DD (e.g. 1990-01-15)"],
-    ["Password:", "Minimum 6 characters"],
-  ];
-  const wsInstr = XLSX.utils.aoa_to_sheet(instructionData);
-  wsInstr["!cols"] = [{ wch: 28 }, { wch: 48 }];
-  XLSX.utils.book_append_sheet(wb, wsInstr, "Instructions");
+  // Build the rich styled instructions and examples sheet
+  buildInstructionSheet(wb);
+
+  // Explicitly set all sheets to Left-To-Right (LTR) direction
+  ws["!views"] = [{ RTL: false }];
+  if (wb.Sheets["Instructions & Examples"]) {
+    wb.Sheets["Instructions & Examples"]["!views"] = [{ RTL: false }];
+  }
+  if (!wb.Workbook) wb.Workbook = {};
+  if (!wb.Workbook.Views) wb.Workbook.Views = [];
+  wb.Workbook.Views[0] = { RTL: false };
 
   XLSX.writeFile(wb, `user_import_template_${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
 
-// ── Download platform-user blank template ─────────────────────────────────────
+export const downloadPlatformUserTemplate = downloadUserTemplate;
 
-/**
- * Platform-user specific import template.
- * Only includes fields relevant to platform/admin users (no business-specific HR fields).
- */
-export const PLATFORM_USER_TEMPLATE_COLUMNS = [
-  { key: "userIdentifier", label: "Username *",                    required: true  },
-  { key: "password",       label: "Password *",                    required: true  },
-  { key: "firstName",      label: "First Name *",                  required: true  },
-  { key: "lastName",       label: "Last Name *",                   required: true  },
-  { key: "email",          label: "Email",                         required: false },
-  { key: "phoneNumber",    label: "Phone Number",                  required: false },
-  { key: "gender",         label: "Gender (MALE/FEMALE/OTHER)",    required: false },
-  { key: "dateOfBirth",    label: "Date of Birth (YYYY-MM-DD)",    required: false },
-  { key: "roles",          label: "Roles (comma-separated)",       required: false },
-  { key: "remark",         label: "Remark",                        required: false },
-];
-
-export function downloadPlatformUserTemplate() {
-  const headers = PLATFORM_USER_TEMPLATE_COLUMNS.map((c) => c.label);
-
-  const exampleRow = [
-    "jane.admin",      // userIdentifier
-    "Password@123",   // password
-    "Jane",           // firstName
-    "Smith",          // lastName
-    "jane@email.com", // email
-    "012345678",      // phoneNumber
-    "FEMALE",         // gender
-    "1992-06-20",     // dateOfBirth
-    "ADMIN",          // roles
-    "",               // remark
-  ];
-
-  const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
-  autoFitColumns(ws, headers);
-  styleHeaderRow(ws, headers);
-
-  // Darker background for required columns
-  PLATFORM_USER_TEMPLATE_COLUMNS.forEach((col, colIdx) => {
-    if (col.required) {
-      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: colIdx });
-      if (ws[cellAddress]) {
-        ws[cellAddress].s = {
-          ...ws[cellAddress].s,
-          fill: { fgColor: { rgb: "BE185D" } },
-        };
-      }
-    }
-  });
-
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Platform Users Template");
-
-  const instructionData = [
-    ["INSTRUCTION", ""],
-    ["", ""],
-    ["* Required fields", ""],
-    ["Gender values:", "MALE, FEMALE, OTHER"],
-    ["Roles:", "Comma-separated role names (e.g. ADMIN,STAFF)"],
-    ["Date format:", "YYYY-MM-DD (e.g. 1992-06-20)"],
-    ["Password:", "Minimum 6 characters"],
-    ["Account Status:", "ACTIVE (default) or INACTIVE"],
-  ];
-  const wsInstr = XLSX.utils.aoa_to_sheet(instructionData);
-  wsInstr["!cols"] = [{ wch: 28 }, { wch: 48 }];
-  XLSX.utils.book_append_sheet(wb, wsInstr, "Instructions");
-
-  XLSX.writeFile(wb, `platform_user_import_template_${new Date().toISOString().slice(0, 10)}.xlsx`);
-}
-
-// ── Export users to Excel ─────────────────────────────────────────────────────
-
-export function exportUsersToExcel(users: UserResponseModel[], filename?: string) {
-  const headers = USER_EXPORT_COLUMNS.map((c) => c.label);
-
-  const rows = users.map((user) =>
-    USER_EXPORT_COLUMNS.map(({ key }) => {
-      const val = user[key];
-      if (Array.isArray(val)) return val.join(", ");
-      if (val === null || val === undefined) return "";
-      return String(val);
-    })
-  );
-
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-  autoFitColumns(ws, headers);
-  styleHeaderRow(ws, headers);
-
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Business Users");
-
-  const exportName = filename ?? `business_users_${new Date().toISOString().slice(0, 10)}.xlsx`;
-  XLSX.writeFile(wb, exportName);
-}
 
 // ── Parse uploaded Excel ──────────────────────────────────────────────────────
 
@@ -243,25 +270,28 @@ export interface ParsedUserRow {
   [key: string]: string;
 }
 
-/**
- * Reads an uploaded .xlsx / .xls file and returns:
- *  - headers: the dynamic column names from the first row
- *  - rows: array of row objects keyed by header name
- *  - errors: any row-level validation messages
- */
 export async function parseUserImportFile(file: File): Promise<{
   headers: string[];
   rows: ParsedUserRow[];
   errors: string[];
-}> {
+ }> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
         const wb = XLSX.read(data, { type: "array" });
-        const sheetName = wb.SheetNames[0];
-        const ws = wb.Sheets[sheetName];
+        // Select correct sheet: prioritize "Users Template" or search for a sheet not named instructions/examples
+        let sheetName: string | undefined = wb.SheetNames.find((name) => name === "Users Template");
+        if (!sheetName) {
+          sheetName = wb.SheetNames.find(
+            (name) =>
+              !name.toLowerCase().includes("instruction") &&
+              !name.toLowerCase().includes("example")
+          );
+        }
+        const finalSheetName = sheetName || wb.SheetNames[0];
+        const ws = wb.Sheets[finalSheetName];
         const jsonData: string[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
 
         if (jsonData.length < 2) {
@@ -280,15 +310,23 @@ export async function parseUserImportFile(file: File): Promise<{
               rowObj[header] = String(row[colIdx] ?? "").trim();
             });
 
-            // Validate required fields
+            // Basic validation: 4 required fields
             const usernameHeader = headers.find((h) => h.toLowerCase().includes("username"));
             const passwordHeader = headers.find((h) => h.toLowerCase().includes("password"));
+            const roleHeader = headers.find((h) => h.toLowerCase().includes("role"));
+            const emailHeader = headers.find((h) => h.toLowerCase().includes("email"));
 
             if (usernameHeader && !rowObj[usernameHeader]) {
               errors.push(`Row ${rowIdx + 2}: Username is required.`);
             }
             if (passwordHeader && !rowObj[passwordHeader]) {
               errors.push(`Row ${rowIdx + 2}: Password is required.`);
+            }
+            if (roleHeader && !rowObj[roleHeader]) {
+              errors.push(`Row ${rowIdx + 2}: Role is required.`);
+            }
+            if (emailHeader && !rowObj[emailHeader]) {
+              errors.push(`Row ${rowIdx + 2}: Email is required.`);
             }
 
             return rowObj;
@@ -305,8 +343,7 @@ export async function parseUserImportFile(file: File): Promise<{
 }
 
 /**
- * Maps a parsed Excel row (using template headers) to a CreateUserRequest payload.
- * Unknown columns are ignored gracefully.
+ * Maps a parsed Excel row to CreateUserRequest payload.
  */
 export function mapRowToCreateRequest(
   row: ParsedUserRow,
@@ -318,27 +355,29 @@ export function mapRowToCreateRequest(
     return key ? row[key] : "";
   };
 
-  const rolesRaw = get("roles");
-  const roles = rolesRaw
-    ? rolesRaw.split(",").map((r) => r.trim()).filter(Boolean)
-    : ["STAFF"];
+  const fullName = get("name") || get("full");
+  const parts = fullName.trim().split(/\s+/);
+  const firstName = parts[0] || "";
+  const lastName = parts.slice(1).join(" ") || "";
+
+  // Normalize gender to UPPERCASE for the backend enum
+  const rawGender = get("gender").toUpperCase();
+  const gender = ["MALE", "FEMALE", "OTHER"].includes(rawGender) ? rawGender : undefined;
+
+  // Roles format is passed as an array of Role IDs (resolved separately in the page)
+  const roleId = get("roleId") || get("role");
+  const roles = roleId ? [roleId] : [];
 
   return {
     userIdentifier: get("username"),
     password:       get("password"),
-    firstName:      get("first name") || undefined,
-    lastName:       get("last name") || undefined,
+    firstName:      firstName || undefined,
+    lastName:       lastName || undefined,
     email:          get("email") || undefined,
     phoneNumber:    get("phone") || undefined,
-    gender:         get("gender") || undefined,
-    dateOfBirth:    get("date of birth") || undefined,
+    gender,
+    dateOfBirth:    get("date of birth") || get("dob") || undefined,
     roles,
-    position:       get("position") || undefined,
-    department:     get("department") || undefined,
-    employmentType: get("employment type") || undefined,
-    joinDate:       get("join date") || undefined,
-    shift:          get("shift") || undefined,
-    remark:         get("remark") || undefined,
     userType,
     ...(businessId ? { businessId } : {}),
   };

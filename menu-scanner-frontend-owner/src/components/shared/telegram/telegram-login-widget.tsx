@@ -2,7 +2,7 @@
 
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { useEffect, useRef, useCallback } from "react";
-import { TelegramAuthData } from "@/redux/features/auth/store/models/request/social-auth-request";
+import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
 
 interface TelegramLoginWidgetProps {
   botName: string;
@@ -14,6 +14,7 @@ interface TelegramLoginWidgetProps {
   lang?: string;
   className?: string;
 }
+
 
 export function TelegramLoginWidget({
   botName,
@@ -27,6 +28,7 @@ export function TelegramLoginWidget({
 }: TelegramLoginWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
+
   const handleTelegramAuth = useCallback(
     (data: TelegramAuthData) => {
       onAuth(data);
@@ -35,8 +37,10 @@ export function TelegramLoginWidget({
   );
 
   useEffect(() => {
+
     const callbackName = `telegramCallback_${Date.now()}`;
     (window as any)[callbackName] = handleTelegramAuth;
+
 
     const script = document.createElement("script");
     script.src = "https://telegram.org/js/telegram-widget.js?22";
@@ -53,10 +57,12 @@ export function TelegramLoginWidget({
       script.setAttribute("data-lang", lang);
     }
 
+
     if (containerRef.current) {
       containerRef.current.innerHTML = "";
       containerRef.current.appendChild(script);
     }
+
 
     return () => {
       delete (window as any)[callbackName];
@@ -76,6 +82,7 @@ export function TelegramLoginWidget({
 
   return <div ref={containerRef} className={className} />;
 }
+
 
 interface TelegramLoginButtonProps {
   botName: string;
@@ -105,6 +112,8 @@ export function TelegramLoginButton({
     const top = window.screenY + (window.outerHeight - height) / 2;
 
     const telegramBotId = botId || botName;
+
+    // redirect mode: after auth Telegram redirects popup back with ?tgAuthResult=<base64>
     const returnTo = `${window.location.origin}/`;
     const authUrl = `https://oauth.telegram.org/auth?bot_id=${telegramBotId}&origin=${encodeURIComponent(
       window.location.origin
@@ -162,9 +171,7 @@ export function TelegramLoginButton({
   }, [botName, botId, onAuth, disabled, loading]);
 
   return (
-    <CustomButton
-      variant="unstyled"
-      size="unstyled"
+    <CustomButton variant="unstyled" size="unstyled"
       type="button"
       onClick={handleClick}
       disabled={disabled || loading}
@@ -194,6 +201,7 @@ export function TelegramLoginButton({
     </CustomButton>
   );
 }
+
 
 function TelegramIcon({ className = "" }: { className?: string }) {
   return (

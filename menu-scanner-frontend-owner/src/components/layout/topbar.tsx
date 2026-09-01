@@ -1,60 +1,86 @@
 "use client";
 
-import { Menu, ChevronRight, LogIn } from "lucide-react";
+import {
+  Menu,
+  ChevronRight,
+  Maximize2,
+  Minimize2,
+  LogIn,
+} from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { CustomProfileDropdown } from "@/components/shared/common/custom-profile-dropdown";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter, usePathname } from "next/navigation";
-import { ROUTES } from "@/constants/app-routes/routes";
-import { useIsMobile } from "@/redux/store/use-mobile";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
+import { SmartImage } from "@/components/shared/image/smart-image";
+import { appImages } from "@/constants/app-resource/icons/app-images";
+import { useAppSelector } from "@/store";
+import { selectBusinessName, selectBusinessLogo } from "@/features/business/store/selectors/business-settings-selector";
+import { ROUTES, getBreadcrumbs } from "@/constants/app-routes/routes";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
 
 interface TopBarProps {
   onMenuClick?: () => void;
+  onFullscreenClick?: () => void;
+  isFullscreen?: boolean;
 }
 
-function getBreadcrumbs(pathname: string) {
-  const parts = pathname.split("/").filter(Boolean);
-  const crumbs: { label: string; href: string }[] = [];
-  let path = "";
-  for (const part of parts) {
-    path += `/${part}`;
-    const label = part
-      .replace(/-/g, " ")
-      .replace(/\b\w/g, (c) => c.toUpperCase());
-    crumbs.push({ label, href: path });
-  }
-  return crumbs;
-}
-
-export function TopBar({ onMenuClick }: TopBarProps) {
+export function TopBar({ onMenuClick, onFullscreenClick, isFullscreen }: TopBarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const isMobile = useIsMobile();
   const { profile, isProfileLoading } = useAuthState();
 
   const breadcrumbs = getBreadcrumbs(pathname);
 
+  const reduxBusinessName = useAppSelector(selectBusinessName);
+  const reduxBusinessLogo = useAppSelector(selectBusinessLogo) as any;
+
+  const businessName = reduxBusinessName || "My Store";
+  const businessLogoUrl = typeof reduxBusinessLogo === "string"
+    ? reduxBusinessLogo
+    : (reduxBusinessLogo?.md || reduxBusinessLogo?.sm || reduxBusinessLogo?.o || "");
+
   return (
-    <header className="sticky top-0 z-20 flex h-12 items-center gap-3 border-b border-border/80 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 sm:px-4 shadow-2xs transition-all duration-200">
-      {/* Left: Mobile menu + Breadcrumbs */}
+    <header className="sticky top-0 z-20 flex h-12 items-center gap-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 shadow-sm">
+      {/* Left: Mobile menu + Business Logo & Name + Breadcrumbs */}
       <div className="flex items-center gap-2.5 min-w-0 flex-1">
-        {isMobile && (
-          <CustomButton
-            variant="ghost"
-            size="icon"
-            onClick={onMenuClick}
-            className="shrink-0 h-7 w-7 rounded hover:bg-primary/10 hover:text-primary transition-colors md:hidden"
-            aria-label="Toggle menu"
-          >
-            <Menu className="h-4 w-4" />
-          </CustomButton>
+        <CustomButton
+          variant="ghost"
+          size="icon"
+          onClick={onMenuClick}
+          className="shrink-0 h-7 w-7 rounded hover:bg-primary/10 hover:text-primary transition-colors md:hidden"
+          aria-label="Toggle menu"
+        >
+          <Menu className="h-4 w-4" />
+        </CustomButton>
+
+        {/* Business Logo & Name (matching sidebar icon & styling) - Shown ONLY in fullscreen mode */}
+        {isFullscreen && (
+          <>
+            <div className="flex items-center gap-2 min-w-0 shrink-0">
+              <div className="relative h-7 w-7 flex items-center justify-center shrink-0 overflow-hidden rounded-md">
+                <SmartImage
+                  src={businessLogoUrl}
+                  fallbackSrc={appImages.scanmekhLogo}
+                  alt={businessName}
+                  fill
+                  rounded="md"
+                  showSkeleton={false}
+                  className="object-contain rounded-md"
+                />
+              </div>
+              <span className="font-black text-xs sm:text-sm text-foreground truncate tracking-tight">
+                {businessName}
+              </span>
+            </div>
+
+            <span className="text-muted-foreground/40 font-light select-none text-xs hidden sm:inline">|</span>
+          </>
         )}
 
         {/* Breadcrumbs */}
         <nav className="hidden sm:flex items-center gap-1.5 text-xs sm:text-sm min-w-0 truncate">
           {breadcrumbs.map((crumb, i) => (
-            <div key={crumb.href} className="flex items-center gap-1.5 min-w-0">
+            <div key={i} className="flex items-center gap-1.5 min-w-0">
               {i > 0 && (
                 <ChevronRight className="h-3 w-3 text-muted-foreground/50 shrink-0" />
               )}
@@ -65,7 +91,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                     : "text-muted-foreground truncate hover:text-foreground cursor-pointer transition-colors"
                 }
                 onClick={() =>
-                  i < breadcrumbs.length - 1 && router.push(crumb.href)
+                  crumb.href && i < breadcrumbs.length - 1 && router.push(crumb.href)
                 }
               >
                 {crumb.label}
@@ -79,8 +105,21 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         </span>
       </div>
 
-      {/* Right: Actions & Profile */}
+      {/* Right: Actions */}
       <div className="flex items-center gap-2 sm:gap-3">
+        {onFullscreenClick && (pathname.includes("/admin/pos") || pathname.includes("/pos")) && (
+          <CustomButton
+            variant="ghost"
+            size="icon"
+            onClick={onFullscreenClick}
+            title={isFullscreen ? "Exit Fullscreen (F11)" : "Fullscreen (F11)"}
+            className="h-7 w-7 rounded hover:bg-primary/10 hover:text-primary transition-colors"
+          >
+            {isFullscreen ? <Minimize2 className="h-4 w-4 text-primary" /> : <Maximize2 className="h-4 w-4" />}
+          </CustomButton>
+        )}
+
+        {/* Profile is being fetched — show a skeleton instead of nothing */}
         {!profile && isProfileLoading && (
           <div className="flex items-center gap-2 px-2 py-1.5">
             <Skeleton className="h-8 w-8 rounded-full" />
@@ -91,6 +130,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           </div>
         )}
 
+        {/* No auth / session error — redirect to login */}
         {!profile && !isProfileLoading && (
           <CustomButton
             variant="outline"
@@ -103,6 +143,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           </CustomButton>
         )}
 
+        {/* Modular Custom Profile Dropdown */}
         {profile && <CustomProfileDropdown />}
       </div>
     </header>

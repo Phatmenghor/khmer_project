@@ -3,7 +3,7 @@
 import { LogOut, AlertCircle } from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { CustomModal } from "./custom-modal";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
@@ -30,7 +30,7 @@ export function SignoutModal({
   title = "Sign Out",
   description = "Are you sure you want to end your current session?",
 }: SignoutModalProps) {
-  const { profile } = useAuthState();
+  const { profile, user, isAuthenticated } = useAuthState();
 
   const isModalOpen = isOpen ?? open ?? false;
   const handleClose = () => {
@@ -40,13 +40,12 @@ export function SignoutModal({
 
   const inFlight = isLoading || isSubmitting;
 
-  const displayName = profile?.fullName || profile?.email || "Current Account";
+  const displayName = profile?.fullName || user?.userIdentifier || "Current Account";
   const userEmail = profile?.email;
   const avatarUrl =
     profile?.profileImage?.sm ||
     profile?.profileImage?.md ||
-    profile?.profileImage?.o ||
-    profile?.profileImageUrl;
+    profile?.profileImage?.o;
 
   return (
     <CustomModal
@@ -72,33 +71,43 @@ export function SignoutModal({
 
       {/* ── Body ── */}
       <div className="p-4 px-5 space-y-3.5 bg-card/40">
-        <div className="flex items-center gap-3 p-3 bg-muted/40 rounded-xl border border-border/60">
-          <CustomAvatar
-            imageUrl={avatarUrl}
-            name={displayName}
-            size="md"
-            className="shrink-0 ring-1 ring-border"
-          />
-          <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-xs font-bold text-foreground truncate">
-              {displayName}
-            </span>
-            {userEmail && (
-              <span className="text-[11px] text-muted-foreground truncate">
-                {userEmail}
+        {/* User Account Info Card (if authenticated) */}
+        {isAuthenticated && (
+          <div className="flex items-center gap-3 p-3 bg-muted/40 rounded-xl border border-border/60">
+            <CustomAvatar
+              imageUrl={avatarUrl}
+              name={displayName}
+              size="md"
+              className="shrink-0 ring-1 ring-border"
+            />
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className="text-xs font-bold text-foreground truncate">
+                {displayName}
               </span>
-            )}
+              {user?.userType && (
+                <span className="text-[11px] font-semibold text-primary">
+                  {user.userType.replace("_", " ")}
+                </span>
+              )}
+              {userEmail && (
+                <span className="text-[11px] text-muted-foreground truncate">
+                  {userEmail}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
+        {/* Confirmation Message */}
         <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-          {description} You will need to sign in again to access your owner dashboard.
+          {description} You will need to sign in again to access your account data and orders.
         </p>
 
+        {/* Notice alert */}
         <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200">
           <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
           <p className="text-[11px] leading-relaxed font-medium">
-            Any unsaved changes will be discarded upon signing out.
+            Any unsaved checkout changes or active forms will be discarded upon signing out.
           </p>
         </div>
       </div>

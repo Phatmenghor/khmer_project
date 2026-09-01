@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import {
   OwnerDashboardRecentOwnersResponse,
   RecentOwner,
-} from "@/redux/features/owner-dashboard/store/models/response/owner-dashboard-response";
+} from "@/features/owner-dashboard/store/models/response/owner-dashboard-response";
 import { ROUTES } from "@/constants/app-routes/routes";
 
 const AVATAR_COLORS = [

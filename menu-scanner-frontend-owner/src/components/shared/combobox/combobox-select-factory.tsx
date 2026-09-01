@@ -35,6 +35,18 @@ export interface ComboboxSelectFactoryProps {
   isLoading?: boolean;
 }
 
+/**
+ * Generic factory component for combobox selection
+ * Replaces all individual combobox components with a single reusable component
+ *
+ * Usage:
+ * <ComboboxSelectFactory
+ *   options={brands}
+ *   value={selectedBrand}
+ *   onChange={setSelectedBrand}
+ *   placeholder="Select a brand"
+ * />
+ */
 export function ComboboxSelectFactory({
   value,
   onChange,
@@ -62,7 +74,7 @@ export function ComboboxSelectFactory({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "w-full justify-between bg-background hover:bg-muted/50",
+            "w-full justify-between bg-white hover:bg-white",
             disabled && "opacity-50 cursor-not-allowed",
             className
           )}
@@ -106,6 +118,18 @@ export function ComboboxSelectFactory({
   );
 }
 
+/**
+ * Factory function to create typed combobox components
+ *
+ * Usage:
+ * export const BrandSelect = createComboboxSelect<Brand>({
+ *   getId: (brand) => brand.id,
+ *   getLabel: (brand) => brand.name,
+ * });
+ *
+ * Then in components:
+ * <BrandSelect brands={brands} value={selectedBrand} onChange={setSelectedBrand} />
+ */
 export function createComboboxSelect<T>({
   getId,
   getLabel,

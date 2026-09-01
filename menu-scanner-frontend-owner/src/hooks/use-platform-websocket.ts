@@ -3,10 +3,10 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { bumpVersion, WebSocketResource } from "@/redux/store/slices/websocket-slice";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { bumpVersion, WebSocketResource } from "@/store/slices/websocket-slice";
 import { getToken } from "@/utils/local-storage/token";
-import { selectAccessToken } from "@/redux/features/auth/store/selectors/auth-selectors";
+import { selectAccessToken } from "@/features/auth/store/selectors/auth-selectors";
 
 const EVENT_TYPE_MAP: Record<string, WebSocketResource> = {
   BUSINESS_OWNER_CHANGED: "businessOwner",
@@ -20,8 +20,6 @@ const EVENT_TYPE_MAP: Record<string, WebSocketResource> = {
 
 export function usePlatformWebSocket() {
   const dispatch = useAppDispatch();
-  // Watch the Redux access token so the hook re-runs on login/logout —
-  // without this, the WS never connects after the user signs in.
   const accessToken = useAppSelector(selectAccessToken);
   const clientRef = useRef<Client | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -36,32 +34,37 @@ export function usePlatformWebSocket() {
       }
     };
 
-    // Skip connect entirely when the user isn't logged in — backend
-    // rejects anonymous STOMP CONNECT and would log a stack trace every
-    // 5s reconnect. Prefer the Redux token (fresh) and fall back to the
-    // cookie (e.g. on first paint before rehydration).
     const token = accessToken || getToken();
     if (!token) {
-      devLog("[WS] No platform token yet — skipping WebSocket connect");
+      devLog("[Realtime] Waiting for user sign-in to connect live updates");
       return;
     }
 
     const client = new Client({
-      webSocketFactory: () => new SockJS(wsUrl),
+      webSocketFactory: () => {
+        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        const nativeWsUrl = `${protocol}//${window.location.host}/ws/websocket`;
+        try {
+          return new WebSocket(nativeWsUrl);
+        } catch {
+          return new SockJS(wsUrl, null, {
+            transports: ["websocket", "xhr-streaming"],
+          });
+        }
+      },
       connectHeaders: { Authorization: `Bearer ${token}` },
       reconnectDelay: 5000,
       onConnect: () => {
         setIsConnected(true);
-        devLog("[WS] Platform WebSocket connected — subscribing to /topic/platform");
+        devLog("[Realtime] Connected successfully — listening for live owner dashboard updates");
 
         client.subscribe("/topic/platform", (message) => {
           try {
             const event = JSON.parse(message.body);
             const resource = EVENT_TYPE_MAP[event.type];
             if (resource) {
-              // Bump version - pages will use this to decide if they should refresh
               dispatch(bumpVersion(resource));
-              devLog(`[WS] Platform event: ${event.type} → bumped ${resource}`);
+              devLog(`[Realtime] Event received: ${event.type} -> Refreshing ${resource}`);
             }
           } catch {
             // ignore malformed messages
@@ -70,27 +73,18 @@ export function usePlatformWebSocket() {
       },
       onDisconnect: () => {
         setIsConnected(false);
-        devLog("[WS] Platform WebSocket disconnected");
+        devLog("[Realtime] Connection closed — waiting to reconnect");
       },
       onStompError: (frame) => {
         setIsConnected(false);
-        // STOMP frames don't serialize cleanly with console.error (logs as '{}').
-        // Pull the meaningful parts and skip empty frames entirely so the
-        // 5s reconnect loop doesn't spam the console.
         const message = frame?.headers?.message;
         const body = frame?.body;
         if (!message && !body) return;
-        devLog(
-          "[WS] STOMP error:",
-          message || "(no message)",
-          body || "",
-        );
+        devLog("[Realtime] Connection protocol notice:", message || "(no message)", body || "");
       },
       onWebSocketError: () => {
         setIsConnected(false);
-        // SockJS surfaces a transport error every reconnect when the backend
-        // /ws endpoint isn't reachable — devLog only so production stays quiet.
-        devLog("[WS] socket error — /ws unreachable, will retry");
+        devLog("[Realtime] Reconnecting live updates in 5s...");
       },
     });
 

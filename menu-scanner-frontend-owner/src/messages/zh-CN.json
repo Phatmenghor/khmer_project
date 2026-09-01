@@ -1,0 +1,62 @@
+{
+  "common": {
+    "language": "语言",
+    "selectLanguage": "选择语言",
+    "loading": "加载中...",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "view": "查看",
+    "search": "搜索...",
+    "filter": "筛选",
+    "export": "导出",
+    "settings": "设置",
+    "profile": "个人资料",
+    "logout": "退出登录",
+    "home": "首页",
+    "dashboard": "仪表板",
+    "users": "用户"
+  },
+  "dashboard": {
+    "title": "仪表板",
+    "welcome": "欢迎来到您的仪表板",
+    "overview": "概览"
+  },
+  "user": {
+    "title": "用户",
+    "search": "搜索用户...",
+    "table-header": {
+      "email": "邮箱",
+      "role": "角色",
+      "status": "状态",
+      "createdAt": "创建时间",
+      "actions": "操作"
+    }
+  },
+  "auth": {
+    "login": "登录",
+    "logout": "退出登录",
+    "email": "邮箱",
+    "emailAddress": "邮箱地址",
+    "password": "密码",
+    "signIn": "登录",
+    "signingIn": "登录中...",
+    "welcome": "欢迎",
+    "welcomeBack": "欢迎回来",
+    "loginTitle": "欢迎回来",
+    "loginSubtitle": "登录您的管理员账户以继续",
+    "emailPlaceholder": "admin@example.com",
+    "passwordPlaceholder": "请输入您的密码",
+    "loginSuccess": "登录成功！",
+    "loginError": "登录失败，请重试。",
+    "invalidCredentials": "邮箱或密码无效",
+    "demoCredentials": "演示凭据已预填充用于测试",
+    "adminLogin": "管理员登录",
+    "copyright": "© 2024 Menu Scanner。保留所有权利。",
+    "messages": {
+      "login-success": "登录成功！",
+      "login-error": "登录失败，请检查您的凭据。"
+    }
+  }
+}

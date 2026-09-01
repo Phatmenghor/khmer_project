@@ -1,8 +1,10 @@
+
+
+
 export function dateTimeFormat(timestamp: string | null | undefined): string {
   if (!timestamp) return "- - -";
 
   const date = new Date(timestamp);
-  if (isNaN(date.getTime())) return "- - -";
 
   return date
     .toLocaleString("en-GB", {
@@ -20,11 +22,13 @@ export function dateTimeFormat(timestamp: string | null | undefined): string {
 export function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return "- - -";
 
-  const date = new Date(dateStr.includes("T") ? dateStr : `${dateStr}T00:00:00Z`);
-  if (isNaN(date.getTime())) return "- - -";
+
+  const date = new Date(dateStr + "T00:00:00Z");
 
   const khDate = new Date(
-    date.toLocaleString("en-US", { timeZone: "Asia/Phnom_Penh" }),
+    date.toLocaleString("en-US", {
+      timeZone: "Asia/Phnom_Penh",
+    }),
   );
 
   const day = String(khDate.getDate()).padStart(2, "0");
@@ -56,7 +60,6 @@ export function dateFormatLocal(timestamp: string | null | undefined): string {
   if (!timestamp) return "- - -";
 
   const date = new Date(timestamp);
-  if (isNaN(date.getTime())) return "- - -";
 
   return date.toLocaleDateString("en-US", {
     timeZone: "Asia/Phnom_Penh",
@@ -64,4 +67,26 @@ export function dateFormatLocal(timestamp: string | null | undefined): string {
     month: "2-digit",
     year: "numeric",
   });
+}
+
+export function formatDayMonth(timestamp: string | null | undefined): string {
+  if (!timestamp) return "—";
+
+  const date = new Date(timestamp);
+
+  return date.toLocaleDateString("en-US", {
+    timeZone: "Asia/Phnom_Penh",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/**
+ * Returns YYYY-MM-DD in local time (prevents UTC shift issues from toISOString())
+ */
+export function getTodayLocalDateString(d: Date = new Date()): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }

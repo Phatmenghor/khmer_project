@@ -1,3 +1,6 @@
+
+
+
 "use client";
 
 import React from "react";
@@ -6,20 +9,28 @@ import { CustomButton } from "@/components/shared/button/custom-button";
 import { cn } from "@/lib/utils";
 
 export interface EmptyStateProps {
+
   icon?: LucideIcon;
+
   title: string;
+
   description?: string;
+
   action?: {
     label: string;
     onClick: () => void;
     variant?: "default" | "outline" | "ghost";
   };
+
   secondaryAction?: {
     label: string;
     onClick: () => void;
   };
+
   customIcon?: React.ReactNode;
+
   className?: string;
+
   size?: "sm" | "md" | "lg";
 }
 
@@ -44,6 +55,7 @@ const sizeStyles = {
   },
 };
 
+
 export function EmptyState({
   icon: Icon,
   title,
@@ -64,22 +76,26 @@ export function EmptyState({
         className
       )}
     >
+      {}
       {customIcon || (Icon && (
         <div className="mb-3 text-muted-foreground/50 animate-scale-in">
           <Icon className={styles.icon} strokeWidth={1.5} />
         </div>
       ))}
 
+      {}
       <h3 className={cn("font-semibold text-foreground mb-1", styles.title)}>
         {title}
       </h3>
 
+      {}
       {description && (
         <p className={cn("text-muted-foreground max-w-md mb-4", styles.description)}>
           {description}
         </p>
       )}
 
+      {}
       {(action || secondaryAction) && (
         <div className="flex items-center gap-2">
           {action && (

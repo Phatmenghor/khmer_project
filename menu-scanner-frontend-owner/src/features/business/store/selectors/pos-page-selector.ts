@@ -1,0 +1,68 @@
+
+
+
+import { RootState } from "@/store";
+
+
+export const selectPOSPageState = (state: RootState) => state.posPage;
+
+
+export const selectSelectedDeliveryOption = (state: RootState) =>
+  state.posPage.selectedDeliveryOption;
+export const selectSelectedPaymentOption = (state: RootState) =>
+  state.posPage.selectedPaymentOption;
+
+
+export const selectProducts = (state: RootState) => state.posPage.products;
+export const selectProductsLoading = (state: RootState) =>
+  state.posPage.productsLoading;
+export const selectProductsError = (state: RootState) =>
+  state.posPage.productsError;
+export const selectSearchTerm = (state: RootState) => state.posPage.searchTerm;
+export const selectSelectedCategory = (state: RootState) =>
+  state.posPage.selectedCategory;
+export const selectSelectedBrand = (state: RootState) =>
+  state.posPage.selectedBrand;
+export const selectCategories = (state: RootState) => state.posPage.categories;
+export const selectBrands = (state: RootState) => state.posPage.brands;
+export const selectCategoriesLoading = (state: RootState) =>
+  state.posPage.categoriesLoading;
+export const selectBrandsLoading = (state: RootState) =>
+  state.posPage.brandsLoading;
+export const selectProductPage = (state: RootState) =>
+  state.posPage.productPage;
+export const selectHasMoreProducts = (state: RootState) =>
+  state.posPage.hasMoreProducts;
+
+
+export const selectCartItems = (state: RootState) => state.posPage.cartItems;
+export const selectCartPricing = (state: RootState) => state.posPage.cartPricing;
+export const selectShowCart = (state: RootState) => state.posPage.showCart;
+
+
+export const selectCustomerNote = (state: RootState) =>
+  state.posPage.customerNote;
+export const selectIsSubmitting = (state: RootState) =>
+  state.posPage.isSubmitting;
+
+
+export const selectSizePickerProduct = (state: RootState) =>
+  state.posPage.sizePickerProduct;
+export const selectEditingCartItemId = (state: RootState) =>
+  state.posPage.editingCartItemId;
+export const selectLastSelectedCustomizations = (state: RootState) =>
+  state.posPage.lastSelectedCustomizations;
+export const selectSuccessOrder = (state: RootState) =>
+  state.posPage.successOrder;
+export const selectShowOrderDetailsModal = (state: RootState) =>
+  state.posPage.showOrderDetailsModal;
+
+
+export const selectBrandOpen = (state: RootState) => state.posPage.brandOpen;
+export const selectCategoryOpen = (state: RootState) => state.posPage.categoryOpen;
+export const selectPromotionFilter = (state: RootState) =>
+  state.posPage.promotionFilter;
+export const selectPromotionOpen = (state: RootState) =>
+  state.posPage.promotionOpen;
+export const selectMinPrice = (state: RootState) => state.posPage.minPrice;
+export const selectMaxPrice = (state: RootState) => state.posPage.maxPrice;

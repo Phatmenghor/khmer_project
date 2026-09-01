@@ -1,5 +1,3 @@
-const UNREACHABLE_IMAGE_DOMAINS = ["via.placeholder.com"];
-
 export function formatEnumLabel(value?: string | null): string | undefined {
   if (!value) return undefined;
   return value
@@ -9,11 +7,16 @@ export function formatEnumLabel(value?: string | null): string | undefined {
     .join(" ");
 }
 
-export function getProductImageUrl(imageUrl?: string | { sm?: string; md?: string; o?: string } | null): string {
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
+
+const UNREACHABLE_IMAGE_DOMAINS = ["via.placeholder.com"];
+
+export function getProductImageUrl(imageUrl?: string | ImageUrls | null): string {
   if (!imageUrl) return "";
   if (typeof imageUrl === "string") return imageUrl;
   return imageUrl.md || imageUrl.sm || imageUrl.o || "";
 }
+
 
 export function sanitizeImageUrl(
   url: string | { sm?: string; md?: string; o?: string } | null | undefined,
@@ -63,8 +66,8 @@ export function toRoman(num: number): string {
   return result;
 }
 
-export function formatValue(value: any) {
-  return value === null || value === undefined || value === "" ? "—" : value;
+export function formatValue(value: unknown) {
+  return value === null || value === undefined || value === "" ? "---" : value;
 }
 
 export const indexDisplay = (
@@ -72,7 +75,7 @@ export const indexDisplay = (
   pageSize?: number,
   index?: number
 ) => {
-  return ((pageNo || 1) - 1) * (pageSize || 10) + (index || 1);
+  return ((pageNo || 1) - 1) * (pageSize || 15) + (index || 1);
 };
 
 export interface SimpleAddress {

@@ -19,8 +19,8 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown, Loader2, X } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { useAppDispatch } from "@/redux/store";
-import { fetchAllBusinessService } from "@/redux/features/subscription/store/thunks/business-thunks";
+import { useAppDispatch } from "@/store";
+import { fetchAllBusinessService } from "@/features/subscription/store/thunks/business-thunks";
 
 export interface BusinessOption {
   id: string;

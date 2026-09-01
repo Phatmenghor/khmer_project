@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useAppSelector } from "@/redux/store";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -12,22 +12,22 @@ import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { usePagination } from "@/redux/store/use-pagination";
+import { usePagination } from "@/hooks/use-pagination";
 import { ModalMode } from "@/constants/app-resource/status/status";
-import { RoleResponseModel } from "@/redux/features/auth/store/models/response/role-response";
+import { RoleResponseModel } from "@/features/auth/store/models/response/role-response";
 import {
   deleteRoleService,
   fetchAllRoleService,
-} from "@/redux/features/auth/store/thunks/role-thunks";
-import { roleTableColumns } from "@/redux/features/auth/table/roles-table";
-import { useRolesState } from "@/redux/features/auth/store/state/role-state";
-import RoleModal from "@/redux/features/auth/components/role-modal";
-import { RoleDetailModal } from "@/redux/features/auth/components/role-detail-modal";
+} from "@/features/auth/store/thunks/role-thunks";
+import { roleTableColumns } from "@/features/auth/table/roles-table";
+import { useRolesState } from "@/features/auth/store/state/role-state";
+import RoleModal from "@/features/auth/components/role-modal";
+import { RoleDetailModal } from "@/features/auth/components/role-detail-modal";
 import {
   resetState,
   setPageNo,
   setSearchFilter,
-} from "@/redux/features/auth/store/slice/role-slice";
+} from "@/features/auth/store/slice/role-slice";
 
 export default function RolesPage() {
   const {

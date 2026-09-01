@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Button, ButtonProps } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Loader2, Download, FileSpreadsheet, Eye, Edit, Trash } from "lucide-react";
+import { Loader2, X, Download, FileSpreadsheet, Eye, Edit, Trash } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -48,6 +48,7 @@ export const CustomButton = React.forwardRef<
     );
   }
 
+  // Radix Slot (activated via asChild) expects exactly one React child element.
   if (props.asChild) {
     return (
       <Button

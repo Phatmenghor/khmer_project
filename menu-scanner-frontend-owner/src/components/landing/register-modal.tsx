@@ -14,6 +14,7 @@ import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { showToast } from "@/components/shared/common/show-toast";
 import { axiosClient } from "@/utils/axios";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 const subdomainRegex = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
@@ -314,13 +315,8 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
       reset();
       onClose();
       setShowSuccess(true);
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        err?.message ||
-        "Registration failed. Please try again.";
-      showToast.error(errorMessage);
+    } catch (err) {
+      showToast.error(getErrorMessage(err, "Registration failed. Please try again."));
     } finally {
       setIsSubmitting(false);
     }

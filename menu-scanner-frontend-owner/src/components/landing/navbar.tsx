@@ -51,7 +51,7 @@ export default function Navbar() {
             {/* Logo */}
             <Link href={ROUTES.PUBLIC.HOME} className="flex items-center gap-2">
               <Image
-                src={appImages.myLogo}
+                src={appImages.scanmekhLogo}
                 alt="ScanMeKH Logo"
                 width={120}
                 height={120}

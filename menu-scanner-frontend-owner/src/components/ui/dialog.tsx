@@ -72,6 +72,7 @@ const DialogContent = React.forwardRef<
         ...(dragY ? { transform: `translateY(${dragY}px)`, transition: "none" } : undefined),
       }}
       className={cn(
+        // Default (md and up): standard centered dialog with iOS rounded-[28px] and subtle shadow
         "fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2",
         "border border-border/80 bg-background/95 backdrop-blur-xl shadow-2xl rounded-[28px] outline-none overflow-hidden",
         "flex flex-col max-h-[85vh]",
@@ -80,6 +81,7 @@ const DialogContent = React.forwardRef<
         "md:data-[state=closed]:zoom-out-95 md:data-[state=open]:zoom-in-95",
         "md:data-[state=closed]:slide-out-to-left-1/2 md:data-[state=closed]:slide-out-to-top-[48%]",
         "md:data-[state=open]:slide-in-from-left-1/2 md:data-[state=open]:slide-in-from-top-[48%]",
+        // <md: animated bottom sheet with rounded-t-[28px]
         "max-md:left-0 max-md:right-0 max-md:top-auto max-md:bottom-0 max-md:translate-x-0 max-md:translate-y-0",
         "max-md:max-w-none max-md:mx-0 max-md:max-h-[92dvh] max-md:pb-safe",
         "max-md:rounded-b-none max-md:rounded-t-[28px] max-md:border-t max-md:border-x-0 max-md:border-b-0",
@@ -90,6 +92,7 @@ const DialogContent = React.forwardRef<
       {...props}
       aria-describedby={props["aria-describedby"] ?? undefined}
     >
+      {/* Mobile drag handle — swipe down to dismiss; not shown in the centered desktop modal */}
       <div
         className="hidden max-md:block h-1 bg-muted rounded-full w-10 mx-auto mt-3 mb-1 shrink-0 touch-none"
         onTouchStart={handleTouchStart}
@@ -97,6 +100,7 @@ const DialogContent = React.forwardRef<
         onTouchEnd={handleTouchEnd}
       />
 
+      {/* Content scroll area */}
       {disableScrollWrapper ? (
         children
       ) : (
