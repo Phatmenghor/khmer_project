@@ -40,7 +40,7 @@ export function TableImage({
   previewSrc,
   alt = "Image",
   fallbackText,
-  className = "h-10 w-10 rounded-[10px]",
+  className = "h-11 w-11 rounded-[12px]",
   priority,
   loading,
   aspectRatio = "1x1",

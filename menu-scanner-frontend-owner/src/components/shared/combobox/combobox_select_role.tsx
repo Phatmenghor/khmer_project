@@ -35,9 +35,8 @@ export function ComboboxSelectRole({
     cacheKey: `roles-${defaultUserType || "all"}`,
     thunkService: fetchAllRoleService,
     extraParams: {
-      includeAll: false,
-      businessId: AppDefault.BUSINESS_ID,
-      userTypes: defaultUserType ? [defaultUserType] : undefined,
+      includeAll: true,
+      userTypes: defaultUserType ? [defaultUserType] : ["PLATFORM_USER"],
     },
   });
 

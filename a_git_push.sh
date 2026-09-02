@@ -13,13 +13,14 @@ if [ "$BRANCH" = "HEAD" ]; then
   exit 1
 fi
 
-CHANGES=$(git status --short | awk '{print $2}' | tr '\n' ' ')
+CHANGE_COUNT=$(git status --short | wc -l | tr -d ' ')
 
-if [ -z "$CHANGES" ]; then
+if [ "$CHANGE_COUNT" -eq 0 ]; then
   echo "ℹ️ Nothing to commit, working tree clean"
 else
+  CHANGES_SUMMARY=$(git status --short | head -n 5 | awk '{print $2}' | tr '\n' ', ' | sed 's/,\s*$/.../')
   git add .
-  git commit -m "[$BRANCH] Auto commit on $CURRENT_TIME | Files: $CHANGES"
+  git commit -m "[$BRANCH] Auto commit on $CURRENT_TIME | Changed ($CHANGE_COUNT files): $CHANGES_SUMMARY"
 fi
 
 git push origin "$BRANCH"

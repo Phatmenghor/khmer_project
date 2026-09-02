@@ -70,6 +70,20 @@ export const updateBusinessOwnerService = createApiThunk<
 });
 
 /**
+ * Update business owner auto renew
+ */
+export const updateBusinessOwnerAutoRenewService = createApiThunk<
+  any,
+  { ownerId: string; autoRenew: boolean }
+>("business-owners/updateAutoRenew", async ({ ownerId, autoRenew }) => {
+  const response = await axiosClientWithAuth.put(
+    `/api/v1/business-owners/${ownerId}`,
+    { autoRenew }
+  );
+  return response.data.data;
+});
+
+/**
  * Update business owners change-plan
  */
 export const updateBusinessOwnerChangePlanService = createApiThunk<

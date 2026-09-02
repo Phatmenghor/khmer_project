@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -51,6 +51,8 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
   const { isCreating, isUpdating } = operations;
 
   const roleData = rolesContent.find((role) => role.id === roleId);
+
+  const isPlatformOwnerRole = roleData?.name === "PLATFORM_OWNER";
 
   const {
     control: formControl,
@@ -142,8 +144,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
   const isSubmitting = isCreate ? isCreating : isUpdating;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-2xl p-0 flex flex-col">
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="2xl">
         <FormHeader
           title={isCreate ? "Create New Role" : "Edit Role"}
           description={
@@ -173,7 +174,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
               label="Role Name"
               placeholder="Enter role name"
               required
-              disabled={isSubmitting}
+              disabled={isSubmitting || (!isCreate && isPlatformOwnerRole)}
               error={errors.name}
               pattern="[a-zA-Z ]"
             />
@@ -182,7 +183,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
               control={control}
               name="description"
               label="Description"
-              placeholder="Enter any description (optional)"
+              placeholder="Enter description"
               rows={5}
               disabled={isSubmitting}
               error={errors.description}
@@ -208,7 +209,6 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
             />
           </FormFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </CustomModal>
   );
 }

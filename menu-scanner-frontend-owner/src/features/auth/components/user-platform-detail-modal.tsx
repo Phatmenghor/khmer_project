@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DisplayField } from "@/components/shared/form-field/display-field";
-import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { formatEnumLabel } from "@/utils/common/enum-convert";
+import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { fetchUserByIdService } from "@/features/auth/store/thunks/users-thunks";
 import { clearSelectedUser } from "@/features/auth/store/slice/users-slice";
@@ -12,30 +9,36 @@ import {
   selectSelectedUser,
   selectIsFetchingDetail,
 } from "../store/selectors/users-selectors";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
+import { cn } from "@/lib/utils";
 import { DetailModal } from "@/components/shared/modal/detail-modal";
-import { User } from "lucide-react";
+import { SectionTitle, InfoRow } from "@/components/shared/modal/detail-section";
 
-interface UserPlatformDetailModalProps {
+interface UserDetailModalProps {
   userId?: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function UserPlatformDetailModal({ userId, isOpen, onClose }: UserPlatformDetailModalProps) {
+function statusColor(s?: string) {
+  if (s === "ACTIVE") return "text-green-600";
+  if (s === "INACTIVE") return "text-gray-500";
+  if (s === "SUSPENDED") return "text-red-600";
+  return "text-amber-600";
+}
+
+export function UserPlatformDetailModal({
+  userId,
+  isOpen,
+  onClose,
+}: UserDetailModalProps) {
   const dispatch = useAppDispatch();
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const userData = useAppSelector(selectSelectedUser);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (!userId || !isOpen) return;
-      try {
-        await dispatch(fetchUserByIdService(userId)).unwrap();
-      } catch (error: any) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-    fetchUserData();
+    if (!userId || !isOpen) return;
+    dispatch(fetchUserByIdService(userId)).unwrap().catch(() => {});
   }, [userId, isOpen, dispatch]);
 
   const handleClose = () => {
@@ -43,101 +46,125 @@ export function UserPlatformDetailModal({ userId, isOpen, onClose }: UserPlatfor
     onClose();
   };
 
+  const hasTelegram =
+    userData?.telegramId ||
+    userData?.telegramUsername ||
+    userData?.telegramFirstName ||
+    userData?.telegramLastName;
+
   return (
     <DetailModal
       isOpen={isOpen}
       onClose={handleClose}
       isLoading={isFetchingDetail}
-      isEmpty={!isFetchingDetail && !userData}
+      isEmpty={!userData}
       emptyMessage="No user data available"
-      title="Platform User Details"
-      description={
-        userData
-          ? userData.fullName || `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || "—"
-          : "Detailed information about the selected platform user"
-      }
-      imageUrl={userData?.profileImageUrl}
-      avatarName={userData?.firstName || "U"}
-      icon={User}
-      maxWidthClass="sm:max-w-7xl"
+      title={userData?.fullName || "Platform User Details"}
+      description="Detailed information about the selected platform user"
+      avatarUrl={userData?.profileImage?.md || userData?.profileImageUrl}
+      avatarName={userData?.fullName || userData?.firstName}
+      size="5xl"
     >
       {userData && (
-        <>
-          {/* Personal Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <DisplayField label="Full Name" value={userData.fullName || "—"} />
-                <DisplayField label="Email" value={userData.email || "—"} />
-                <DisplayField label="Phone Number" value={userData.phoneNumber || "—"} />
-                <DisplayField label="Nickname" value={userData.nickname || "—"} />
-                <DisplayField label="Gender" value={formatEnumLabel(userData.gender) ?? "—"} />
-                <DisplayField label="Date of Birth" value={userData.dateOfBirth || "—"} />
-                <DisplayField label="User Identifier" value={userData.userIdentifier || "—"} />
-                <DisplayField label="User Type" value={formatEnumLabel(userData.userType) ?? "—"} />
-                <DisplayField label="Account Status" value={formatEnumLabel(userData.accountStatus) ?? "—"} />
-                <DisplayField
-                  label="Roles"
-                  value={
-                    userData.roles?.length > 0
-                      ? userData.roles.map((r) => formatEnumLabel(r) ?? r).join(", ")
-                      : "—"
-                  }
-                />
-                {userData.remark && (
-                  <div className="md:col-span-2">
-                    <DisplayField label="Remark" value={userData.remark} />
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3.5 p-1 text-left">
+          <SectionTitle>Personal Information</SectionTitle>
+          <InfoRow label="User Identifier" value={userData.userIdentifier || "-"} />
+          <InfoRow
+            label="Roles"
+            value={
+              userData.roles && userData.roles.length > 0 ? (
+                <div className="flex flex-wrap gap-1 mt-0.5">
+                  {userData.roles.map((role) => (
+                    <span key={role} className="px-1.5 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-700">
+                      {formatEnumValue(role)}
+                    </span>
+                  ))}
+                </div>
+              ) : "-"
+            }
+          />
+          <InfoRow
+            label="Status"
+            value={
+              userData.accountStatus ? (
+                <span className={cn("text-xs font-bold", statusColor(userData.accountStatus))}>
+                  {formatEnumValue(userData.accountStatus)}
+                </span>
+              ) : "-"
+            }
+          />
+          <InfoRow label="First Name" value={userData.firstName || "-"} />
+          <InfoRow label="Last Name" value={userData.lastName || "-"} />
+          <InfoRow label="Nickname" value={userData.nickname || "-"} />
+          <InfoRow label="Phone" value={userData.phoneNumber || "-"} />
+          <InfoRow
+            label="Gender"
+            value={userData.gender ? formatEnumValue(userData.gender) : "-"}
+          />
+          <InfoRow label="Date of Birth" value={userData.dateOfBirth ? formatDate(userData.dateOfBirth) : "-"} />
+          <InfoRow label="Email" value={userData.email || "-"} fullWidth />
 
-          {/* Telegram Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Telegram</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <DisplayField
-                  label="Synced"
-                  value={userData.telegramSynced ? "Connected" : "Not Connected"}
-                />
-                <DisplayField label="Username" value={userData.telegramUsername || "—"} />
-                <DisplayField label="First Name" value={userData.telegramFirstName || "—"} />
-                <DisplayField label="Last Name" value={userData.telegramLastName || "—"} />
-                <DisplayField
-                  label="Synced At"
-                  value={userData.telegramSyncedAt ? dateTimeFormat(userData.telegramSyncedAt) : "—"}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          {hasTelegram && (
+            <>
+              <SectionTitle>Telegram</SectionTitle>
+              <InfoRow label="ID" value={userData.telegramId || "-"} />
+              <InfoRow
+                label="Username"
+                value={
+                  userData.telegramUsername
+                    ? `@${userData.telegramUsername}`
+                    : "-"
+                }
+              />
+              <InfoRow
+                label="Name"
+                value={
+                  [userData.telegramFirstName, userData.telegramLastName]
+                    .filter(Boolean)
+                    .join(" ") || "-"
+                }
+              />
+              <InfoRow
+                label="Synced"
+                value={
+                  <span
+                    className={cn(
+                      "px-1.5 py-0.5 rounded text-xs font-semibold inline-block",
+                      userData.telegramSynced
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-500"
+                    )}
+                  >
+                    {userData.telegramSynced ? "Yes" : "No"}
+                  </span>
+                }
+              />
+              <InfoRow label="Synced At" value={userData.telegramSyncedAt ? dateTimeFormat(userData.telegramSyncedAt) : "-"} />
+            </>
+          )}
 
-          {/* System Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>System Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <DisplayField label="User ID" value={userData.id} />
-                <DisplayField
-                  label="Last Login"
-                  value={userData.lastLoginAt ? dateTimeFormat(userData.lastLoginAt) : "—"}
-                />
-                <DisplayField label="Created At" value={dateTimeFormat(userData.createdAt ?? "")} />
-                <DisplayField label="Created By" value={userData.createdBy || "—"} />
-                <DisplayField label="Last Updated" value={dateTimeFormat(userData.updatedAt ?? "")} />
-                <DisplayField label="Updated By" value={userData.updatedBy || "—"} />
-              </div>
-            </CardContent>
-          </Card>
-        </>
+          <SectionTitle>System Info</SectionTitle>
+          <InfoRow label="User ID" value={userData.id || "-"} />
+          <InfoRow label="Created By" value={userData.createdBy || "-"} />
+          <InfoRow
+            label="Created At"
+            value={dateTimeFormat(userData.createdAt ?? "")}
+          />
+          <InfoRow label="Updated By" value={userData.updatedBy || "-"} />
+          <InfoRow
+            label="Last Updated"
+            value={dateTimeFormat(userData.updatedAt ?? "")}
+          />
+
+          {userData.remark && (
+            <div className="col-span-2 rounded border border-border bg-muted/10 p-2 text-left mt-2">
+              <SectionTitle>Remarks</SectionTitle>
+              <p className="text-xs text-foreground leading-relaxed">
+                {userData.remark}
+              </p>
+            </div>
+          )}
+        </div>
       )}
     </DetailModal>
   );

@@ -17,7 +17,7 @@ export const fetchAllUsersService = createApiThunk<any, AllUserRequest>(
   "users/fetchAll",
   async (params) => {
     const response = await axiosClientWithAuth.post(
-      "/api/v1/users/my-business/all",
+      "/api/v1/users/all",
       params
     );
     return response.data.data;
@@ -94,6 +94,19 @@ export const toggleUserStatusService = createApiThunk<any, UserResponseModel>(
   }
 );
 
+export const updateUserStatusSilentService = createApiThunk<
+  any,
+  { userId: string; accountStatus: string }
+>(
+  "users/updateStatusSilent",
+  async ({ userId, accountStatus }) => {
+    const response = await axiosClientWithAuth.put(`/api/v1/users/${userId}`, {
+      accountStatus,
+    });
+    return response.data.data;
+  }
+);
+
 
 export const adminChangePasswordService = createApiThunk<
   any,
@@ -110,7 +123,7 @@ export const fetchAllCustomersService = createApiThunk<any, AllUserRequest>(
   "customers/fetchAll",
   async (params) => {
     const response = await axiosClientWithAuth.post(
-      "/api/v1/users/my-business/all",
+      "/api/v1/users/all",
       params
     );
     return response.data.data;

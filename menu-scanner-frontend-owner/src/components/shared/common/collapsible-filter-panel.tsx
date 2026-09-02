@@ -2,20 +2,14 @@
 
 import React, { useState } from "react";
 import { CustomSelect } from "@/components/shared/common/custom-select";
-import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
-import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
-import { ComboboxBusiness, BusinessOption } from "@/components/shared/combobox/combobox-business";
 import { CustomDateTimePicker } from "@/components/shared/common/custom-date-picker";
 import { Input } from "@/components/ui/input";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, ChevronDown, Search, X } from "lucide-react";
-import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
-import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import { Badge } from "@/components/ui/badge";
 
-// Filter Types
-export type FilterType = 'select' | 'combobox-brand' | 'combobox-categories' | 'combobox-business' | 'input-number' | 'input-text' | 'date';
+export type FilterType = 'select' | 'input-number' | 'input-text' | 'date' | 'custom' | string;
 
 export interface FilterOption {
   value: string;
@@ -27,38 +21,15 @@ export interface BaseFilterConfig {
   type: FilterType;
   label: string;
   placeholder?: string;
-  value: string | number | boolean | null | undefined;
-  onChange: (value: string | number | boolean | null | undefined) => void;
+  value: any;
+  onChange: (value: any) => void;
+  render?: () => React.ReactNode;
   disabled?: boolean;
 }
 
 export interface SelectFilterConfig extends BaseFilterConfig {
   type: 'select';
   options: FilterOption[];
-}
-
-export interface ComboboxBrandFilterConfig extends Omit<BaseFilterConfig, 'value' | 'onChange'> {
-  type: 'combobox-brand';
-  value: unknown;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onChange: (value: any) => void;
-  showAllOption?: boolean;
-}
-
-export interface ComboboxCategoriesFilterConfig extends Omit<BaseFilterConfig, 'value' | 'onChange'> {
-  type: 'combobox-categories';
-  value: unknown;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onChange: (value: any) => void;
-  showAllOption?: boolean;
-}
-
-export interface ComboboxBusinessFilterConfig extends Omit<BaseFilterConfig, 'value' | 'onChange'> {
-  type: 'combobox-business';
-  value: unknown;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onChange: (value: any) => void;
-  showAllOption?: boolean;
 }
 
 export interface InputNumberFilterConfig extends BaseFilterConfig {
@@ -75,33 +46,30 @@ export interface DateFilterConfig extends BaseFilterConfig {
   type: 'date';
 }
 
+export interface CustomFilterConfig extends BaseFilterConfig {
+  type: string;
+}
+
 export type FilterConfig =
   | SelectFilterConfig
-  | ComboboxBrandFilterConfig
-  | ComboboxCategoriesFilterConfig
-  | ComboboxBusinessFilterConfig
   | InputNumberFilterConfig
   | InputTextFilterConfig
-  | DateFilterConfig;
+  | DateFilterConfig
+  | CustomFilterConfig;
 
 export interface FilterPanelConfig {
   title: string;
-  /** Optional total-count chip rendered next to the title (e.g., 248 products). */
   totalCount?: number;
-  /** Optional sentence rendered below the title. */
   subtitle?: string;
   searchValue: string;
   searchPlaceholder: string;
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   filters: FilterConfig[];
-  /** Primary action button (right of the title row). */
   buttonText?: string;
   buttonDisabled?: boolean;
   buttonTooltip?: string;
   onButtonClick?: () => void;
-  /** Extra action buttons rendered before the primary button. */
   extraActions?: React.ReactNode;
-  /** Called when the user clicks "Clear all" — invoked only when at least one filter is active. */
   onClearAll?: () => void;
 }
 
@@ -125,79 +93,54 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
 
   const filtersList = config.filters || [];
 
-  const essentialFilters = filtersList.filter((f) =>
-    essentialFilterIds.includes(f.id),
-  );
+  // Smart Filter Splitting:
+  // - If total filters <= 2: All filters stay in the main bar next to search (no advanced drawer needed).
+  // - If total filters > 2: First 2 (or essentialFilterIds) stay in the main bar; the rest go to Advanced Filters.
+  let essentialFilters: FilterConfig[];
+  let advancedFilters: FilterConfig[];
 
-  const advancedFilters = filtersList.filter(
-    (f) => !essentialFilterIds.includes(f.id),
-  );
+  if (filtersList.length <= 2) {
+    essentialFilters = filtersList;
+    advancedFilters = [];
+  } else if (essentialFilterIds.length > 0) {
+    essentialFilters = filtersList.filter((f) => essentialFilterIds.includes(f.id));
+    advancedFilters = filtersList.filter((f) => !essentialFilterIds.includes(f.id));
+  } else {
+    essentialFilters = filtersList.slice(0, 2);
+    advancedFilters = filtersList.slice(2);
+  }
 
   const advancedActiveCount = advancedFilters.filter(isFilterActive).length;
   const anyFilterActive = filtersList.some(isFilterActive);
 
   const renderFilter = (filter: FilterConfig): React.ReactNode => {
+    if (filter.render) {
+      return (
+        <div key={filter.id} className="w-full sm:w-[150px] md:w-[165px] shrink-0">
+          {filter.render()}
+        </div>
+      );
+    }
     switch (filter.type) {
       case "select":
         return (
-          <CustomSelect
-            key={filter.id}
-            options={filter.options || []}
-            value={filter.value != null ? String(filter.value) : undefined}
-            placeholder={filter.placeholder || "Select..."}
-            onValueChange={filter.onChange}
-            label={filter.label}
-            disabled={filter.disabled}
-            size="md"
-          />
-        );
-
-      case "combobox-brand":
-        return (
-          <ComboboxSelectBrand
-            key={filter.id}
-            dataSelect={filter.value as BrandResponseModel | null}
-            onChangeSelected={filter.onChange}
-            placeholder={filter.placeholder || "All Brand"}
-            showAllOption={(filter as any).showAllOption !== false}
-            label={filter.label}
-            disabled={filter.disabled}
-            size="md"
-          />
-        );
-
-      case "combobox-categories":
-        return (
-          <ComboboxSelectCategories
-            key={filter.id}
-            dataSelect={filter.value as CategoriesResponseModel | null}
-            onChangeSelected={filter.onChange}
-            placeholder={filter.placeholder || "All Categories"}
-            showAllOption={(filter as any).showAllOption !== false}
-            label={filter.label}
-            disabled={filter.disabled}
-            size="md"
-          />
-        );
-
-      case "combobox-business":
-        return (
-          <ComboboxBusiness
-            key={filter.id}
-            value={filter.value as BusinessOption | null}
-            onChange={filter.onChange}
-            placeholder={filter.placeholder || "All Businesses"}
-            showAllOption={(filter as any).showAllOption !== false}
-            label={filter.label}
-            disabled={filter.disabled}
-            size="md"
-          />
+          <div key={filter.id} className="w-full sm:w-[150px] md:w-[165px] shrink-0">
+            <CustomSelect
+              options={(filter as SelectFilterConfig).options || []}
+              value={filter.value != null ? String(filter.value) : undefined}
+              placeholder={filter.placeholder || "Select..."}
+              onValueChange={filter.onChange}
+              label={filter.label}
+              disabled={filter.disabled}
+              size="md"
+            />
+          </div>
         );
 
       case "input-number":
         return (
           <div key={filter.id} className="flex flex-col gap-1">
-            <label className="text-xs font-medium whitespace-nowrap">
+            <label className="text-xs font-semibold whitespace-nowrap text-foreground">
               {filter.label}
             </label>
             <Input
@@ -209,11 +152,12 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
                 const value = e.target.value;
                 if (value === "") {
                   filter.onChange(undefined);
-                } else if (/^\d+$/.test(value)) {
-                  filter.onChange(parseInt(value, 10));
+                } else {
+                  const num = Number(value);
+                  if (!isNaN(num)) filter.onChange(num);
                 }
               }}
-              className="h-[36px] text-xs w-full rounded-[10px] bg-background border border-border/80 focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="h-[36px] text-xs rounded-[12px]"
               disabled={filter.disabled}
             />
           </div>
@@ -222,15 +166,15 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
       case "input-text":
         return (
           <div key={filter.id} className="flex flex-col gap-1">
-            <label className="text-xs font-medium whitespace-nowrap">
+            <label className="text-xs font-semibold whitespace-nowrap text-foreground">
               {filter.label}
             </label>
             <Input
               type="text"
               placeholder={filter.placeholder || "Enter text..."}
-              value={filter.value?.toString() || ""}
+              value={filter.value != null ? String(filter.value) : ""}
               onChange={(e) => filter.onChange(e.target.value)}
-              className="h-[28px] text-xs w-full"
+              className="h-[36px] text-xs rounded-[12px]"
               disabled={filter.disabled}
             />
           </div>
@@ -238,15 +182,13 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
 
       case "date":
         return (
-          <div key={filter.id} className="flex flex-col gap-1">
-            <label className="text-xs font-medium whitespace-nowrap">
-              {filter.label}
-            </label>
+          <div key={filter.id} className="w-full sm:w-[150px] md:w-[165px] shrink-0">
             <CustomDateTimePicker
-              value={filter.value?.toString() || ""}
-              onChange={(val) => filter.onChange(val || undefined)}
-              placeholder={filter.placeholder || "Select date"}
               mode="date"
+              label={filter.label}
+              placeholder={filter.placeholder || "Select date..."}
+              value={filter.value != null ? String(filter.value) : ""}
+              onChange={(dateStr) => filter.onChange(dateStr || "")}
               disabled={filter.disabled}
             />
           </div>
@@ -258,35 +200,37 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
   };
 
   return (
-    <Card>
-      <CardContent className="py-3 space-y-3">
-        {/* Title row */}
+    <Card className="rounded-[16px] border border-border/80 shadow-2xs hover:shadow-xs transition-all duration-200">
+      <CardContent className="p-3.5 sm:p-4 space-y-3">
+        {/* Title bar */}
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h1 className="text-sm sm:text-base font-semibold tracking-tight">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+              <h1 className="text-sm sm:text-base lg:text-lg font-bold tracking-tight text-foreground">
                 {config.title}
               </h1>
               {typeof config.totalCount === "number" && (
-                <Badge variant="secondary" className="text-[11px] font-medium">
+                <Badge variant="secondary" className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 shrink-0">
                   {config.totalCount.toLocaleString()}
                 </Badge>
               )}
             </div>
             {config.subtitle && (
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5 truncate">
                 {config.subtitle}
               </p>
             )}
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+
+          {/* Action buttons */}
+          <div className="flex items-center gap-2 flex-wrap shrink-0">
             {config.extraActions}
             {config.buttonText && (
               <CustomButton
                 disabled={config.buttonDisabled}
                 variant="default"
                 onClick={config.onButtonClick}
-                className="gap-1.5 flex-shrink-0 h-[36px] rounded-[12px] px-3.5 text-xs font-semibold"
+                className="gap-1.5 flex-shrink-0 h-[36px] rounded-[12px] px-3.5 text-xs font-semibold shadow-xs hover:shadow-sm transition-all cursor-pointer"
                 title={config.buttonTooltip}
                 icon={<Plus className="w-3.5 h-3.5" />}
               >
@@ -296,54 +240,56 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
           </div>
         </div>
 
-        {/* Search + essential filters row */}
-        <div className="flex flex-wrap items-end gap-2">
-          <div className="relative w-full sm:w-[280px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/80 pointer-events-none" />
-            <Input
-              type="text"
-              placeholder={config.searchPlaceholder}
-              className="pl-9 pr-8 h-[36px] text-xs rounded-[12px] bg-muted/30 border border-border/80 w-full focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25 hover:bg-muted/50 hover:border-border transition-all shadow-2xs"
-              value={config.searchValue}
-              onChange={config.onSearchChange}
-            />
-            {config.searchValue && (
-              <CustomButton variant="unstyled" size="unstyled"
-                type="button"
-                onClick={() =>
-                  config.onSearchChange({
-                    target: { value: "" },
-                  } as React.ChangeEvent<HTMLInputElement>)
-                }
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground p-0.5 rounded-full hover:bg-destructive/15 transition-colors"
-                aria-label="Clear search"
-              >
-                <X className="h-3.5 w-3.5" />
-              </CustomButton>
-            )}
+        {/* Search & Filters row */}
+        <div className="flex flex-wrap items-end gap-2 pt-0.5">
+          {/* Search Input */}
+          <div className="w-full sm:w-[260px] md:w-[320px] flex-shrink-0">
+            <div className="relative w-full group">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70 pointer-events-none" />
+              <Input
+                type="text"
+                placeholder={config.searchPlaceholder}
+                className="pl-8 pr-8 h-[36px] text-xs rounded-[12px] placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/20 hover:border-border transition-all duration-200 shadow-2xs"
+                value={config.searchValue}
+                onChange={config.onSearchChange}
+              />
+              {config.searchValue && (
+                <CustomButton
+                  variant="unstyled"
+                  size="unstyled"
+                  type="button"
+                  onClick={() =>
+                    config.onSearchChange({
+                      target: { value: "" },
+                    } as React.ChangeEvent<HTMLInputElement>)
+                  }
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground p-0.5 rounded-full hover:bg-destructive/15 transition-colors cursor-pointer"
+                  aria-label="Clear search"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </CustomButton>
+              )}
+            </div>
           </div>
 
+          {/* Essential Filters */}
           {essentialFilters.length > 0 && (
-            <div
-              className="grid gap-2 flex-1 sm:flex-initial sm:ml-auto min-w-0"
-              style={{
-                gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-                maxWidth: "360px",
-              }}
-            >
+            <div className="flex flex-wrap items-end gap-2 ml-auto">
               {essentialFilters.map((filter) => renderFilter(filter))}
             </div>
           )}
         </div>
 
-        {/* Advanced filters — inline collapsible inside the same card */}
+        {/* Advanced filters (only rendered if total filters > 2) */}
         {advancedFilters.length > 0 && (
-          <div className="border-t pt-3">
+          <div className="pt-2 border-t border-border/40">
             <div className="flex items-center justify-between gap-2">
-              <CustomButton variant="unstyled" size="unstyled"
+              <CustomButton
+                variant="unstyled"
+                size="unstyled"
                 type="button"
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="flex items-center gap-1.5 text-xs font-semibold text-foreground/80 hover:text-foreground transition-colors"
+                className="flex items-center gap-1.5 text-xs font-semibold text-foreground/80 hover:text-foreground transition-colors cursor-pointer"
               >
                 Advanced Filters
                 {advancedActiveCount > 0 && (
@@ -361,10 +307,12 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
                 />
               </CustomButton>
               {anyFilterActive && config.onClearAll && (
-                <CustomButton variant="unstyled" size="unstyled"
+                <CustomButton
+                  variant="unstyled"
+                  size="unstyled"
                   type="button"
                   onClick={config.onClearAll}
-                  className="text-xs font-medium text-primary hover:underline"
+                  className="text-xs font-medium text-primary hover:underline cursor-pointer"
                 >
                   Clear all
                 </CustomButton>
@@ -372,14 +320,8 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             </div>
 
             {showAdvanced && (
-              <div className="mt-3 pt-3 border-t border-dashed">
-                <div
-                  className="grid gap-2 w-full"
-                  style={{
-                    gridTemplateColumns:
-                      "repeat(auto-fit, minmax(140px, 1fr))",
-                  }}
-                >
+              <div className="mt-3 pt-3 border-t border-dashed border-border/70">
+                <div className="flex flex-wrap items-end gap-2.5 sm:gap-3 w-full">
                   {advancedFilters.map((filter) => renderFilter(filter))}
                 </div>
               </div>

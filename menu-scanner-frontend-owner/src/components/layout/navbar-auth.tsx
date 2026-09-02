@@ -9,6 +9,7 @@ import { CustomDropdownMenu } from "../shared/common/custom-dropdown-menu";
 import { SignoutModal } from "@/components/shared/modal/signout-modal";
 import { getActiveTableSession } from "@/utils/table/table-session";
 import { ImageUrls } from "@/features/auth/store/models/request/users-request";
+import { getProfileImageUrl } from "@/utils/user/user-helper";
 
 interface NavbarAuthProps {
   isAuthenticated: boolean;
@@ -104,7 +105,7 @@ function NavbarAuthComponent({
     <div className="flex flex-col space-y-1.5">
       <div className="flex items-center gap-2">
         <CustomAvatar
-          imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
+          imageUrl={getProfileImageUrl({ profileImage, profile } as any, "sm")}
           name={displayName}
           size="lg"
         />
@@ -137,7 +138,7 @@ function NavbarAuthComponent({
           <div className="flex items-center gap-2 cursor-pointer rounded-xl px-1.5 py-1 hover:bg-accent/80 transition-colors">
             <div className="relative h-7 w-7 rounded-full overflow-hidden shrink-0">
               <CustomAvatar
-                imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
+                imageUrl={getProfileImageUrl({ profileImage, profile } as any, "sm")}
                 name={displayName}
                 size="md"
               />

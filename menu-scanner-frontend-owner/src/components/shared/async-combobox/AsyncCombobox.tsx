@@ -21,9 +21,9 @@ import { cn } from "@/lib/utils";
 import type { AsyncComboboxProps, ComboboxSize } from "./types";
 
 const SIZE_CLASSES = {
-  sm: "h-8 text-xs rounded-[10px] bg-muted/50 border border-border px-3 hover:bg-muted/65 hover:border-border transition-all",
-  md: "h-[36px] text-base md:text-sm rounded-[12px] bg-muted/50 border border-border px-3.5 hover:bg-muted/65 hover:border-border focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25 transition-all duration-200",
-  lg: "h-10 text-base md:text-sm rounded-[12px] bg-muted/50 border border-border px-3.5 hover:bg-muted/65 hover:border-border focus:bg-background transition-all",
+  sm: "h-8 text-xs rounded-[10px] bg-background border border-border/80 px-2.5 hover:bg-muted/40 transition-all",
+  md: "h-[36px] text-xs font-medium rounded-[12px] bg-background border border-border/80 px-3 hover:bg-muted/40 hover:border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 shadow-2xs",
+  lg: "h-10 text-sm rounded-[14px] bg-background border border-border/80 px-3.5 hover:bg-muted/40 transition-all",
 };
 
 export function AsyncCombobox<T>({
@@ -114,10 +114,10 @@ export function AsyncCombobox<T>({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between min-w-0 shadow-2xs font-normal transition-all duration-200 text-left cursor-pointer",
+              "w-full justify-between min-w-0 shadow-2xs transition-all duration-200 text-left cursor-pointer",
               SIZE_CLASSES[size],
               !value && "text-muted-foreground",
-              open && "bg-background border-primary text-foreground ring-2 ring-primary/25",
+              open && "bg-background border-primary text-foreground ring-2 ring-primary/20",
               error && "border-destructive focus:border-destructive",
               disabled && "opacity-50 cursor-not-allowed bg-muted/20",
               className
@@ -126,7 +126,7 @@ export function AsyncCombobox<T>({
           >
             <span
               className={cn(
-                "text-base md:text-sm truncate min-w-0 flex-1 font-normal",
+                "text-xs truncate min-w-0 flex-1 font-normal",
                 !value ? "text-muted-foreground" : "text-foreground font-medium"
               )}
             >
@@ -188,13 +188,13 @@ export function AsyncCombobox<T>({
                       ref={index === data.length - 1 ? sentinelRef : null}
                       title={labelText}
                       className={cn(
-                        "h-8 px-2.5 text-xs rounded-[8px] flex items-center justify-between gap-2 cursor-pointer transition-all my-0.5 select-none",
+                        "h-[34px] px-2.5 text-xs rounded-[8px] flex items-center justify-between gap-2 cursor-pointer transition-all my-0.5 select-none",
                         selected
                           ? "bg-primary/15 text-primary font-semibold border border-primary/20 shadow-2xs"
                           : "hover:bg-primary/10 hover:text-primary text-foreground"
                       )}
                     >
-                      <span className="whitespace-nowrap flex-1 text-left text-xs font-medium text-foreground">
+                      <span className="truncate flex-1 text-left text-xs font-medium">
                         {renderItem ? renderItem(item) : labelText}
                       </span>
                       <Check

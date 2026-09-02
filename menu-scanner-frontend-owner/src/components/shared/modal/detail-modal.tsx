@@ -79,7 +79,7 @@ export function DetailModal({
         </div>
       </DialogHeader>
 
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+      <div className="flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4 min-h-0">
         {isLoading ? (
           <div className="flex items-center justify-center min-h-[50vh] w-full flex-1">
             <Loading />

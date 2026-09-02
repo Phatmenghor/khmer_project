@@ -102,9 +102,11 @@ const DialogContent = React.forwardRef<
 
       {/* Content scroll area */}
       {disableScrollWrapper ? (
-        children
+        <div className="flex-1 overflow-y-auto overscroll-contain flex flex-col min-h-0">
+          {children}
+        </div>
       ) : (
-        <div className="flex-1 overflow-y-auto px-4 py-4 no-scrollbar flex flex-col min-h-0">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 flex flex-col min-h-0">
           {children}
         </div>
       )}

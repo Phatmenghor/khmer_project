@@ -1,9 +1,11 @@
+import { TableImage } from "@/components/shared/table/table-image";
+import { formatEnumLabel } from "@/utils/common/enum-convert";
 import { ActionButton } from "@/components/button/action-button";
 import { indexDisplay } from "@/utils/common/common";
 import { formatDate } from "@/utils/date/date-time-format";
 import { CreditCard, Edit, Eye, RotateCw, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
-import { Switch } from "@/components/ui/switch";
+import { CustomSwitch } from "@/components/shared/common/custom-switch";
 import { SubscriptionConfig } from "@/constants/app-resource/default/default";
 import {
   AllBusinessOwnerResponseModel,
@@ -43,6 +45,20 @@ export const userBusinessOwnerTableColumns = ({
       ),
     },
     {
+      key: "avatar",
+      label: "Avatar",
+      minWidth: "60px",
+      maxWidth: "80px",
+      render: (user) => (
+        <TableImage
+          src={(user as any)?.logoBusinessUrl || (user as any)?.ownerProfileImage?.sm}
+          alt={user?.ownerFullName}
+          fallbackText={user?.ownerFullName || "O"}
+          className="h-11 w-11 rounded-[12px]"
+        />
+      ),
+    },
+    {
       key: "userIdentifier",
       label: "User Identifier",
       minWidth: "10px",
@@ -65,6 +81,24 @@ export const userBusinessOwnerTableColumns = ({
           {user?.ownerFullName || "—"}
         </span>
       ),
+    },
+    {
+      key: "roles",
+      label: "Roles",
+      minWidth: "10px",
+      maxWidth: "200px",
+      truncate: true,
+      render: (user) => {
+        const rolesList = (user as any)?.roles || (user as any)?.ownerRoles || ["BUSINESS_OWNER"];
+        const formatted = Array.isArray(rolesList)
+          ? rolesList.map(formatEnumLabel).join(", ")
+          : formatEnumLabel(rolesList);
+        return (
+          <span className="text-xs text-muted-foreground font-medium">
+            {formatted || "Business Owner"}
+          </span>
+        );
+      },
     },
     {
       key: "phoneNumber",
@@ -143,14 +177,20 @@ export const userBusinessOwnerTableColumns = ({
       minWidth: "100px",
       maxWidth: "140px",
       render: (user) => (
-        <div className="flex items-center gap-1">
-          <Switch
+        <div className="flex items-center gap-1.5">
+          <CustomSwitch
             checked={user.autoRenew ?? false}
             onCheckedChange={(checked) => handleToggleAutoRenew(user, checked)}
-            aria-label="Toggle auto renew"
+            size="sm"
           />
-          <span className="text-xs text-muted-foreground">
-            {user.autoRenew ? "On" : "Off"}
+          <span
+            className={`text-xs font-semibold ${
+              user.autoRenew
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-muted-foreground"
+            }`}
+          >
+            {user.autoRenew ? "Enabled" : "Disabled"}
           </span>
         </div>
       ),

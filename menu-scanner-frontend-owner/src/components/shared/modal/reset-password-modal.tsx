@@ -1,32 +1,29 @@
 "use client";
 
-import { CustomButton, CancelButton } from "@/components/shared/button/custom-button";
-import { SmartImage } from "@/components/shared/image/smart-image";
-import { CustomModal } from "./custom-modal";
-import { Messages } from "@/constants/messages";
 import { useEffect, useState } from "react";
-
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  AlertTriangle,
-  Copy,
-  Eye,
-  EyeOff,
-  Loader2,
-  Key,
-} from "lucide-react";
-import { toast } from "sonner";
-import { AppDefault } from "@/constants/app-resource/default/default";
-import { useAppDispatch, useAppSelector } from "@/store";
-import { adminChangePasswordService, fetchUserByIdService } from "@/features/auth/store/thunks/users-thunks";
-import { selectIsResettingPassword, selectSelectedUser, selectUsersContent, selectIsFetchingDetail } from "@/features/auth/store/selectors/users-selectors";
-import { showToast } from "../common/show-toast";
+import { CustomModal } from "./custom-modal";
 import { FormHeader } from "../form-field/form-header";
 import { FormBody } from "../form-field/form-body";
 import { FormFooter } from "../form-field/form-footer";
-import { formatEnumValue } from "@/utils/format/enum-formatter";
+import { CancelButton } from "../button/cancel-button";
+import { SubmitButton } from "../button/submit-button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CustomButton } from "../button/custom-button";
 import { Loading } from "../common/loading";
+import { showToast } from "../common/show-toast";
+import { AppDefault } from "@/constants/app-resource/default/default";
+import { Messages } from "@/constants/messages";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { adminChangePasswordService, fetchUserByIdService } from "@/features/auth/store/thunks/users-thunks";
+import {
+  selectIsResettingPassword,
+  selectSelectedUser,
+  selectUsersContent,
+  selectIsFetchingDetail,
+} from "@/features/auth/store/selectors/users-selectors";
+import { AlertTriangle, Copy, Eye, EyeOff, Key } from "lucide-react";
+import { toast } from "sonner";
 
 interface ResetPasswordModalProps {
   userId?: string;
@@ -52,10 +49,8 @@ export default function ResetPasswordModal({
   const selectedUser = useAppSelector(selectSelectedUser);
   const usersContent = useAppSelector(selectUsersContent);
 
-  // Resolve user metadata for deep-link support (when no userName/userRole/profileImageUrl is passed)
-  const resolvedUser = usersContent.find(u => u.id === userId) || (selectedUser?.id === userId ? selectedUser : null);
+  const resolvedUser = usersContent.find((u) => u.id === userId) || (selectedUser?.id === userId ? selectedUser : null);
   const resolvedUserName = userName || resolvedUser?.userIdentifier || resolvedUser?.email || "";
-  const resolvedUserRole = userRole && userRole.length > 0 ? userRole : (resolvedUser?.roles || []);
   const resolvedProfileImageUrl = profileImageUrl || resolvedUser?.profileImage?.sm || "";
 
   const hasUser = !!resolvedUser;
@@ -91,7 +86,6 @@ export default function ResetPasswordModal({
       ).unwrap();
 
       showToast.success(Messages.auth.passwordReset);
-
       handleClose();
     } catch (error: unknown) {
       toast.error((error as { message?: string })?.message || "Reset failed. Please try again.");
@@ -131,10 +125,9 @@ export default function ResetPasswordModal({
         <>
           <FormBody className="flex-1 min-h-0 overflow-y-auto">
             <div className="space-y-4">
-
               <div className="space-y-2 text-left">
-                <div className="flex items-center gap-1">
-                  <Key className="h-3 w-3 text-muted-foreground" />
+                <div className="flex items-center gap-1.5">
+                  <Key className="h-3.5 w-3.5 text-muted-foreground" />
                   <Label className="text-xs font-semibold">New Password</Label>
                 </div>
 
@@ -144,16 +137,16 @@ export default function ResetPasswordModal({
                     value={customPassword}
                     onChange={(e) => setCustomPassword(e.target.value)}
                     placeholder="Enter new password"
-                    className="pr-14 font-mono text-xs h-8 py-2 border-border/60 focus-visible:ring-1 focus-visible:ring-primary/20"
+                    className="pr-14 font-mono text-xs h-9 py-2 border-border/60 focus-visible:ring-1 focus-visible:ring-primary/20"
                     disabled={isResettingPassword}
                   />
-                  <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-0.5">
+                  <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
                     <CustomButton
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="h-6 w-6 p-0 hover:bg-muted"
+                      className="h-7 w-7 p-0 hover:bg-muted"
                       title={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? (
@@ -167,7 +160,7 @@ export default function ResetPasswordModal({
                       variant="ghost"
                       size="sm"
                       onClick={copyPassword}
-                      className="h-6 w-6 p-0 hover:bg-muted"
+                      className="h-7 w-7 p-0 hover:bg-muted"
                       title="Copy password"
                     >
                       <Copy className="h-3.5 w-3.5 text-muted-foreground" />
@@ -179,14 +172,14 @@ export default function ResetPasswordModal({
                 </p>
               </div>
 
-              <div className="border border-orange-200/60 bg-orange-50/40 p-2.5 rounded-lg flex gap-2 text-left">
-                <AlertTriangle className="h-3.5 w-3.5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <div className="border border-amber-200/60 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800/40 p-3 rounded-xl flex gap-2.5 text-left">
+                <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-orange-900 leading-none">
+                  <p className="text-xs font-semibold text-amber-900 dark:text-amber-300 leading-tight">
                     Important Notice
                   </p>
-                  <p className="text-xs text-orange-800 mt-1 leading-normal">
-                    This action will log out the user from all devices. They must use the new password to sign in.
+                  <p className="text-xs text-amber-800/90 dark:text-amber-400/90 mt-1 leading-normal">
+                    This action will log out the user from all active sessions. They must sign in with this new password.
                   </p>
                 </div>
               </div>
@@ -200,22 +193,15 @@ export default function ResetPasswordModal({
             noChangesMessage="Resetting user password"
           >
             <CancelButton onClick={handleClose} disabled={isResettingPassword} />
-            <CustomButton
-              type="button"
+            <SubmitButton
               onClick={onReset}
-              disabled={isResettingPassword}
+              isSubmitting={isResettingPassword}
+              isDirty={true}
+              isCreate={false}
+              updateText="Reset Password"
+              submittingUpdateText="Resetting..."
               variant="destructive"
-              className="h-8"
-            >
-              {isResettingPassword ? (
-                <>
-                  <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
-                  Resetting...
-                </>
-              ) : (
-                "Reset Password"
-              )}
-            </CustomButton>
+            />
           </FormFooter>
         </>
       )}

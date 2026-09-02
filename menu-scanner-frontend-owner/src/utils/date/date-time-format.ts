@@ -20,22 +20,30 @@ export function dateTimeFormat(timestamp: string | null | undefined): string {
 }
 
 export function formatDate(dateStr: string | null | undefined): string {
-  if (!dateStr) return "- - -";
+  if (!dateStr) return "—";
 
+  try {
+    const raw = dateStr.trim();
+    if (!raw) return "—";
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(raw)) return raw;
 
-  const date = new Date(dateStr + "T00:00:00Z");
+    let cleanStr = raw;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+      cleanStr = `${raw}T00:00:00Z`;
+    } else if (!raw.includes("T")) {
+      cleanStr = `${raw}T00:00:00Z`;
+    }
 
-  const khDate = new Date(
-    date.toLocaleString("en-US", {
-      timeZone: "Asia/Phnom_Penh",
-    }),
-  );
+    const date = new Date(cleanStr);
+    if (isNaN(date.getTime())) return raw;
 
-  const day = String(khDate.getDate()).padStart(2, "0");
-  const month = String(khDate.getMonth() + 1).padStart(2, "0");
-  const year = khDate.getFullYear();
-
-  return `${day}-${month}-${year}`;
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    return `${day}/${month}/${year}`;
+  } catch {
+    return dateStr;
+  }
 }
 
 export function formatTime(time: string | null | undefined): string {

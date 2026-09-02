@@ -74,13 +74,15 @@ export function ComboboxSelectFactory({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "w-full justify-between bg-white hover:bg-white",
+            "w-full h-[36px] px-3 text-xs font-medium justify-between rounded-[12px] bg-background border border-border/80 shadow-2xs transition-all duration-200",
+            "hover:bg-muted/40 hover:border-border",
+            open && "bg-primary/10 border-primary text-primary",
             disabled && "opacity-50 cursor-not-allowed",
             className
           )}
           disabled={disabled || isLoading}
         >
-          <span className={cn("truncate", !value && "text-muted-foreground")}>
+          <span className={cn("truncate text-xs text-left flex-1", !value && "text-muted-foreground")}>
             {isLoading ? "Loading..." : selectedLabel}
           </span>
           <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
@@ -92,24 +94,33 @@ export function ComboboxSelectFactory({
           <CommandEmpty>{emptyMessage}</CommandEmpty>
           <CommandList>
             <CommandGroup>
-              {options.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={String(option.value)}
-                  onSelect={() => {
-                    onChange?.(value === option.value ? null : option.value);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
+              {options.map((option) => {
+                const isSelected = value === option.value;
+                return (
+                  <CommandItem
+                    key={option.value}
+                    value={String(option.value)}
+                    onSelect={() => {
+                      onChange?.(value === option.value ? null : option.value);
+                      setOpen(false);
+                    }}
                     className={cn(
-                      "mr-1 h-3 w-3",
-                      value === option.value ? "opacity-100" : "opacity-0"
+                      "w-full h-[34px] flex items-center justify-between gap-2 text-left transition-all my-0.5 select-none text-xs rounded-[8px] px-2.5 py-1.5 cursor-pointer",
+                      isSelected
+                        ? "bg-primary/15 text-primary font-semibold border border-primary/20 shadow-2xs"
+                        : "hover:bg-primary/10 hover:text-primary text-foreground"
                     )}
-                  />
-                  {option.label}
-                </CommandItem>
-              ))}
+                  >
+                    <span className="truncate flex-1 text-left">{option.label}</span>
+                    <Check
+                      className={cn(
+                        "h-3.5 w-3.5 shrink-0 transition-opacity",
+                        isSelected ? "opacity-100 text-primary" : "opacity-0"
+                      )}
+                    />
+                  </CommandItem>
+                );
+              })}
             </CommandGroup>
           </CommandList>
         </Command>

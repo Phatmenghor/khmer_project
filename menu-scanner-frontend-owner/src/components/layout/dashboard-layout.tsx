@@ -115,7 +115,7 @@ export default function DashboardLayout({
         className={cn(
           "dashboard-content flex flex-col flex-1 min-w-0 transition-all duration-300 h-screen overflow-y-auto overflow-x-hidden",
           isPosPage && "overflow-hidden",
-          isFullscreen ? "ml-0 w-full" : isMobile ? "w-full" : isSidebarOpen ? "ml-52" : "ml-14",
+          isFullscreen ? "ml-0 w-full" : isMobile ? "w-full" : isSidebarOpen ? "ml-60" : "ml-14",
         )}
       >
         <TopBar

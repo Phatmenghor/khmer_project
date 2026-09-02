@@ -16,6 +16,15 @@ export interface AllBusinessOwnerRequest extends BaseGetAllRequest {
   subscriptionStatuses?: string[];
   autoRenew?: boolean;
   expiringSoonDays?: number;
+  userType?: string;
+  userTypes?: string[];
+  userGroupType?: string;
+  userGroupTypes?: string[];
+  userGropeType?: string;
+  userGropeTypes?: string[];
+  roles?: string[];
+  role?: string;
+  includeAll?: boolean;
 }
 
 export interface UpdateBusinessOwnerRequest {

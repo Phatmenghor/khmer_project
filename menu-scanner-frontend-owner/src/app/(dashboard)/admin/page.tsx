@@ -11,7 +11,6 @@ import {
   fetchOwnerDashboardStatusBreakdownService,
   fetchOwnerDashboardRecentOwnersService,
   fetchOwnerDashboardPlanBreakdownService,
-  fetchOwnerDashboardCustomerTrendsService,
   fetchOwnerDashboardUserTrendsService,
   fetchOwnerDashboardPaymentTrendsService,
 } from "@/features/owner-dashboard/store/thunks/owner-dashboard-thunks";
@@ -42,7 +41,6 @@ export default function AdminDashboardPage() {
     statusBreakdown,
     recentOwners,
     planBreakdown,
-    customerTrends,
     userTrends,
     paymentTrends,
     loading,
@@ -59,7 +57,6 @@ export default function AdminDashboardPage() {
     dispatch(fetchOwnerDashboardStatusBreakdownService());
     dispatch(fetchOwnerDashboardRecentOwnersService());
     dispatch(fetchOwnerDashboardPlanBreakdownService());
-    dispatch(fetchOwnerDashboardCustomerTrendsService());
     dispatch(fetchOwnerDashboardUserTrendsService());
     dispatch(fetchOwnerDashboardPaymentTrendsService());
   }, [dispatch]);
@@ -84,7 +81,7 @@ export default function AdminDashboardPage() {
   const today = format(new Date(), "EEEE, MMM d yyyy");
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-1 flex-col gap-3 px-1">
       <DashboardHeader today={today} onRefresh={fetchAll} />
 
       <KpiSection summary={summary} loading={loading.summary} />
@@ -95,17 +92,8 @@ export default function AdminDashboardPage() {
         <SubscriptionStatusCard statusBreakdown={statusBreakdown} loading={loading.statusBreakdown} />
       </div>
 
-      {/* Daily charts: customers, business users, payments */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-        <DailyTrendsCard
-          title="Customer Registrations"
-          description="New customers per day — last 30 days"
-          data={customerTrends}
-          loading={loading.customerTrends}
-          mode="count"
-          color="hsl(var(--chart-2, 210 100% 56%))"
-          totalLabel="total new customers"
-        />
+      {/* Daily charts: business users, payments */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <DailyTrendsCard
           title="Business User Signups"
           description="New business users per day — last 30 days"

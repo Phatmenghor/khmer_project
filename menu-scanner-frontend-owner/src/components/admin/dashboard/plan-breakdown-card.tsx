@@ -83,12 +83,12 @@ export function PlanBreakdownCard({ planBreakdown, loading }: PlanBreakdownCardP
   const totalActive = sortedPlans.reduce((sum, p) => sum + p.activeCount, 0);
 
   return (
-    <Card>
+    <Card className="rounded-[16px] border border-border/80 shadow-2xs hover:shadow-md transition-all duration-200">
       <CardHeader className="pb-2">
-        <CardTitle className="text-xs sm:text-sm font-semibold truncate">
+        <CardTitle className="text-sm sm:text-base font-bold text-foreground truncate">
           Plan Breakdown
         </CardTitle>
-        <CardDescription className="text-[11px] sm:text-xs truncate">
+        <CardDescription className="text-xs text-muted-foreground truncate">
           {loading || !planBreakdown
             ? "Active subscriptions by plan"
             : `${totalActive} active subscriptions across ${sortedPlans.length} plans`}

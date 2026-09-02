@@ -33,7 +33,9 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID>, JpaS
         LEFT JOIN u.profile p
         LEFT JOIN u.business b
         LEFT JOIN b.subscriptions s
+        LEFT JOIN u.roles r
         WHERE u.userType = 'BUSINESS_USER'
+        AND (u.id = b.ownerId OR r.name = 'BUSINESS_OWNER')
         AND u.isDeleted = false
         AND b.isDeleted = false
         AND (

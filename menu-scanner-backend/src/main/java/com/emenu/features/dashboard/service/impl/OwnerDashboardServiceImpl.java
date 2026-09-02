@@ -58,8 +58,8 @@ public class OwnerDashboardServiceImpl implements OwnerDashboardService {
         LocalDateTime threshold  = now.plusDays(expirySoonDays);
 
         Long totalBusinessOwners = (Long) em.createQuery(
-                "SELECT COUNT(u) FROM User u WHERE u.userType = :type AND u.isDeleted = false")
-                .setParameter("type", UserType.BUSINESS_USER)
+                "SELECT COUNT(DISTINCT u) FROM User u JOIN u.roles r " +
+                "WHERE r.name = 'BUSINESS_OWNER' AND u.isDeleted = false")
                 .getSingleResult();
 
         Long newOwnersThisPeriod = (Long) em.createQuery(

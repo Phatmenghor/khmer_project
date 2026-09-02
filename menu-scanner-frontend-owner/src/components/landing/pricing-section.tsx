@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import FadeIn from "@/components/landing/fade-in";
@@ -192,17 +191,13 @@ export default function PricingSection() {
                     ))}
                   </ul>
 
-                  <Button
+                  <CustomButton
                     onClick={() => handlePlanClick(planData)}
-                    className={cn(
-                      "w-full h-8 mt-5 font-bold text-xs rounded transition-all duration-300",
-                      highlighted
-                        ? "bg-primary text-white shadow-lg hover:shadow-xl hover:bg-primary/90"
-                        : "border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-white"
-                    )}
+                    variant={highlighted ? "default" : "outline"}
+                    className="w-full h-[36px] mt-5 font-semibold text-xs rounded-[12px] shadow-2xs transition-all cursor-pointer"
                   >
-                    Get Started
-                  </Button>
+                    Get Started Free
+                  </CustomButton>
                 </CardContent>
               </Card>
             </FadeIn>

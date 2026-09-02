@@ -3,134 +3,155 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Menu, X, ArrowRight, UserCheck, ShieldCheck } from "lucide-react";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [showScrollTop, setShowScrollTop] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const scrollToPricing = () => {
-    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
-  };
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 8);
-      setShowScrollTop(window.scrollY > 100);
+      setScrolled(window.scrollY > 12);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const navLinks = [
-    { label: "Features", href: "#features" },
     { label: "Pricing", href: "#pricing" },
-    { label: "How It Works", href: "#how-it-works" },
-    { label: "Contact", href: "#contact" },
+    { label: "Capabilities", href: "#capabilities" },
+    { label: "Founder", href: "#founder" },
+    { label: "FAQ", href: "#faq" },
   ];
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith("#")) {
+      e.preventDefault();
+      const targetId = href.replace("#", "");
+      const element = document.getElementById(targetId);
+      if (element) {
+        const headerOffset = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+      }
+    }
+  };
+
   return (
-    <>
-      <header
-        className={cn(
-          "sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all duration-200",
-          scrolled ? "shadow-sm" : "",
-        )}
-      >
-        <div className="max-w-[1330px] mx-auto px-3 sm:px-4 lg:px-5">
-          <div className="flex items-center justify-between ">
-            {/* Logo */}
-            <Link href={ROUTES.PUBLIC.HOME} className="flex items-center gap-2">
-              <Image
-                src={appImages.scanmekhLogo}
-                alt="ScanMeKH Logo"
-                width={120}
-                height={120}
-                className="h-14 w-auto"
-                priority
-              />
-            </Link>
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full transition-all duration-300 backdrop-blur-xl bg-background/85 border-b border-border/80",
+        scrolled ? "shadow-md bg-background/95" : ""
+      )}
+    >
+      <div className="max-w-[1340px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20">
+          {/* Brand Logo */}
+          <Link href={ROUTES.PUBLIC.HOME} className="flex items-center gap-2.5 group">
+            <Image
+              src={appImages.scanmekhLogo}
+              alt="ScanMeKH Logo"
+              width={140}
+              height={140}
+              className="h-10 sm:h-12 w-auto transition-transform duration-200 group-hover:scale-105"
+              priority
+            />
+          </Link>
 
-            {/* Desktop nav and CTA - Right side */}
-            <div className="hidden md:flex items-center gap-4">
-              {/* Navigation Links */}
-              <nav className="flex items-center gap-1">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    className="px-2 py-1 rounded text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                ))}
-              </nav>
-
-              {/* Auth Buttons */}
-              <div className="flex items-center gap-2">
-                <Button
-                  className="h-7 px-5 text-xs bg-primary hover:bg-primary/90 text-white rounded"
-                  onClick={scrollToPricing}
-                >
-                  Get Started Free
-                </Button>
-              </div>
-            </div>
-
-            {/* Mobile hamburger */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden w-8 h-8"
-              onClick={() => setMobileOpen((v) => !v)}
-            >
-              {mobileOpen ? (
-                <X className="h-4 w-4" />
-              ) : (
-                <Menu className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-        </div>
-
-        {/* Mobile menu */}
-        {mobileOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white px-3 py-3 space-y-1">
+          {/* Desktop Navigation Links */}
+          <nav className="hidden md:flex items-center gap-1.5 bg-muted/40 p-1.5 rounded-full border border-border/60 shadow-2xs">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2 rounded text-xs font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                onClick={(e) => handleNavClick(e, link.href)}
+                className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-background transition-all cursor-pointer"
               >
                 {link.label}
               </a>
             ))}
-            <div className="pt-3 border-t border-slate-200 mt-2">
-              <Button
-                className="w-full h-7 text-xs bg-primary hover:bg-primary/90 text-white"
-                onClick={() => {
-                  setMobileOpen(false);
-                  scrollToPricing();
-                }}
-              >
-                Get Started Free
-              </Button>
-            </div>
-          </div>
-        )}
-      </header>
+          </nav>
 
-    </>
+          {/* Action Buttons: Login & Register */}
+          <div className="hidden md:flex items-center gap-2.5">
+            <Link href={ROUTES.AUTH.LOGIN}>
+              <CustomButton
+                variant="outline"
+                className="h-[36px] px-4 text-xs font-semibold rounded-[12px] gap-1.5 hover:border-primary/50 transition-all cursor-pointer"
+              >
+                <UserCheck className="w-3.5 h-3.5 text-primary" />
+                Sign In
+              </CustomButton>
+            </Link>
+
+            <Link href={ROUTES.AUTH.LOGIN}>
+              <CustomButton
+                variant="default"
+                className="h-[36px] px-4 text-xs font-semibold rounded-[12px] gap-1.5 shadow-xs hover:shadow-sm transition-all cursor-pointer"
+              >
+                Register Business
+                <ArrowRight className="w-3.5 h-3.5" />
+              </CustomButton>
+            </Link>
+          </div>
+
+          {/* Mobile Hamburger Button */}
+          <CustomButton
+            variant="ghost"
+            size="icon"
+            className="md:hidden w-9 h-9 rounded-[10px]"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label="Toggle navigation menu"
+          >
+            {mobileOpen ? (
+              <X className="h-5 w-5 text-foreground" />
+            ) : (
+              <Menu className="h-5 w-5 text-foreground" />
+            )}
+          </CustomButton>
+        </div>
+      </div>
+
+      {/* Mobile Menu Drawer */}
+      {mobileOpen && (
+        <div className="md:hidden border-t border-border/80 bg-background/95 backdrop-blur-2xl px-4 py-4 space-y-2 shadow-xl animate-in slide-in-from-top-2">
+          {navLinks.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              onClick={(e) => {
+                setMobileOpen(false);
+                handleNavClick(e, link.href);
+              }}
+              className="block px-4 py-2.5 rounded-[12px] text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all cursor-pointer"
+            >
+              {link.label}
+            </a>
+          ))}
+          <div className="pt-3 border-t border-border/60 grid grid-cols-2 gap-2 mt-2">
+            <Link href={ROUTES.AUTH.LOGIN} onClick={() => setMobileOpen(false)}>
+              <CustomButton variant="outline" className="w-full h-[36px] text-xs font-semibold rounded-[12px]">
+                Sign In
+              </CustomButton>
+            </Link>
+            <Link href={ROUTES.AUTH.LOGIN} onClick={() => setMobileOpen(false)}>
+              <CustomButton variant="default" className="w-full h-[36px] text-xs font-semibold rounded-[12px]">
+                Register
+              </CustomButton>
+            </Link>
+          </div>
+        </div>
+      )}
+    </header>
   );
 }
 

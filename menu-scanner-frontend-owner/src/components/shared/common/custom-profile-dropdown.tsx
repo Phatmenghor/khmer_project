@@ -18,17 +18,10 @@ import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useLogout } from "@/hooks/use-logout";
 import { SignoutModal } from "@/components/shared/modal/signout-modal";
 
+import { getProfileImageUrl, getUserInitials } from "@/utils/user/user-helper";
+
 interface CustomProfileDropdownProps {
   className?: string;
-}
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
 }
 
 export function CustomProfileDropdown({ className }: CustomProfileDropdownProps) {
@@ -44,12 +37,10 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
     setIsLoggingOut(false);
   };
 
-  const displayName = fullName || profile?.fullName || "Customer";
+  const displayName = fullName || profile?.fullName || "User";
   const displayEmail = profile?.email || "";
   const userIdentifier = (profile as any)?.userIdentifier || (profile as any)?.employeeId || "";
-  const profileImageUrl = typeof profileImage === "string"
-    ? profileImage
-    : (profileImage?.sm ?? profile?.profileImage?.sm ?? "");
+  const profileImageUrl = getProfileImageUrl(profile, "sm");
   const primaryRole = roles?.[0];
 
   return (
@@ -59,26 +50,26 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
           <CustomButton
             variant="unstyled"
             size="unstyled"
-            className="flex items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-accent/80 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring group"
+            className="flex items-center gap-2.5 rounded-xl px-2.5 py-1.5 hover:bg-accent/80 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring group"
           >
             {/* User Avatar */}
-            <div className="relative w-[38px] h-[38px] rounded-full overflow-hidden bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 shadow-2xs">
               {profileImageUrl ? (
                 <SmartImage src={profileImageUrl} alt={displayName} fill className="object-cover" />
               ) : (
-                <span className="text-sm font-bold text-primary">
-                  {getInitials(displayName)}
+                <span className="text-base font-extrabold text-primary">
+                  {getUserInitials(displayName)}
                 </span>
               )}
             </div>
 
             {/* Clean Name & User Identifier */}
-            <div className="flex flex-col items-start leading-tight text-left hidden sm:flex">
-              <span className="text-xs font-bold text-foreground truncate max-w-[150px] group-hover:text-primary transition-colors">
+            <div className="flex flex-col items-start leading-snug text-left hidden sm:flex">
+              <span className="text-sm font-bold text-foreground truncate max-w-[160px] group-hover:text-primary transition-colors">
                 {displayName}
               </span>
               {userIdentifier && !userIdentifier.includes("@") && (
-                <span className="text-[10px] font-mono text-muted-foreground truncate max-w-[150px] mt-0.5">
+                <span className="text-xs font-mono font-medium text-muted-foreground truncate max-w-[160px]">
                   ID: {userIdentifier}
                 </span>
               )}
@@ -88,17 +79,17 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className="w-64 p-1.5" sideOffset={8}>
-          <DropdownMenuLabel className="font-normal px-2.5 py-2">
-            <div className="flex flex-col gap-1">
+          <DropdownMenuLabel className="font-normal px-3 py-2">
+            <div className="flex flex-col gap-1 min-w-0">
               <div className="flex items-center justify-between gap-2 min-w-0">
                 <span className="font-bold text-sm truncate text-foreground">{displayName}</span>
                 {userIdentifier && !userIdentifier.includes("@") && (
-                  <span className="text-[10px] font-mono font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded border border-primary/20 shrink-0">
+                  <span className="text-xs font-mono font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded border border-primary/20 shrink-0">
                     ID: {userIdentifier}
                   </span>
                 )}
               </div>
-              <span className="text-xs text-muted-foreground truncate font-medium">
+              <span className="text-xs text-muted-foreground truncate">
                 {displayEmail}
               </span>
             </div>
@@ -106,34 +97,27 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
 
           <DropdownMenuSeparator className="my-1" />
 
-          <DropdownMenuItem asChild className="py-2 px-2.5 rounded-lg">
-            <Link href={ROUTES.ADMIN.PROFILE} className="cursor-pointer text-[13px] font-medium">
+          <DropdownMenuItem asChild className="py-2.5 px-3 rounded-lg">
+            <Link href={ROUTES.ADMIN.PROFILE} className="cursor-pointer text-sm font-semibold flex items-center">
               <User className="h-4 w-4 mr-2.5 text-muted-foreground" />
               My Profile
             </Link>
           </DropdownMenuItem>
 
-          <DropdownMenuItem asChild className="py-2 px-2.5 rounded-lg">
+          <DropdownMenuItem asChild className="py-2.5 px-3 rounded-lg">
             <Link
               href={`${ROUTES.ADMIN.PROFILE}?tab=security`}
-              className="cursor-pointer text-[13px] font-medium"
+              className="cursor-pointer text-sm font-semibold flex items-center"
             >
               <KeyRound className="h-4 w-4 mr-2.5 text-muted-foreground" />
               Change Password
             </Link>
           </DropdownMenuItem>
 
-          <DropdownMenuItem asChild className="py-2 px-2.5 rounded-lg">
-            <Link href="/admin/plan" className="cursor-pointer text-[13px] font-medium">
-              <CreditCard className="h-4 w-4 mr-2.5 text-muted-foreground" />
-              My Plan
-            </Link>
-          </DropdownMenuItem>
-
           <DropdownMenuSeparator className="my-1" />
 
           <DropdownMenuItem
-            className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer text-[13px] font-bold py-2 px-2.5 rounded-lg"
+            className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer text-sm font-bold py-2.5 px-3 rounded-lg flex items-center"
             onSelect={() => setShowLogoutAlert(true)}
           >
             <LogOut className="h-4 w-4 mr-2.5" />

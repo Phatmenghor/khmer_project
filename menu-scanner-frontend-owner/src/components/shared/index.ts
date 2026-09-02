@@ -20,7 +20,6 @@ export type { BaseFormFieldProps, TextFormFieldProps, TextareaFormFieldProps } f
 
 // Combobox Components & Factories
 export { ComboboxSelectFactory, createComboboxSelect } from "./combobox/combobox-select-factory";
-export { BrandCombobox, CategoryCombobox } from "./combobox/combobox-factory-examples";
 export type { ComboboxOption, ComboboxSelectFactoryProps } from "./combobox/combobox-select-factory";
 
 // Image Component
@@ -28,15 +27,11 @@ export { SmartImage } from "./image/smart-image";
 export type { SmartImageProps } from "./image/smart-image";
 
 // Card Components
-export { BrandCard } from "./card/brand-card";
-export { CategoryCard } from "./card/category-card";
 export { GenericCard } from "./card/generic-card";
 export type { GenericCardProps } from "./card/generic-card";
 
 // Modal Components & Base Classes
 export { FormDialogBase, FormDialogBaseWithCustomActions } from "./modal/form-dialog-base";
-export { LoginModal } from "./modal/login-modal";
-export { RegisterModal } from "./modal/register-modal";
 export { default as ChangePasswordModal } from "./modal/change-password-modal";
 export { DeleteConfirmationModal } from "./modal/delete-confirmation-modal";
 export { SignoutModal } from "./modal/signout-modal";

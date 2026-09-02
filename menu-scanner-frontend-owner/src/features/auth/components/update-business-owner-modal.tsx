@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Loading from "@/components/shared/common/loading";
@@ -133,8 +133,7 @@ export default function UpdateBusinessOwnerModal({ isOpen, onClose, ownerId }: P
   const isSubmitting = isUpdating;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 flex flex-col">
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="5xl">
         <FormHeader
           title="Edit Business Owner"
           description="Update business owner information below"
@@ -278,7 +277,6 @@ export default function UpdateBusinessOwnerModal({ isOpen, onClose, ownerId }: P
             </FormFooter>
           </form>
         )}
-      </DialogContent>
-    </Dialog>
+    </CustomModal>
   );
 }

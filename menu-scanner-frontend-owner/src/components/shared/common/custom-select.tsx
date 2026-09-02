@@ -36,24 +36,24 @@ interface CustomSelectProps {
 
 const CUSTOM_SELECT_SIZES = {
   sm: {
-    button: "h-8 text-xs rounded-[10px] bg-muted/50 border border-border px-3 hover:bg-muted/65 hover:border-border focus:bg-background transition-all",
+    button: "h-8 text-xs rounded-[10px] bg-background border border-border/80 px-2.5 hover:bg-muted/40 transition-all",
     icon: "h-3.5 w-3.5",
     item: "h-8 text-xs py-1 px-2.5 rounded-[8px]",
   },
   md: {
-    button: "h-[36px] text-base md:text-sm rounded-[12px] bg-muted/50 border border-border px-3.5 hover:bg-muted/65 hover:border-border focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25 transition-all duration-200",
-    icon: "h-4 w-4",
+    button: "h-[36px] text-xs font-medium rounded-[12px] bg-background border border-border/80 px-3 hover:bg-muted/40 hover:border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 shadow-2xs",
+    icon: "h-3.5 w-3.5",
     item: "h-8 text-xs py-1 px-2.5 rounded-[8px]",
   },
   lg: {
-    button: "h-10 text-base md:text-sm rounded-[12px] bg-muted/50 border border-border px-3.5 hover:bg-muted/65 hover:border-border focus:bg-background transition-all",
+    button: "h-10 text-sm rounded-[14px] bg-background border border-border/80 px-3.5 hover:bg-muted/40 transition-all",
     icon: "h-4 w-4",
-    item: "h-8.5 text-xs py-1 px-2.5 rounded-[8px]",
+    item: "h-9 text-xs py-1.5 px-3 rounded-[8px]",
   },
   xl: {
-    button: "h-11 text-base md:text-sm rounded-[12px] bg-muted/50 border border-border px-3.5 hover:bg-muted/65 hover:border-border focus:bg-background transition-all",
+    button: "h-12 text-sm rounded-[14px] bg-background border border-border/80 px-4 hover:bg-muted/40 transition-all",
     icon: "h-4 w-4",
-    item: "h-9 text-sm py-1.5 px-3 rounded-[8px]",
+    item: "h-10 text-sm py-2 px-3.5 rounded-[8px]",
   },
 } as const;
 
@@ -76,7 +76,12 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const sizeConfig = CUSTOM_SELECT_SIZES[size];
-  const selectedOption = options.find((opt) => opt.value === value);
+  const selectedOption = options.find(
+    (opt) =>
+      opt.value === value ||
+      (value === "" && opt.value === "ALL") ||
+      (value === "ALL" && opt.value === "")
+  );
 
   const labelSizeClass = {
     xs: "text-xs",
@@ -111,7 +116,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
               open && "bg-primary/20 border-primary",
               sizeConfig.button,
               className,
-              disabled && "opacity-50 cursor-not-allowed",
+              disabled && "opacity-100 text-foreground cursor-not-allowed pointer-events-none",
               error && "border-red-500 focus:border-red-500 focus:ring-red-500/30"
             )}
             aria-expanded={open}
@@ -120,8 +125,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
           >
             <span
               className={cn(
-                "truncate flex-1 text-left",
-                selectedOption ? "text-foreground font-medium" : "text-muted-foreground/75"
+                "truncate flex-1 text-left text-xs",
+                selectedOption ? "text-foreground font-medium" : "text-muted-foreground/75 font-normal"
               )}
             >
               {selectedOption?.label || placeholder}

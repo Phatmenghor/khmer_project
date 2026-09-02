@@ -159,14 +159,7 @@ export default function LoginPage() {
                   disabled={isAnyLoading}
                   className="w-full h-9 rounded-xl text-xs font-bold shadow-xs hover:shadow transition-all cursor-pointer"
                 >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                      Signing in...
-                    </>
-                  ) : (
-                    "Sign In"
-                  )}
+                  {isLoading ? "Signing in..." : "Sign In"}
                 </CustomButton>
               </form>
 

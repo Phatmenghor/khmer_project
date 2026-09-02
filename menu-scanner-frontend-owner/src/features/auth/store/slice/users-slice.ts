@@ -77,6 +77,11 @@ const usersSlice = createSlice({
     resetState: () => {
       return initialState;
     },
+
+    updateUserDataSilently: (state, action: PayloadAction<any>) => {
+      state.data = action.payload;
+      state.error = null;
+    },
   },
 
   extraReducers: (builder) => {
@@ -233,6 +238,7 @@ export const {
   clearSelectedUser,
   resetFilters,
   resetState,
+  updateUserDataSilently,
 } = usersSlice.actions;
 
 export default usersSlice.reducer;

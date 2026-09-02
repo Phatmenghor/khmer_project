@@ -63,14 +63,14 @@ export function DailyTrendsCard({
     : String(data?.totalCount ?? 0);
 
   return (
-    <Card>
+    <Card className="rounded-[16px] border border-border/80 shadow-2xs hover:shadow-md transition-all duration-200">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-xs sm:text-sm font-semibold truncate">
+            <CardTitle className="text-sm sm:text-base font-bold text-foreground truncate">
               {title}
             </CardTitle>
-            <CardDescription className="text-[11px] sm:text-xs truncate">
+            <CardDescription className="text-xs text-muted-foreground truncate">
               {description}
             </CardDescription>
           </div>

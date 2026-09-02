@@ -1,8 +1,7 @@
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { convertEnumOrString } from "@/utils/common/enum-convert";
-import { Edit, Eye, Trash } from "lucide-react";
-import { ActionButton } from "@/components/button/action-button";
+import { TableActionButtons } from "@/components/shared/button/custom-button";
 import {
   AllRoleResponseModel,
   RoleResponseModel,
@@ -33,7 +32,7 @@ export const roleTableColumns = ({
       minWidth: "10px",
       maxWidth: "60px",
       render: (_, index) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-muted-foreground font-medium">
           {indexDisplay(data?.pageNo || 1, data?.pageSize || 15, index + 1)}
         </span>
       ),
@@ -42,10 +41,10 @@ export const roleTableColumns = ({
       key: "name",
       label: "Role Name",
       minWidth: "10px",
-      maxWidth: "400px",
+      maxWidth: "300px",
       truncate: true,
       render: (role) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs font-semibold text-foreground">
           {convertEnumOrString(role?.name)}
         </span>
       ),
@@ -68,7 +67,7 @@ export const roleTableColumns = ({
       minWidth: "10px",
       maxWidth: "200px",
       render: (role) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs font-medium text-foreground">
           {convertEnumOrString(role?.userType)}
         </span>
       ),
@@ -77,7 +76,7 @@ export const roleTableColumns = ({
       key: "createdAt",
       label: "Created At",
       minWidth: "10px",
-      maxWidth: "400px",
+      maxWidth: "300px",
       render: (role) => (
         <span className="text-xs text-muted-foreground">
           {dateTimeFormat(role?.createdAt)}
@@ -88,27 +87,21 @@ export const roleTableColumns = ({
       key: "actions",
       label: "Actions",
       minWidth: "10px",
-      maxWidth: "200px",
-      render: (role) => (
-        <div className="flex items-center gap-1">
-          <ActionButton
-            icon={<Eye className="w-3 h-3" />}
-            tooltip="View Details"
-            onClick={() => handleViewDetailItem(role)}
+      maxWidth: "150px",
+      render: (role) => {
+        const isPlatformOwner = role?.name === "PLATFORM_OWNER";
+
+        return (
+          <TableActionButtons
+            onView={() => handleViewDetailItem(role)}
+            onEdit={() => handleEditItem(role)}
+            onDelete={isPlatformOwner ? undefined : () => handleDeleteItem(role)}
+            viewTooltip="View Details"
+            editTooltip="Edit Role"
+            deleteTooltip="Delete Role"
           />
-          <ActionButton
-            icon={<Edit className="w-3 h-3" />}
-            tooltip="Edit Role"
-            onClick={() => handleEditItem(role)}
-          />
-          <ActionButton
-            icon={<Trash className="w-3 h-3" />}
-            tooltip="Delete Role"
-            onClick={() => handleDeleteItem(role)}
-            variant="destructive"
-          />
-        </div>
-      ),
+        );
+      },
     },
   ];
 };

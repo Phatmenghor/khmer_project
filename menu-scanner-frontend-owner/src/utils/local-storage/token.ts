@@ -100,6 +100,7 @@ export function clearRefreshToken(): void {
 export function clearAllTokens(): void {
   clearToken();
   clearRefreshToken();
+  clearAdminTokens();
 }
 
 

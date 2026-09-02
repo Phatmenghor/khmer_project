@@ -10,19 +10,20 @@ import {
 
 export const USER_PLATFORM_ROLE_FILTER = [
   { value: UserRole.ALL, label: "All Roles" },
-
   { value: UserRole.PLATFORM_OWNER, label: "Platform Owner" },
   { value: UserRole.PLATFORM_ADMIN, label: "Platform Admin" },
-  { value: UserRole.PLATFORM_MANAGER, label: "Platform Manager" },
-  { value: UserRole.PLATFORM_SUPPORT, label: "Platform Support" },
+  { value: UserRole.PLATFORM_USER, label: "Platform User" },
+  { value: UserRole.SUPER_ADMIN, label: "Super Admin" },
+  { value: UserRole.ADMIN, label: "Admin" },
 ];
 
 export const USER_BUSINESS_ROLE_FILTER = [
   { value: UserRole.ALL, label: "All Roles" },
-
-  { value: UserRole.BUSINESS_OWNER, label: "Platform Owner" },
-  { value: UserRole.BUSINESS_MANAGER, label: "Platform Admin" },
-  { value: UserRole.BUSINESS_STAFF, label: "Platform Manager" },
+  { value: UserRole.BUSINESS_OWNER, label: "Business Owner" },
+  { value: UserRole.BUSINESS_ADMIN, label: "Business Admin" },
+  { value: UserRole.BUSINESS_MANAGER, label: "Business Manager" },
+  { value: UserRole.BUSINESS_EMPLOYEE, label: "Business Employee" },
+  { value: UserRole.BUSINESS_USER, label: "Business User" },
 ];
 
 export const BUSINESS_FILTER = [
@@ -52,12 +53,16 @@ export const SUBSCRIPTION_PLAN_FILTER = [
   { value: SubscriptionPlanStatus.PRIVATE, label: "Private" },
 ];
 
-export const SUBSCRIPTION_FILTER = [
-  { value: SubscriptionStatus.ALL, label: "All" },
+export const SUBSCRIPTION_STATUS_FILTER = [
+  { value: SubscriptionStatus.ALL, label: "All Status" },
   { value: SubscriptionStatus.ACTIVE, label: "Active" },
   { value: SubscriptionStatus.EXPIRING_SOON, label: "Expiring Soon" },
   { value: SubscriptionStatus.EXPIRED, label: "Expired" },
+  { value: SubscriptionStatus.CANCELLED, label: "Cancelled" },
+  { value: SubscriptionStatus.CHANGE_PLAN, label: "Change Plan" },
 ];
+
+export const SUBSCRIPTION_FILTER = SUBSCRIPTION_STATUS_FILTER;
 
 // Auto renew filter options
 export const AUTO_RENEW_FILTER = [
@@ -72,16 +77,11 @@ export const STATUS_FILTER = [
   { value: Status.INACTIVE, label: "Inactive" },
 ];
 
-export const SUBSCRIPT_STATUS_FILTER = [
-  { value: Status.ALL, label: "All Status" },
-  { value: Status.ACTIVE, label: "Active" },
-  { value: Status.INACTIVE, label: "Expried" },
-];
+
 
 export const ACCOUNT_STATUS_FILTER = [
   { value: AccountStatus.ALL, label: "All Status" },
   { value: AccountStatus.ACTIVE, label: "Active" },
-  { value: AccountStatus.INACTIVE, label: "Inactive" },
+  { value: AccountStatus.END_WORK, label: "End Work" },
   { value: AccountStatus.LOCKED, label: "Locked" },
-  { value: AccountStatus.SUSPENDED, label: "Suspended" },
 ];

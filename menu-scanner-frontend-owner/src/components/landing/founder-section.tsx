@@ -8,7 +8,7 @@ export default function FounderSection() {
   const founder = LANDING_CONFIG.founder;
 
   return (
-    <section className="relative py-16">
+    <section id="founder" className="relative py-16">
       {/* Animated Background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-white via-primary/2 to-slate-50"></div>
@@ -34,12 +34,12 @@ export default function FounderSection() {
               <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-11 -mt-11"></div>
 
               <CardContent className="p-3 sm:p-4 lg:p-5 relative z-10 flex flex-col">
-                <div className="relative aspect-video sm:aspect-square rounded overflow-hidden shadow-lg bg-white mb-3 sm:mb-4 lg:mb-5">
+                <div className="relative aspect-video sm:aspect-square rounded-[16px] border border-border/80 overflow-hidden shadow-2xs bg-card mb-3 sm:mb-4 lg:mb-5 group">
                   <Image
                     src={founder.image}
                     alt={founder.name}
                     fill
-                    className="object-cover"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                     priority
                   />
                 </div>

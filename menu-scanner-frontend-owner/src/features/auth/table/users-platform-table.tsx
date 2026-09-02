@@ -9,13 +9,15 @@ import {
   UserResponseModel,
 } from "../store/models/response/users-response";
 import { formatEnumLabel } from "@/utils/common/enum-convert";
+import { getProfileImageUrl } from "@/utils/user/user-helper";
+import { CustomSwitch } from "@/components/shared/common/custom-switch";
 
 interface UserTableHandlers {
   handleEditUser: (user: UserResponseModel) => void;
   handleViewUserDetail: (user: UserResponseModel) => void;
   handleResetPassword: (user: UserResponseModel) => void;
   handleDeleteUser: (user: UserResponseModel) => void;
-  handleToggleStatus: (user: UserResponseModel) => void;
+  handleToggleStatus: (user: UserResponseModel, checked: boolean) => void;
 }
 
 interface UserTableOptions {
@@ -32,6 +34,7 @@ export const userPlatformTableColumns = ({
     handleViewUserDetail,
     handleResetPassword,
     handleDeleteUser,
+    handleToggleStatus,
   } = handlers;
 
   return [
@@ -53,10 +56,10 @@ export const userPlatformTableColumns = ({
       maxWidth: "400px",
       render: (user) => (
         <TableImage
-          src={user.profileImage?.sm || user.profileImageUrl}
+          src={getProfileImageUrl(user, "sm")}
           alt={user?.firstName}
           fallbackText={user?.firstName || "U"}
-          className="h-10 w-10 rounded-[10px]"
+          className="h-11 w-11 rounded-[12px]"
         />
       ),
     },
@@ -101,14 +104,31 @@ export const userPlatformTableColumns = ({
     {
       key: "accountStatus",
       label: "Account Status",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (user) => (
-        <span className="text-xs text-muted-foreground">
-          {formatEnumLabel(user?.accountStatus) ?? "—"}
-        </span>
-      ),
+      minWidth: "120px",
+      maxWidth: "200px",
+      render: (user) => {
+        const isActive = user?.accountStatus === "ACTIVE";
+        return (
+          <div className="flex items-center gap-1.5">
+            <CustomSwitch
+              checked={isActive}
+              onCheckedChange={(checked) => handleToggleStatus(user, checked)}
+              size="sm"
+            />
+            <span
+              className={`text-xs font-semibold ${
+                isActive
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : user?.accountStatus === "LOCKED"
+                  ? "text-destructive"
+                  : "text-amber-600 dark:text-amber-400"
+              }`}
+            >
+              {formatEnumLabel(user?.accountStatus) || "LOCKED"}
+            </span>
+          </div>
+        );
+      },
     },
     {
       key: "createdAt",
@@ -143,12 +163,18 @@ export const userPlatformTableColumns = ({
             tooltip="Reset Password"
             onClick={() => handleResetPassword(user)}
           />
-          <ActionButton
-            icon={<Trash className="w-3 h-3" />}
-            tooltip="Delete User"
-            onClick={() => handleDeleteUser(user)}
-            variant="destructive"
-          />
+          {!(
+            user.roles?.includes("PLATFORM_OWNER") ||
+            user.roles?.includes("SUPER_ADMIN") ||
+            user.userIdentifier === "PLATFORM_OWNER"
+          ) && (
+            <ActionButton
+              icon={<Trash className="w-3 h-3" />}
+              tooltip="Delete User"
+              onClick={() => handleDeleteUser(user)}
+              variant="destructive"
+            />
+          )}
         </div>
       ),
     },

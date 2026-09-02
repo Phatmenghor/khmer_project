@@ -3,6 +3,8 @@
 
 import { axiosClient, axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
+import { storeAdminTokens, storeTokens, clearAllTokens } from "@/utils/local-storage/token";
+import { storeAdminUserInfo, storeUserInfo } from "@/utils/local-storage/userInfo";
 import {
   SocialAuthRequest,
   RefreshTokenRequest,
@@ -23,7 +25,18 @@ export const socialAuthenticateService = createApiThunk<
     "/api/v1/auth/social/authenticate",
     request
   );
-  return response.data.data;
+  const data = response.data.data;
+  if (request.userType === "PLATFORM_USER" && data.userType && data.userType !== "PLATFORM_USER") {
+    clearAllTokens();
+    throw new Error("Access denied. Only Platform Users can sign in here.");
+  }
+  if (data?.accessToken) {
+    storeAdminTokens(data.accessToken, data.refreshToken);
+    storeAdminUserInfo(data);
+    storeTokens(data.accessToken, data.refreshToken);
+    storeUserInfo(data);
+  }
+  return data;
 });
 
 
@@ -46,7 +59,18 @@ export const telegramAuthenticateService = createApiThunk<
     "/api/v1/auth/social/authenticate",
     request
   );
-  return response.data.data;
+  const data = response.data.data;
+  if (userType === "PLATFORM_USER" && data.userType && data.userType !== "PLATFORM_USER") {
+    clearAllTokens();
+    throw new Error("Access denied. Only Platform Users can sign in here.");
+  }
+  if (data?.accessToken) {
+    storeAdminTokens(data.accessToken, data.refreshToken);
+    storeAdminUserInfo(data);
+    storeTokens(data.accessToken, data.refreshToken);
+    storeUserInfo(data);
+  }
+  return data;
 });
 
 

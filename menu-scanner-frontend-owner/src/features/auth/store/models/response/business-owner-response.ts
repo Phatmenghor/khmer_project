@@ -22,6 +22,7 @@ export interface BusinessOwnerResponseModel {
   businessPhone: string;
   businessAddress: string;
   businessStatus: string;
+  subdomain?: string;
   isSubscriptionActive: boolean;
   businessSettingId: string;
   logoBusinessUrl: string;

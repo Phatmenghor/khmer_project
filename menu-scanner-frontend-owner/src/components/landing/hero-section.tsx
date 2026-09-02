@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle, Sparkles, ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import FadeIn from "@/components/landing/fade-in";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { LANDING_CONFIG } from "@/constants/landing-config";
@@ -63,34 +63,48 @@ export default function HeroSection() {
                 </div>
 
                 {/* CTAs */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-4 sm:pt-5">
-                  <Button
-                    size="lg"
-                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white px-5 py-3 text-sm rounded group shadow-lg hover:shadow-2xl transition-all font-semibold"
+                <div className="flex flex-col sm:flex-row gap-2.5 pt-4 sm:pt-5">
+                  <CustomButton
+                    variant="default"
+                    className="h-[36px] px-4 text-xs font-semibold rounded-[12px] gap-1.5 shadow-2xs cursor-pointer"
                     onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
                   >
                     {LANDING_CONFIG.hero.primaryCTA}
-                    <ArrowRight className="ml-1 w-4 h-4 group-hover:translate-x-1 transition" />
-                  </Button>
-                  <Button size="lg" className="px-5 py-3 text-sm rounded border-2 border-primary/30 bg-white text-primary hover:bg-primary/5 hover:border-primary/50 font-semibold transition-all" asChild>
-                    <Link href="#how-it-works">{LANDING_CONFIG.hero.secondaryCTA}</Link>
-                  </Button>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </CustomButton>
+                  <CustomButton
+                    variant="outline"
+                    className="h-[36px] px-4 text-xs font-semibold rounded-[12px] cursor-pointer"
+                    asChild
+                  >
+                    <Link href="#capabilities">{LANDING_CONFIG.hero.secondaryCTA}</Link>
+                  </CustomButton>
                 </div>
               </div>
             </FadeIn>
 
-            {/* Mobile App Image - Right side */}
+            {/* Mobile App Image Showcase */}
             <FadeIn direction="left" delay={100}>
-              <div className="relative h-auto min-h-[450px] lg:min-h-[550px] rounded overflow-hidden shadow-2xl group">
+              <div className="relative w-full h-[380px] sm:h-[480px] lg:h-[540px] rounded-[20px] border border-border/80 bg-card shadow-md overflow-hidden group transition-all duration-300 hover:shadow-lg">
                 <Image
                   src={appImages.mobileRestaurant}
-                  alt="ScanMeKH Mobile App"
+                  alt="ScanMeKH Mobile Digital Menu & Storefront Showcase"
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                   priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-                <div className="absolute inset-0 bg-primary/5 mix-blend-overlay"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-4 left-4 right-4 p-3.5 rounded-[14px] backdrop-blur-md bg-background/90 border border-border/80 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-foreground">ScanMeKH Digital Storefront</p>
+                      <p className="text-[11px] text-muted-foreground font-medium">Real-time QR menu & instant ordering</p>
+                    </div>
+                    <span className="px-2.5 py-1 text-[10px] font-extrabold bg-primary/10 text-primary border border-primary/20 rounded-full">
+                      LIVE DEMO
+                    </span>
+                  </div>
+                </div>
               </div>
             </FadeIn>
           </div>

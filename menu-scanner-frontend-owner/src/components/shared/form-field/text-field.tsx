@@ -100,7 +100,6 @@ export function TextField<T extends FieldValues = FieldValues>({
             }}
             pattern={pattern ? `${pattern}*` : undefined}
             className={cn(
-              disabled && "bg-muted/50",
               error && "border-destructive focus:border-destructive",
               inputClassName,
             )}

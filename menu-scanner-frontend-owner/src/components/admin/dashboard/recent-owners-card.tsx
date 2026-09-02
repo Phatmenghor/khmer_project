@@ -35,14 +35,18 @@ function getAvatarColor(name: string): string {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
+import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
+import { TableImage } from "@/components/shared/table/table-image";
+import { formatDate } from "@/utils/date/date-time-format";
+
 function StatusBadge({ status }: { status: string }) {
   const normalized = status?.toUpperCase();
   const textClass =
     normalized === "ACTIVE"
-      ? "text-emerald-600 dark:text-emerald-400"
+      ? "text-emerald-600 dark:text-emerald-400 font-bold"
       : normalized === "EXPIRING_SOON"
-      ? "text-amber-600 dark:text-amber-400"
-      : "text-rose-500 dark:text-rose-400";
+      ? "text-amber-600 dark:text-amber-400 font-bold"
+      : "text-rose-600 dark:text-rose-400 font-bold";
 
   const label =
     normalized === "EXPIRING_SOON"
@@ -52,92 +56,9 @@ function StatusBadge({ status }: { status: string }) {
       : "Expired";
 
   return (
-    <span className={cn("text-[10px] font-semibold", textClass)}>
+    <span className={cn("text-xs font-bold", textClass)}>
       {label}
     </span>
-  );
-}
-
-function OwnerRow({ owner }: { owner: RecentOwner }) {
-  const initial = (owner.ownerName ?? "?").charAt(0).toUpperCase();
-  const avatarBg = getAvatarColor(owner.ownerName ?? "");
-
-  let joinedFormatted = "-";
-  try {
-    joinedFormatted = format(new Date(owner.joinedAt), "MMM d, yyyy");
-  } catch {
-    joinedFormatted = owner.joinedAt;
-  }
-
-  return (
-    <tr className="border-b last:border-0 hover:bg-muted/40 transition-colors">
-      <td className="py-2 pr-3">
-        <div className="flex items-center gap-2">
-          {owner.logoUrl ? (
-            <img
-              src={owner.logoUrl}
-              alt={owner.ownerName}
-              className="h-5 w-5 rounded-full object-cover shrink-0"
-            />
-          ) : (
-            <div
-              className={cn(
-                "h-5 w-5 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0",
-                avatarBg
-              )}
-            >
-              {initial}
-            </div>
-          )}
-          <div className="min-w-0">
-            <p className="text-[11px] font-medium text-foreground truncate">
-              {owner.ownerName}
-            </p>
-          </div>
-        </div>
-      </td>
-      <td className="py-2 pr-3">
-        <p className="text-[10px] text-muted-foreground truncate max-w-[140px]">
-          {owner.businessName}
-        </p>
-      </td>
-      <td className="py-2 pr-3">
-        <span className="text-[10px] text-foreground">{owner.planName}</span>
-      </td>
-      <td className="py-2 pr-3">
-        <StatusBadge status={owner.subscriptionStatus} />
-      </td>
-      <td className="py-2">
-        <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-          {joinedFormatted}
-        </span>
-      </td>
-    </tr>
-  );
-}
-
-function OwnerRowSkeleton() {
-  return (
-    <tr className="border-b last:border-0">
-      <td className="py-2 pr-3">
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-5 w-5 rounded-full shrink-0" />
-          <Skeleton className="h-3 w-16" />
-        </div>
-      </td>
-      <td className="py-2 pr-3">
-        <Skeleton className="h-3 w-24" />
-      </td>
-      <td className="py-2 pr-3">
-        <Skeleton className="h-3 w-14" />
-      </td>
-      <td className="py-2 pr-3">
-        <Skeleton className="h-3 w-11 rounded-full" />
-      </td>
-      <td className="py-2">
-        <Skeleton className="h-3 w-16" />
-      </td>
-    </tr>
   );
 }
 
@@ -147,73 +68,93 @@ interface RecentOwnersCardProps {
 }
 
 export function RecentOwnersCard({ recentOwners, loading }: RecentOwnersCardProps) {
+  const columns: TableColumn<RecentOwner>[] = [
+    {
+      key: "ownerName",
+      label: "Owner",
+      minWidth: "120px",
+      render: (owner) => (
+        <div className="flex items-center gap-2.5">
+          <TableImage
+            src={owner.logoUrl || undefined}
+            alt={owner.ownerName}
+            fallbackText={owner.ownerName}
+            className="h-8 w-8 rounded-[8px]"
+          />
+          <span className="text-xs font-semibold text-foreground truncate">
+            {owner.ownerName || "—"}
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: "businessName",
+      label: "Business",
+      minWidth: "120px",
+      render: (owner) => (
+        <span className="text-xs text-muted-foreground truncate">
+          {owner.businessName || "—"}
+        </span>
+      ),
+    },
+    {
+      key: "planName",
+      label: "Plan",
+      minWidth: "100px",
+      render: (owner) => (
+        <span className="text-xs font-medium text-foreground">
+          {owner.planName || "—"}
+        </span>
+      ),
+    },
+    {
+      key: "subscriptionStatus",
+      label: "Status",
+      minWidth: "100px",
+      render: (owner) => <StatusBadge status={owner.subscriptionStatus} />,
+    },
+    {
+      key: "joinedAt",
+      label: "Joined",
+      minWidth: "100px",
+      render: (owner) => (
+        <span className="text-xs text-muted-foreground whitespace-nowrap">
+          {formatDate(owner.joinedAt) || "—"}
+        </span>
+      ),
+    },
+  ];
+
   return (
-    <Card>
+    <Card className="rounded-[16px] border border-border/80 shadow-2xs hover:shadow-md transition-all duration-200">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-xs sm:text-sm font-semibold truncate">
+            <CardTitle className="text-sm sm:text-base font-bold text-foreground truncate">
               Recent Owners
             </CardTitle>
-            <CardDescription className="text-[11px] sm:text-xs truncate">
+            <CardDescription className="text-xs text-muted-foreground truncate">
               Latest business owners on the platform
             </CardDescription>
           </div>
           <Link
             href={ROUTES.DASHBOARD.BUSINESS_OWNER}
-            className="flex items-center gap-1 text-[11px] sm:text-xs text-primary hover:underline font-medium whitespace-nowrap shrink-0"
+            className="flex items-center gap-1 text-xs text-primary hover:underline font-semibold whitespace-nowrap shrink-0"
           >
             View all
             <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
       </CardHeader>
-      <CardContent className="overflow-x-auto">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="border-b">
-              <th className="pb-1 pr-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Owner
-              </th>
-              <th className="pb-1 pr-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Business
-              </th>
-              <th className="pb-1 pr-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Plan
-              </th>
-              <th className="pb-1 pr-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Status
-              </th>
-              <th className="pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Joined
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <>
-                <OwnerRowSkeleton />
-                <OwnerRowSkeleton />
-                <OwnerRowSkeleton />
-                <OwnerRowSkeleton />
-                <OwnerRowSkeleton />
-              </>
-            ) : recentOwners?.data?.length ? (
-              recentOwners.data.map((owner) => (
-                <OwnerRow key={owner.ownerId} owner={owner} />
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="py-5 text-center text-muted-foreground text-xs"
-                >
-                  No recent owners found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      <CardContent className="pt-2">
+        <DataTableWithPagination
+          data={recentOwners?.data || []}
+          columns={columns}
+          loading={loading}
+          emptyMessage="No recent owners found"
+          getRowKey={(owner) => owner.ownerId}
+          showPagination={false}
+        />
       </CardContent>
     </Card>
   );

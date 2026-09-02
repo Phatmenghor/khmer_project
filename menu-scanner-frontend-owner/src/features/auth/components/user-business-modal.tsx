@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ModalMode, UserGropeType, AccountStatus } from "@/constants/app-resource/status/status";
@@ -12,6 +12,7 @@ import {
 import { fetchAllRolesListService } from "../store/thunks/role-thunks";
 import { selectRolesList } from "../store/selectors/role-selectors";
 import { formatEnumLabel } from "@/utils/common/enum-convert";
+import { getProfileImageUrl } from "@/utils/user/user-helper";
 import Loading from "@/components/shared/common/loading";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
@@ -36,6 +37,7 @@ import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { getFieldError } from "@/utils/common/get-field-error";
+import { SectionTitle } from "@/components/shared/modal/detail-section";
 
 type Props = {
   mode: ModalMode;
@@ -124,7 +126,7 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
             nickname: data.nickname || "",
             gender: data.gender || "",
             dateOfBirth: data.dateOfBirth || "",
-            profileImageUrl: data.profileImage?.sm || data.profileImageUrl || "",
+            profileImageUrl: getProfileImageUrl(data, "sm"),
             accountStatus: data.accountStatus,
             roles: Array.isArray(data.roles) ? data.roles : [],
             remark: data.remark || "",
@@ -216,8 +218,7 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
   const isSubmitting = isCreate ? isCreating : isUpdating;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 flex flex-col">
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="5xl">
         <FormHeader
           title={isCreate ? "Create New Business User" : "Edit Business User"}
           description={
@@ -247,10 +248,10 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
                 {/* Account Credentials — create only */}
                 {isCreate && (
                   <div className="space-y-3">
-                    <h3 className="text-xs font-semibold">
+                    <SectionTitle>
                       Account Credentials <span className="text-destructive">*</span>
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    </SectionTitle>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                       <TextField
                         control={control}
                         name="userIdentifier"
@@ -309,9 +310,9 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
 
                 {/* Personal Information */}
                 <div className="space-y-3">
-                  <h3 className="text-xs font-semibold">
+                  <SectionTitle>
                     Personal Information <span className="text-destructive">*</span>
-                  </h3>
+                  </SectionTitle>
                   <div className="space-y-3">
                     {/* Role + Status for edit mode */}
                     {!isCreate && (
@@ -365,7 +366,7 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
                         control={control}
                         name="nickname"
                         label="Nickname"
-                        placeholder="Enter nickname (optional)"
+                        placeholder="Enter nickname"
                         disabled={isSubmitting}
                         error={getFieldError(errors.nickname)}
                       />
@@ -432,7 +433,6 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
             </FormFooter>
           </form>
         )}
-      </DialogContent>
-    </Dialog>
+    </CustomModal>
   );
 }

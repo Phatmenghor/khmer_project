@@ -44,6 +44,7 @@ export interface AllUserRequest extends BaseGetAllRequest {
   accountStatus?: string[];
   roles?: string[];
   userTypes?: string[];
+  includeAll?: boolean;
 }
 
 export interface UpdateUserParams {

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
@@ -181,9 +181,7 @@ export default function CreateBusinessOwnerModal({ isOpen, onClose }: Props) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 flex flex-col">
-        <DialogTitle className="sr-only">Create New Business Owner</DialogTitle>
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="5xl">
         <FormHeader
           title="Create New Business Owner"
           description="Fill out the form to register a new business owner account"
@@ -357,7 +355,7 @@ export default function CreateBusinessOwnerModal({ isOpen, onClose }: Props) {
                     control={control}
                     name="planId"
                     label="Subscription Plan"
-                    placeholder="Select a plan (optional)"
+                    placeholder="Select a plan"
                     options={planOptions}
                     disabled={isCreating}
                     error={getFieldError(errors.planId)}
@@ -383,7 +381,6 @@ export default function CreateBusinessOwnerModal({ isOpen, onClose }: Props) {
             />
           </FormFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </CustomModal>
   );
 }

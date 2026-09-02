@@ -11,19 +11,20 @@ import {
 
 export const USER_PLATFORM_ROLE_FILTER = [
   { value: UserRole.ALL, label: "All Roles" },
-
   { value: UserRole.PLATFORM_OWNER, label: "Platform Owner" },
   { value: UserRole.PLATFORM_ADMIN, label: "Platform Admin" },
-  { value: UserRole.PLATFORM_MANAGER, label: "Platform Manager" },
-  { value: UserRole.PLATFORM_SUPPORT, label: "Platform Support" },
+  { value: UserRole.PLATFORM_USER, label: "Platform User" },
+  { value: UserRole.SUPER_ADMIN, label: "Super Admin" },
+  { value: UserRole.ADMIN, label: "Admin" },
 ];
 
 export const USER_BUSINESS_ROLE_FILTER = [
   { value: UserRole.ALL, label: "All Roles" },
-
-  { value: UserRole.BUSINESS_OWNER, label: "Platform Owner" },
-  { value: UserRole.BUSINESS_MANAGER, label: "Platform Admin" },
-  { value: UserRole.BUSINESS_STAFF, label: "Platform Manager" },
+  { value: UserRole.BUSINESS_OWNER, label: "Business Owner" },
+  { value: UserRole.BUSINESS_ADMIN, label: "Business Admin" },
+  { value: UserRole.BUSINESS_MANAGER, label: "Business Manager" },
+  { value: UserRole.BUSINESS_EMPLOYEE, label: "Business Employee" },
+  { value: UserRole.BUSINESS_USER, label: "Business User" },
 ];
 
 export const BUSINESS_FILTER = [
@@ -41,68 +42,25 @@ export const HAS_SUBSCRIPTION_FILTER = [
   { value: SubscriptionStatus.NONE_SUBSCRIBE, label: "None Subscription" },
 ];
 
+export const SUBSCRIPTION_STATUS_FILTER = [
+  { value: SubscriptionStatus.ALL, label: "All Status" },
+  { value: SubscriptionStatus.ACTIVE, label: "Active" },
+  { value: SubscriptionStatus.EXPIRING_SOON, label: "Expiring Soon" },
+  { value: SubscriptionStatus.EXPIRED, label: "Expired" },
+  { value: SubscriptionStatus.CANCELLED, label: "Cancelled" },
+  { value: SubscriptionStatus.CHANGE_PLAN, label: "Change Plan" },
+];
+
 export const EXCHAGE_RATE_FILTER = [
   { value: ExchangeRateStatus.ALL, label: "All Status" },
   { value: ExchangeRateStatus.ACTIVE, label: "Active" },
   { value: ExchangeRateStatus.INACTIVE, label: "Inactive" },
 ];
 
-export const DELIVERY_OPTIONS_FILTER = [
-  { value: Status.ALL, label: "All Status" },
-  { value: Status.ACTIVE, label: "Active" },
-  { value: Status.INACTIVE, label: "Draft" },
-];
-
-export const ORDER_STATUS_FILTER = [
-  { value: Status.ALL, label: "All Status" },
-  { value: Status.ACTIVE, label: "Active" },
-  { value: Status.INACTIVE, label: "Draft" },
-];
-
-export const ORDER_STATUS_ADMIN_FILTER = [
-  { value: "ALL", label: "All Status" },
-  { value: "PENDING", label: "Pending" },
-  { value: "CONFIRMED", label: "Confirmed" },
-  { value: "COMPLETED", label: "Completed" },
-  { value: "CANCELLED", label: "Cancelled" },
-];
-
-export const PAYMENT_STATUS_ADMIN_FILTER = [
-  { value: "ALL", label: "All Payment" },
-  { value: "PAID", label: "Paid" },
-  { value: "UNPAID", label: "Unpaid" },
-  { value: "REFUNDED", label: "Refunded" },
-];
-
-export const SUBSCRIPTION_PLAN_FILTER = [
-  { value: SubscriptionPlanStatus.ALL, label: "All" },
-  { value: SubscriptionPlanStatus.PUBLIC, label: "Public" },
-  { value: SubscriptionPlanStatus.PRIVATE, label: "Private" },
-];
-
-export const SUBSCRIPTION_FILTER = [
-  { value: SubscriptionStatus.ALL, label: "All" },
-  { value: SubscriptionStatus.ACTIVE, label: "Active" },
-  { value: SubscriptionStatus.EXPIRING_SOON, label: "Expiring Soon" },
-];
-
-
-export const AUTO_RENEW_FILTER = [
-  { value: Status.ALL, label: "All Status" },
-  { value: Status.ACTIVE, label: "Auto Renew" },
-  { value: Status.INACTIVE, label: "Manual Renew" },
-];
-
 export const STATUS_FILTER = [
   { value: Status.ALL, label: "All Status" },
   { value: Status.ACTIVE, label: "Active" },
   { value: Status.INACTIVE, label: "Inactive" },
-];
-
-export const SUBSCRIPT_STATUS_FILTER = [
-  { value: Status.ALL, label: "All Status" },
-  { value: Status.ACTIVE, label: "Active" },
-  { value: Status.INACTIVE, label: "Expried" },
 ];
 
 export const ACCOUNT_STATUS_FILTER = [
@@ -119,11 +77,7 @@ export const PRODUCT_STATUS_FILTER = [
   { value: ProductStatus.OUT_OF_STOCK, label: "Out of Stock" },
 ];
 
-export const PRODUCT_SIZE_FILTER = [
-  { value: "ALL", label: "All Products" },
-  { value: "true", label: "Has Sizes" },
-  { value: "false", label: "No Sizes" },
-];
+
 
 export const SORT_BY_OPTIONS = [
   { value: "createdAt", label: "Created Date" },

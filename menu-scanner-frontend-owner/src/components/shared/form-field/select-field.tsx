@@ -8,6 +8,7 @@ import { CustomSelect } from "@/components/shared/common/custom-select";
 interface SelectFieldProps<T extends FieldValues = FieldValues> extends SelectFormFieldProps<T> {
   loading?: boolean;
   loadingPlaceholder?: string;
+  clearable?: boolean;
 }
 
 export function SelectField<T extends FieldValues = FieldValues>({
@@ -23,6 +24,7 @@ export function SelectField<T extends FieldValues = FieldValues>({
   className = "",
   loading = false,
   loadingPlaceholder = "Loading...",
+  clearable,
 }: SelectFieldProps<T>) {
   // Convert standard options (value: string | number) to CustomSelect options (value: string)
   const mappedOptions = options.map((opt) => ({
@@ -46,6 +48,7 @@ export function SelectField<T extends FieldValues = FieldValues>({
               id={name as string}
               label={label}
               required={required}
+              clearable={clearable ?? !required}
               options={mappedOptions}
               value={currentValue}
               placeholder={loading ? loadingPlaceholder : placeholder}

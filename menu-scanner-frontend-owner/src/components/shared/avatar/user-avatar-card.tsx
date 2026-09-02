@@ -5,6 +5,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 import { ImageUrls } from "@/features/auth/store/models/request/users-request";
+import { getProfileImageUrl } from "@/utils/user/user-helper";
 
 interface UserAvatarCardProps {
   user: {
@@ -67,9 +68,11 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
 
   const [avatarErrored, setAvatarErrored] = useState(false);
   const [previewErrored, setPreviewErrored] = useState(false);
-  const avatarSrc = !avatarErrored && user.profileImage?.sm ? user.profileImage.sm : appImages.noImage;
-  const previewSrc = !previewErrored && user.profileImage?.o ? user.profileImage.o : appImages.noImage;
-  const hasImage = !!(user.profileImage?.sm);
+  const extractedAvatarUrl = getProfileImageUrl(user, "sm");
+  const extractedPreviewUrl = getProfileImageUrl(user, "o");
+  const avatarSrc = !avatarErrored && extractedAvatarUrl ? extractedAvatarUrl : appImages.noImage;
+  const previewSrc = !previewErrored && extractedPreviewUrl ? extractedPreviewUrl : appImages.noImage;
+  const hasImage = !!extractedAvatarUrl;
 
   const handleMouseEnter = () => {
     if (!enableImagePreview || !hasImage) return;

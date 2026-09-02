@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -193,8 +193,7 @@ export default function SubscriptionPlanModal({
   const isSubmitting = isCreate ? isCreating : isUpdating;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 flex flex-col">
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="5xl">
         <FormHeader
           title={
             isCreate ? "Create Subscription Plan" : "Edit Subscription Plan"
@@ -229,9 +228,6 @@ export default function SubscriptionPlanModal({
               <div className="space-y-4">
                 {/* Plan Details */}
                 <div className="space-y-3">
-                  <h3 className="text-xs font-semibold">
-                    Plan Details <span className="text-destructive">*</span>
-                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <TextField
                       control={control}
@@ -286,7 +282,7 @@ export default function SubscriptionPlanModal({
                     control={control}
                     name="description"
                     label="Description"
-                    placeholder="Enter any additional description (optional)"
+                    placeholder="Enter description"
                     rows={4}
                     disabled={isSubmitting}
                     error={getFieldError(errors.description)}
@@ -315,7 +311,6 @@ export default function SubscriptionPlanModal({
             </FormFooter>
           </form>
         )}
-      </DialogContent>
-    </Dialog>
+    </CustomModal>
   );
 }

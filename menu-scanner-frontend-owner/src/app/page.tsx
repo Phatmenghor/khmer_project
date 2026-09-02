@@ -39,23 +39,22 @@ export const metadata = {
   },
 };
 
+import PlatformCapabilitiesSection from "@/components/landing/platform-capabilities-section";
+
 export default function LandingPage() {
   return (
     <>
       <Navbar />
-      <main className="overflow-x-hidden md:px-[8%]">
+      <main className="overflow-x-hidden md:px-[6%] space-y-2">
         <HeroSection />
         <StatsSection />
-        <FeaturesSection />
+        <PricingSection />
+        <PlatformCapabilitiesSection />
         <HowItWorksSection />
         <FounderSection />
-        <PricingSection />
-        <TestimonialsSection />
         <FaqSection />
-        <CtaSection />
       </main>
       <Footer />
-      <ScrollToTop />
     </>
   );
 }

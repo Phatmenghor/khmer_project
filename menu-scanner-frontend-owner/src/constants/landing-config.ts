@@ -7,15 +7,16 @@ import { appImages } from "./app-resource/icons/app-images";
 // All plans grant access to the same feature set. Keep this list in
 // sync with what the product actually ships — no fictional features.
 export const ALL_PLATFORM_FEATURES = [
-  "QR code digital menu",
-  "Real-time order management",
-  "Staff management (unlimited)",
-  "Advanced analytics & reports",
-  "Loyalty program",
-  "Telegram & email integration",
-  "24/7 priority support",
-  "Payment processing",
-  "API access",
+  "Public QR Code Digital Menu & Storefront",
+  "In-Store Shop POS & Table Order Checkout",
+  "Real-Time Kitchen Dispatch (Pending → Preparing → Done)",
+  "Telegram Bot Instant Order Alerts",
+  "Product Inventory, Categories & Stock Management",
+  "Staff HR Accounts, Attendance & Activity Logs",
+  "Item Sale Tags, Discounts & Deals",
+  "Sales Reports & Exportable Financial Statements",
+  "Multi-Branch & Store History Management",
+  "Instant Real-Time Order & Sales Sync",
 ];
 
 export const LANDING_CONFIG = {
@@ -38,7 +39,7 @@ export const LANDING_CONFIG = {
       "All features on every plan",
       "Live in minutes, not weeks",
       "Real-time orders & stock",
-      "Telegram + WebSocket notifications",
+      "Telegram + Instant Real-Time Notifications",
       "Mobile-responsive storefront",
     ],
   },
@@ -94,7 +95,7 @@ export const LANDING_CONFIG = {
         icon: "Zap",
         title: "Telegram & Real-Time Notifications",
         description:
-          "Connect a Telegram group and the platform pushes new-order and stock alerts in real time. Built on WebSocket so the dashboard, storefront, and staff devices stay in sync without refresh.",
+          "Connect a Telegram group and the platform pushes new-order and stock alerts in real time so the dashboard, storefront, and kitchen staff stay in sync without refreshing.",
       },
     ],
   },

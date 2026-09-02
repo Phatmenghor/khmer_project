@@ -33,6 +33,7 @@ interface DateTimePickerProps {
   error?: boolean;
   mode?: "date" | "datetime";
   id?: string;
+  label?: string;
 }
 
 const FULL_MONTHS = [
@@ -76,6 +77,7 @@ export function CustomDateTimePicker({
   error = false,
   mode = "date",
   id,
+  label,
 }: DateTimePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [useCenteredModal, setUseCenteredModal] = useState(false);
@@ -274,11 +276,17 @@ export function CustomDateTimePicker({
     return days;
   };
 
-  const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from(
-    { length: YEAR_RANGE_OFFSET * 2 + 1 },
-    (_, i) => (currentYear - YEAR_RANGE_OFFSET + i).toString()
-  );
+  const yearOptions = React.useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const activeYear = viewDate ? viewDate.getFullYear() : currentYear;
+    const minYear = Math.min(1900, activeYear - 10);
+    const maxYear = Math.max(currentYear + 100, activeYear + 10);
+    const years: string[] = [];
+    for (let y = minYear; y <= maxYear; y++) {
+      years.push(y.toString());
+    }
+    return years;
+  }, [viewDate]);
 
   const hours = Array.from({ length: 12 }, (_, i) => 
     String(i + 1).padStart(2, "0")
@@ -497,47 +505,66 @@ export function CustomDateTimePicker({
   );
 
   const triggerButton = (
-    <CustomButton
-      ref={triggerRef}
-      variant="outline"
-      size="unstyled"
-      id={id}
-      disabled={disabled}
-      onClick={() => handleOpenToggle(!isOpen)}
-      className={cn(
-        "w-full h-8 px-3 text-xs justify-between font-normal rounded-[8px] bg-muted/30 border-border/80 hover:bg-muted/50 focus:bg-background transition-all flex items-center gap-2.5",
-        !selectedDate && "text-muted-foreground",
-        error && "border-destructive focus-visible:border-destructive",
-        className
+    <div className="space-y-1 w-full">
+      {label && (
+        <label className="text-xs font-semibold text-foreground whitespace-nowrap block">
+          {label}
+        </label>
       )}
-    >
-      <div className="flex items-center gap-2.5 min-w-0 flex-1">
-        {mode === "datetime" ? (
-          <Clock className="h-3.5 w-3.5 text-primary/80 shrink-0" />
-        ) : (
-          <Calendar className="h-3.5 w-3.5 text-primary/80 shrink-0" />
+      <CustomButton
+        ref={triggerRef}
+        variant="outline"
+        size="unstyled"
+        id={id}
+        disabled={disabled}
+        onClick={() => handleOpenToggle(!isOpen)}
+        className={cn(
+          "w-full h-[36px] px-3 text-xs justify-between rounded-[12px] bg-background border border-border/80 shadow-2xs transition-all duration-200 ease-out flex items-center gap-1",
+          "hover:bg-muted/40 hover:border-border",
+          "focus:outline-none focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/25 focus:ring-offset-0",
+          isOpen && "bg-primary/10 border-primary",
+          disabled && "disabled:cursor-not-allowed disabled:opacity-100 disabled:text-foreground disabled:bg-muted/50",
+          error && "border-destructive focus-visible:border-destructive",
+          className
         )}
-        <span className="truncate text-left text-xs font-medium">
-          {formatDisplayText()}
-        </span>
-      </div>
-
-      {selectedDate && !disabled && (
-        <div
-          role="button"
-          tabIndex={0}
-          className="h-4 w-4 rounded-full flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground shrink-0 ml-1 cursor-pointer transition-colors"
-          onClick={clearSelection}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              clearSelection(e as any);
-            }
-          }}
+      >
+        <span
+          className={cn(
+            "truncate text-left text-xs flex-1",
+            selectedDate
+              ? "text-foreground font-medium"
+              : "text-muted-foreground/75 font-normal"
+          )}
         >
-          <X className="h-3 w-3" />
+          {selectedDate ? formatDisplayText() : placeholder}
+        </span>
+
+        <div className="flex items-center gap-1 shrink-0 ml-1.5">
+          {selectedDate && !disabled && (
+            <span
+              role="button"
+              tabIndex={0}
+              title="Clear date"
+              className="p-0.5 rounded-full hover:bg-destructive/15 hover:text-destructive text-muted-foreground/70 transition-colors cursor-pointer"
+              onClick={clearSelection}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  clearSelection(e as any);
+                }
+              }}
+            >
+              <X className="h-3.5 w-3.5" />
+            </span>
+          )}
+          <Calendar
+            className={cn(
+              "h-3.5 w-3.5 shrink-0 transition-all duration-200 text-muted-foreground/80",
+              isOpen && "text-primary"
+            )}
+          />
         </div>
-      )}
-    </CustomButton>
+      </CustomButton>
+    </div>
   );
 
   if (useCenteredModal) {

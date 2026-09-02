@@ -4,6 +4,7 @@ import React, { forwardRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { FORM_FIELD_SIZES, FORM_FIELD_LABEL_CLASS } from "./form-field-styles";
 
 export interface CustomInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
   label?: React.ReactNode;
@@ -37,18 +38,14 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
   ) => {
     const inputId = id || (typeof label === "string" ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
 
-    const sizeClasses = {
-      sm: "h-8 text-[11px] sm:text-xs rounded-[8px]",
-      md: "h-[36px] text-xs sm:text-sm rounded-[8px]",
-      lg: "h-10 text-sm rounded-[10px]",
-    }[size];
+    const sizeClasses = FORM_FIELD_SIZES[size];
 
     return (
       <div className={cn("flex flex-col gap-1 w-full", containerClassName)}>
         {label && (
           <Label
             htmlFor={inputId}
-            className="text-[11px] font-extrabold text-foreground leading-tight flex items-center gap-1 min-h-[16px]"
+            className={cn(FORM_FIELD_LABEL_CLASS, "flex items-center gap-1 min-h-[16px]")}
           >
             <span>{label}</span>
             {required && <span className="text-destructive ml-0.5">*</span>}

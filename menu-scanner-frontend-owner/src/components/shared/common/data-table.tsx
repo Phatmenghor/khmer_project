@@ -33,10 +33,10 @@ interface DataTableWithPaginationProps<T = any> {
   onRowClick?: (item: T) => void;
   getRowKey?: (item: T, index: number) => string | number;
 
-  currentPage: number;
-  totalPages: number;
+  currentPage?: number;
+  totalPages?: number;
   totalElements?: number;
-  onPageChange: (page: number) => void;
+  onPageChange?: (page: number) => void;
   paginationSize?: "sm" | "md" | "lg";
   showPagination?: boolean;
   hideEllipsis?: boolean;
@@ -55,9 +55,9 @@ export function DataTableWithPagination<T = any>({
   className = "",
   onRowClick,
   getRowKey = (_, index) => index,
-  currentPage,
-  totalPages,
-  onPageChange,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {},
   paginationSize = "md",
   showPagination = true,
   hideEllipsis = false,

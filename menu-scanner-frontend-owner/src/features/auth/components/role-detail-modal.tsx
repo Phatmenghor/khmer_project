@@ -5,10 +5,8 @@ import { convertEnumOrString } from "@/utils/common/enum-convert";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { selectRoleContent } from "../store/selectors/role-selectors";
 import { clearSelectedRole } from "../store/slice/role-slice";
-import { DisplayField } from "@/components/shared/form-field/display-field";
 import { DetailModal } from "@/components/shared/modal/detail-modal";
-import { SectionTitle } from "@/components/shared/common/section-title";
-import { Shield, Info, History } from "lucide-react";
+import { SectionTitle, InfoRow } from "@/components/shared/modal/detail-section";
 
 interface RoleDetailModalProps {
   roleId?: string;
@@ -37,35 +35,24 @@ export function RoleDetailModal({
       isLoading={isOpen && !roleData}
       isEmpty={!roleData}
       emptyMessage="No role data available"
-      title={roleData ? `Role Details - ${convertEnumOrString(roleData.name)}` : "Role Details"}
+      title={roleData ? convertEnumOrString(roleData.name) : "Role Details"}
       description="Detailed information about the selected role"
-      icon={Shield}
-      maxWidthClass="sm:max-w-2xl"
+      avatarName={roleData?.name}
+      size="5xl"
     >
       {roleData && (
-        <div className="space-y-5 p-1">
-          {/* Role Information Group */}
-          <div className="space-y-3">
-            <SectionTitle icon={Info} title="Role Information" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <DisplayField label="Role Name" value={convertEnumOrString(roleData.name)} />
-              <DisplayField label="User Type" value={convertEnumOrString(roleData.userType)} />
-              <div className="md:col-span-2">
-                <DisplayField label="Description" value={roleData.description || "-"} />
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3.5 p-1 text-left">
+          <SectionTitle>Role Information</SectionTitle>
+          <InfoRow label="Role Name" value={convertEnumOrString(roleData.name)} />
+          <InfoRow label="User Type" value={convertEnumOrString(roleData.userType)} />
+          <InfoRow label="Description" value={roleData.description || "-"} fullWidth />
 
-          {/* Audit Information Group */}
-          <div className="space-y-3">
-            <SectionTitle icon={History} title="Audit Information" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <DisplayField label="Created At" value={dateTimeFormat(roleData.createdAt ?? "")} />
-              <DisplayField label="Created By" value={roleData.createdBy || "-"} />
-              <DisplayField label="Last Updated" value={dateTimeFormat(roleData.updatedAt ?? "")} />
-              <DisplayField label="Updated By" value={roleData.updatedBy || "-"} />
-            </div>
-          </div>
+          <SectionTitle>Audit & System Info</SectionTitle>
+          <InfoRow label="Role ID" value={roleData.id || "-"} />
+          <InfoRow label="Created By" value={roleData.createdBy || "-"} />
+          <InfoRow label="Created At" value={dateTimeFormat(roleData.createdAt ?? "")} />
+          <InfoRow label="Updated By" value={roleData.updatedBy || "-"} />
+          <InfoRow label="Last Updated" value={dateTimeFormat(roleData.updatedAt ?? "")} />
         </div>
       )}
     </DetailModal>

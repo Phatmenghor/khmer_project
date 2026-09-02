@@ -17,6 +17,7 @@ import com.emenu.features.subscription.repository.SubscriptionPaymentRepository;
 import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
 import com.emenu.features.subscription.repository.SubscriptionRepository;
 import com.emenu.exception.custom.NotFoundException;
+import com.emenu.features.subscription.mapper.SubscriptionHistoryMapper;
 import com.emenu.features.subscription.service.SubscriptionService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
@@ -47,6 +48,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final BusinessSettingRepository businessSettingRepository;
     private final SubscriptionPaymentRepository subscriptionPaymentRepository;
     private final PaginationMapper paginationMapper;
+    private final SubscriptionHistoryMapper subscriptionHistoryMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -152,62 +154,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     // -------------------------------------------------------------------------
 
     private SubscriptionHistoryResponse toHistoryResponse(Subscription subscription) {
-        SubscriptionHistoryResponse response = new SubscriptionHistoryResponse();
-        response.setSubscriptionId(subscription.getId());
-        response.setBusinessId(subscription.getBusinessId());
-        response.setStartDate(subscription.getStartDate().toLocalDate());
-        response.setEndDate(subscription.getEndDate().toLocalDate());
-        response.setAutoRenew(subscription.getAutoRenew());
-        response.setStatus(subscription.getStatus());
-        response.setDaysRemaining(subscription.getDaysRemaining());
-
-        if (subscription.getBusiness() != null) {
-            response.setBusinessName(subscription.getBusiness().getName());
+        SubscriptionHistoryResponse response = subscriptionHistoryMapper.toResponse(subscription);
+        if (response != null && subscription != null && subscription.getBusinessId() != null) {
+            businessSettingRepository.findByBusinessIdAndIsDeletedFalse(subscription.getBusinessId())
+                    .ifPresent(s -> response.setLogoBusinessUrl(s.getLogoBusiness() != null ? s.getLogoBusiness().getSm() : null));
         }
-        businessSettingRepository.findByBusinessIdAndIsDeletedFalse(subscription.getBusinessId())
-                .ifPresent(s -> response.setLogoBusinessUrl(s.getLogoBusiness() != null ? s.getLogoBusiness().getSm() : null));
-        if (subscription.getPlan() != null) {
-            SubscriptionPlan plan = subscription.getPlan();
-            response.setPlanId(plan.getId());
-            response.setPlanName(plan.getName());
-            response.setPlanPrice(plan.getPrice());
-            response.setPlanDurationType(plan.getDurationType());
-        }
-
-        SubscriptionPayment payment = subscription.getPayment();
-        Optional<SubscriptionPayment> paymentOpt = Optional.ofNullable(payment);
-
-        paymentOpt.ifPresent(p -> {
-            SubscriptionHistoryResponse.PaymentItem item = new SubscriptionHistoryResponse.PaymentItem();
-            item.setPaymentId(p.getId());
-            item.setAmount(p.getAmount());
-            item.setPaymentMethod(p.getPaymentMethod());
-            item.setPaymentType(p.getPaymentType());
-            item.setStatus(p.getStatus());
-            item.setReferenceNumber(p.getReferenceNumber());
-            item.setImageUrl(p.getImageUrl());
-            item.setPaidAt(p.getCreatedAt());
-            response.setPayment(item);
-        });
-
-        BigDecimal totalPaid = paymentOpt
-                .filter(p -> p.getStatus().isCompleted())
-                .map(SubscriptionPayment::getAmount)
-                .orElse(BigDecimal.ZERO);
-        response.setTotalPaid(totalPaid);
-
-        String paymentStatus = "UNPAID";
-        if (paymentOpt.isPresent()) {
-            SubscriptionPayment p = paymentOpt.get();
-            if (p.getStatus().isPending()) {
-                paymentStatus = "PENDING";
-            } else if (p.getStatus().isCompleted()) {
-                BigDecimal planPrice = subscription.getPlan() != null ? subscription.getPlan().getPrice() : BigDecimal.ZERO;
-                if (totalPaid.compareTo(planPrice) >= 0) paymentStatus = "PAID";
-                else if (totalPaid.compareTo(BigDecimal.ZERO) > 0) paymentStatus = "PARTIALLY_PAID";
-            }
-        }
-        response.setPaymentStatus(paymentStatus);
         return response;
     }
 

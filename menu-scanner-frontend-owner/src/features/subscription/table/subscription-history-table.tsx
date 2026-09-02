@@ -1,7 +1,10 @@
 import { ActionButton } from "@/components/button/action-button";
 import { indexDisplay } from "@/utils/common/common";
-import { Eye } from "lucide-react";
+import { formatDate } from "@/utils/date/date-time-format";
+import { formatEnumLabel } from "@/utils/common/enum-convert";
+import { Eye, ShieldCheck, ShieldAlert } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
+import { TableImage } from "@/components/shared/table/table-image";
 import { SubscriptionConfig } from "@/constants/app-resource/default/default";
 import {
   AllSubscriptionHistoryResponseModel,
@@ -27,7 +30,7 @@ export const subscriptionHistoryTableColumns = ({
     {
       key: "index",
       label: "#",
-      minWidth: "10px",
+      minWidth: "40px",
       maxWidth: "60px",
       render: (_, index) => (
         <span className="text-xs text-muted-foreground">
@@ -38,11 +41,21 @@ export const subscriptionHistoryTableColumns = ({
     {
       key: "businessName",
       label: "Business",
-      minWidth: "120px",
-      maxWidth: "200px",
+      minWidth: "160px",
+      maxWidth: "240px",
       truncate: true,
       render: (row) => (
-        <span className="text-xs font-medium">{row.businessName || "—"}</span>
+        <div className="flex items-center gap-2.5">
+          <TableImage
+            src={row.logoBusinessUrl}
+            alt={row.businessName}
+            className="h-10 w-10 rounded-[10px]"
+            fallbackText={row.businessName}
+          />
+          <span className="text-xs font-bold text-foreground truncate">
+            {row.businessName || "—"}
+          </span>
+        </div>
       ),
     },
     {
@@ -52,25 +65,27 @@ export const subscriptionHistoryTableColumns = ({
       maxWidth: "160px",
       truncate: true,
       render: (row) => (
-        <span className="text-xs text-muted-foreground">{row.planName || "—"}</span>
+        <span className="text-xs font-semibold text-foreground">{row.planName || "—"}</span>
       ),
     },
     {
       key: "planDurationType",
       label: "Duration",
-      minWidth: "80px",
+      minWidth: "90px",
       maxWidth: "120px",
       render: (row) => (
-        <span className="text-xs text-muted-foreground">{row.planDurationType || "—"}</span>
+        <span className="text-xs text-muted-foreground">
+          {formatEnumLabel(row.planDurationType) || "—"}
+        </span>
       ),
     },
     {
       key: "planPrice",
       label: "Price",
       minWidth: "80px",
-      maxWidth: "120px",
+      maxWidth: "110px",
       render: (row) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs font-semibold text-foreground tabular-nums">
           ${row.planPrice?.toFixed(2) ?? "0.00"}
         </span>
       ),
@@ -79,71 +94,105 @@ export const subscriptionHistoryTableColumns = ({
       key: "startDate",
       label: "Start Date",
       minWidth: "100px",
-      maxWidth: "140px",
+      maxWidth: "130px",
       render: (row) => (
-        <span className="text-xs text-muted-foreground">{row.startDate || "—"}</span>
+        <span className="text-xs text-muted-foreground">{formatDate(row.startDate)}</span>
       ),
     },
     {
       key: "endDate",
       label: "End Date",
       minWidth: "100px",
-      maxWidth: "140px",
+      maxWidth: "130px",
       render: (row) => (
-        <span className="text-xs text-muted-foreground">{row.endDate || "—"}</span>
+        <span className="text-xs text-muted-foreground">{formatDate(row.endDate)}</span>
+      ),
+    },
+    {
+      key: "autoRenew",
+      label: "Auto Renew",
+      minWidth: "90px",
+      maxWidth: "120px",
+      render: (row) => (
+        <span
+          className={`inline-flex items-center gap-1 text-xs font-semibold ${
+            row.autoRenew ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
+          }`}
+        >
+          {row.autoRenew ? (
+            <>
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              Enabled
+            </>
+          ) : (
+            <>
+              <ShieldAlert className="w-3.5 h-3.5 text-muted-foreground" />
+              Disabled
+            </>
+          )}
+        </span>
       ),
     },
     {
       key: "status",
       label: "Status",
-      minWidth: "80px",
-      maxWidth: "120px",
+      minWidth: "100px",
+      maxWidth: "130px",
       render: (row) => {
-        const colorClass =
-          row.status === "ACTIVE"
-            ? "text-green-600 font-medium"
-            : row.status === "CANCELLED"
-            ? "text-orange-500 font-medium"
-            : "text-red-500";
+        const status = row.status?.toUpperCase();
+        const textStyle =
+          status === "ACTIVE"
+            ? "text-emerald-600 dark:text-emerald-400"
+            : status === "CANCELLED"
+            ? "text-amber-600 dark:text-amber-400"
+            : status === "CHANGE_PLAN"
+            ? "text-blue-600 dark:text-blue-400"
+            : "text-rose-600 dark:text-rose-400";
+
         return (
-          <span className={`text-xs ${colorClass}`}>{row.status || "—"}</span>
+          <span className={`text-xs font-bold ${textStyle}`}>
+            {formatEnumLabel(row.status) || "—"}
+          </span>
         );
       },
     },
     {
       key: "daysRemaining",
       label: "Days Left",
-      minWidth: "80px",
-      maxWidth: "100px",
+      minWidth: "85px",
+      maxWidth: "110px",
       render: (row) => {
         if (row.status === "EXPIRED" || row.status === "CANCELLED") {
           return <span className="text-xs text-muted-foreground">—</span>;
         }
         const days = row.daysRemaining ?? 0;
-        const colorClass =
+        const textStyle =
           days <= SubscriptionConfig.EXPIRY_CRITICAL_DAYS
-            ? "text-red-600 font-semibold"
+            ? "text-rose-600 dark:text-rose-400 font-bold"
             : days <= SubscriptionConfig.EXPIRY_WARNING_DAYS
-            ? "text-yellow-600 font-medium"
-            : "text-green-600";
-        return <span className={`text-xs ${colorClass}`}>{days}d</span>;
+            ? "text-amber-600 dark:text-amber-400 font-bold"
+            : "text-emerald-600 dark:text-emerald-400 font-bold";
+
+        return <span className={`text-xs ${textStyle}`}>{days}d</span>;
       },
     },
     {
       key: "paymentStatus",
       label: "Payment",
-      minWidth: "100px",
+      minWidth: "110px",
       maxWidth: "140px",
       render: (row) => {
-        const colorClass =
-          row.paymentStatus === "PAID"
-            ? "text-green-600 font-medium"
-            : row.paymentStatus === "PENDING" || row.paymentStatus === "PARTIALLY_PAID"
-            ? "text-yellow-600 font-medium"
-            : "text-red-500";
+        const paymentStatus = row.paymentStatus?.toUpperCase();
+        const textStyle =
+          paymentStatus === "PAID" || paymentStatus === "COMPLETED"
+            ? "text-emerald-600 dark:text-emerald-400"
+            : paymentStatus === "PENDING" || paymentStatus === "PARTIALLY_PAID"
+            ? "text-amber-600 dark:text-amber-400"
+            : "text-rose-600 dark:text-rose-400";
+
         return (
-          <span className={`text-xs ${colorClass}`}>
-            {row.paymentStatus?.replace("_", " ") || "—"}
+          <span className={`text-xs font-bold ${textStyle}`}>
+            {formatEnumLabel(row.paymentStatus) || "—"}
           </span>
         );
       },
@@ -154,7 +203,7 @@ export const subscriptionHistoryTableColumns = ({
       minWidth: "90px",
       maxWidth: "120px",
       render: (row) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs font-semibold text-foreground tabular-nums">
           ${row.totalPaid?.toFixed(2) ?? "0.00"}
         </span>
       ),
@@ -164,10 +213,11 @@ export const subscriptionHistoryTableColumns = ({
       label: "Actions",
       minWidth: "60px",
       maxWidth: "80px",
+      isPinnedRight: true,
       render: (row) => (
         <ActionButton
-          icon={<Eye className="w-3 h-3" />}
-          tooltip="View Detail"
+          icon={<Eye className="w-3.5 h-3.5" />}
+          tooltip="View Subscription Detail"
           onClick={() => handleViewDetail(row)}
         />
       ),

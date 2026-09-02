@@ -24,14 +24,17 @@ export const EMPLOYMENT_TYPE_OPTIONS = [
 export const USER_PLATFORM_ROLE_CREATE_UPDATE = [
   { value: UserRole.PLATFORM_OWNER, label: "Platform Owner" },
   { value: UserRole.PLATFORM_ADMIN, label: "Platform Admin" },
-  { value: UserRole.PLATFORM_MANAGER, label: "Platform Manager" },
-  { value: UserRole.PLATFORM_SUPPORT, label: "Platform Support" },
+  { value: UserRole.PLATFORM_USER, label: "Platform User" },
+  { value: UserRole.SUPER_ADMIN, label: "Super Admin" },
+  { value: UserRole.ADMIN, label: "Admin" },
 ];
 
 export const USER_BUSINESS_ROLE_CREATE_UPDATE = [
   { value: UserRole.BUSINESS_OWNER, label: "Business Owner" },
+  { value: UserRole.BUSINESS_ADMIN, label: "Business Admin" },
   { value: UserRole.BUSINESS_MANAGER, label: "Business Manager" },
-  { value: UserRole.BUSINESS_STAFF, label: "Business Staff" },
+  { value: UserRole.BUSINESS_EMPLOYEE, label: "Business Employee" },
+  { value: UserRole.BUSINESS_USER, label: "Business User" },
 ];
 
 export const USER_CUSTOMER_ROLE_CREATE_UPDATE = [
@@ -40,9 +43,8 @@ export const USER_CUSTOMER_ROLE_CREATE_UPDATE = [
 
 export const ACCOUNT_STATUS_CREATE_UPDATE = [
   { value: AccountStatus.ACTIVE, label: "Active" },
-  { value: AccountStatus.INACTIVE, label: "Inactive" },
+  { value: AccountStatus.END_WORK, label: "End Work" },
   { value: AccountStatus.LOCKED, label: "Locked" },
-  { value: AccountStatus.SUSPENDED, label: "Suspended" },
 ];
 
 export const BUSINESS_STATUS_CREATE_UPDATE = [

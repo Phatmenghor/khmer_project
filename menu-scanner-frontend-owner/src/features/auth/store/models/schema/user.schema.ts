@@ -120,18 +120,23 @@ export const createUserSchema = z.object({
     .string()
     .min(1, "Password is required")
     .min(8, "Password must be at least 8 characters"),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
+  firstName: z.string().optional().or(z.literal("")),
+  lastName: z.string().optional().or(z.literal("")),
   phoneNumber: z
     .string()
-    .regex(/^\+?[\d\s-()]+$/, "Invalid phone number format"),
+    .optional()
+    .or(z.literal(""))
+    .refine(
+      (val) => !val || /^\+?[\d\s-()]+$/.test(val),
+      "Invalid phone number format"
+    ),
   nickname: z.string().optional().or(z.literal("")),
   gender: z.string().optional().or(z.literal("")),
   dateOfBirth: z.string().optional().or(z.literal("")),
   profileImageUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
-  userType: z.string().min(1, "User type is required"),
+  userType: z.string().optional().or(z.literal("")),
   roles: z.array(z.string()).min(1, "At least one role is required"),
-  accountStatus: z.string().min(1, "Account status is required"),
+  accountStatus: z.string().optional().or(z.literal("")),
   remark: z.string().optional().or(z.literal("")),
   businessId: z.string().optional().or(z.literal("")),
 });
@@ -174,16 +179,16 @@ export type UserFormData = {
   userIdentifier?: string;
   email?: string;
   password?: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
   nickname?: string;
   gender?: string;
   dateOfBirth?: string;
   profileImageUrl?: string;
   userType?: string;
   roles: string[];
-  accountStatus: string;
+  accountStatus?: string;
   remark?: string;
   businessId?: string;
   addresses?: Address[];
