@@ -1,9 +1,9 @@
-"use client";
-
 import { Camera, Edit, Save, Building2 } from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import { Card, CardContent } from "@/components/ui/card";
+import { getUserDisplayEmail } from "@/utils/user/user-helper";
+import { UserRoleBadge } from "@/components/shared/user/user-role-badge";
 
 interface ProfileHeaderCardProps {
   userProfile: any;
@@ -32,6 +32,8 @@ export function ProfileHeaderCard({
   onSaveClick,
   onAvatarClick,
 }: ProfileHeaderCardProps) {
+  const displayEmail = getUserDisplayEmail(userProfile);
+
   return (
     <Card className="mb-4 border-border/80 bg-card/60 backdrop-blur-xs shadow-xs">
       <CardContent className="p-4 sm:p-5">
@@ -47,13 +49,13 @@ export function ProfileHeaderCard({
                 {(profileImageUrl || userProfile?.profileImage?.md) ? (
                   <SmartImage
                     src={profileImageUrl || userProfile?.profileImage?.md}
-                    alt={userProfile?.fullName || "User Profile"}
+                    alt={userProfile?.fullName || userProfile?.userIdentifier || "User Profile"}
                     fill
                     showSkeleton={false}
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-primary font-bold text-lg">
-                    {userProfile?.fullName?.charAt(0)?.toUpperCase() || "U"}
+                    {(userProfile?.fullName || userProfile?.userIdentifier || "U")?.charAt(0)?.toUpperCase()}
                   </div>
                 )}
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -66,16 +68,12 @@ export function ProfileHeaderCard({
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-sm sm:text-base font-extrabold text-foreground leading-tight">
-                  {userProfile?.fullName || "Admin Profile"}
+                  {userProfile?.fullName || userProfile?.userIdentifier || "Business Owner Profile"}
                 </h2>
-                {userProfile?.userType && (
-                  <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold uppercase tracking-wider">
-                    {userProfile.userType}
-                  </span>
-                )}
+                <UserRoleBadge profile={userProfile} />
               </div>
               <p className="text-xs text-muted-foreground font-medium">
-                {userProfile?.email || "No email provided"}
+                {displayEmail}
               </p>
               {userProfile?.businessName && (
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium pt-0.5">

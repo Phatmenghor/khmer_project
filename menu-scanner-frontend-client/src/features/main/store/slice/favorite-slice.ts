@@ -10,8 +10,9 @@ import {
 } from "../thunks/favorite-thunks";
 
 import { getActiveTableSession } from "@/utils/table/table-session";
+import { LOCAL_STORAGE_KEYS } from "@/constants/storage-keys";
 
-const GUEST_FAVORITES_STORAGE_KEY = "guest_favorites";
+const GUEST_FAVORITES_STORAGE_KEY = LOCAL_STORAGE_KEYS.FAVORITES;
 
 const getFavoriteStorageKey = () => {
   const activeTable = getActiveTableSession();

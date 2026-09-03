@@ -839,10 +839,10 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         portfolioProfile.setBusinessId(businessId);
         portfolioProfileRepository.save(portfolioProfile);
 
-        // Create default exchange rate: 4000 USD to KHR
+        // Create default exchange rate: 4000.00 USD to KHR
         BusinessExchangeRate exchangeRate = new BusinessExchangeRate();
         exchangeRate.setBusinessId(businessId);
-        exchangeRate.setUsdToKhrRate(4000.0);
+        exchangeRate.setUsdToKhrRate(4000.00);
         exchangeRate.setStatus(BusinessExchangeRate.ExchangeRateStatus.ACTIVE);
         businessExchangeRateRepository.save(exchangeRate);
 

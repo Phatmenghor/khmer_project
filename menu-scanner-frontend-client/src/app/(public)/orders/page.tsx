@@ -41,6 +41,7 @@ import { useDownloadReceipt } from "@/hooks/use-download-receipt";
 import { PageState } from "@/components/shared/page-state";
 import { Badge } from "@/components/ui/badge";
 import { lookupGuestOrdersService } from "@/features/main/store/thunks/order-thunks";
+import { LOCAL_STORAGE_KEYS } from "@/constants/storage-keys";
 
 type Order = OrderResponse;
 
@@ -111,7 +112,7 @@ export default function OrdersPage() {
   const fetchGuestOrders = useCallback(async () => {
     try {
       setGuestLoading(true);
-      const raw = localStorage.getItem("guest_orders");
+      const raw = localStorage.getItem(LOCAL_STORAGE_KEYS.ORDERS);
       const ids: string[] = raw ? JSON.parse(raw) : [];
       if (ids && ids.length > 0) {
         const results = await dispatch(lookupGuestOrdersService(ids)).unwrap();

@@ -83,15 +83,15 @@ export function getUserDisplayRole(profile?: UserProfileDto | null): string {
 
 /**
  * Cleanly resolves the user's email address directly from Backend UserResponse DTO.
- * Returns empty string if email is null or not provided (no fake default text).
  */
 export function getUserDisplayEmail(profile?: UserProfileDto | null): string {
-  if (!profile) return "";
+  if (!profile) return "-";
   return (
     profile.email ||
     profile.ownerEmail ||
     profile.businessEmail ||
     (profile.userIdentifier?.includes("@") ? profile.userIdentifier : "") ||
-    ""
+    profile.userIdentifier ||
+    "-"
   );
 }

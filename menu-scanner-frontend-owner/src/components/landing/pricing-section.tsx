@@ -234,23 +234,27 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps = {
           )}
       </div>
 
-      {/* Register & Login Modals */}
-      <RegisterModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onLoginClick={() => {
-          setIsModalOpen(false);
-          setIsLoginModalOpen(true);
-        }}
-      />
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onRegisterClick={() => {
-          setIsLoginModalOpen(false);
-          setIsModalOpen(true);
-        }}
-      />
+      {/* Register & Login Modals (only when not delegated to parent) */}
+      {!onSelectPlan && (
+        <>
+          <RegisterModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onLoginClick={() => {
+              setIsModalOpen(false);
+              setIsLoginModalOpen(true);
+            }}
+          />
+          <LoginModal
+            isOpen={isLoginModalOpen}
+            onClose={() => setIsLoginModalOpen(false)}
+            onRegisterClick={() => {
+              setIsLoginModalOpen(false);
+              setIsModalOpen(true);
+            }}
+          />
+        </>
+      )}
     </section>
   );
 }

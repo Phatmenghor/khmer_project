@@ -1,6 +1,3 @@
-
-
-
 import {
   ChangePasswordRequest,
   LoginCredentialsRequest,
@@ -10,10 +7,16 @@ import { createApiThunk } from "@/utils/axios/api-wrapper";
 import { storeAdminTokens, storeTokens, clearAllTokens } from "@/utils/local-storage/token";
 import { storeAdminUserInfo, storeUserInfo } from "@/utils/local-storage/userInfo";
 
-
 export const loginService = createApiThunk<any, LoginCredentialsRequest>(
   "auth/login",
   async (credentials) => {
+    if (!credentials || !credentials.userIdentifier?.trim()) {
+      throw new Error("User identifier is required.");
+    }
+    if (!credentials.password) {
+      throw new Error("Password is required.");
+    }
+
     const response = await axiosClient.post("/api/v1/auth/login", credentials);
     const data = response.data.data;
 
@@ -27,8 +30,7 @@ export const loginService = createApiThunk<any, LoginCredentialsRequest>(
       throw new Error("Access denied. Only Platform Users can sign in here.");
     }
 
-
-    if (data.accessToken) {
+    if (data?.accessToken) {
       const isAdmin = (userType?: string) =>
         userType === "BUSINESS_USER" ||
         userType === "PLATFORM_USER" ||
@@ -50,7 +52,6 @@ export const loginService = createApiThunk<any, LoginCredentialsRequest>(
   }
 );
 
-
 export const getProfileService = createApiThunk<any, void>(
   "auth/getProfile",
   async (_, signal) => {
@@ -59,10 +60,12 @@ export const getProfileService = createApiThunk<any, void>(
   }
 );
 
-
 export const updateProfileService = createApiThunk<any, any>(
   "auth/updateProfile",
   async (profileData) => {
+    if (!profileData || typeof profileData !== "object") {
+      throw new Error("Profile data is required for update.");
+    }
     const response = await axiosClientWithAuth.put(
       "/api/v1/users/profile",
       profileData
@@ -70,7 +73,6 @@ export const updateProfileService = createApiThunk<any, any>(
     return response.data.data;
   }
 );
-
 
 export const getCustomerProfileService = createApiThunk<any, void>(
   "auth/getCustomerProfile",
@@ -86,6 +88,9 @@ export const updateBusinessProfileService = updateProfileService;
 export const updateCustomerProfileService = createApiThunk<any, any>(
   "auth/updateCustomerProfile",
   async (profileData) => {
+    if (!profileData || typeof profileData !== "object") {
+      throw new Error("Customer profile data is required for update.");
+    }
     const response = await axiosClientWithAuth.put(
       "/api/v1/users/customer-profile",
       profileData
@@ -94,10 +99,12 @@ export const updateCustomerProfileService = createApiThunk<any, any>(
   }
 );
 
-
 export const changePasswordService = createApiThunk<any, ChangePasswordRequest>(
   "auth/changePassword",
   async (passwordData) => {
+    if (!passwordData || !passwordData.currentPassword || !passwordData.newPassword) {
+      throw new Error("Current password and new password are required.");
+    }
     const response = await axiosClientWithAuth.post(
       "/api/v1/users/change-password",
       passwordData
@@ -106,7 +113,6 @@ export const changePasswordService = createApiThunk<any, ChangePasswordRequest>(
   }
 );
 
-
 export const deleteAccountService = createApiThunk<any, void>(
   "auth/deleteAccount",
   async () => {
@@ -114,7 +120,6 @@ export const deleteAccountService = createApiThunk<any, void>(
     return response.data.data;
   }
 );
-
 
 export interface CustomerRegisterRequest {
   userIdentifier: string;
@@ -129,10 +134,12 @@ export interface CustomerRegisterRequest {
   businessId?: string;
 }
 
-
 export const registerCustomerService = createApiThunk<any, CustomerRegisterRequest>(
   "auth/registerCustomer",
   async (registerData) => {
+    if (!registerData || !registerData.userIdentifier?.trim() || !registerData.password) {
+      throw new Error("User identifier and password are required for registration.");
+    }
     const response = await axiosClient.post("/api/v1/auth/register", {
       ...registerData,
       userType: "CUSTOMER",
@@ -145,12 +152,18 @@ export const registerCustomerService = createApiThunk<any, CustomerRegisterReque
 export interface QuickRegisterRequest {
   userIdentifier: string;
   password: string;
+  userType?: string;
+  role?: string;
+  roleName?: string;
 }
 
 export const registerQuickUserService = createApiThunk<any, QuickRegisterRequest>(
   "auth/registerQuickUser",
   async (registerData) => {
-    const response = await axiosClient.post("/api/v1/public/quick-register", registerData);
+    if (!registerData || !registerData.userIdentifier?.trim() || !registerData.password) {
+      throw new Error("Username and password are required for registration.");
+    }
+    const response = await axiosClient.post("/api/v1/public/register", registerData);
     return response.data.data;
   }
 );

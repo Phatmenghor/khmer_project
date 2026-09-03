@@ -132,7 +132,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
         window.location.reload();
       }
     } catch (err: unknown) {
-      showToast.error((err as { message?: string })?.message || Messages.auth.telegramFailed);
+      showToast.error(getErrorMessage(err, Messages.auth.telegramFailed));
     } finally {
       setIsTelegramLoading(false);
     }
@@ -168,7 +168,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
             <TextField
               name="userIdentifier"
               label="User Identifier"
-              placeholder="Enter username or email"
+              placeholder="Enter user identifier"
               control={registerForm.control}
               error={registerForm.formState.errors.userIdentifier}
               disabled={isAnyLoading}

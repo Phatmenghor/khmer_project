@@ -38,6 +38,7 @@ import uiReducer from "./slices/ui-slice";
 import comboboxCacheReducer from "./slices/combobox-cache-slice";
 import dashboardReducer from "@/features/dashboard/store/slice/dashboard-slice";
 import locationReducer from "@/features/location/store/slice/location-slice";
+import routeLogReducer from "./slices/route-log-slice";
 
 import publicPortfolioReducer from "@/features/portfolio/store/slice/public-portfolio-slice";
 import portfolioProfileReducer from "@/features/portfolio/store/slice/portfolio-profile-slice";
@@ -52,6 +53,7 @@ export const reducers = {
   comboboxCache: comboboxCacheReducer,
   dashboard: dashboardReducer,
   hr: hrReducer,
+  routeLog: routeLogReducer,
 
 
   auth: authReducer,

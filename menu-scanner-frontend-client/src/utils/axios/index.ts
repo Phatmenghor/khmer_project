@@ -518,8 +518,11 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         }
 
         try {
+          const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+          const refreshEndpoint = baseUrl ? `${baseUrl}/api/v1/auth/refresh` : "/api/v1/auth/refresh";
+
           const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/refresh`,
+            refreshEndpoint,
             { refreshToken },
             { headers: { "Content-Type": "application/json" } }
           );
@@ -545,16 +548,11 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           const admin = isAdminUser();
           const hadToken = admin ? !!getAdminToken() : !!getToken();
 
-          if (admin) clearAdminTokens();
-          else clearAllTokens();
+          clearAllTokens();
+          clearAdminTokens();
 
           const friendlyMsg = "Session expired. Please login again.";
-          if (refreshError && typeof refreshError === "object") {
-            refreshError.message = friendlyMsg;
-            if (refreshError.response && refreshError.response.data && typeof refreshError.response.data === "object") {
-              refreshError.response.data.message = friendlyMsg;
-            }
-          }
+          const expiredError = new Error(friendlyMsg);
 
           if (typeof window !== "undefined") {
             const isProtected = admin
@@ -566,14 +564,10 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
 
               setTimeout(() => {
                 window.location.href = admin ? "/admin/login" : "/login";
-
-                setTimeout(() => {
-                  window.location.reload();
-                }, 500);
-              }, 1000);
+              }, 500);
             }
           }
-          return Promise.reject(refreshError);
+          return Promise.reject(expiredError);
         } finally {
           isRefreshing = false;
         }

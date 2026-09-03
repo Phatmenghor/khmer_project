@@ -60,8 +60,9 @@ export const SUBSCRIPTION_PLAN_CREATE_UPDATE = [
 ];
 
 export const SUBSCRIPTION_PLAN_DURATION_TYPE_OPTIONS = [
-  { value: SubscriptionPlanDurationType.WEEKLY, label: "1 Week" },
+  { value: SubscriptionPlanDurationType.FREE_TRIAL, label: "Free Trial (7 Days)" },
   { value: SubscriptionPlanDurationType.MONTHLY, label: "1 Month" },
+  { value: SubscriptionPlanDurationType.SIX_MONTHS, label: "6 Months" },
   { value: SubscriptionPlanDurationType.YEARLY, label: "1 Year" },
 ];
 

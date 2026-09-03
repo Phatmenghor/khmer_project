@@ -7,6 +7,9 @@ import store from "@/store";
 import { useRouter } from "next/navigation";
 import { useBusinessTheme } from "@/hooks/use-business-theme";
 
+import { RouteTracker } from "@/components/layout/route-tracker";
+import { Suspense } from "react";
+
 interface ClientProvidersProps {
   children: ReactNode;
 }
@@ -41,6 +44,9 @@ export function ClientProviders({ children }: ClientProvidersProps) {
     <Provider store={store}>
       <ThemeInitializer />
       <BfcacheRefreshHandler />
+      <Suspense fallback={null}>
+        <RouteTracker />
+      </Suspense>
       {children}
       <Toaster position="top-right" richColors closeButton />
     </Provider>

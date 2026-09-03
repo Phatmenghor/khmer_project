@@ -134,7 +134,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
             <TextField
               name="userIdentifier"
               label="User Identifier"
-              placeholder="Enter username or email"
+              placeholder="Enter user identifier"
               control={loginForm.control}
               error={loginForm.formState.errors.userIdentifier}
               disabled={isAnyLoading}

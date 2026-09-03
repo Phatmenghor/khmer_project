@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Home, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { ROUTES } from "@/constants/app-routes/routes";
 
 export default function NotFoundPage() {
   const router = useRouter();
@@ -39,7 +40,7 @@ export default function NotFoundPage() {
           </Button>
           <Button asChild>
             <Link
-              href="/admin/platform-users"
+              href={ROUTES.DASHBOARD.INDEX}
               className="flex items-center gap-1"
             >
               <Home className="h-3 w-3" />

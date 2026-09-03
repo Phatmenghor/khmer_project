@@ -35,7 +35,7 @@ export function SubdomainProvider({ children }: { children: React.ReactNode }) {
       .then(({ data }) => {
         const biz = data.data;
         if (!biz?.businessId) {
-          setStatus("not-found");
+          setStatus("ready");
           return;
         }
 
@@ -70,7 +70,8 @@ export function SubdomainProvider({ children }: { children: React.ReactNode }) {
         setStatus("ready");
       })
       .catch(() => {
-        setStatus("not-found");
+        // Fallback gracefully to default business context if subdomain is invalid/unresolvable
+        setStatus("ready");
       });
   }, []);
 

@@ -18,9 +18,10 @@ import { appImages } from "@/constants/app-resource/icons/app-images";
 
 interface NavbarProps {
   onRegisterClick?: () => void;
+  onLoginClick?: () => void;
 }
 
-export default function Navbar({ onRegisterClick }: NavbarProps) {
+export default function Navbar({ onRegisterClick, onLoginClick }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -53,7 +54,11 @@ export default function Navbar({ onRegisterClick }: NavbarProps) {
     { label: "FAQ", href: "#faq" },
   ];
 
-  const handleRegisterBusinessClick = () => {
+  const handleAuthButtonClick = () => {
+    if (onLoginClick) {
+      onLoginClick();
+      return;
+    }
     if (onRegisterClick) {
       onRegisterClick();
       return;
@@ -104,19 +109,28 @@ export default function Navbar({ onRegisterClick }: NavbarProps) {
             ))}
           </nav>
 
-          {/* Desktop Right Action Area: Profile Dropdown or Register Business Button */}
-          <div className="hidden md:flex items-center">
+          {/* Desktop Right Action Area: Profile Dropdown or Sign In / Register Button */}
+          <div className="hidden md:flex items-center gap-2">
             {isLoggedIn ? (
               <CustomProfileDropdown />
             ) : (
-              <CustomButton
-                variant="default"
-                onClick={handleRegisterBusinessClick}
-                className="h-[36px] px-4 text-xs font-semibold rounded-[12px] gap-1.5 shadow-xs hover:shadow-sm transition-all cursor-pointer"
-              >
-                Register Business
-                <ArrowRight className="w-3.5 h-3.5" />
-              </CustomButton>
+              <>
+                <CustomButton
+                  variant="outline"
+                  onClick={handleAuthButtonClick}
+                  className="h-[36px] px-3.5 text-xs font-semibold rounded-[12px] cursor-pointer"
+                >
+                  Sign In
+                </CustomButton>
+                <CustomButton
+                  variant="default"
+                  onClick={() => onRegisterClick ? onRegisterClick() : handleAuthButtonClick()}
+                  className="h-[36px] px-4 text-xs font-semibold rounded-[12px] gap-1.5 shadow-xs hover:shadow-sm transition-all cursor-pointer"
+                >
+                  Register Business
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </CustomButton>
+              </>
             )}
           </div>
 
@@ -185,7 +199,7 @@ export default function Navbar({ onRegisterClick }: NavbarProps) {
                 variant="default"
                 onClick={() => {
                   setMobileOpen(false);
-                  handleRegisterBusinessClick();
+                  handleAuthButtonClick();
                 }}
                 className="w-full h-[36px] text-xs font-semibold rounded-[12px] gap-1.5"
               >

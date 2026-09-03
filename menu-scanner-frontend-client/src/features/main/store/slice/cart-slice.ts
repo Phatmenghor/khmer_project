@@ -13,8 +13,9 @@ import {
 } from "../models/response/cart-response";
 
 import { getActiveTableSession } from "@/utils/table/table-session";
+import { LOCAL_STORAGE_KEYS } from "@/constants/storage-keys";
 
-const GUEST_CART_STORAGE_KEY = "guest_cart";
+const GUEST_CART_STORAGE_KEY = LOCAL_STORAGE_KEYS.CART;
 
 const getCartStorageKey = () => {
   const activeTable = getActiveTableSession();

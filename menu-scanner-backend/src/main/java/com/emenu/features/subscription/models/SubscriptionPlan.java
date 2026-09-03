@@ -50,8 +50,9 @@ public class SubscriptionPlan extends BaseUUIDEntity {
 
     public LocalDateTime calculateEndDate(LocalDateTime from) {
         return switch (durationType) {
-            case WEEKLY -> from.plusWeeks(1);
+            case FREE_TRIAL -> from.plusDays(7);
             case MONTHLY -> from.plusMonths(1);
+            case SIX_MONTHS -> from.plusMonths(6);
             case YEARLY -> from.plusYears(1);
         };
     }

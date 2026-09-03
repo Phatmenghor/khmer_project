@@ -1,5 +1,3 @@
-"use client";
-
 import { User } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -8,6 +6,7 @@ import { DatePickerField } from "@/components/shared/form-field/date-picker-fiel
 import { DisplayField } from "@/components/shared/form-field/display-field";
 import { GENDER_OPTIONS } from "@/constants/app-resource/status/create-update-status";
 import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
+import { getUserDisplayRole } from "@/utils/user/user-helper";
 
 interface PersonalInfoCardProps {
   control: any;
@@ -114,11 +113,7 @@ export function PersonalInfoCard({
               />
               <DisplayField
                 label="Role"
-                value={
-                  userProfile?.roles && userProfile.roles.length > 0
-                    ? userProfile.roles.join(", ")
-                    : "-"
-                }
+                value={getUserDisplayRole(userProfile) || "-"}
               />
               <DisplayField
                 label="Account Status"

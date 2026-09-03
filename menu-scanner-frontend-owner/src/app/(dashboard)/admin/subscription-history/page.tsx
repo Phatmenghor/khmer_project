@@ -26,6 +26,8 @@ import { SubscriptionHistoryDetailModal } from "@/features/subscription/componen
 import { SubscriptionHistoryResponseModel } from "@/features/subscription/store/models/response/subscription-history-response";
 import { fetchAllSubscriptionPlanService } from "@/features/master-data/store/thunks/subscription-plan-thunks";
 import { SUBSCRIPTION_STATUS_FILTER } from "@/constants/app-resource/status/filter-status";
+import { selectProfile } from "@/features/auth/store/selectors/auth-selectors";
+import { PlanHistorySection } from "../profile/_components/plan-history-section";
 
 interface PlanOption {
   value: string;
@@ -34,6 +36,7 @@ interface PlanOption {
 
 export default function SubscriptionHistoryPage() {
   const searchParams = useSearchParams();
+  const userProfile = useAppSelector(selectProfile);
 
   const {
     subscriptionHistoryData,
@@ -222,7 +225,9 @@ export default function SubscriptionHistoryPage() {
   );
 
   return (
-    <div className="flex flex-1 flex-col gap-3 px-1">
+    <div className="flex flex-1 flex-col gap-4 px-1">
+      <PlanHistorySection userProfile={userProfile} />
+
       <div className="space-y-3">
         <CollapsibleFilterPanel
           config={filterConfig}

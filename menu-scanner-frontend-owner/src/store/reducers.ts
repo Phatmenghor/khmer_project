@@ -17,12 +17,14 @@ import globalSettingsReducer from "./slices/global-settings-slice";
 import uiReducer from "./slices/ui-slice";
 import comboboxCacheReducer from "./slices/combobox-cache-slice";
 import websocketReducer from "./slices/websocket-slice";
+import routeLogReducer from "./slices/route-log-slice";
 
 export const reducers = {
   ui: uiReducer,
   globalSettings: globalSettingsReducer,
   comboboxCache: comboboxCacheReducer,
   websocket: websocketReducer,
+  routeLog: routeLogReducer,
 
   auth: authReducer,
   users: usersReducer,

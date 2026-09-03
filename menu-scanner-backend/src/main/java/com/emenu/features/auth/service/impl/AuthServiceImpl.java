@@ -45,6 +45,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.emenu.enums.common.StockStatus;
+import com.emenu.enums.common.Status;
+import com.emenu.enums.payment.PaymentOptionType;
+import com.emenu.enums.user.BusinessStatus;
+import com.emenu.features.auth.models.BusinessSetting;
+import com.emenu.features.auth.repository.BusinessSettingRepository;
+import com.emenu.features.order.models.BusinessExchangeRate;
+import com.emenu.features.order.models.DeliveryOption;
+import com.emenu.features.order.models.PaymentOption;
+import com.emenu.features.order.repository.BusinessExchangeRateRepository;
+import com.emenu.features.order.repository.DeliveryOptionRepository;
+import com.emenu.features.order.repository.PaymentOptionRepository;
+import com.emenu.features.portfolio.models.PortfolioProfile;
+import com.emenu.features.portfolio.repository.PortfolioProfileRepository;
+import com.emenu.shared.constants.BusinessConstants;
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -54,6 +71,11 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BusinessRepository businessRepository;
+    private final BusinessSettingRepository businessSettingRepository;
+    private final BusinessExchangeRateRepository businessExchangeRateRepository;
+    private final DeliveryOptionRepository deliveryOptionRepository;
+    private final PaymentOptionRepository paymentOptionRepository;
+    private final PortfolioProfileRepository portfolioProfileRepository;
     private final UserMapper userMapper;
     private final RefreshTokenResponseMapper refreshTokenResponseMapper;
     private final PasswordEncoder passwordEncoder;
@@ -294,24 +316,25 @@ public class AuthServiceImpl implements AuthService {
 
         User savedUserEntity = userRepository.save(userEntity);
 
-        log.info("Quick user registration completed successfully: identifier={}, user_id={}", savedUserEntity.getUserIdentifier(), savedUserEntity.getId());
+        log.info("Quick user registration completed successfully: identifier={}, user_id={}",
+                savedUserEntity.getUserIdentifier(), savedUserEntity.getId());
         return userMapper.toResponse(savedUserEntity);
     }
 
     private Role getOrCreateBusinessUserRole() {
-        List<Role> systemRoles = roleRepository.findSystemRolesByName("BUSINESS_USER");
+        List<Role> systemRoles = roleRepository.findSystemRolesByName("BUSINESS_OWNER");
         if (!systemRoles.isEmpty()) {
             return systemRoles.get(0);
         }
 
-        Optional<Role> anyRole = roleRepository.findByNameAndIsDeletedFalse("BUSINESS_USER");
+        Optional<Role> anyRole = roleRepository.findByNameAndIsDeletedFalse("BUSINESS_OWNER");
         if (anyRole.isPresent()) {
             return anyRole.get();
         }
 
         Role defaultRole = new Role();
-        defaultRole.setName("BUSINESS_USER");
-        defaultRole.setDescription("Default Business User Role");
+        defaultRole.setName("BUSINESS_OWNER");
+        defaultRole.setDescription("Default Business Owner Role");
         defaultRole.setUserType(UserType.BUSINESS_USER);
         return roleRepository.save(defaultRole);
     }
@@ -468,24 +491,17 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if (userTypeEnum == UserType.BUSINESS_USER || userTypeEnum == UserType.CUSTOMER) {
-            if (businessIdString == null) {
-                log.warn("Refresh token validation failed - missing business ID: identifier={}, type={}", userIdentifier, userTypeEnum);
-                throw new ValidationException("Invalid refresh token: missing business ID for " + userTypeEnum.name().toLowerCase().replace("_", " "));
+            if (businessIdString != null && !businessIdString.isBlank()) {
+                try {
+                    UUID businessIdValue = UUID.fromString(businessIdString);
+                    Optional<User> userInBusiness = userRepository.findByUserIdentifierAndUserTypeAndBusinessIdAndIsDeletedFalse(userIdentifier, userTypeEnum, businessIdValue);
+                    if (userInBusiness.isPresent()) {
+                        return userInBusiness.get();
+                    }
+                } catch (IllegalArgumentException e) {
+                    log.warn("Refresh token validation - invalid business ID format: business_id_string={}", businessIdString);
+                }
             }
-
-            UUID businessIdValue;
-            try {
-                businessIdValue = UUID.fromString(businessIdString);
-            } catch (IllegalArgumentException e) {
-                log.warn("Refresh token validation failed - invalid business ID format: business_id_string={}", businessIdString);
-                throw new ValidationException("Invalid refresh token: invalid business ID format");
-            }
-
-            return userRepository.findByUserIdentifierAndUserTypeAndBusinessIdAndIsDeletedFalse(userIdentifier, userTypeEnum, businessIdValue)
-                    .orElseThrow(() -> {
-                        log.warn("Refresh token validation failed - user not found: identifier={}, business_id={}", userIdentifier, businessIdValue);
-                        return new ValidationException("User not found for refresh token context");
-                    });
         }
 
         return userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userTypeEnum)

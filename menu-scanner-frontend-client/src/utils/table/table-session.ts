@@ -4,7 +4,9 @@ export interface ActiveTableSession {
   seatedAt?: string;
 }
 
-const TABLE_SESSION_KEY = "active_table_session";
+import { SESSION_STORAGE_KEYS } from "@/constants/storage-keys";
+
+const TABLE_SESSION_KEY = SESSION_STORAGE_KEYS.TABLE_SESSION;
 
 export function getActiveTableSession(): ActiveTableSession | null {
   if (typeof window === "undefined") return null;

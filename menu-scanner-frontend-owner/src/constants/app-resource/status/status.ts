@@ -59,8 +59,9 @@ export enum SubscriptionPlanStatus {
 }
 
 export enum SubscriptionPlanDurationType {
-  WEEKLY = "WEEKLY",
+  FREE_TRIAL = "FREE_TRIAL",
   MONTHLY = "MONTHLY",
+  SIX_MONTHS = "SIX_MONTHS",
   YEARLY = "YEARLY",
 }
 

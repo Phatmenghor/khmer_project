@@ -26,20 +26,8 @@ public class PublicAuthController {
     private final BusinessRepository businessRepository;
     private final AuthService authService;
 
-    /**
-     * Public endpoint for self-registration of new business owners
-     * No authentication required - Anyone can register
-     */
-    @PostMapping("/register-business-owner")
-    public ResponseEntity<ApiResponse<BusinessOwnerCreateResponse>> registerBusinessOwner(
-            @Valid @RequestBody BusinessOwnerCreateRequest registerRequest) {
-        BusinessOwnerCreateResponse response = businessOwnerService.createBusinessOwner(registerRequest);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Business owner registration successful. You can now login with your credentials.", response));
-    }
-
-    @PostMapping("/quick-register")
-    public ResponseEntity<ApiResponse<UserResponse>> quickRegisterPublic(
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<UserResponse>> registerPublic(
             @Valid @RequestBody QuickRegisterRequest registrationRequestData) {
         UserResponse response = authService.registerQuickUser(registrationRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)

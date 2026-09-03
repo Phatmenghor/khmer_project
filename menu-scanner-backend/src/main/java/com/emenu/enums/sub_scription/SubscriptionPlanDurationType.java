@@ -1,7 +1,8 @@
 package com.emenu.enums.sub_scription;
 
 public enum SubscriptionPlanDurationType {
-    WEEKLY,
+    FREE_TRIAL,
     MONTHLY,
+    SIX_MONTHS,
     YEARLY
 }

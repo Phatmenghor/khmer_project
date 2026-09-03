@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, ChevronDown, User, KeyRound, LayoutDashboard } from "lucide-react";
+import { LogOut, ChevronDown, User, KeyRound, LayoutDashboard, CreditCard } from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import {
@@ -27,15 +27,12 @@ interface CustomProfileDropdownProps {
 export function CustomProfileDropdown({ className }: CustomProfileDropdownProps) {
   const router = useRouter();
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { profile, fullName } = useAuthState();
-  const { logout: handleLogout } = useLogout();
+  const { logout: handleLogout, isLoggingOut } = useLogout();
 
   const confirmLogout = async () => {
-    setIsLoggingOut(true);
-    setShowLogoutAlert(false);
     await handleLogout();
-    setIsLoggingOut(false);
+    setShowLogoutAlert(false);
   };
 
   const displayEmail = profile?.email || "";
@@ -44,7 +41,7 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
   const displayName = hasFullName ? fullName : userIdentifier;
 
   const rawPlanName = (profile as any)?.planName || (profile as any)?.subscriptionPlan || (profile as any)?.business?.planName;
-  const planLabel = rawPlanName ? `Plan: ${rawPlanName}` : "Free Account";
+  const planLabel = rawPlanName ? `Plan: ${rawPlanName}` : "Free Trial Plan";
 
   const profileImageUrl = getProfileImageUrl(profile, "sm");
 
@@ -54,6 +51,10 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
 
   const handleMyProfileClick = () => {
     router.push(ROUTES.PROFILE);
+  };
+
+  const handlePlanHistoryClick = () => {
+    router.push(ROUTES.SUBSCRIPTION_HISTORY);
   };
 
   const handleChangePasswordClick = () => {
@@ -141,11 +142,11 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
           </DropdownMenuItem>
 
           <DropdownMenuItem
-            onClick={handleChangePasswordClick}
+            onClick={handlePlanHistoryClick}
             className="py-2.5 px-3 rounded-xl cursor-pointer hover:bg-muted/80 focus:bg-muted/80 transition-colors text-xs font-bold flex items-center gap-2.5 text-foreground"
           >
-            <KeyRound className="h-4 w-4 text-muted-foreground shrink-0" />
-            Security Settings
+            <CreditCard className="h-4 w-4 text-primary shrink-0" />
+            Subscription & Plans
           </DropdownMenuItem>
 
           <DropdownMenuSeparator className="my-1.5 bg-border/60" />

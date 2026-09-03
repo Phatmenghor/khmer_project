@@ -45,6 +45,8 @@ import { GENDER_OPTIONS } from "@/constants/form-options";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { formatEnumLabel } from "@/utils/common/common";
 import { getActiveTableSession, clearActiveTableSession } from "@/utils/table/table-session";
+import { getUserDisplayRole, getUserDisplayEmail } from "@/utils/user/user-helper";
+import { UserRoleBadge } from "@/components/shared/user/user-role-badge";
 
 
 const customerProfileSchema = z.object({
@@ -293,21 +295,17 @@ export default function PublicProfilePage() {
                   {/* Headline & Badges */}
                   <div className="pb-1">
                     <h2 className="text-base sm:text-lg md:text-xl font-extrabold text-foreground tracking-tight flex items-center justify-center sm:justify-start gap-2">
-                      {userProfile?.fullName || "Customer User"}
+                      {userProfile?.fullName || (userProfile as any)?.userIdentifier || "Customer Profile"}
                     </h2>
                     <p className="text-xs font-semibold text-muted-foreground mt-0.5">
-                      {userProfile?.email}
+                      {getUserDisplayEmail(userProfile)}
                     </p>
                     <div className="flex items-center justify-center sm:justify-start gap-2 mt-2 flex-wrap">
                       <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-bold shadow-2xs">
                         <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                         {userProfile?.accountStatus || "ACTIVE"}
                       </span>
-                      {userProfile?.userType && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-muted border border-border/60 text-muted-foreground text-[11px] font-semibold">
-                          {formatEnumLabel(userProfile.userType)}
-                        </span>
-                      )}
+                      <UserRoleBadge profile={userProfile} />
                       {activeTableSession && (
                         <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-extrabold shadow-2xs">
                           <span className="w-4 h-4 rounded-full bg-emerald-500/15 flex items-center justify-center text-[10px] shrink-0">🪑</span>
