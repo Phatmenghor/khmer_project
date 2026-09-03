@@ -20,7 +20,7 @@ import java.util.UUID;
  * Responsible for:
  *  - Generating / propagating X-Request-ID
  *  - MDC population and cleanup
- *  - Centralized request entry and completion logging with Controller Location tags
+ *  - Centralized request completion logging with Controller Location tags
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -62,8 +62,6 @@ public class RequestIdFilter extends OncePerRequestFilter {
         // Echo back to caller for correlation
         response.setHeader(REQUEST_ID_HEADER, traceId);
         response.setHeader(TRACE_ID_HEADER,   traceId);
-
-        log.info("Endpoint Request: {} {}", request.getMethod(), path);
 
         try {
             chain.doFilter(request, response);
