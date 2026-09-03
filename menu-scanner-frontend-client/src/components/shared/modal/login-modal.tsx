@@ -21,6 +21,7 @@ import { TelegramAuthData } from "@/features/auth/store/models/request/social-au
 import { AppDefault, SocialAuthConfig } from "@/constants/app-resource/default/default";
 import { useAppSelector } from "@/store";
 import { selectBusinessName } from "@/features/business/store/selectors/business-settings-selector";
+import { getErrorMessage } from "@/utils/common/error-handler";
 import { RegisterModal } from "./register-modal";
 
 interface LoginModalProps {
@@ -68,22 +69,8 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
       setTimeout(() => {
         window.location.reload();
       }, 500);
-    } catch (err: any) {
-      let errorMessage: string = "Login failed. Please check your credentials.";
-
-      if (typeof err === "string") {
-        errorMessage = err;
-      } else if (err?.message) {
-        errorMessage = err.message;
-      } else if (err?.payload) {
-        if (typeof err.payload === "string") {
-          errorMessage = err.payload;
-        } else if (err.payload?.message) {
-          errorMessage = err.payload.message;
-        }
-      }
-
-      showToast.error(errorMessage);
+    } catch (err: unknown) {
+      showToast.error(getErrorMessage(err, "Login failed. Please check your credentials."));
     }
   }
 
@@ -113,7 +100,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
         window.location.reload();
       }
     } catch (err: unknown) {
-      showToast.error((err as { message?: string })?.message || Messages.auth.telegramFailed);
+      showToast.error(getErrorMessage(err, Messages.auth.telegramFailed));
     } finally {
       setIsTelegramLoading(false);
     }

@@ -24,6 +24,7 @@ import { TelegramAuthData } from "@/features/auth/store/models/request/social-au
 import { AppDefault, SocialAuthConfig } from "@/constants/app-resource/default/default";
 import { useAppSelector } from "@/store";
 import { selectBusinessName } from "@/features/business/store/selectors/business-settings-selector";
+import { getErrorMessage } from "@/utils/common/error-handler";
 
 interface RegisterModalProps {
   open: boolean;
@@ -93,40 +94,12 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
 
           showToast.success("Logged in successfully!");
           onOpenChange(false);
-        } catch (loginErr: any) {
-          let loginErrorMessage: string = "Registration successful, but login failed. Please log in manually.";
-
-          if (typeof loginErr === "string") {
-            loginErrorMessage = loginErr;
-          } else if (loginErr?.message) {
-            loginErrorMessage = loginErr.message;
-          } else if (loginErr?.payload) {
-            if (typeof loginErr.payload === "string") {
-              loginErrorMessage = loginErr.payload;
-            } else if (loginErr.payload?.message) {
-              loginErrorMessage = loginErr.payload.message;
-            }
-          }
-
-          showToast.error(loginErrorMessage);
+        } catch (loginErr: unknown) {
+          showToast.error(getErrorMessage(loginErr, "Registration successful, but login failed. Please log in manually."));
         }
       }
-    } catch (err: any) {
-      let errorMessage: string = "Registration failed. Please try again.";
-
-      if (typeof err === "string") {
-        errorMessage = err;
-      } else if (err?.message) {
-        errorMessage = err.message;
-      } else if (err?.payload) {
-        if (typeof err.payload === "string") {
-          errorMessage = err.payload;
-        } else if (err.payload?.message) {
-          errorMessage = err.payload.message;
-        }
-      }
-
-      showToast.error(errorMessage);
+    } catch (err: unknown) {
+      showToast.error(getErrorMessage(err, "Registration failed. Please try again."));
     } finally {
       setIsRegistrationLoading(false);
     }
