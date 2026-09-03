@@ -212,22 +212,12 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if (userTypeEnum == UserType.BUSINESS_USER || userTypeEnum == UserType.CUSTOMER) {
-            if (businessIdValue == null) {
-                log.warn("User login failed - missing business ID: identifier={}, type={}", userIdentifier, userTypeEnum);
-                throw new ValidationException(
-                        "Business ID is required for " + userTypeEnum.name().toLowerCase().replace("_", " ") + " login. Please provide businessId in your login request."
-                );
+            if (businessIdValue != null) {
+                Optional<User> userInBusiness = userRepository.findByUserIdentifierAndUserTypeAndBusinessIdAndIsDeletedFalse(userIdentifier, userTypeEnum, businessIdValue);
+                if (userInBusiness.isPresent()) {
+                    return userInBusiness.get();
+                }
             }
-
-            return userRepository.findByUserIdentifierAndUserTypeAndBusinessIdAndIsDeletedFalse(userIdentifier, userTypeEnum, businessIdValue)
-                    .orElseThrow(() -> {
-                        log.warn("User login failed - user not found in business: identifier={}, business_id={}, type={}", userIdentifier, businessIdValue, userTypeEnum);
-                        String userTypeLabel = userTypeEnum.name().toLowerCase().replace("_", " ");
-                        String capUserTypeLabel = userTypeLabel.substring(0, 1).toUpperCase() + userTypeLabel.substring(1);
-                        return new ValidationException(
-                                capUserTypeLabel + " account not found. Please check your user identifier and ensure you're using the correct business account."
-                        );
-                    });
         }
 
         return userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userTypeEnum)
@@ -298,10 +288,10 @@ public class AuthServiceImpl implements AuthService {
         User userEntity = new User();
         userEntity.setUserIdentifier(registrationRequestData.getUserIdentifier());
         userEntity.setPassword(passwordEncoder.encode(registrationRequestData.getPassword()));
-        userEntity.setUserType(UserType.PLATFORM_USER);
+        userEntity.setUserType(UserType.BUSINESS_USER);
         userEntity.setAccountStatus(AccountStatus.ACTIVE);
 
-        Role defaultRole = getOrCreatePlatformRole();
+        Role defaultRole = getOrCreateBusinessUserRole();
         userEntity.setRoles(List.of(defaultRole));
 
         User savedUserEntity = userRepository.save(userEntity);
@@ -310,21 +300,21 @@ public class AuthServiceImpl implements AuthService {
         return userMapper.toResponse(savedUserEntity);
     }
 
-    private Role getOrCreatePlatformRole() {
-        List<Role> systemRoles = roleRepository.findSystemRolesByName("PLATFORM_USER");
+    private Role getOrCreateBusinessUserRole() {
+        List<Role> systemRoles = roleRepository.findSystemRolesByName("BUSINESS_USER");
         if (!systemRoles.isEmpty()) {
             return systemRoles.get(0);
         }
 
-        Optional<Role> anyRole = roleRepository.findByNameAndIsDeletedFalse("PLATFORM_USER");
+        Optional<Role> anyRole = roleRepository.findByNameAndIsDeletedFalse("BUSINESS_USER");
         if (anyRole.isPresent()) {
             return anyRole.get();
         }
 
         Role defaultRole = new Role();
-        defaultRole.setName("PLATFORM_USER");
-        defaultRole.setDescription("Default Platform User Role");
-        defaultRole.setUserType(UserType.PLATFORM_USER);
+        defaultRole.setName("BUSINESS_USER");
+        defaultRole.setDescription("Default Business User Role");
+        defaultRole.setUserType(UserType.BUSINESS_USER);
         return roleRepository.save(defaultRole);
     }
 

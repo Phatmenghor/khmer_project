@@ -99,7 +99,7 @@ export function RegisterModal({
         loginService({
           userIdentifier: values.userIdentifier,
           password: values.password,
-          userType: "PLATFORM_USER",
+          userType: "BUSINESS_USER",
         }),
       ).unwrap();
       dispatch(getProfileService());
@@ -132,7 +132,7 @@ export function RegisterModal({
             loginService({
               userIdentifier: values.userIdentifier,
               password: values.password,
-              userType: "PLATFORM_USER",
+              userType: "BUSINESS_USER",
             }),
           ).unwrap();
 
@@ -157,7 +157,7 @@ export function RegisterModal({
       const result = await dispatch(
         telegramAuthenticateService({
           telegramData,
-          userType: "PLATFORM_USER",
+          userType: "BUSINESS_USER",
           businessId: AppDefault.BUSINESS_ID,
         }),
       ).unwrap();
