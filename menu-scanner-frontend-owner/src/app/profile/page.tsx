@@ -29,6 +29,7 @@ import Loading from "@/components/shared/common/loading";
 import Navbar from "@/components/landing/navbar";
 import Footer from "@/components/landing/footer";
 import { RegisterModal } from "@/components/landing/register-modal";
+import { LoginModal } from "@/components/landing/login-modal";
 import { getErrorMessage } from "@/utils/error/get-error-message";
 import {
   profileUpdateSchema,
@@ -58,6 +59,7 @@ export default function UserProfilePage() {
   const [activeSection, setActiveSection] = useState(tabParam === "security" ? "security" : "profile");
   const [isSavingImage, setIsSavingImage] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   useEffect(() => {
     if (tabParam === "security") {
@@ -309,6 +311,18 @@ export default function UserProfilePage() {
       <RegisterModal
         isOpen={isRegisterModalOpen}
         onClose={() => setIsRegisterModalOpen(false)}
+        onLoginClick={() => {
+          setIsRegisterModalOpen(false);
+          setIsLoginModalOpen(true);
+        }}
+      />
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onRegisterClick={() => {
+          setIsLoginModalOpen(false);
+          setIsRegisterModalOpen(true);
+        }}
       />
     </>
   );

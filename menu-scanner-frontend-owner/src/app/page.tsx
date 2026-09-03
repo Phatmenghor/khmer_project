@@ -11,17 +11,21 @@ import FaqSection from "@/components/landing/faq-section";
 import Footer from "@/components/landing/footer";
 import PlatformCapabilitiesSection from "@/components/landing/platform-capabilities-section";
 import { RegisterModal } from "@/components/landing/register-modal";
+import { LoginModal } from "@/components/landing/login-modal";
 
 export default function LandingPage() {
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   return (
     <>
-      <Navbar onRegisterClick={() => setIsRegisterModalOpen(true)} />
+      <Navbar
+        onRegisterClick={() => setIsRegisterModalOpen(true)}
+      />
       <main className="overflow-x-hidden md:px-[6%] space-y-2">
         <HeroSection />
         <StatsSection />
-        <PricingSection />
+        <PricingSection onSelectPlan={() => setIsRegisterModalOpen(true)} />
         <PlatformCapabilitiesSection />
         <HowItWorksSection />
         <FounderSection />
@@ -31,6 +35,12 @@ export default function LandingPage() {
       <RegisterModal
         isOpen={isRegisterModalOpen}
         onClose={() => setIsRegisterModalOpen(false)}
+        onLoginClick={() => setIsLoginModalOpen(true)}
+      />
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onRegisterClick={() => setIsRegisterModalOpen(true)}
       />
     </>
   );

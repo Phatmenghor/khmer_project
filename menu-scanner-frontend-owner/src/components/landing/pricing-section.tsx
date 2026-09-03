@@ -7,8 +7,13 @@ import FadeIn from "@/components/landing/fade-in";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { LANDING_CONFIG, ALL_PLATFORM_FEATURES } from "@/constants/landing-config";
 import { RegisterModal } from "./register-modal";
+import { LoginModal } from "./login-modal";
 import { useState, useEffect } from "react";
 import { axiosClient } from "@/utils/axios";
+
+interface PricingSectionProps {
+  onSelectPlan?: () => void;
+}
 
 interface PlanData {
   id?: string;
@@ -42,8 +47,9 @@ const fetchPublicPlansDeduplicated = (): Promise<SubscriptionPlanResponse[]> => 
   return publicPlansCachePromise;
 };
 
-export default function PricingSection() {
+export default function PricingSection({ onSelectPlan }: PricingSectionProps = {}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanData>();
   const [plans, setPlans] = useState<(PlanData & { features?: string[]; highlighted?: boolean })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -117,8 +123,12 @@ export default function PricingSection() {
   };
 
   const handlePlanClick = (plan: PlanData) => {
-    setSelectedPlan(plan);
-    setIsModalOpen(true);
+    if (onSelectPlan) {
+      onSelectPlan();
+    } else {
+      setSelectedPlan(plan);
+      setIsModalOpen(true);
+    }
   };
 
   return (
@@ -224,11 +234,22 @@ export default function PricingSection() {
           )}
       </div>
 
-      {/* Register Modal */}
+      {/* Register & Login Modals */}
       <RegisterModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        plan={selectedPlan}
+        onLoginClick={() => {
+          setIsModalOpen(false);
+          setIsLoginModalOpen(true);
+        }}
+      />
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onRegisterClick={() => {
+          setIsLoginModalOpen(false);
+          setIsModalOpen(true);
+        }}
       />
     </section>
   );
