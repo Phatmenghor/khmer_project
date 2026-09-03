@@ -12,6 +12,7 @@ import { CancelButton } from "@/components/shared/button/cancel-button";
 import { SubmitButton } from "@/components/shared/button/submit-button";
 import Loading from "@/components/shared/common/loading";
 import { showToast } from "@/components/shared/common/show-toast";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 import { getFieldError } from "@/utils/common/get-field-error";
 import { formatDate } from "@/utils/date/date-time-format";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -138,8 +139,8 @@ export default function SubscriptionActionModal({
       showToast.success(`Subscription renewed for ${owner.businessName}`);
       onSuccess?.();
       handleClose();
-    } catch (error: any) {
-      showToast.error(error || "Failed to renew subscription");
+    } catch (error: unknown) {
+      showToast.error(getErrorMessage(error, "Failed to renew subscription"));
     } finally {
       setIsSubmitting(false);
     }
@@ -156,8 +157,8 @@ export default function SubscriptionActionModal({
       showToast.success(`Plan changed for ${owner.businessName}`);
       onSuccess?.();
       handleClose();
-    } catch (error: any) {
-      showToast.error(error || "Failed to change plan");
+    } catch (error: unknown) {
+      showToast.error(getErrorMessage(error, "Failed to change plan"));
     } finally {
       setIsSubmitting(false);
     }
@@ -174,8 +175,8 @@ export default function SubscriptionActionModal({
       showToast.success(`Subscription cancelled for ${owner.businessName}`);
       onSuccess?.();
       handleClose();
-    } catch (error: any) {
-      showToast.error(error || "Failed to cancel subscription");
+    } catch (error: unknown) {
+      showToast.error(getErrorMessage(error, "Failed to cancel subscription"));
     } finally {
       setIsSubmitting(false);
     }

@@ -21,6 +21,7 @@ import { userBusinessTableColumns } from "@/features/auth/table/users-business-t
 import { ACCOUNT_STATUS_FILTER } from "@/constants/app-resource/status/filter-status";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 import { CollapsibleFilterPanel } from "@/components/shared/common/collapsible-filter-panel";
 import { useUsersState } from "@/features/auth/store/state/users-state";
 import { usePagination } from "@/hooks/use-pagination";
@@ -207,8 +208,8 @@ export default function UserPage() {
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete user");
+    } catch (error: unknown) {
+      showToast.error(getErrorMessage(error, "Failed to delete user"));
     }
   };
 

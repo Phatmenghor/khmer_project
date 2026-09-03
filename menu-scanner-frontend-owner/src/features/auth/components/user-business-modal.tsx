@@ -14,6 +14,8 @@ import { selectRolesList } from "../store/selectors/role-selectors";
 import { formatEnumLabel } from "@/utils/common/enum-convert";
 import { getProfileImageUrl } from "@/utils/user/user-helper";
 import Loading from "@/components/shared/common/loading";
+import { showToast } from "@/components/shared/common/show-toast";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
@@ -25,7 +27,6 @@ import { CreateUserRequest, UpdateUserRequest } from "../store/models/request/us
 import { createUserSchema, updateUserSchema, UserFormData } from "../store/models/schema/user.schema";
 import { fetchUserByIdService, createUserService, updateUserService } from "../store/thunks/users-thunks";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { showToast } from "@/components/shared/common/show-toast";
 import { clearError, clearSelectedUser } from "../store/slice/users-slice";
 import {
   selectError,
@@ -202,8 +203,8 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
         showToast.success(`Business user "${result.userIdentifier || result.email}" updated successfully`);
         handleClose();
       }
-    } catch (error: any) {
-      showToast.error(error || `Failed to ${isCreate ? "create" : "update"} business user`);
+    } catch (error: unknown) {
+      showToast.error(getErrorMessage(error, `Failed to ${isCreate ? "create" : "update"} business user`));
     }
   };
 

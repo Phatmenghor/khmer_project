@@ -30,6 +30,7 @@ import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { buildRoleFilterOptions } from "@/utils/filter/role-filter-options";
 import { CollapsibleFilterPanel } from "@/components/shared/common/collapsible-filter-panel";
 import { showToast } from "@/components/shared/common/show-toast";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 import { useUsersState } from "@/features/auth/store/state/users-state";
 import { usePagination } from "@/hooks/use-pagination";
 import {
@@ -205,8 +206,8 @@ export default function UserPage() {
         })
       ).unwrap();
       showToast.success(`User status updated to ${newStatus}`);
-    } catch (error: any) {
-      showToast.error(error?.message || "Failed to update user status");
+    } catch (error: unknown) {
+      showToast.error(getErrorMessage(error, "Failed to update user status"));
     }
   };
 
@@ -227,7 +228,7 @@ export default function UserPage() {
         data: usersData,
         handlers: tableHandlers,
       }),
-    [userState, tableHandlers]
+    [usersData, tableHandlers]
   );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -235,7 +236,7 @@ export default function UserPage() {
   };
 
   const handleStatusChange = (status: AccountStatus) => {
-    dispatch(setAccountStatusFilter(status));
+    dispatch(setAccountStatusFilter((status || AccountStatus.ALL) as AccountStatus));
   };
 
   const handleRoleChange = (role: UserRole) => {
@@ -270,8 +271,8 @@ export default function UserPage() {
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete user");
+    } catch (error: unknown) {
+      showToast.error(getErrorMessage(error, "Failed to delete user"));
     }
   };
 

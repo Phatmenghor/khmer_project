@@ -18,6 +18,7 @@ import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { showToast } from "@/components/shared/common/show-toast";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 import {
   selectError,
   selectIsFetchingDetail,
@@ -177,9 +178,8 @@ export default function SubscriptionPlanModal({
 
         handleClose();
       }
-    } catch (error: any) {
-      console.error("Error saving Subscription Plan:", error);
-      showToast.error(error || "Failed to save Subscription Plan");
+    } catch (error: unknown) {
+      showToast.error(getErrorMessage(error, "Failed to save Subscription Plan"));
     }
   };
 

@@ -21,6 +21,7 @@ import { CustomSelect } from "@/components/shared/common/custom-select";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { usePagination } from "@/hooks/use-pagination";
 import { showToast } from "@/components/shared/common/show-toast";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 import {
   AUTO_RENEW_FILTER,
   SUBSCRIPTION_FILTER,
@@ -197,8 +198,8 @@ export default function BusinessOwnerPage() {
       ).unwrap();
 
       showToast.success(`Auto renew ${checked ? "enabled" : "disabled"}`);
-    } catch (error: any) {
-      showToast.error(error || "Failed to update auto renew");
+    } catch (error: unknown) {
+      showToast.error(getErrorMessage(error, "Failed to update auto renew"));
     }
   };
 
@@ -240,8 +241,8 @@ export default function BusinessOwnerPage() {
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete business owner");
+    } catch (error: unknown) {
+      showToast.error(getErrorMessage(error, "Failed to delete business owner"));
     }
   };
 

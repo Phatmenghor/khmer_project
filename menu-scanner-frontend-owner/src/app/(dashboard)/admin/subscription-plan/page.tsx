@@ -19,6 +19,7 @@ import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confir
 import { SUBSCRIPTION_PLAN_FILTER } from "@/constants/app-resource/status/filter-status";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 import { usePagination } from "@/hooks/use-pagination";
 import { useSubscriptionPlanState } from "@/features/master-data/store/state/subscription-plan-state";
 import {
@@ -217,8 +218,8 @@ export default function SubscriptionPlanPage() {
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete Subscription Plan");
+    } catch (error: unknown) {
+      showToast.error(getErrorMessage(error, "Failed to delete Subscription Plan"));
     }
   };
 

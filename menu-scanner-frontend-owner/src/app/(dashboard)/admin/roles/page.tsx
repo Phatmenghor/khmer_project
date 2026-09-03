@@ -12,6 +12,7 @@ import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/c
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 import { usePagination } from "@/hooks/use-pagination";
 import { ModalMode } from "@/constants/app-resource/status/status";
 import { RoleResponseModel } from "@/features/auth/store/models/response/role-response";
@@ -151,7 +152,7 @@ export default function RolesPage() {
         updateUrlWithPage(newPage);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete role");
+      showToast.error(getErrorMessage(error, "Failed to delete role"));
     }
   };
 

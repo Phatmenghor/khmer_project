@@ -11,6 +11,7 @@ import { SubmitButton } from "@/components/shared/button/submit-button";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { showToast } from "@/components/shared/common/show-toast";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
@@ -118,8 +119,8 @@ export default function UpdateBusinessOwnerModal({ isOpen, onClose, ownerId }: P
 
       showToast.success(`Business owner "${result.businessName}" updated successfully`);
       handleClose();
-    } catch (error: any) {
-      showToast.error(error || "Failed to update business owner");
+    } catch (error: unknown) {
+      showToast.error(getErrorMessage(error, "Failed to update business owner"));
     }
   };
 
