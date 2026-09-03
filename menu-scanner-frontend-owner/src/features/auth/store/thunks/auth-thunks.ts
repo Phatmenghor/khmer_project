@@ -136,3 +136,16 @@ export const registerCustomerService = createApiThunk<any, CustomerRegisterReque
     return response.data.data;
   }
 );
+
+export interface QuickRegisterRequest {
+  userIdentifier: string;
+  password: string;
+}
+
+export const registerQuickUserService = createApiThunk<any, QuickRegisterRequest>(
+  "auth/registerQuickUser",
+  async (registerData) => {
+    const response = await axiosClient.post("/api/v1/public/quick-register", registerData);
+    return response.data.data;
+  }
+);

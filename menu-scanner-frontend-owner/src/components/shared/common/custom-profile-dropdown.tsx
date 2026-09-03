@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { LogOut, ChevronDown, User, KeyRound, CreditCard } from "lucide-react";
+import { LogOut, ChevronDown, User, KeyRound, LayoutDashboard } from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import {
@@ -17,7 +17,6 @@ import { ROUTES } from "@/constants/app-routes/routes";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useLogout } from "@/hooks/use-logout";
 import { SignoutModal } from "@/components/shared/modal/signout-modal";
-
 import { getProfileImageUrl, getUserInitials } from "@/utils/user/user-helper";
 
 interface CustomProfileDropdownProps {
@@ -27,7 +26,7 @@ interface CustomProfileDropdownProps {
 export function CustomProfileDropdown({ className }: CustomProfileDropdownProps) {
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const { profile, fullName, profileImage, roles } = useAuthState();
+  const { profile, fullName } = useAuthState();
   const { logout: handleLogout } = useLogout();
 
   const confirmLogout = async () => {
@@ -37,11 +36,15 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
     setIsLoggingOut(false);
   };
 
-  const displayName = fullName || profile?.fullName || "User";
   const displayEmail = profile?.email || "";
-  const userIdentifier = (profile as any)?.userIdentifier || (profile as any)?.employeeId || "";
+  const userIdentifier = (profile as any)?.userIdentifier || (profile as any)?.employeeId || displayEmail || "User";
+  const hasFullName = Boolean(fullName && fullName.trim() !== "" && fullName !== userIdentifier);
+  const displayName = hasFullName ? fullName : userIdentifier;
+
+  const rawPlanName = (profile as any)?.planName || (profile as any)?.subscriptionPlan || (profile as any)?.business?.planName;
+  const planLabel = rawPlanName ? `Plan: ${rawPlanName}` : "Free Account";
+
   const profileImageUrl = getProfileImageUrl(profile, "sm");
-  const primaryRole = roles?.[0];
 
   return (
     <>
@@ -50,77 +53,105 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
           <CustomButton
             variant="unstyled"
             size="unstyled"
-            className="flex items-center gap-2.5 rounded-xl px-2.5 py-1.5 hover:bg-accent/80 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring group"
+            className="flex items-center gap-2.5 rounded-2xl px-2.5 py-1.5 hover:bg-accent/70 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring group cursor-pointer border border-transparent hover:border-border/60"
           >
             {/* User Avatar */}
-            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="relative w-9 h-9 rounded-full overflow-hidden bg-primary/10 border border-primary/25 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
               {profileImageUrl ? (
                 <SmartImage src={profileImageUrl} alt={displayName} fill className="object-cover" />
               ) : (
-                <span className="text-base font-extrabold text-primary">
+                <span className="text-sm font-black text-primary">
                   {getUserInitials(displayName)}
                 </span>
               )}
             </div>
 
-            {/* Clean Name & User Identifier */}
-            <div className="flex flex-col items-start leading-snug text-left hidden sm:flex">
-              <span className="text-sm font-bold text-foreground truncate max-w-[160px] group-hover:text-primary transition-colors">
+            {/* Display Identifier Only Once when no full name exists */}
+            <div className="flex flex-col items-start leading-tight text-left hidden sm:flex">
+              <span className="text-xs font-bold text-foreground truncate max-w-[160px] group-hover:text-primary transition-colors">
                 {displayName}
               </span>
-              {userIdentifier && !userIdentifier.includes("@") && (
-                <span className="text-xs font-mono font-medium text-muted-foreground truncate max-w-[160px]">
-                  ID: {userIdentifier}
+              {hasFullName && (
+                <span className="text-[10px] font-mono font-medium text-muted-foreground truncate max-w-[160px]">
+                  {userIdentifier}
                 </span>
               )}
             </div>
-            <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
+            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
           </CustomButton>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="w-64 p-1.5" sideOffset={8}>
-          <DropdownMenuLabel className="font-normal px-3 py-2">
-            <div className="flex flex-col gap-1 min-w-0">
-              <div className="flex items-center justify-between gap-2 min-w-0">
-                <span className="font-bold text-sm truncate text-foreground">{displayName}</span>
-                {userIdentifier && !userIdentifier.includes("@") && (
-                  <span className="text-xs font-mono font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded border border-primary/20 shrink-0">
-                    ID: {userIdentifier}
+        <DropdownMenuContent
+          align="end"
+          className="w-72 p-2 rounded-[20px] shadow-2xl border border-border/80 bg-background/95 backdrop-blur-2xl animate-in fade-in-80 zoom-in-95"
+          sideOffset={8}
+        >
+          {/* Header Card Info */}
+          <DropdownMenuLabel className="font-normal p-3 rounded-[14px] bg-muted/40 border border-border/50">
+            <div className="flex items-start gap-3">
+              <div className="relative w-10 h-10 rounded-full overflow-hidden bg-primary/15 border border-primary/30 flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+                {profileImageUrl ? (
+                  <SmartImage src={profileImageUrl} alt={displayName} fill className="object-cover" />
+                ) : (
+                  <span className="text-base font-black text-primary">
+                    {getUserInitials(displayName)}
                   </span>
                 )}
               </div>
-              <span className="text-xs text-muted-foreground truncate">
-                {displayEmail}
-              </span>
+              <div className="flex flex-col min-w-0 flex-1 space-y-0.5">
+                <span className="font-extrabold text-xs truncate text-foreground">{displayName}</span>
+
+                {hasFullName && (
+                  <div className="text-[11px] font-mono font-medium text-muted-foreground truncate">
+                    {userIdentifier.includes("@") ? userIdentifier : `ID: ${userIdentifier}`}
+                  </div>
+                )}
+
+                {/* Clean Plain Text Plan Status (No Icon) */}
+                <div className="pt-1 flex items-center">
+                  <span className="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
+                    {planLabel}
+                  </span>
+                </div>
+              </div>
             </div>
           </DropdownMenuLabel>
 
-          <DropdownMenuSeparator className="my-1" />
+          <DropdownMenuSeparator className="my-1.5 bg-border/60" />
 
-          <DropdownMenuItem asChild className="py-2.5 px-3 rounded-lg">
-            <Link href={ROUTES.ADMIN.PROFILE} className="cursor-pointer text-sm font-semibold flex items-center">
-              <User className="h-4 w-4 mr-2.5 text-muted-foreground" />
+          {/* Menu Options */}
+          <DropdownMenuItem asChild className="py-2.5 px-3 rounded-xl cursor-pointer hover:bg-muted/80 focus:bg-muted/80 transition-colors">
+            <Link href={ROUTES.DASHBOARD.BUSINESS_OWNER} className="text-xs font-bold flex items-center gap-2.5 text-foreground">
+              <LayoutDashboard className="h-4 w-4 text-primary shrink-0" />
+              Store Dashboard
+            </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem asChild className="py-2.5 px-3 rounded-xl cursor-pointer hover:bg-muted/80 focus:bg-muted/80 transition-colors">
+            <Link href={ROUTES.ADMIN.PROFILE} className="text-xs font-bold flex items-center gap-2.5 text-foreground">
+              <User className="h-4 w-4 text-muted-foreground shrink-0" />
               My Profile
             </Link>
           </DropdownMenuItem>
 
-          <DropdownMenuItem asChild className="py-2.5 px-3 rounded-lg">
+          <DropdownMenuItem asChild className="py-2.5 px-3 rounded-xl cursor-pointer hover:bg-muted/80 focus:bg-muted/80 transition-colors">
             <Link
               href={`${ROUTES.ADMIN.PROFILE}?tab=security`}
-              className="cursor-pointer text-sm font-semibold flex items-center"
+              className="text-xs font-bold flex items-center gap-2.5 text-foreground"
             >
-              <KeyRound className="h-4 w-4 mr-2.5 text-muted-foreground" />
+              <KeyRound className="h-4 w-4 text-muted-foreground shrink-0" />
               Change Password
             </Link>
           </DropdownMenuItem>
 
-          <DropdownMenuSeparator className="my-1" />
+          <DropdownMenuSeparator className="my-1.5 bg-border/60" />
 
+          {/* Sign Out Action */}
           <DropdownMenuItem
-            className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer text-sm font-bold py-2.5 px-3 rounded-lg flex items-center"
+            className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer text-xs font-bold py-2.5 px-3 rounded-xl flex items-center gap-2.5 transition-colors"
             onSelect={() => setShowLogoutAlert(true)}
           >
-            <LogOut className="h-4 w-4 mr-2.5" />
+            <LogOut className="h-4 w-4 shrink-0" />
             Sign Out
           </DropdownMenuItem>
         </DropdownMenuContent>

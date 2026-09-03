@@ -1,10 +1,12 @@
 package com.emenu.features.auth.service.impl;
 
+import com.emenu.enums.user.AccountStatus;
 import com.emenu.enums.user.UserType;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.dto.request.AdminPasswordResetRequest;
 import com.emenu.features.auth.dto.request.LoginRequest;
 import com.emenu.features.auth.dto.request.PasswordChangeRequest;
+import com.emenu.features.auth.dto.request.QuickRegisterRequest;
 import com.emenu.features.auth.dto.request.RefreshTokenRequest;
 import com.emenu.features.auth.dto.request.RegisterRequest;
 import com.emenu.features.auth.dto.response.LoginResponse;
@@ -282,6 +284,48 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("Customer registration completed successfully: identifier={}, user_id={}", savedUserEntity.getUserIdentifier(), savedUserEntity.getId());
         return userMapper.toResponse(savedUserEntity);
+    }
+
+    @Override
+    public UserResponse registerQuickUser(QuickRegisterRequest registrationRequestData) {
+        log.info("Quick user registration initiated: identifier={}", registrationRequestData.getUserIdentifier());
+
+        if (userRepository.existsByUserIdentifierAndIsDeletedFalse(registrationRequestData.getUserIdentifier())) {
+            log.warn("Quick registration failed - duplicate username: identifier={}", registrationRequestData.getUserIdentifier());
+            throw new ValidationException("This username is already taken. Please choose another username or sign in.");
+        }
+
+        User userEntity = new User();
+        userEntity.setUserIdentifier(registrationRequestData.getUserIdentifier());
+        userEntity.setPassword(passwordEncoder.encode(registrationRequestData.getPassword()));
+        userEntity.setUserType(UserType.PLATFORM_USER);
+        userEntity.setAccountStatus(AccountStatus.ACTIVE);
+
+        Role defaultRole = getOrCreatePlatformRole();
+        userEntity.setRoles(List.of(defaultRole));
+
+        User savedUserEntity = userRepository.save(userEntity);
+
+        log.info("Quick user registration completed successfully: identifier={}, user_id={}", savedUserEntity.getUserIdentifier(), savedUserEntity.getId());
+        return userMapper.toResponse(savedUserEntity);
+    }
+
+    private Role getOrCreatePlatformRole() {
+        List<Role> systemRoles = roleRepository.findSystemRolesByName("PLATFORM_USER");
+        if (!systemRoles.isEmpty()) {
+            return systemRoles.get(0);
+        }
+
+        Optional<Role> anyRole = roleRepository.findByNameAndIsDeletedFalse("PLATFORM_USER");
+        if (anyRole.isPresent()) {
+            return anyRole.get();
+        }
+
+        Role defaultRole = new Role();
+        defaultRole.setName("PLATFORM_USER");
+        defaultRole.setDescription("Default Platform User Role");
+        defaultRole.setUserType(UserType.PLATFORM_USER);
+        return roleRepository.save(defaultRole);
     }
 
     @Override

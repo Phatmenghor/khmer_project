@@ -1,29 +1,30 @@
 "use client";
 
-import { CustomButton, CancelButton } from "@/components/shared/button/custom-button";
-import { CustomModal } from "@/components/shared/modal/custom-modal";
-import { Messages } from "@/constants/messages";
 import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { UserPlus } from "lucide-react";
-
+import { zodResolver } from "@hookform/resolvers/zod";
+import { UserCheck, UserPlus, LogIn } from "lucide-react";
+import { CustomButton, CancelButton } from "@/components/shared/button/custom-button";
+import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
 import { FormHeader } from "@/components/shared/form-field/form-header";
+import { AuthSocialGrid } from "@/components/shared/auth/auth-social-divider";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import {
-  registerCustomerService,
+  registerQuickUserService,
   loginService,
+  getProfileService,
 } from "@/features/auth/store/thunks/auth-thunks";
 import { telegramAuthenticateService } from "@/features/auth/store/thunks/social-auth-thunks";
 import { showToast } from "@/components/shared/common/show-toast";
-import { TelegramLoginButton } from "@/components/shared/telegram/telegram-login-widget";
 import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
-import { AppDefault, SocialAuthConfig } from "@/constants/app-resource/default/default";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { useAppSelector } from "@/store";
 import { selectBusinessName } from "@/features/business/store/selectors/business-settings-selector";
+import { getErrorMessage } from "@/utils/error/get-error-message";
+import { Messages } from "@/constants/messages";
 
 interface RegisterModalProps {
   isOpen?: boolean;
@@ -32,24 +33,36 @@ interface RegisterModalProps {
   onOpenChange?: (open: boolean) => void;
   plan?: any;
   onLoginClick?: () => void;
+  initialView?: "login" | "register";
 }
 
+const loginSchema = z.object({
+  userIdentifier: z.string().min(1, "Identifier is required"),
+  password: z.string().min(6, "Min 6 characters"),
+});
+
 const registerSchema = z.object({
-  userIdentifier: z.string().min(3, "User Identifier must be at least 3 characters"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Password confirmation is required"),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  phone: z.string().min(1, "Phone number is required"),
+  userIdentifier: z.string().min(3, "Min 3 characters"),
+  password: z.string().min(6, "Min 6 characters"),
+  confirmPassword: z.string().min(6, "Confirmation required"),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
+  message: "Passwords must match",
   path: ["confirmPassword"],
 });
 
+type LoginFormData = z.infer<typeof loginSchema>;
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-export function RegisterModal({ isOpen, open, onClose, onOpenChange, onLoginClick }: RegisterModalProps) {
+export function RegisterModal({
+  isOpen,
+  open,
+  onClose,
+  onOpenChange,
+  initialView = "login",
+}: RegisterModalProps) {
   const isModalOpen = isOpen ?? open ?? false;
+  const [view, setView] = useState<"login" | "register">(initialView);
+
   const handleModalClose = () => {
     onClose?.();
     onOpenChange?.(false);
@@ -58,36 +71,60 @@ export function RegisterModal({ isOpen, open, onClose, onOpenChange, onLoginClic
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isTelegramLoading, setIsTelegramLoading] = useState(false);
-  const [isRegistrationLoading, setIsRegistrationLoading] = useState(false);
+  const [isSubmitLoading, setIsSubmitLoading] = useState(false);
 
   const { isLoading, dispatch } = useAuthState();
   const isSocialLoading = useAppSelector((state) => state.auth.isSocialLoading);
   const businessName = useAppSelector(selectBusinessName);
-  const isAnyLoading = isLoading || isSocialLoading || isTelegramLoading || isRegistrationLoading;
+  const isAnyLoading = isLoading || isSocialLoading || isTelegramLoading || isSubmitLoading;
+
+  const loginForm = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { userIdentifier: "", password: "" },
+  });
 
   const registerForm = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { userIdentifier: "", password: "", confirmPassword: "", firstName: "", lastName: "", phone: "" },
+    defaultValues: {
+      userIdentifier: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
+  async function onLoginSubmit(values: LoginFormData) {
+    setIsSubmitLoading(true);
+    try {
+      await dispatch(
+        loginService({
+          userIdentifier: values.userIdentifier,
+          password: values.password,
+          userType: "PLATFORM_USER",
+        }),
+      ).unwrap();
+      dispatch(getProfileService());
+      showToast.success("Signed in successfully!");
+      handleModalClose();
+      window.location.reload();
+    } catch (err) {
+      showToast.error(getErrorMessage(err, "Login failed. Check details."));
+    } finally {
+      setIsSubmitLoading(false);
+    }
+  }
+
   async function onRegisterSubmit(values: RegisterFormData) {
-    setIsRegistrationLoading(true);
+    setIsSubmitLoading(true);
     try {
       const result = await dispatch(
-        registerCustomerService({
+        registerQuickUserService({
           userIdentifier: values.userIdentifier,
-          email: values.userIdentifier,
           password: values.password,
-          firstName: values.firstName,
-          lastName: values.lastName,
-          phoneNumber: values.phone,
-          userType: "CUSTOMER",
-          businessId: AppDefault.BUSINESS_ID,
         }),
       ).unwrap();
 
       if (result) {
-        showToast.success(Messages.auth.accountCreated);
+        showToast.success("Account created!");
         registerForm.reset();
 
         try {
@@ -99,22 +136,18 @@ export function RegisterModal({ isOpen, open, onClose, onOpenChange, onLoginClic
             }),
           ).unwrap();
 
-          showToast.success("Logged in successfully!");
+          showToast.success("Signed in successfully!");
           handleModalClose();
+          window.location.reload();
         } catch (loginErr: any) {
-          let loginErrorMessage: string = "Registration successful, but login failed. Please log in manually.";
-          if (typeof loginErr === "string") loginErrorMessage = loginErr;
-          else if (loginErr?.message) loginErrorMessage = loginErr.message;
-          showToast.error(loginErrorMessage);
+          showToast.error("Created! Please sign in.");
+          setView("login");
         }
       }
     } catch (err: any) {
-      let errorMessage: string = "Registration failed. Please try again.";
-      if (typeof err === "string") errorMessage = err;
-      else if (err?.message) errorMessage = err.message;
-      showToast.error(errorMessage);
+      showToast.error(getErrorMessage(err, "Registration failed."));
     } finally {
-      setIsRegistrationLoading(false);
+      setIsSubmitLoading(false);
     }
   }
 
@@ -122,13 +155,15 @@ export function RegisterModal({ isOpen, open, onClose, onOpenChange, onLoginClic
     setIsTelegramLoading(true);
     try {
       const result = await dispatch(
-        telegramAuthenticateService({ telegramData, userType: "PLATFORM_USER", businessId: AppDefault.BUSINESS_ID }),
+        telegramAuthenticateService({
+          telegramData,
+          userType: "PLATFORM_USER",
+          businessId: AppDefault.BUSINESS_ID,
+        }),
       ).unwrap();
 
       if (result) {
-        showToast.success(
-          result.isNewUser ? "Welcome! Your account has been created." : Messages.auth.welcomeBack,
-        );
+        showToast.success(result.isNewUser ? "Welcome!" : Messages.auth.welcomeBack);
         handleModalClose();
         window.location.reload();
       }
@@ -139,9 +174,14 @@ export function RegisterModal({ isOpen, open, onClose, onOpenChange, onLoginClic
     }
   };
 
+  const handleGoogleAuth = () => {
+    showToast.info("Google OAuth ready.");
+  };
+
   const handleClose = () => {
     if (!isAnyLoading) {
       handleModalClose();
+      loginForm.reset();
       registerForm.reset();
     }
   };
@@ -149,31 +189,96 @@ export function RegisterModal({ isOpen, open, onClose, onOpenChange, onLoginClic
   return (
     <CustomModal isOpen={isModalOpen} onClose={handleClose} size="md">
       <FormHeader
-        title="Create Account"
+        title={view === "login" ? "Sign In" : "Register"}
         description={
-          businessName
-            ? `Join ${businessName} to start shopping`
-            : "Create a new account to continue"
+          view === "login"
+            ? "Sign in to continue"
+            : businessName
+            ? `Register for ${businessName}`
+            : "Create account to continue"
         }
-        icon={UserPlus}
+        icon={view === "login" ? UserCheck : UserPlus}
         showAvatar={false}
       />
 
-      <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="flex flex-col flex-1">
-        <div className="p-4 sm:p-5 space-y-3.5 max-h-[70vh] overflow-y-auto">
-          <div className="space-y-3">
+      {view === "login" ? (
+        /* DEDICATED LOGIN MODAL VIEW */
+        <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="flex flex-col flex-1">
+          <div className="p-4 sm:p-5 space-y-3 max-h-[65vh] overflow-y-auto">
             <TextField
               name="userIdentifier"
               label="User Identifier"
-              placeholder="Enter username or email"
+              placeholder="Username or email"
+              control={loginForm.control}
+              error={loginForm.formState.errors.userIdentifier}
+              disabled={isAnyLoading}
+              required
+              inputClassName="h-9 text-xs rounded-xl"
+            />
+
+            <PasswordField
+              name="password"
+              label="Password"
+              placeholder="Enter password"
+              control={loginForm.control}
+              error={loginForm.formState.errors.password}
+              disabled={isAnyLoading}
+              required
+              showPassword={showPassword}
+              onTogglePassword={() => setShowPassword((v) => !v)}
+              inputClassName="h-9 text-xs rounded-xl"
+            />
+
+            <AuthSocialGrid
+              onGoogleAuth={handleGoogleAuth}
+              onTelegramAuth={handleTelegramAuth}
+              disabled={isAnyLoading}
+              isTelegramLoading={isTelegramLoading}
+            />
+          </div>
+
+          <div className="px-4 py-3 border-t border-border/70 bg-muted/20 flex items-center justify-between gap-3">
+            <p className="text-xs text-muted-foreground font-medium">
+              No account?{" "}
+              <button
+                type="button"
+                onClick={() => setView("register")}
+                className="text-primary font-extrabold hover:underline cursor-pointer"
+              >
+                Register
+              </button>
+            </p>
+
+            <div className="flex items-center gap-2">
+              <CancelButton onClick={handleClose} disabled={isAnyLoading} customText="Cancel" className="h-8 text-xs font-bold rounded-xl" />
+              <CustomButton
+                type="submit"
+                disabled={isAnyLoading}
+                isLoading={isSubmitLoading}
+                className="h-8 min-w-[90px] text-xs font-bold rounded-xl gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                {isSubmitLoading ? "Signing in..." : "Sign In"}
+              </CustomButton>
+            </div>
+          </div>
+        </form>
+      ) : (
+        /* DEDICATED REGISTER MODAL VIEW */
+        <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="flex flex-col flex-1">
+          <div className="p-4 sm:p-5 space-y-3 max-h-[65vh] overflow-y-auto">
+            <TextField
+              name="userIdentifier"
+              label="User Identifier"
+              placeholder="Username or email"
               control={registerForm.control}
               error={registerForm.formState.errors.userIdentifier}
               disabled={isAnyLoading}
               required
-              inputClassName="h-9 text-xs"
+              inputClassName="h-9 text-xs rounded-xl"
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <PasswordField
                 name="password"
                 label="Password"
@@ -184,129 +289,58 @@ export function RegisterModal({ isOpen, open, onClose, onOpenChange, onLoginClic
                 required
                 showPassword={showPassword}
                 onTogglePassword={() => setShowPassword((v) => !v)}
-                inputClassName="h-9 text-xs"
+                inputClassName="h-9 text-xs rounded-xl"
               />
 
               <PasswordField
                 name="confirmPassword"
                 label="Confirm Password"
-                placeholder="Enter confirm password"
+                placeholder="Confirm password"
                 control={registerForm.control}
                 error={registerForm.formState.errors.confirmPassword}
                 disabled={isAnyLoading}
                 required
                 showPassword={showConfirmPassword}
                 onTogglePassword={() => setShowConfirmPassword((v) => !v)}
-                inputClassName="h-9 text-xs"
-              />
-            </div>
-          </div>
-
-          <div className="relative py-1">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border/60" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-card px-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                Personal Information
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <TextField
-                name="firstName"
-                label="First Name"
-                placeholder="Enter first name"
-                control={registerForm.control}
-                error={registerForm.formState.errors.firstName}
-                disabled={isAnyLoading}
-                required
-                inputClassName="h-9 text-xs"
-              />
-              <TextField
-                name="lastName"
-                label="Last Name"
-                placeholder="Enter last name"
-                control={registerForm.control}
-                error={registerForm.formState.errors.lastName}
-                disabled={isAnyLoading}
-                required
-                inputClassName="h-9 text-xs"
+                inputClassName="h-9 text-xs rounded-xl"
               />
             </div>
 
-            <TextField
-              name="phone"
-              label="Phone Number"
-              placeholder="Enter phone number"
-              control={registerForm.control}
-              error={registerForm.formState.errors.phone}
+            <AuthSocialGrid
+              onGoogleAuth={handleGoogleAuth}
+              onTelegramAuth={handleTelegramAuth}
               disabled={isAnyLoading}
-              required
-              inputClassName="h-9 text-xs"
+              isTelegramLoading={isTelegramLoading}
             />
           </div>
 
-          <div className="relative py-1">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border/60" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-card px-2.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                Or continue with
-              </span>
+          <div className="px-4 py-3 border-t border-border/70 bg-muted/20 flex items-center justify-between gap-3">
+            <p className="text-xs text-muted-foreground font-medium">
+              Have an account?{" "}
+              <button
+                type="button"
+                onClick={() => setView("login")}
+                className="text-primary font-extrabold hover:underline cursor-pointer"
+              >
+                Sign In
+              </button>
+            </p>
+
+            <div className="flex items-center gap-2">
+              <CancelButton onClick={handleClose} disabled={isAnyLoading} customText="Cancel" className="h-8 text-xs font-bold rounded-xl" />
+              <CustomButton
+                type="submit"
+                disabled={isAnyLoading}
+                isLoading={isSubmitLoading}
+                className="h-8 min-w-[90px] text-xs font-bold rounded-xl gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                {isSubmitLoading ? "Creating..." : "Register"}
+              </CustomButton>
             </div>
           </div>
-
-          <TelegramLoginButton
-            botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
-            botId={SocialAuthConfig.TELEGRAM_BOT_ID}
-            onAuth={handleTelegramAuth}
-            disabled={isAnyLoading}
-            loading={isTelegramLoading}
-            className="w-full h-9 text-xs font-semibold rounded-xl"
-          />
-        </div>
-
-        <div className="px-4 py-3 border-t border-border/70 bg-gradient-to-r from-muted/50 to-muted/30 flex-shrink-0 flex items-center justify-between gap-3">
-          <p className="text-xs text-muted-foreground">
-            Already have an account?{" "}
-            <CustomButton
-              variant="unstyled"
-              size="unstyled"
-              type="button"
-              onClick={() => {
-                handleModalClose();
-                onLoginClick?.();
-              }}
-              disabled={isAnyLoading}
-              className="text-primary font-bold hover:underline disabled:opacity-50"
-            >
-              Sign In
-            </CustomButton>
-          </p>
-
-          <div className="flex items-center gap-2">
-            <CancelButton
-              onClick={handleClose}
-              disabled={isAnyLoading}
-              customText="Cancel"
-              className="h-8 text-xs font-bold"
-            />
-            <CustomButton
-              type="submit"
-              disabled={isAnyLoading}
-              isLoading={isRegistrationLoading}
-              className="h-8 min-w-[100px] text-xs font-bold gap-1.5"
-            >
-              <UserPlus className="w-3.5 h-3.5" />
-              {isRegistrationLoading ? "Creating..." : "Create Account"}
-            </CustomButton>
-          </div>
-        </div>
-      </form>
+        </form>
+      )}
     </CustomModal>
   );
 }

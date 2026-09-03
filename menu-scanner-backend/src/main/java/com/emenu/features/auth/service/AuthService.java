@@ -3,6 +3,7 @@ package com.emenu.features.auth.service;
 import com.emenu.features.auth.dto.request.AdminPasswordResetRequest;
 import com.emenu.features.auth.dto.request.LoginRequest;
 import com.emenu.features.auth.dto.request.PasswordChangeRequest;
+import com.emenu.features.auth.dto.request.QuickRegisterRequest;
 import com.emenu.features.auth.dto.request.RefreshTokenRequest;
 import com.emenu.features.auth.dto.request.RegisterRequest;
 import com.emenu.features.auth.dto.response.LoginResponse;
@@ -16,6 +17,8 @@ public interface AuthService {
     void logout(String token);
 
     UserResponse registerCustomer(RegisterRequest request);
+
+    UserResponse registerQuickUser(QuickRegisterRequest request);
 
     UserResponse changePassword(PasswordChangeRequest request);
 

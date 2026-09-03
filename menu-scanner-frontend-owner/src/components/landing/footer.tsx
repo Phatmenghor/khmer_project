@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import FadeIn from "@/components/landing/fade-in";
+import { NavLinkButton } from "@/components/landing/nav-link-button";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { LANDING_CONFIG } from "@/constants/landing-config";
 import { appImages } from "@/constants/app-resource/icons/app-images";
@@ -48,7 +49,7 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Link Columns */}
+            {/* Link Columns using NavLinkButton */}
             {Object.entries(footer.links).map(([category, links]) => (
               <div key={category} className="space-y-2.5">
                 <h4 className="text-xs font-bold text-foreground tracking-tight">
@@ -59,12 +60,9 @@ export default function Footer() {
                     const targetHref = FOOTER_LINK_MAP[label] || "#pricing";
                     return (
                       <li key={label}>
-                        <a
-                          href={targetHref}
-                          className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors duration-200"
-                        >
+                        <NavLinkButton href={targetHref} variant="footer">
                           {label}
-                        </a>
+                        </NavLinkButton>
                       </li>
                     );
                   })}

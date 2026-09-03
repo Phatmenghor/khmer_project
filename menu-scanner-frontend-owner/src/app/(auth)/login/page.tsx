@@ -35,13 +35,7 @@ export default function LoginPage() {
   const [isTelegramLoading, setIsTelegramLoading] = useState(false);
   const router = useRouter();
 
-  const { isLoading, dispatch, accessToken, authReady } = useAuthState();
-
-  useEffect(() => {
-    if (authReady && accessToken) {
-      router.replace(ROUTES.DASHBOARD.INDEX);
-    }
-  }, [authReady, accessToken, router]);
+  const { isLoading, dispatch } = useAuthState();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),

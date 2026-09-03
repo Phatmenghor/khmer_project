@@ -1,50 +1,23 @@
+"use client";
+
+import { useState } from "react";
 import Navbar from "@/components/landing/navbar";
 import HeroSection from "@/components/landing/hero-section";
 import StatsSection from "@/components/landing/stats-section";
-import FeaturesSection from "@/components/landing/features-section";
 import HowItWorksSection from "@/components/landing/how-it-works-section";
 import PricingSection from "@/components/landing/pricing-section";
-import TestimonialsSection from "@/components/landing/testimonials-section";
 import FounderSection from "@/components/landing/founder-section";
 import FaqSection from "@/components/landing/faq-section";
-import CtaSection from "@/components/landing/cta-section";
 import Footer from "@/components/landing/footer";
-import { ScrollToTop } from "@/components/landing/scroll-to-top";
-import { appImages } from "@/constants/app-resource/icons/app-images";
-
-export const metadata = {
-  ...(process.env.NEXT_PUBLIC_APP_URL
-    ? { metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL) }
-    : {}),
-  title: "ScanMeKH — Transform Your Restaurant Into a Digital Powerhouse",
-  description:
-    "Professional restaurant management platform with QR menus, integrated POS, real-time order management, customer loyalty programs, advanced analytics, and payment processing. Everything restaurant owners need to succeed.",
-  keywords: [
-    "ScanMeKH",
-    "digital menu platform",
-    "QR code menu system",
-    "POS system software",
-    "restaurant management platform",
-    "food business software",
-    "online ordering system",
-    "customer loyalty program",
-    "restaurant analytics"
-  ],
-  openGraph: {
-    title: "ScanMeKH — Transform Your Restaurant Into a Digital Powerhouse",
-    description:
-      "Complete restaurant platform with QR menus, POS, real-time orders, loyalty programs, analytics. Free trial available.",
-    type: "website",
-    images: [{ url: appImages.scanmekhLogo }],
-  },
-};
-
 import PlatformCapabilitiesSection from "@/components/landing/platform-capabilities-section";
+import { RegisterModal } from "@/components/landing/register-modal";
 
 export default function LandingPage() {
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+
   return (
     <>
-      <Navbar />
+      <Navbar onRegisterClick={() => setIsRegisterModalOpen(true)} />
       <main className="overflow-x-hidden md:px-[6%] space-y-2">
         <HeroSection />
         <StatsSection />
@@ -55,6 +28,10 @@ export default function LandingPage() {
         <FaqSection />
       </main>
       <Footer />
+      <RegisterModal
+        isOpen={isRegisterModalOpen}
+        onClose={() => setIsRegisterModalOpen(false)}
+      />
     </>
   );
 }

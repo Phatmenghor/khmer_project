@@ -3,15 +3,32 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, ArrowRight, UserCheck, ShieldCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Menu, X, ArrowRight, User, LogOut } from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomProfileDropdown } from "@/components/shared/common/custom-profile-dropdown";
+import { NavLinkButton } from "@/components/landing/nav-link-button";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
+import { useLogout } from "@/hooks/use-logout";
+import { SignoutModal } from "@/components/shared/modal/signout-modal";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 
-export default function Navbar() {
+interface NavbarProps {
+  onRegisterClick?: () => void;
+}
+
+export default function Navbar({ onRegisterClick }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const router = useRouter();
+  const { isAuthenticated, profile } = useAuthState();
+  const { logout: handleLogout } = useLogout();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,6 +38,13 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const token = typeof window !== "undefined"
+      ? localStorage.getItem("accessToken") || localStorage.getItem("adminAccessToken")
+      : null;
+    setIsLoggedIn(Boolean(token || isAuthenticated || profile));
+  }, [isAuthenticated, profile]);
+
   const navLinks = [
     { label: "Pricing", href: "#pricing" },
     { label: "Capabilities", href: "#capabilities" },
@@ -28,22 +52,25 @@ export default function Navbar() {
     { label: "FAQ", href: "#faq" },
   ];
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href.startsWith("#")) {
-      e.preventDefault();
-      const targetId = href.replace("#", "");
-      const element = document.getElementById(targetId);
-      if (element) {
-        const headerOffset = 80;
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: "smooth",
-        });
-      }
+  const handleRegisterBusinessClick = () => {
+    if (onRegisterClick) {
+      onRegisterClick();
+      return;
     }
+
+    if (isLoggedIn) {
+      router.push(ROUTES.DASHBOARD.BUSINESS_OWNER);
+    } else {
+      router.push(ROUTES.AUTH.LOGIN);
+    }
+  };
+
+  const confirmMobileLogout = async () => {
+    setIsLoggingOut(true);
+    setShowLogoutModal(false);
+    await handleLogout();
+    setIsLoggingOut(false);
+    setIsLoggedIn(false);
   };
 
   return (
@@ -67,57 +94,48 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* Desktop Navigation Links */}
+          {/* Desktop Navigation Links via NavLinkButton Component */}
           <nav className="hidden md:flex items-center gap-1.5 bg-muted/40 p-1.5 rounded-full border border-border/60 shadow-2xs">
             {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
-                className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-background transition-all cursor-pointer"
-              >
+              <NavLinkButton key={link.label} href={link.href} variant="pill">
                 {link.label}
-              </a>
+              </NavLinkButton>
             ))}
           </nav>
 
-          {/* Action Buttons: Login & Register */}
-          <div className="hidden md:flex items-center gap-2.5">
-            <Link href={ROUTES.AUTH.LOGIN}>
-              <CustomButton
-                variant="outline"
-                className="h-[36px] px-4 text-xs font-semibold rounded-[12px] gap-1.5 hover:border-primary/50 transition-all cursor-pointer"
-              >
-                <UserCheck className="w-3.5 h-3.5 text-primary" />
-                Sign In
-              </CustomButton>
-            </Link>
-
-            <Link href={ROUTES.AUTH.LOGIN}>
+          {/* Desktop Right Action Area: Profile Dropdown or Register Business Button */}
+          <div className="hidden md:flex items-center">
+            {isLoggedIn ? (
+              <CustomProfileDropdown />
+            ) : (
               <CustomButton
                 variant="default"
+                onClick={handleRegisterBusinessClick}
                 className="h-[36px] px-4 text-xs font-semibold rounded-[12px] gap-1.5 shadow-xs hover:shadow-sm transition-all cursor-pointer"
               >
                 Register Business
                 <ArrowRight className="w-3.5 h-3.5" />
               </CustomButton>
-            </Link>
+            )}
           </div>
 
           {/* Mobile Hamburger Button */}
-          <CustomButton
-            variant="ghost"
-            size="icon"
-            className="md:hidden w-9 h-9 rounded-[10px]"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label="Toggle navigation menu"
-          >
-            {mobileOpen ? (
-              <X className="h-5 w-5 text-foreground" />
-            ) : (
-              <Menu className="h-5 w-5 text-foreground" />
-            )}
-          </CustomButton>
+          <div className="md:hidden flex items-center gap-2">
+            {isLoggedIn && <CustomProfileDropdown className="scale-90" />}
+            <CustomButton
+              variant="ghost"
+              size="icon"
+              className="w-9 h-9 rounded-[10px]"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label="Toggle navigation menu"
+            >
+              {mobileOpen ? (
+                <X className="h-5 w-5 text-foreground" />
+              ) : (
+                <Menu className="h-5 w-5 text-foreground" />
+              )}
+            </CustomButton>
+          </div>
         </div>
       </div>
 
@@ -125,33 +143,66 @@ export default function Navbar() {
       {mobileOpen && (
         <div className="md:hidden border-t border-border/80 bg-background/95 backdrop-blur-2xl px-4 py-4 space-y-2 shadow-xl animate-in slide-in-from-top-2">
           {navLinks.map((link) => (
-            <a
+            <NavLinkButton
               key={link.label}
               href={link.href}
-              onClick={(e) => {
-                setMobileOpen(false);
-                handleNavClick(e, link.href);
-              }}
-              className="block px-4 py-2.5 rounded-[12px] text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all cursor-pointer"
+              variant="drawer"
+              onClick={() => setMobileOpen(false)}
             >
               {link.label}
-            </a>
+            </NavLinkButton>
           ))}
-          <div className="pt-3 border-t border-border/60 grid grid-cols-2 gap-2 mt-2">
-            <Link href={ROUTES.AUTH.LOGIN} onClick={() => setMobileOpen(false)}>
-              <CustomButton variant="outline" className="w-full h-[36px] text-xs font-semibold rounded-[12px]">
-                Sign In
+
+          <div className="pt-3 border-t border-border/60 mt-2 space-y-2">
+            {isLoggedIn ? (
+              <>
+                <CustomButton
+                  variant="outline"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    router.push(ROUTES.ADMIN.PROFILE);
+                  }}
+                  className="w-full h-[36px] text-xs font-semibold rounded-[12px] gap-1.5 justify-start px-4"
+                >
+                  <User className="w-3.5 h-3.5 text-muted-foreground" />
+                  My Profile
+                </CustomButton>
+                <CustomButton
+                  variant="destructive"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    setShowLogoutModal(true);
+                  }}
+                  className="w-full h-[36px] text-xs font-semibold rounded-[12px] gap-1.5 justify-start px-4"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  Sign Out
+                </CustomButton>
+              </>
+            ) : (
+              <CustomButton
+                variant="default"
+                onClick={() => {
+                  setMobileOpen(false);
+                  handleRegisterBusinessClick();
+                }}
+                className="w-full h-[36px] text-xs font-semibold rounded-[12px] gap-1.5"
+              >
+                Register Business
+                <ArrowRight className="w-3.5 h-3.5" />
               </CustomButton>
-            </Link>
-            <Link href={ROUTES.AUTH.LOGIN} onClick={() => setMobileOpen(false)}>
-              <CustomButton variant="default" className="w-full h-[36px] text-xs font-semibold rounded-[12px]">
-                Register
-              </CustomButton>
-            </Link>
+            )}
           </div>
         </div>
       )}
+
+      {/* Mobile Logout Confirmation Modal */}
+      <SignoutModal
+        open={showLogoutModal}
+        onOpenChange={setShowLogoutModal}
+        onConfirm={confirmMobileLogout}
+        isLoading={isLoggingOut}
+      />
     </header>
   );
 }
-
