@@ -29,17 +29,12 @@ export function useLogout() {
       dispatch(logout());
     } finally {
 
-      const isPublicPage = ["/", "/products", "/categories", "/brands", "/promotions", "/favorites", "/cart"].some(
-        (path) => pathname === path || pathname.startsWith(path + "?")
-      );
+      const isAdminPage = pathname.startsWith("/admin");
 
-      if (isPublicPage) {
-
-        window.location.reload();
+      if (!isAdminPage) {
+        window.location.href = ROUTES.HOME;
       } else {
-
-        const redirectUrl = isAdmin ? ROUTES.AUTH.LOGIN : ROUTES.AUTH.LOGIN;
-        router.push(redirectUrl);
+        router.push(ROUTES.AUTH.LOGIN);
       }
     }
   }, [dispatch, router, isAdmin, userType, pathname]);

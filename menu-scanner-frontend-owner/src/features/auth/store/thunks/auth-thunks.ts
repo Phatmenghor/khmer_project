@@ -17,6 +17,11 @@ export const loginService = createApiThunk<any, LoginCredentialsRequest>(
     const response = await axiosClient.post("/api/v1/auth/login", credentials);
     const data = response.data.data;
 
+    if (credentials.userType === "BUSINESS_USER" && data.userType && data.userType !== "BUSINESS_USER" && data.userType !== "BUSINESS_OWNER") {
+      clearAllTokens();
+      throw new Error("Access denied. Public sign-in is strictly for Business accounts.");
+    }
+
     if (credentials.userType === "PLATFORM_USER" && data.userType && data.userType !== "PLATFORM_USER") {
       clearAllTokens();
       throw new Error("Access denied. Only Platform Users can sign in here.");

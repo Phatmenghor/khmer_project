@@ -240,14 +240,12 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if (loginRequestData.getUserType() == UserType.BUSINESS_USER || loginRequestData.getUserType() == UserType.CUSTOMER) {
-            if (userEntity.getBusinessId() == null) {
-                log.warn("User login failed - user not associated with business: user_id={}", userEntity.getId());
-                throw new ValidationException("User is not associated with any business");
-            }
-            if (!loginRequestData.getBusinessId().equals(userEntity.getBusinessId())) {
-                log.warn("User login failed - business mismatch: user_id={}, expected_business={}, user_business={}",
-                        userEntity.getId(), loginRequestData.getBusinessId(), userEntity.getBusinessId());
-                throw new ValidationException("User does not belong to the specified business");
+            if (loginRequestData.getBusinessId() != null && userEntity.getBusinessId() != null) {
+                if (!loginRequestData.getBusinessId().equals(userEntity.getBusinessId())) {
+                    log.warn("User login failed - business mismatch: user_id={}, expected_business={}, user_business={}",
+                            userEntity.getId(), loginRequestData.getBusinessId(), userEntity.getBusinessId());
+                    throw new ValidationException("User does not belong to the specified business");
+                }
             }
         }
     }
