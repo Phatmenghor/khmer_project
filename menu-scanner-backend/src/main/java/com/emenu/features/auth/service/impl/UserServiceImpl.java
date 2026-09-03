@@ -517,7 +517,6 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserDetailResponse getCurrentUser() {
         User currentUserContext = securityUtils.getCurrentUser();
-        log.info("Current user retrieved successfully: id={}", currentUserContext.getId());
         return getUserById(currentUserContext.getId());
     }
 

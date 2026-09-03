@@ -27,6 +27,21 @@ interface SubscriptionPlanResponse {
   status: string;
 }
 
+let publicPlansCachePromise: Promise<SubscriptionPlanResponse[]> | null = null;
+
+const fetchPublicPlansDeduplicated = (): Promise<SubscriptionPlanResponse[]> => {
+  if (!publicPlansCachePromise) {
+    publicPlansCachePromise = axiosClient
+      .get<{ data: SubscriptionPlanResponse[] }>("/api/v1/public/subscription-plans")
+      .then((res) => res.data.data || [])
+      .catch((err) => {
+        publicPlansCachePromise = null;
+        throw err;
+      });
+  }
+  return publicPlansCachePromise;
+};
+
 export default function PricingSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanData>();
@@ -34,12 +49,11 @@ export default function PricingSection() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchPlans = async () => {
       try {
-        const response = await axiosClient.get<{ data: SubscriptionPlanResponse[] }>(
-          "/api/v1/public/subscription-plans"
-        );
-        const fetchedPlans = response.data.data || [];
+        const fetchedPlans = await fetchPublicPlansDeduplicated();
+        if (!isMounted) return;
 
         // Map API response to display format. Names/prices come from the
         // API (source of truth for billing), but copy and features are
@@ -75,6 +89,9 @@ export default function PricingSection() {
     };
 
     fetchPlans();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const getPeriodLabel = (durationType: string): string => {

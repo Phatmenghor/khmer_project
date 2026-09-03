@@ -20,7 +20,7 @@ import java.util.UUID;
  * Responsible for:
  *  - Generating / propagating X-Request-ID
  *  - MDC population and cleanup
- *  - Centralized request entry and completion logging for monitoring
+ *  - Centralized request entry and completion logging with Controller Location tags
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -63,7 +63,6 @@ public class RequestIdFilter extends OncePerRequestFilter {
         response.setHeader(REQUEST_ID_HEADER, traceId);
         response.setHeader(TRACE_ID_HEADER,   traceId);
 
-        // Log request entry
         log.info("Endpoint Request: {} {}", request.getMethod(), path);
 
         try {
@@ -75,18 +74,23 @@ public class RequestIdFilter extends OncePerRequestFilter {
             MDC.put("duration",   String.valueOf(duration));
 
             String responseMessage = MDC.get("responseMessage");
+            String handlerInfo = (String) request.getAttribute("handlerInfo");
+            if (handlerInfo == null || handlerInfo.isBlank()) {
+                handlerInfo = MDC.get("handler");
+            }
+            String handlerTag = (handlerInfo != null && !handlerInfo.isBlank()) ? " [" + handlerInfo + "]" : "";
 
             if (status >= 400 && responseMessage != null && !responseMessage.isBlank()) {
                 if (status >= 500) {
-                    log.error("Endpoint Error: {} {} → {} in {}ms — {}",
-                            request.getMethod(), path, status, duration, responseMessage);
+                    log.error("Endpoint Error: {} {} → {} in {}ms{} — {}",
+                            request.getMethod(), path, status, duration, handlerTag, responseMessage);
                 } else {
-                    log.warn("Endpoint Warning: {} {} → {} in {}ms — {}",
-                            request.getMethod(), path, status, duration, responseMessage);
+                    log.warn("Endpoint Warning: {} {} → {} in {}ms{} — {}",
+                            request.getMethod(), path, status, duration, handlerTag, responseMessage);
                 }
             } else {
-                log.info("Endpoint Response: {} {} → {} in {}ms",
-                        request.getMethod(), path, status, duration);
+                log.info("Endpoint Response: {} {} → {} in {}ms{}",
+                        request.getMethod(), path, status, duration, handlerTag);
             }
 
             // Single authoritative MDC.clear()
