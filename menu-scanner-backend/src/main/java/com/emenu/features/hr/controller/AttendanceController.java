@@ -11,17 +11,16 @@ import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/hr/attendance")
 @RequiredArgsConstructor
-@Slf4j
 public class AttendanceController {
 
     private final AttendanceService service;
@@ -30,7 +29,6 @@ public class AttendanceController {
     @PostMapping("/check-in")
     public ResponseEntity<ApiResponse<AttendanceResponse>> checkIn(
             @Valid @RequestBody AttendanceCheckInRequest request) {
-        log.info("Endpoint: check-in - attendance check-in: type={}", request.getCheckInType());
         User currentUser = securityUtils.getCurrentUser();
         AttendanceResponse response = service.checkIn(request, currentUser.getId(), currentUser.getBusinessId());
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -39,23 +37,20 @@ public class AttendanceController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<AttendanceResponse>> getById(@PathVariable UUID id) {
-        log.info("Endpoint: get-attendance - attendance detail: id={}", id);
         AttendanceResponse response = service.getById(id);
         return ResponseEntity.ok(ApiResponse.success("Attendance record retrieved", response));
     }
 
     @GetMapping("/today")
-    public ResponseEntity<ApiResponse<java.util.List<AttendanceResponse>>> getTodayAttendance(
+    public ResponseEntity<ApiResponse<List<AttendanceResponse>>> getTodayAttendance(
             @RequestParam UUID businessId) {
-        log.info("Endpoint: today-attendance - retrieving today's attendance records for businessId={}", businessId);
-        java.util.List<AttendanceResponse> response = service.getTodayAttendance(businessId);
+        List<AttendanceResponse> response = service.getTodayAttendance(businessId);
         return ResponseEntity.ok(ApiResponse.success("Today's attendance records retrieved", response));
     }
 
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<AttendanceResponse>>> getAll(
             @Valid @RequestBody AttendanceFilterRequest filter) {
-        log.info("Endpoint: search-attendance - attendance retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<AttendanceResponse> response = service.getAll(filter);
         return ResponseEntity.ok(ApiResponse.success("Attendance records retrieved", response));
     }
@@ -64,21 +59,18 @@ public class AttendanceController {
     public ResponseEntity<ApiResponse<AttendanceResponse>> update(
             @PathVariable UUID id,
             @Valid @RequestBody AttendanceUpdateRequest request) {
-        log.info("Endpoint: update-attendance - attendance update: id={}", id);
         AttendanceResponse response = service.update(id, request);
         return ResponseEntity.ok(ApiResponse.success("Attendance record updated", response));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<AttendanceResponse>> delete(@PathVariable UUID id) {
-        log.info("Endpoint: delete-attendance - attendance deletion: id={}", id);
         AttendanceResponse response = service.delete(id);
         return ResponseEntity.ok(ApiResponse.success("Attendance record deleted", response));
     }
 
     @PostMapping("/process-absences")
     public ResponseEntity<ApiResponse<Void>> processDailyAbsences() {
-        log.info("Endpoint: process-absences - manual trigger for daily attendance absence evaluation");
         service.processDailyAbsences();
         return ResponseEntity.ok(ApiResponse.success("Daily attendance absence process completed", null));
     }

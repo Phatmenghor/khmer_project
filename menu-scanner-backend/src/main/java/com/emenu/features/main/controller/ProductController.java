@@ -15,18 +15,17 @@ import com.emenu.shared.dto.BatchImportResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
-@Slf4j
 public class ProductController {
 
     private final ProductService productService;
@@ -35,7 +34,6 @@ public class ProductController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductListDto>>> getAllProducts(
             @Valid @RequestBody ProductFilterDto filter) {
-        log.info("Endpoint: search-products - products retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<ProductListDto> products = productService.getAllProducts(filter);
         return ResponseEntity.ok(ApiResponse.success(
             String.format("Found %d products", products.getTotalElements()),
@@ -46,7 +44,6 @@ public class ProductController {
     @PostMapping("/admin/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductDetailDto>>> getAllProductAdmin(
             @Valid @RequestBody ProductFilterDto filter) {
-        log.info("Endpoint: search-admin-products - admin products retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdmin(filter);
         return ResponseEntity.ok(ApiResponse.success(
                 String.format("Found %d products", products.getTotalElements()),
@@ -57,7 +54,6 @@ public class ProductController {
     @PostMapping("/admin/pos/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductDetailDto>>> getAllProductAdminPos(
             @Valid @RequestBody ProductFilterDto filter) {
-        log.info("Endpoint: search-pos-products - pos products retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdminPos(filter);
         return ResponseEntity.ok(ApiResponse.success(
                 String.format("Found %d products", products.getTotalElements()),
@@ -68,7 +64,6 @@ public class ProductController {
     @PostMapping("/admin/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductDetailDto>>> getAllProductBusiness(
             @Valid @RequestBody ProductFilterDto filter) {
-        log.info("Endpoint: search-my-business-products - my business products retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         UUID businessId = securityUtils.getCurrentUserBusinessId();
         filter.setBusinessId(businessId);
         PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdmin(filter);
@@ -81,7 +76,6 @@ public class ProductController {
     @PostMapping("/admin/stock/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductDetailDto>>> getAllProductAdminStock(
             @Valid @RequestBody ProductFilterDto filter) {
-        log.info("Endpoint: search-stock-products - stock products retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdminStock(filter);
         return ResponseEntity.ok(ApiResponse.success(
                 String.format("Found %d products with stock information (Page %d of %d)",
@@ -92,7 +86,6 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDetailDto>> getProductById(@PathVariable UUID id) {
-        log.info("Endpoint: get-product - product detail: id={}", id);
         ProductDetailDto product = productService.getProductById(id);
         return ResponseEntity.ok(ApiResponse.success("Product retrieved successfully", product));
     }
@@ -100,7 +93,6 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ApiResponse<ProductDetailDto>> createProduct(
             @Valid @RequestBody ProductCreateDto request) {
-        log.info("Endpoint: create-product - product creation: name={}", request.getName());
         ProductDetailDto product = productService.createProduct(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Product created successfully", product));
@@ -110,7 +102,6 @@ public class ProductController {
     public ResponseEntity<ApiResponse<BatchImportResponse<ProductDetailDto>>> createProductBatch(
             @RequestBody List<ProductCreateDto> requests,
             @RequestParam(required = false) String importId) {
-        log.info("Endpoint: createProductBatch - product batch creation: size={}, importId={}", requests.size(), importId);
         BatchImportResponse<ProductDetailDto> response = productService.createProductBatch(requests, importId);
         return ResponseEntity.ok(ApiResponse.success("Batch product import completed", response));
     }
@@ -119,44 +110,38 @@ public class ProductController {
     public ResponseEntity<ApiResponse<ProductDetailDto>> updateProduct(
             @PathVariable UUID id,
             @Valid @RequestBody ProductUpdateDto request) {
-        log.info("Endpoint: update-product - product update: id={}", id);
         ProductDetailDto product = productService.updateProduct(id, request);
         return ResponseEntity.ok(ApiResponse.success("Product updated successfully", product));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDetailDto>> deleteProduct(@PathVariable UUID id) {
-        log.info("Endpoint: delete-product - product deletion: id={}", id);
         ProductDetailDto product = productService.deleteProduct(id);
         return ResponseEntity.ok(ApiResponse.success("Product deleted successfully", product));
     }
 
     @PutMapping("/{id}/reset-promotion")
     public ResponseEntity<ApiResponse<ProductDetailDto>> resetProductPromotion(@PathVariable UUID id) {
-        log.info("Endpoint: reset-promotion - product promotion reset: id={}", id);
         ProductDetailDto product = productService.resetProductPromotion(id);
         return ResponseEntity.ok(ApiResponse.success("Product promotion reset successfully", product));
     }
 
     @PutMapping("/reset-all-promotions")
-    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> resetAllPromotions() {
-        log.info("Endpoint: reset-all-promotions - all promotions reset: none={}", "none");
-        java.util.Map<String, Object> result = productService.resetAllPromotions();
+    public ResponseEntity<ApiResponse<Map<String, Object>>> resetAllPromotions() {
+        Map<String, Object> result = productService.resetAllPromotions();
         return ResponseEntity.ok(ApiResponse.success("All promotions reset successfully", result));
     }
 
     @PutMapping("/reset-selected-promotions")
-    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> resetSelectedPromotions(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> resetSelectedPromotions(
             @Valid @RequestBody ResetSelectedPromotionsDto request) {
-        log.info("Endpoint: reset-selected-promotions - selected promotions reset: products={}", request.getProductIds().size());
-        java.util.Map<String, Object> result = productService.resetSelectedPromotions(request);
+        Map<String, Object> result = productService.resetSelectedPromotions(request);
         return ResponseEntity.ok(ApiResponse.success("Selected promotions reset successfully", result));
     }
 
     @PostMapping("/bulk-create-promotions")
     public ResponseEntity<ApiResponse<BulkPromotionResultDto>> createBulkPromotions(
             @Valid @RequestBody BulkPromotionCreateDto request) {
-        log.info("Endpoint: create-bulk-promotions - bulk promotions creation: type={}", request.getPromotionType());
         BulkPromotionResultDto result = productService.createBulkPromotions(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Bulk promotion creation completed", result));
@@ -164,7 +149,6 @@ public class ProductController {
 
     @PostMapping("/admin/sync-promotions")
     public ResponseEntity<ApiResponse<String>> syncExpiredPromotions() {
-        log.info("Endpoint: sync-promotions - promotions sync: none={}", "none");
         int[] result = productService.syncExpiredPromotions();
         String message = String.format(
             "Sync complete. Updated %d products without sizes, %d products with sizes. Total: %d",

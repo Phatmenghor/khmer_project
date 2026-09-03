@@ -7,22 +7,20 @@ import com.emenu.features.order.dto.response.PaymentOptionResponse;
 import com.emenu.features.order.service.PaymentOptionService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
+import com.emenu.shared.dto.BatchImportResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import com.emenu.shared.dto.BatchImportResponse;
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/payment-options")
 @RequiredArgsConstructor
-@Slf4j
 public class PaymentOptionController {
 
     private final PaymentOptionService paymentOptionService;
@@ -31,7 +29,6 @@ public class PaymentOptionController {
     @PostMapping
     public ResponseEntity<ApiResponse<PaymentOptionResponse>> createPaymentOption(
             @Valid @RequestBody PaymentOptionRequest request) {
-        log.info("Endpoint: create-payment-option - payment option creation");
         User currentUser = securityUtils.getCurrentUser();
         PaymentOptionResponse response = paymentOptionService.createPaymentOption(
                 currentUser.getBusinessId(),
@@ -45,7 +42,6 @@ public class PaymentOptionController {
     public ResponseEntity<ApiResponse<BatchImportResponse<PaymentOptionResponse>>> createPaymentOptionBatch(
             @RequestBody List<PaymentOptionRequest> requests,
             @RequestParam(required = false) String importId) {
-        log.info("Endpoint: createPaymentOptionBatch - payment option batch creation: size={}, importId={}", requests.size(), importId);
         User currentUser = securityUtils.getCurrentUser();
         BatchImportResponse<PaymentOptionResponse> response = paymentOptionService.createPaymentOptionBatch(
                 currentUser.getBusinessId(),
@@ -58,7 +54,6 @@ public class PaymentOptionController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<PaymentOptionResponse>>> getAllPaymentOptions(
             @Valid @RequestBody PaymentOptionFilterRequest filter) {
-        log.info("Endpoint: search-payment-options - payment options retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         User currentUser = securityUtils.getCurrentUser();
         UUID businessId = currentUser.getBusinessId();
 
@@ -73,7 +68,6 @@ public class PaymentOptionController {
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<PaymentOptionResponse>>> getMyBusinessPaymentOptions(
             @Valid @RequestBody PaymentOptionFilterRequest filter) {
-        log.info("Endpoint: my-payment-options - my payment options retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         User currentUser = securityUtils.getCurrentUser();
         UUID businessId = currentUser.getBusinessId();
 
@@ -88,7 +82,6 @@ public class PaymentOptionController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<PaymentOptionResponse>> getPaymentOptionById(
             @PathVariable UUID id) {
-        log.info("Endpoint: get-payment-option - payment option retrieval: id={}", id);
         User currentUser = securityUtils.getCurrentUser();
         PaymentOptionResponse option = paymentOptionService.getPaymentOptionById(
                 currentUser.getBusinessId(),
@@ -101,7 +94,6 @@ public class PaymentOptionController {
     public ResponseEntity<ApiResponse<PaymentOptionResponse>> updatePaymentOption(
             @PathVariable UUID id,
             @Valid @RequestBody PaymentOptionRequest request) {
-        log.info("Endpoint: update-payment-option - payment option update: id={}", id);
         User currentUser = securityUtils.getCurrentUser();
         PaymentOptionResponse response = paymentOptionService.updatePaymentOption(
                 currentUser.getBusinessId(),
@@ -114,7 +106,6 @@ public class PaymentOptionController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deletePaymentOption(
             @PathVariable UUID id) {
-        log.info("Endpoint: delete-payment-option - payment option deletion: id={}", id);
         User currentUser = securityUtils.getCurrentUser();
         paymentOptionService.deletePaymentOption(
                 currentUser.getBusinessId(),

@@ -16,15 +16,11 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * First filter in the chain. Responsible for:
+ * Global HTTP Request Logging Filter (Single authoritative logging entrypoint).
+ * Responsible for:
  *  - Generating / propagating X-Request-ID
- *  - Populating MDC with: requestId, method, path
- *  - Measuring request duration
- *  - Logging structured access log entry at INFO level
- *  - Clearing ALL MDC keys at the end of the request
- *
- * JWTAuthenticationFilter adds userId/userType to MDC after this runs.
- * MDC.clear() in the finally block cleans up all keys.
+ *  - MDC population and cleanup
+ *  - Centralized request entry and completion logging for monitoring
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -58,7 +54,7 @@ public class RequestIdFilter extends OncePerRequestFilter {
         String traceId = resolveOrGenerate(request);
         long start = System.currentTimeMillis();
 
-        // Populate MDC — JWTAuthFilter will add userId/userType after authentication
+        // Populate MDC
         MDC.put("traceId", traceId);
         MDC.put("method",  request.getMethod());
         MDC.put("path",    path);
@@ -66,6 +62,9 @@ public class RequestIdFilter extends OncePerRequestFilter {
         // Echo back to caller for correlation
         response.setHeader(REQUEST_ID_HEADER, traceId);
         response.setHeader(TRACE_ID_HEADER,   traceId);
+
+        // Log request entry
+        log.info("Endpoint Request: {} {}", request.getMethod(), path);
 
         try {
             chain.doFilter(request, response);
@@ -79,18 +78,18 @@ public class RequestIdFilter extends OncePerRequestFilter {
 
             if (status >= 400 && responseMessage != null && !responseMessage.isBlank()) {
                 if (status >= 500) {
-                    log.error("{} {} → {} in {}ms — {}",
+                    log.error("Endpoint Error: {} {} → {} in {}ms — {}",
                             request.getMethod(), path, status, duration, responseMessage);
                 } else {
-                    log.warn("{} {} → {} in {}ms — {}",
+                    log.warn("Endpoint Warning: {} {} → {} in {}ms — {}",
                             request.getMethod(), path, status, duration, responseMessage);
                 }
             } else {
-                log.info("{} {} → {} in {}ms",
+                log.info("Endpoint Response: {} {} → {} in {}ms",
                         request.getMethod(), path, status, duration);
             }
 
-            // Single authoritative MDC.clear() — covers all keys set by this filter and by JWTAuthFilter
+            // Single authoritative MDC.clear()
             MDC.clear();
         }
     }

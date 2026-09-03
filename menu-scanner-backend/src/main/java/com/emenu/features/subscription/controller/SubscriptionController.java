@@ -9,7 +9,6 @@ import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +18,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/subscriptions")
 @RequiredArgsConstructor
-@Slf4j
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
@@ -28,8 +26,6 @@ public class SubscriptionController {
     @PostMapping("/history")
     public ResponseEntity<ApiResponse<PaginationResponse<SubscriptionHistoryResponse>>> getSubscriptionHistory(
             @RequestBody SubscriptionHistoryFilterRequest filter) {
-        log.info("Endpoint: subscriptions/history - businessId: {}, from: {}, to: {}",
-                filter.getBusinessId(), filter.getFromDate(), filter.getToDate());
         PaginationResponse<SubscriptionHistoryResponse> response = subscriptionService.getSubscriptionHistory(filter);
         return ResponseEntity.ok(ApiResponse.success("Subscription history retrieved successfully", response));
     }
@@ -37,14 +33,12 @@ public class SubscriptionController {
     @GetMapping("/business/{businessId}")
     public ResponseEntity<ApiResponse<List<SubscriptionHistoryResponse>>> getAllByBusinessId(
             @PathVariable UUID businessId) {
-        log.info("Endpoint: subscriptions/business/{} - all history request", businessId);
         List<SubscriptionHistoryResponse> response = subscriptionService.getAllByBusinessId(businessId);
         return ResponseEntity.ok(ApiResponse.success("Subscription history retrieved successfully", response));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<SubscriptionHistoryResponse>> getSubscriptionById(@PathVariable UUID id) {
-        log.info("Endpoint: subscriptions/{} - detail request", id);
         SubscriptionHistoryResponse response = subscriptionService.getSubscriptionById(id);
         return ResponseEntity.ok(ApiResponse.success("Subscription retrieved successfully", response));
     }
@@ -52,7 +46,6 @@ public class SubscriptionController {
     @GetMapping("/current")
     public ResponseEntity<ApiResponse<SubscriptionHistoryResponse>> getCurrentSubscription() {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
-        log.info("Endpoint: subscriptions/current - current subscription request for business: {}", businessId);
         SubscriptionHistoryResponse response = subscriptionService.getCurrentSubscriptionByBusinessId(businessId);
         return ResponseEntity.ok(ApiResponse.success("Current subscription retrieved successfully", response));
     }
@@ -61,7 +54,6 @@ public class SubscriptionController {
     public ResponseEntity<ApiResponse<SubscriptionHistoryResponse>> renewSubscription(
             @PathVariable UUID id,
             @RequestBody SubscriptionRenewRequest request) {
-        log.info("Endpoint: subscriptions/{}/renew", id);
         SubscriptionHistoryResponse response = subscriptionService.renewSubscription(id, request);
         return ResponseEntity.ok(ApiResponse.success("Subscription renewed successfully", response));
     }
@@ -70,7 +62,6 @@ public class SubscriptionController {
     public ResponseEntity<ApiResponse<SubscriptionHistoryResponse>> cancelSubscription(
             @PathVariable UUID id,
             @RequestBody SubscriptionCancelRequest request) {
-        log.info("Endpoint: subscriptions/{}/cancel", id);
         SubscriptionHistoryResponse response = subscriptionService.cancelSubscription(id, request);
         return ResponseEntity.ok(ApiResponse.success("Subscription cancelled successfully", response));
     }

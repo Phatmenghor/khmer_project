@@ -11,6 +11,7 @@ import { NavLinkButton } from "@/components/landing/nav-link-button";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useLogout } from "@/hooks/use-logout";
 import { SignoutModal } from "@/components/shared/modal/signout-modal";
+import { showToast } from "@/components/shared/common/show-toast";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { appImages } from "@/constants/app-resource/icons/app-images";
@@ -160,12 +161,12 @@ export default function Navbar({ onRegisterClick }: NavbarProps) {
                   variant="outline"
                   onClick={() => {
                     setMobileOpen(false);
-                    router.push(ROUTES.ADMIN.PROFILE);
+                    showToast.info("Account is active. Business profile portal opens upon eMenu Client deployment.");
                   }}
                   className="w-full h-[36px] text-xs font-semibold rounded-[12px] gap-1.5 justify-start px-4"
                 >
                   <User className="w-3.5 h-3.5 text-muted-foreground" />
-                  My Profile
+                  My Business Profile
                 </CustomButton>
                 <CustomButton
                   variant="destructive"

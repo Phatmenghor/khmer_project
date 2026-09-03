@@ -9,7 +9,6 @@ import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,14 +17,12 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/product-favorites")
 @RequiredArgsConstructor
-@Slf4j
 public class ProductFavoriteController {
 
     private final ProductFavoriteService favoriteService;
 
     @PostMapping("/{productId}/toggle")
     public ResponseEntity<ApiResponse<FavoriteToggleDto>> toggleFavorite(@PathVariable UUID productId) {
-        log.info("Endpoint: toggle-favorite - product favorite toggle: product_id={}", productId);
         FavoriteToggleDto result = favoriteService.toggleFavorite(productId);
         return ResponseEntity.ok(ApiResponse.success(result.getMessage(), result));
     }
@@ -33,14 +30,12 @@ public class ProductFavoriteController {
     @PostMapping("/my-favorites")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductListDto>>> getUserFavorites(
             @Valid @RequestBody ProductFilterDto filter) {
-        log.info("Endpoint: search-favorites - user favorites retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<ProductListDto> favorites = favoriteService.getUserFavorites(filter);
         return ResponseEntity.ok(ApiResponse.success("Favorite products retrieved successfully", favorites));
     }
 
     @DeleteMapping("/all")
     public ResponseEntity<ApiResponse<FavoriteRemoveAllDto>> removeAllFavorites(@RequestParam UUID businessId) {
-        log.info("Endpoint: remove-all-favorites - remove all favorites: business_id={}", businessId);
         FavoriteRemoveAllDto result = favoriteService.removeAllFavorites(businessId);
         return ResponseEntity.ok(ApiResponse.success("All favorites removed successfully", result));
     }

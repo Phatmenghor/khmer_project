@@ -9,23 +9,20 @@ import com.emenu.features.main.service.CategoryService;
 import com.emenu.features.main.service.ProductConditionalService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
-import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.dto.BatchImportResponse;
-import java.util.List;
+import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor
-@Slf4j
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -34,7 +31,6 @@ public class CategoryController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<CategoryResponse>> createCategory(@Valid @RequestBody CategoryCreateRequest request) {
-        log.info("Endpoint: create-category - category creation: name={}", request.getName());
         CategoryResponse category = categoryService.createCategory(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Category created successfully", category));
@@ -44,23 +40,18 @@ public class CategoryController {
     public ResponseEntity<ApiResponse<BatchImportResponse<CategoryResponse>>> createCategoryBatch(
             @RequestBody List<CategoryCreateRequest> requests,
             @RequestParam(required = false) String importId) {
-        log.info("Endpoint: createCategoryBatch - category batch creation: size={}, importId={}", requests.size(), importId);
         BatchImportResponse<CategoryResponse> response = categoryService.createCategoryBatch(requests, importId);
         return ResponseEntity.ok(ApiResponse.success("Batch category import completed", response));
     }
 
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<CategoryResponse>>> getAllCategories(@Valid @RequestBody CategoryFilterRequest filter) {
-        log.info("Endpoint: search-categories - categories retrieval: page={}, size={}, business_id={}", filter.getPageNo(), filter.getPageSize(), filter.getBusinessId());
-
         PaginationResponse<CategoryResponse> categories = categoryService.getAllCategories(filter);
         return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", categories));
     }
 
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<CategoryResponse>>> getMyBusinessAllCategories(@Valid @RequestBody CategoryFilterRequest filter) {
-        log.info("Endpoint: search-my-categories - my categories retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
-
         UUID businessId = securityUtils.getCurrentUserBusinessId();
         filter.setBusinessId(businessId);
 
@@ -70,8 +61,6 @@ public class CategoryController {
 
     @PostMapping("/my-business/product/all")
     public ResponseEntity<ApiResponse<PaginationResponse<CategoryWithProductCountResponse>>> getMyBusinessCategoriesWithProductCount(@Valid @RequestBody CategoryFilterRequest filter) {
-        log.info("Endpoint: search-my-categories-count - my categories with count retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
-
         UUID businessId = securityUtils.getCurrentUserBusinessId();
         filter.setBusinessId(businessId);
 
@@ -81,7 +70,6 @@ public class CategoryController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable UUID id) {
-        log.info("Endpoint: get-category - category detail: id={}", id);
         CategoryResponse category = categoryService.getCategoryById(id);
         return ResponseEntity.ok(ApiResponse.success("Category retrieved successfully", category));
     }
@@ -90,14 +78,12 @@ public class CategoryController {
     public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(
             @PathVariable UUID id,
             @Valid @RequestBody CategoryUpdateRequest request) {
-        log.info("Endpoint: update-category - category update: id={}", id);
         CategoryResponse category = categoryService.updateCategory(id, request);
         return ResponseEntity.ok(ApiResponse.success("Category updated successfully", category));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryResponse>> deleteCategory(@PathVariable UUID id) {
-        log.info("Endpoint: delete-category - category deletion: id={}", id);
         CategoryResponse category = categoryService.deleteCategory(id);
         return ResponseEntity.ok(ApiResponse.success("Category deleted successfully", category));
     }
