@@ -82,7 +82,7 @@ export default function Navbar({ onRegisterClick }: NavbarProps) {
       )}
     >
       <div className="max-w-[1340px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+        <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Brand Logo */}
           <Link href={ROUTES.PUBLIC.HOME} className="flex items-center gap-2.5 group">
             <Image

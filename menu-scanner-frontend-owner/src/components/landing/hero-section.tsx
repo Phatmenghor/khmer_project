@@ -25,7 +25,7 @@ export default function HeroSection() {
   return (
     <>
       <style>{scrollStyles}</style>
-      <section className="relative overflow-hidden pt-11 sm:pt-16 pb-14 sm:pb-16">
+      <section className="relative overflow-hidden pt-3 sm:pt-4 pb-10 sm:pb-12">
       {/* Animated Background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-0 left-1/4 w-44 sm:w-64 h-44 sm:h-64 bg-primary/10 rounded-full blur-3xl animate-pulse" style={{animationDuration: "4s"}}></div>

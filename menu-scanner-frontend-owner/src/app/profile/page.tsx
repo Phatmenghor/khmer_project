@@ -213,7 +213,7 @@ export default function UserProfilePage() {
   return (
     <>
       <Navbar onRegisterClick={() => setIsRegisterModalOpen(true)} />
-      <main className="min-h-screen bg-background py-8 px-4 sm:px-6 md:px-8 max-w-5xl mx-auto space-y-6">
+      <main className="min-h-screen bg-background pt-3 pb-6 px-4 sm:px-6 md:px-8 max-w-5xl mx-auto space-y-5">
         <div className="space-y-4">
           <div className="flex flex-col space-y-1">
             <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
