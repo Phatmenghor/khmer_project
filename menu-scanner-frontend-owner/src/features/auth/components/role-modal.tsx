@@ -10,6 +10,7 @@ import { CancelButton } from "@/components/shared/button/cancel-button";
 import { SubmitButton } from "@/components/shared/button/submit-button";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { showToast } from "@/components/shared/common/show-toast";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
@@ -128,8 +129,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
       }
     } catch (error: unknown) {
       showToast.error(
-        (error as { message?: string })?.message ||
-          `Failed to ${isCreate ? "create" : "update"} role`,
+        getErrorMessage(error, `Failed to ${isCreate ? "create" : "update"} role`),
       );
     }
   };

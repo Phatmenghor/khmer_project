@@ -38,6 +38,7 @@ import { SpacesMultiSizeResult } from "@/services/spaces-service";
 import { GENDER_OPTIONS } from "@/constants/app-resource/status/create-update-status";
 import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
 import Loading from "@/components/shared/common/loading";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 import {
   profileUpdateSchema,
   ProfileFormData,
@@ -148,7 +149,7 @@ export default function AdminProfilePage() {
       showToast.success("Profile updated successfully");
       setIsEditing(false);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to update profile");
+      showToast.error(getErrorMessage(error, "Failed to update profile"));
     }
   };
 
@@ -162,7 +163,7 @@ export default function AdminProfilePage() {
       showToast.success("Profile picture updated successfully");
       setIsProfilePictureModalOpen(false);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to update profile picture");
+      showToast.error(getErrorMessage(error, "Failed to update profile picture"));
     } finally {
       setIsSavingImage(false);
     }
@@ -176,7 +177,7 @@ export default function AdminProfilePage() {
       showToast.success("Profile picture removed successfully");
       setIsProfilePictureModalOpen(false);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to remove profile picture");
+      showToast.error(getErrorMessage(error, "Failed to remove profile picture"));
     } finally {
       setIsSavingImage(false);
     }
@@ -208,7 +209,7 @@ export default function AdminProfilePage() {
       clearUserInfo();
       setTimeout(() => { router.replace(ROUTES.AUTH.LOGIN); }, 100);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete account");
+      showToast.error(getErrorMessage(error, "Failed to delete account"));
     }
   };
 

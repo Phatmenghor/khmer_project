@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { CustomButton } from "../button/custom-button";
 import { Loading } from "../common/loading";
 import { showToast } from "../common/show-toast";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { Messages } from "@/constants/messages";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -88,7 +89,7 @@ export default function ResetPasswordModal({
       showToast.success(Messages.auth.passwordReset);
       handleClose();
     } catch (error: unknown) {
-      toast.error((error as { message?: string })?.message || "Reset failed. Please try again.");
+      showToast.error(getErrorMessage(error, "Reset failed. Please try again."));
     }
   };
 

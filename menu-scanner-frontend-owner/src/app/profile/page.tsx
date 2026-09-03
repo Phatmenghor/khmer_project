@@ -29,6 +29,7 @@ import Loading from "@/components/shared/common/loading";
 import Navbar from "@/components/landing/navbar";
 import Footer from "@/components/landing/footer";
 import { RegisterModal } from "@/components/landing/register-modal";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 import {
   profileUpdateSchema,
   ProfileFormData,
@@ -140,7 +141,7 @@ export default function UserProfilePage() {
       showToast.success("Profile updated successfully");
       setIsEditing(false);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to update profile");
+      showToast.error(getErrorMessage(error, "Failed to update profile"));
     }
   };
 
@@ -153,7 +154,7 @@ export default function UserProfilePage() {
       showToast.success("Profile picture updated successfully");
       setIsProfilePictureModalOpen(false);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to update profile picture");
+      showToast.error(getErrorMessage(error, "Failed to update profile picture"));
     } finally {
       setIsSavingImage(false);
     }
@@ -167,7 +168,7 @@ export default function UserProfilePage() {
       showToast.success("Profile picture removed successfully");
       setIsProfilePictureModalOpen(false);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to remove profile picture");
+      showToast.error(getErrorMessage(error, "Failed to remove profile picture"));
     } finally {
       setIsSavingImage(false);
     }
@@ -199,7 +200,7 @@ export default function UserProfilePage() {
       clearUserInfo();
       setTimeout(() => { router.replace(ROUTES.AUTH.LOGIN); }, 100);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete account");
+      showToast.error(getErrorMessage(error, "Failed to delete account"));
     }
   };
 

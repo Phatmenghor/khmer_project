@@ -17,6 +17,7 @@ import {
 } from "@/features/auth/store/selectors/auth-selectors";
 import { clearError } from "@/features/auth/store/slice/auth-slice";
 import { showToast } from "@/components/shared/common/show-toast";
+import { getErrorMessage } from "@/utils/error/get-error-message";
 import { changePasswordSchema } from "@/features/auth/store/models/schema/user.schema";
 
 type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
@@ -74,7 +75,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
       showToast.success(Messages.auth.passwordChanged);
       handleClose();
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to change password");
+      showToast.error(getErrorMessage(error, "Failed to change password"));
     }
   };
 
