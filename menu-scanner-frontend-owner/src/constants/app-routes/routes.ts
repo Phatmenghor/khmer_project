@@ -30,6 +30,7 @@ export const ROUTES = {
     USER_ROLES: "/admin/roles",
     ROLES: "/admin/roles",
   },
+  PROFILE: "/profile",
   ADMIN: {
     ROOT: "/admin",
     DASHBOARD: "/admin",

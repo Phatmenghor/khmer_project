@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { LogOut, ChevronDown, User, KeyRound, LayoutDashboard } from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { SmartImage } from "@/components/shared/image/smart-image";
@@ -17,12 +18,14 @@ import { useLogout } from "@/hooks/use-logout";
 import { SignoutModal } from "@/components/shared/modal/signout-modal";
 import { showToast } from "@/components/shared/common/show-toast";
 import { getProfileImageUrl, getUserInitials } from "@/utils/user/user-helper";
+import { ROUTES } from "@/constants/app-routes/routes";
 
 interface CustomProfileDropdownProps {
   className?: string;
 }
 
 export function CustomProfileDropdown({ className }: CustomProfileDropdownProps) {
+  const router = useRouter();
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { profile, fullName } = useAuthState();
@@ -50,11 +53,11 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
   };
 
   const handleMyProfileClick = () => {
-    showToast.info(`Logged in as ${displayName} (${userIdentifier}). Account is active.`);
+    router.push(ROUTES.PROFILE);
   };
 
   const handleChangePasswordClick = () => {
-    showToast.info("Security settings are active for your account.");
+    router.push(`${ROUTES.PROFILE}?tab=security`);
   };
 
   return (
@@ -134,7 +137,7 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
             className="py-2.5 px-3 rounded-xl cursor-pointer hover:bg-muted/80 focus:bg-muted/80 transition-colors text-xs font-bold flex items-center gap-2.5 text-foreground"
           >
             <User className="h-4 w-4 text-muted-foreground shrink-0" />
-            My Business Profile
+            My Profile
           </DropdownMenuItem>
 
           <DropdownMenuItem
