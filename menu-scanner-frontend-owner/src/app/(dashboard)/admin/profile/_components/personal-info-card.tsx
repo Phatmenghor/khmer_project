@@ -40,28 +40,28 @@ export function PersonalInfoCard({
                 control={control}
                 name="firstName"
                 label="First Name"
-                placeholder="First name"
+                placeholder="Enter first name"
                 error={errors.firstName}
               />
               <TextField
                 control={control}
                 name="lastName"
                 label="Last Name"
-                placeholder="Last name"
+                placeholder="Enter last name"
                 error={errors.lastName}
               />
               <TextField
                 control={control}
                 name="nickname"
                 label="Nickname"
-                placeholder="Nickname"
+                placeholder="Enter nickname"
                 error={errors.nickname}
               />
               <TextField
                 control={control}
                 name="email"
                 label="Email"
-                placeholder="Email"
+                placeholder="Enter email address"
                 type="email"
                 error={errors.email}
               />
@@ -69,7 +69,7 @@ export function PersonalInfoCard({
                 control={control}
                 name="phoneNumber"
                 label="Phone Number"
-                placeholder="Phone"
+                placeholder="Enter phone number"
                 error={errors.phoneNumber}
               />
               <SelectField
@@ -84,7 +84,7 @@ export function PersonalInfoCard({
                 control={control}
                 name="dateOfBirth"
                 label="Date of Birth"
-                placeholder="Date of birth"
+                placeholder="Enter date of birth"
                 error={errors.dateOfBirth}
               />
             </>

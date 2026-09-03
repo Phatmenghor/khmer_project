@@ -24,7 +24,7 @@ import { appImages } from "@/constants/app-resource/icons/app-images";
 import { getErrorMessage } from "@/utils/error/get-error-message";
 
 const formSchema = z.object({
-  userIdentifier: z.string().min(1, "Email or username is required"),
+  userIdentifier: z.string().min(1, "User identifier is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 

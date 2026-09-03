@@ -34,7 +34,7 @@ export function AdditionalInfoCard({
             control={control}
             name="remark"
             label="Remarks"
-            placeholder="Additional notes or information"
+            placeholder="Enter remarks or additional information"
             rows={4}
             error={errors.remark}
           />
