@@ -195,7 +195,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
             <TextField
               name="userIdentifier"
               label="User Identifier"
-              placeholder="Enter username or email"
+              placeholder="Enter user identifier"
               control={registerForm.control}
               error={registerForm.formState.errors.userIdentifier}
               disabled={isAnyLoading}

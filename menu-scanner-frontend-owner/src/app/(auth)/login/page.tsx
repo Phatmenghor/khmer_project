@@ -125,8 +125,8 @@ export default function LoginPage() {
               >
                 <TextField
                   name="userIdentifier"
-                  label="Email or Username"
-                  placeholder="name@example.com"
+                  label="User Identifier"
+                  placeholder="Enter user identifier"
                   control={form.control}
                   error={form.formState.errors.userIdentifier}
                   disabled={isAnyLoading}

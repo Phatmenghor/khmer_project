@@ -208,7 +208,7 @@ export function RegisterModal({
             <TextField
               name="userIdentifier"
               label="User Identifier"
-              placeholder="Username or email"
+              placeholder="Enter user identifier"
               control={loginForm.control}
               error={loginForm.formState.errors.userIdentifier}
               disabled={isAnyLoading}
@@ -270,7 +270,7 @@ export function RegisterModal({
             <TextField
               name="userIdentifier"
               label="User Identifier"
-              placeholder="Username or email"
+              placeholder="Enter user identifier"
               control={registerForm.control}
               error={registerForm.formState.errors.userIdentifier}
               disabled={isAnyLoading}
@@ -295,7 +295,7 @@ export function RegisterModal({
               <PasswordField
                 name="confirmPassword"
                 label="Confirm Password"
-                placeholder="Confirm password"
+                placeholder="Enter confirm password"
                 control={registerForm.control}
                 error={registerForm.formState.errors.confirmPassword}
                 disabled={isAnyLoading}
