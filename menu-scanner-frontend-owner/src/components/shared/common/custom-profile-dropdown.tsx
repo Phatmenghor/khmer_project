@@ -128,15 +128,7 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
 
           <DropdownMenuSeparator className="my-1.5 bg-border/60" />
 
-          {/* Menu Options - Public Business Client Portal Only */}
-          <DropdownMenuItem
-            onClick={handleStoreDashboardClick}
-            className="py-2.5 px-3 rounded-xl cursor-pointer hover:bg-muted/80 focus:bg-muted/80 transition-colors text-xs font-bold flex items-center gap-2.5 text-foreground"
-          >
-            <LayoutDashboard className="h-4 w-4 text-primary shrink-0" />
-            Store Dashboard (eMenu Client)
-          </DropdownMenuItem>
-
+          {/* Top Profile & Account Options */}
           <DropdownMenuItem
             onClick={handleMyProfileClick}
             className="py-2.5 px-3 rounded-xl cursor-pointer hover:bg-muted/80 focus:bg-muted/80 transition-colors text-xs font-bold flex items-center gap-2.5 text-foreground"
@@ -151,6 +143,17 @@ export function CustomProfileDropdown({ className }: CustomProfileDropdownProps)
           >
             <KeyRound className="h-4 w-4 text-muted-foreground shrink-0" />
             Security Settings
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator className="my-1.5 bg-border/60" />
+
+          {/* Store Dashboard Option (At the bottom before Sign Out) */}
+          <DropdownMenuItem
+            onClick={handleStoreDashboardClick}
+            className="py-2.5 px-3 rounded-xl cursor-pointer hover:bg-muted/80 focus:bg-muted/80 transition-colors text-xs font-bold flex items-center gap-2.5 text-foreground"
+          >
+            <LayoutDashboard className="h-4 w-4 text-primary shrink-0" />
+            Store Dashboard (eMenu Client)
           </DropdownMenuItem>
 
           <DropdownMenuSeparator className="my-1.5 bg-border/60" />
