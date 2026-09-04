@@ -10,17 +10,7 @@ import java.time.LocalDate;
 
 @Entity
 @BatchSize(size = 30)
-@Table(name = "user_employments",
-        indexes = {
-                // FK join — used in every detail fetch
-                @Index(name = "idx_user_employments_user_id",    columnList = "user_id"),
-
-                // HR filter queries
-                @Index(name = "idx_user_employments_position",   columnList = "position"),
-                @Index(name = "idx_user_employments_department",  columnList = "department"),
-                @Index(name = "idx_user_employments_type",        columnList = "employment_type"),
-        }
-)
+@Table(name = "user_employments")
 @Data
 @EqualsAndHashCode(callSuper = true, exclude = "user")
 @ToString(exclude = "user")

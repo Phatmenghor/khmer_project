@@ -1,7 +1,8 @@
 package com.emenu.features.subscription.service.impl;
 
 import com.emenu.enums.sub_scription.SubscriptionPlanStatus;
-import com.emenu.shared.mapper.PaginationMapper;
+import com.emenu.exception.custom.ValidationException;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.features.subscription.dto.filter.SubscriptionPlanFilterRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionPlanCreateRequest;
 import com.emenu.features.subscription.dto.response.SubscriptionPlanResponse;
@@ -10,21 +11,21 @@ import com.emenu.features.subscription.mapper.SubscriptionPlanMapper;
 import com.emenu.features.subscription.models.SubscriptionPlan;
 import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
 import com.emenu.features.subscription.repository.SubscriptionRepository;
-import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.subscription.service.SubscriptionPlanService;
 import com.emenu.features.subscription.specification.SubscriptionPlanSpecification;
-import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.shared.dto.PaginationResponse;
-import com.emenu.shared.pagination.PaginationUtils;
+import com.emenu.shared.mapper.PaginationMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -61,21 +62,40 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<SubscriptionPlanResponse> getAllPlans(SubscriptionPlanFilterRequest filter) {
-        Pageable pageable = PaginationUtils.createPageable(
-                filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
-        );
+        String sortBy = filter.getSortBy();
+        if (sortBy == null || sortBy.isBlank() || "createdAt".equals(sortBy)) {
+            sortBy = "durationType";
+        }
+        String sortDirection = (filter.getSortDirection() != null && !filter.getSortDirection().isBlank())
+                ? filter.getSortDirection()
+                : "ASC";
+
+        Direction direction = sortDirection.equalsIgnoreCase("DESC") ? Direction.DESC : Direction.ASC;
+
+        Sort sort;
+        if ("durationType".equalsIgnoreCase(sortBy)) {
+            sort = Sort.by(direction, "durationType")
+                    .and(Sort.by(Direction.ASC, "price"));
+        } else {
+            sort = Sort.by(direction, sortBy);
+        }
+
+        Pageable pageable = PageRequest.of(filter.getPageNo() - 1, filter.getPageSize(), sort);
 
         List<SubscriptionPlanStatus> statusesTypes = (filter.getStatuses() != null && !filter.getStatuses().isEmpty())
                 ? filter.getStatuses() : null;
 
-        Specification<SubscriptionPlan> spec = SubscriptionPlanSpecification.findAllWithFilters(
+        Specification<SubscriptionPlan> spec = SubscriptionPlanSpecification.filterSubscriptionPlans(
                 statusesTypes,
                 filter.getSearch()
         );
         Page<SubscriptionPlan> planPage = planRepository.findAll(spec, pageable);
 
-        return paginationMapper.toPaginationResponse(planPage, planMapper.toResponseList(planPage.getContent()));
+        List<SubscriptionPlanResponse> responseList = planMapper.toResponseList(planPage.getContent());
+        return paginationMapper.toPaginationResponse(planPage, responseList);
     }
+
+
 
     @Override
     @Transactional(readOnly = true)
@@ -127,7 +147,6 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
         webSocketNotificationService.notifyPlatformEvent("SUBSCRIPTION_PLAN_CHANGED", Map.of("action", "deleted", "planId", plan.getId().toString()));
     }
 
-
     @Transactional(readOnly = true)
     private boolean canDeletePlan(UUID planId) {
         return !isPlanInUse(planId);
@@ -146,3 +165,4 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
         return planMapper.toResponseList(plans);
     }
 }
+

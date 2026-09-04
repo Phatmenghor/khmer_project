@@ -73,7 +73,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
           firstName: values.firstName,
           lastName: values.lastName,
           phoneNumber: values.phone,
-          userType: "CUSTOMER",
+          userType: "BUSINESS_USER",
           businessId: AppDefault.BUSINESS_ID,
         }),
       ).unwrap();
@@ -88,7 +88,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
               userIdentifier: values.userIdentifier,
               password: values.password,
               businessId: AppDefault.BUSINESS_ID,
-              userType: "CUSTOMER",
+              userType: "BUSINESS_USER",
             }),
           ).unwrap();
 
@@ -109,8 +109,9 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
     setIsTelegramLoading(true);
     try {
       const result = await dispatch(
-        telegramAuthenticateService({ telegramData, userType: "CUSTOMER", businessId: AppDefault.BUSINESS_ID }),
+        telegramAuthenticateService({ telegramData, userType: "BUSINESS_USER", businessId: AppDefault.BUSINESS_ID }),
       ).unwrap();
+
 
       if (result?.userType === "BUSINESS_USER") {
         showToast.error(Messages.auth.loginBlocked);

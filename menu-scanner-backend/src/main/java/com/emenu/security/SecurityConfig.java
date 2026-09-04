@@ -40,8 +40,6 @@ public class SecurityConfig {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    // ─── Fail-fast JWT secret validation ─────────────────────────────────────
-
     @PostConstruct
     public void validateJwtSecret() {
         if (jwtSecret == null || jwtSecret.startsWith("${") || jwtSecret.length() < 64) {

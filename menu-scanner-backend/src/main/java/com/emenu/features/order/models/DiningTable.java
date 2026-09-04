@@ -9,10 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "dining_tables", indexes = {
-    @Index(name = "idx_dining_tables_business_id", columnList = "business_id"),
-    @Index(name = "idx_dining_tables_status", columnList = "status")
-})
+@Table(name = "dining_tables")
 @Getter
 @Setter
 @NoArgsConstructor

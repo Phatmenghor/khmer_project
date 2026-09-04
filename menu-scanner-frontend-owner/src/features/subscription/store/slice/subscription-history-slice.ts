@@ -3,12 +3,14 @@ import { SubscriptionHistoryManagementState } from "../models/type/subscription-
 import {
   fetchAllSubscriptionHistoryService,
   fetchSubscriptionHistoryByIdService,
+  fetchMySubscriptionSummaryService,
 } from "../thunks/subscription-history-thunks";
 
 const initialState: SubscriptionHistoryManagementState = {
   data: null,
   selectedHistory: null,
-  isLoading: true,
+  mySummary: null,
+  isLoading: false,
   error: null,
   filters: {
     businessId: "",
@@ -20,6 +22,7 @@ const initialState: SubscriptionHistoryManagementState = {
   },
   operations: {
     isFetchingDetail: false,
+    isFetchingSummary: false,
   },
 };
 
@@ -88,6 +91,20 @@ const subscriptionHistorySlice = createSlice({
       })
       .addCase(fetchSubscriptionHistoryByIdService.rejected, (state, action) => {
         state.operations.isFetchingDetail = false;
+        state.error = action.payload as string;
+      });
+
+    builder
+      .addCase(fetchMySubscriptionSummaryService.pending, (state) => {
+        state.operations.isFetchingSummary = true;
+        state.error = null;
+      })
+      .addCase(fetchMySubscriptionSummaryService.fulfilled, (state, action) => {
+        state.operations.isFetchingSummary = false;
+        state.mySummary = action.payload;
+      })
+      .addCase(fetchMySubscriptionSummaryService.rejected, (state, action) => {
+        state.operations.isFetchingSummary = false;
         state.error = action.payload as string;
       });
   },

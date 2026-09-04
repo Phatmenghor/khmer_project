@@ -5,6 +5,7 @@ import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.location.dto.filter.LocationFilterRequest;
 import com.emenu.features.location.dto.request.LocationCreateRequest;
+import com.emenu.features.location.dto.request.LocationImageRequest;
 import com.emenu.features.location.dto.response.LocationResponse;
 import com.emenu.features.location.dto.update.LocationUpdateRequest;
 import com.emenu.features.location.mapper.LocationMapper;
@@ -145,7 +146,7 @@ public class LocationServiceImpl implements LocationService {
         }
     }
 
-    private void addLocationImages(Location location, List<com.emenu.features.location.dto.request.LocationImageRequest> imageRequests) {
+    private void addLocationImages(Location location, List<LocationImageRequest> imageRequests) {
         if (imageRequests == null || imageRequests.isEmpty()) return;
         for (var imageRequest : imageRequests) {
             var locationImage = new LocationImage();
@@ -155,7 +156,7 @@ public class LocationServiceImpl implements LocationService {
         }
     }
 
-    private void updateLocationImages(Location address, List<com.emenu.features.location.dto.request.LocationImageRequest> imageRequests) {
+    private void updateLocationImages(Location address, List<LocationImageRequest> imageRequests) {
         if (imageRequests == null || imageRequests.isEmpty()) return;
         address.getLocationImages().clear();
         for (var imageRequest : imageRequests) {

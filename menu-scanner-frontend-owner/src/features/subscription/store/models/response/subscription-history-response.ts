@@ -33,3 +33,17 @@ export interface SubscriptionHistoryResponseModel {
 export interface AllSubscriptionHistoryResponseModel extends Pagination {
   content: SubscriptionHistoryResponseModel[];
 }
+
+export interface MySubscriptionSummaryModel {
+  currentSubscriptionId?: string;
+  planName: string;
+  billingCycle: string;
+  subscriptionStartDate: string;
+  subscriptionEndDate?: string;
+  daysRemaining?: number;
+  daysRemainingText?: string;
+  progressPercent?: number;
+  isSubscriptionActive?: boolean;
+  subscriptionStatus?: string;
+  history?: SubscriptionHistoryResponseModel[];
+}

@@ -14,11 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "customer_addresses",
-        indexes = {
-                @Index(name = "idx_customer_addresses_user_id", columnList = "user_id")
-        }
-)
+@Table(name = "customer_addresses")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

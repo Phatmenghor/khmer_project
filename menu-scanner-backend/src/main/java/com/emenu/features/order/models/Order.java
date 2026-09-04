@@ -24,15 +24,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "orders",
-        indexes = {
-                @Index(name = "idx_orders_business_id",   columnList = "business_id"),
-                @Index(name = "idx_orders_customer_id",   columnList = "customer_id"),
-                @Index(name = "idx_orders_created_at",    columnList = "created_at"),
-                @Index(name = "idx_orders_biz_status",         columnList = "business_id,order_status"),
-                @Index(name = "idx_orders_biz_created_at",     columnList = "business_id,created_at")
-        }
-)
+@Table(name = "orders")
 @Data
 @ToString(callSuper = true, exclude = {"customer", "business", "deliveryAddress", "deliveryOption", "items", "statusHistory"})
 @EqualsAndHashCode(callSuper = true, exclude = {"customer", "business", "deliveryAddress", "deliveryOption", "items", "statusHistory"})

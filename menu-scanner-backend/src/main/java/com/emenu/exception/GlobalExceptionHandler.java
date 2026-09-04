@@ -45,10 +45,7 @@ public class GlobalExceptionHandler {
         if (message != null) MDC.put("responseMessage", message);
     }
 
-    // =========================================================================
-    // PRIMARY: BusinessException — handles all domain errors
-    // =========================================================================
-
+    // BusinessException: handles all domain errors
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Object>> handleBusinessException(
             BusinessException ex, HttpServletRequest request) {
@@ -63,10 +60,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.failure(ex.getMessage(), responseData));
     }
 
-    // =========================================================================
-    // SPRING SECURITY exceptions
-    // =========================================================================
-
+    // Spring Security exceptions
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponse<Object>> handleBadCredentials(
             BadCredentialsException ex, HttpServletRequest request) {
@@ -117,10 +111,7 @@ public class GlobalExceptionHandler {
                         Map.of("errorCode", "ACCOUNT_LOCKED")));
     }
 
-    // =========================================================================
-    // LEGACY custom exceptions — kept until callers migrate to BusinessException
-    // =========================================================================
-
+    // Legacy custom exceptions
     @ExceptionHandler({NotFoundException.class, UserNotFoundException.class, ResourceNotFoundException.class})
     public ResponseEntity<ApiResponse<Object>> handleNotFound(
             RuntimeException ex, HttpServletRequest request) {
@@ -171,10 +162,7 @@ public class GlobalExceptionHandler {
                         Map.of("errorCode", "INVALID_OPERATION")));
     }
 
-    // =========================================================================
-    // VALIDATION errors (Spring framework)
-    // =========================================================================
-
+    // Validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Object>> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpServletRequest request) {
@@ -235,10 +223,7 @@ public class GlobalExceptionHandler {
                         Map.of("errorCode", "VALIDATION_ERROR", "violations", violations)));
     }
 
-    // =========================================================================
     // HTTP protocol errors
-    // =========================================================================
-
     @ExceptionHandler({NoHandlerFoundException.class, org.springframework.web.servlet.resource.NoResourceFoundException.class})
     public ResponseEntity<ApiResponse<Object>> handleNoHandler(
             Exception ex, HttpServletRequest request) {
@@ -322,10 +307,7 @@ public class GlobalExceptionHandler {
                         Map.of("errorCode", "TYPE_MISMATCH", "field", ex.getName())));
     }
 
-    // =========================================================================
-    // DATABASE errors
-    // =========================================================================
-
+    // Database errors
     @ExceptionHandler({OptimisticLockException.class, ObjectOptimisticLockingFailureException.class})
     public ResponseEntity<ApiResponse<Object>> handleOptimisticLock(
             Exception ex, HttpServletRequest request) {
@@ -407,10 +389,7 @@ public class GlobalExceptionHandler {
                         Map.of("errorCode", "INTERNAL_SERVER_ERROR")));
     }
 
-    // =========================================================================
-    // CANCELLATION & CLIENT DISCONNECT exceptions
-    // =========================================================================
-
+    // Cancellation & disconnect errors
     @ExceptionHandler(CancellationException.class)
     public ResponseEntity<ApiResponse<Object>> handleCancellation(
             CancellationException ex, HttpServletRequest request) {
@@ -427,10 +406,7 @@ public class GlobalExceptionHandler {
         tagResponse("Client connection aborted");
     }
 
-    // =========================================================================
-    // CATCH-ALL — last resort, generates trace ID for support
-    // =========================================================================
-
+    // Catch-all
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGeneric(
             Exception ex, HttpServletRequest request) {

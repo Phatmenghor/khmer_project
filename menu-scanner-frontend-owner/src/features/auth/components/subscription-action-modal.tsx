@@ -247,7 +247,7 @@ export default function SubscriptionActionModal({
               className="mb-4"
             />
 
-            {/* --- RENEW TAB --- */}
+            {/* Renew Tab */}
             <TabsContent value="renew" className="mt-3">
               <Card className="rounded-xl border border-border/60 shadow-2xs">
                 <CardHeader className="pb-2">

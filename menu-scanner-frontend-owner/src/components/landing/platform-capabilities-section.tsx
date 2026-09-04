@@ -11,7 +11,8 @@ import {
   Sparkles,
   Package,
   Users,
-  Tag
+  Tag,
+  LogIn
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -194,14 +195,12 @@ export default function PlatformCapabilitiesSection() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Link href={ROUTES.AUTH.LOGIN}>
-              <CustomButton variant="outline" className="h-[36px] px-4 text-xs font-semibold rounded-[12px]">
+              <CustomButton
+                variant="default"
+                className="h-[38px] px-5 text-xs font-bold rounded-[12px] gap-2 shadow-sm hover:shadow-md hover:shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 bg-gradient-to-r from-primary via-primary/90 to-primary text-primary-foreground border border-primary/20 cursor-pointer"
+              >
+                <LogIn className="w-3.5 h-3.5" />
                 Sign In
-              </CustomButton>
-            </Link>
-            <Link href={ROUTES.AUTH.LOGIN}>
-              <CustomButton variant="default" className="h-[36px] px-4 text-xs font-semibold rounded-[12px] gap-1.5 shadow-2xs">
-                Register Free
-                <ArrowRight className="w-3.5 h-3.5" />
               </CustomButton>
             </Link>
           </div>

@@ -2,26 +2,26 @@ package com.emenu.features.subscription.specification;
 
 import com.emenu.enums.sub_scription.SubscriptionPlanStatus;
 import com.emenu.features.subscription.models.SubscriptionPlan;
+import com.emenu.shared.specification.BaseSpecification;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 
-public class SubscriptionPlanSpecification {
+public class SubscriptionPlanSpecification extends BaseSpecification {
 
     public static Specification<SubscriptionPlan> active() {
         return (root, query, cb) -> cb.equal(root.get("isDeleted"), false);
     }
 
     public static Specification<SubscriptionPlan> byStatuses(List<SubscriptionPlanStatus> statuses) {
-        return (root, query, cb) -> {
-            if (statuses == null || statuses.isEmpty()) return cb.conjunction();
-            return root.get("status").in(statuses);
-        };
+        return filterByFieldIn("status", statuses);
     }
 
     public static Specification<SubscriptionPlan> searchByNameOrDescription(String search) {
         return (root, query, cb) -> {
-            if (search == null || search.isBlank()) return cb.conjunction();
+            if (search == null || search.isBlank()) {
+                return cb.conjunction();
+            }
             String pattern = "%" + search.toLowerCase() + "%";
             return cb.or(
                 cb.like(cb.lower(root.get("name")), pattern),
@@ -30,9 +30,14 @@ public class SubscriptionPlanSpecification {
         };
     }
 
-    public static Specification<SubscriptionPlan> findAllWithFilters(List<SubscriptionPlanStatus> statuses, String search) {
+    public static Specification<SubscriptionPlan> filterSubscriptionPlans(List<SubscriptionPlanStatus> statuses, String search) {
         return active()
                 .and(byStatuses(statuses))
                 .and(searchByNameOrDescription(search));
     }
+
+    public static Specification<SubscriptionPlan> findAllWithFilters(List<SubscriptionPlanStatus> statuses, String search) {
+        return filterSubscriptionPlans(statuses, search);
+    }
 }
+

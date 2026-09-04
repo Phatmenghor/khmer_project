@@ -88,14 +88,16 @@ export const selectUserType = createSelector(
 
 export const selectIsAdmin = createSelector(
   [selectUserType],
+  (userType) => userType === "PLATFORM_USER"
+);
+
+export const selectIsBusinessUser = createSelector(
+  [selectUserType],
   (userType) => userType === "BUSINESS_USER"
 );
 
+export const selectIsCustomer = selectIsBusinessUser;
 
-export const selectIsCustomer = createSelector(
-  [selectUserType],
-  (userType) => userType === "CUSTOMER"
-);
 
 
 export const selectHasRole = (role: string) =>

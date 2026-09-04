@@ -1,6 +1,7 @@
 package com.emenu.features.auth.service;
 
 import com.emenu.enums.user.UserType;
+import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +44,7 @@ public class UserValidationService {
             String context = (userType == UserType.BUSINESS_USER || userType == UserType.CUSTOMER)
                     ? " in this business"
                     : " for " + userType.name().toLowerCase().replace("_", " ");
-            throw new com.emenu.exception.custom.ValidationException(
+            throw new ValidationException(
                     "Username '" + userIdentifier + "' is already taken" + context
             );
         }

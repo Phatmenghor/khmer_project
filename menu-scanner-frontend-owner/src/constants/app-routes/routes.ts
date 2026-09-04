@@ -32,6 +32,7 @@ export const ROUTES = {
   },
   PROFILE: "/profile",
   SUBSCRIPTION_HISTORY: "/subscription-history",
+  PRICING: "/pricing",
   ADMIN: {
     ROOT: "/admin",
     DASHBOARD: "/admin",

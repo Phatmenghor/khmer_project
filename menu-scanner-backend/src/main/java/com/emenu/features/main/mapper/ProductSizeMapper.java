@@ -10,6 +10,7 @@ import org.mapstruct.*;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ProductSizeMapper {
@@ -73,7 +74,7 @@ return dtos.stream()
         .toList();
     }
 
-    default List<java.util.UUID> getIdsToDelete(List<ProductSizeUpdateDto> dtos) {
+    default List<UUID> getIdsToDelete(List<ProductSizeUpdateDto> dtos) {
 if (dtos == null) {
     return List.of();
 }

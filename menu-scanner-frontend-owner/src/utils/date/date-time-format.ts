@@ -98,3 +98,22 @@ export function getTodayLocalDateString(d: Date = new Date()): string {
   const day = String(d.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
+
+export function formatTime12Hour(timeStr?: string | null): string {
+  if (!timeStr) return "";
+  if (timeStr.toUpperCase().includes("AM") || timeStr.toUpperCase().includes("PM")) {
+    return timeStr;
+  }
+  const parts = timeStr.trim().split(":");
+  if (parts.length < 2) return timeStr;
+
+  let hour = parseInt(parts[0], 10);
+  const minute = parts[1].substring(0, 2);
+  if (isNaN(hour)) return timeStr;
+
+  const period = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12 || 12;
+  const formattedHour = String(hour).padStart(2, "0");
+
+  return `${formattedHour}:${minute} ${period}`;
+}

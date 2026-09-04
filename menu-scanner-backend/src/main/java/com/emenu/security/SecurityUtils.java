@@ -219,7 +219,7 @@ public class SecurityUtils {
         return getCurrentUser().getId();
     }
 
-    public com.emenu.enums.user.UserType getCurrentUserType() {
+    public UserType getCurrentUserType() {
         try {
             User currentUser = getCurrentUser();
             return currentUser.getUserType();

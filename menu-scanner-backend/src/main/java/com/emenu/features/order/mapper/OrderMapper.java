@@ -1,10 +1,17 @@
 package com.emenu.features.order.mapper;
 
+import com.emenu.enums.order.OrderFromEnum;
+import com.emenu.enums.order.OrderStatus;
+import com.emenu.features.auth.models.User;
+import com.emenu.features.auth.models.UserProfile;
 import com.emenu.features.location.mapper.LocationMapper;
 import com.emenu.features.order.dto.helper.OrderCreateHelper;
 import com.emenu.features.order.dto.helper.OrderItemCreateHelper;
 import com.emenu.features.order.dto.request.OrderCreateRequest;
+import com.emenu.features.order.dto.request.OrderItemUpdateRequest;
 import com.emenu.features.order.dto.response.*;
+import com.emenu.features.order.dto.response.OrderDeliveryAddressDto;
+import com.emenu.features.order.dto.response.OrderDeliveryOptionDto;
 import com.emenu.features.order.models.CartItem;
 import com.emenu.features.order.models.Order;
 import com.emenu.features.order.models.OrderItem;
@@ -27,11 +34,13 @@ import com.emenu.features.order.models.OrderDeliveryOption;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        imports = {OrderStatus.class, OrderFromEnum.class},
         uses = {LocationMapper.class, DeliveryOptionMapper.class, OrderItemMapper.class, PaginationMapper.class, OrderStatusHistoryMapper.class})
 public interface OrderMapper {
 
@@ -56,7 +65,7 @@ public interface OrderMapper {
         if (orders == null) {
             return null;
         }
-        List<OrderResponse> list = new java.util.ArrayList<>(orders.size());
+        List<OrderResponse> list = new ArrayList<>(orders.size());
         for (Order order : orders) {
             OrderResponse response = toResponse(order);
             if (response != null) {
@@ -95,15 +104,15 @@ public interface OrderMapper {
                 .build();
     }
 
-    OrderItem toOrderItem(com.emenu.features.order.dto.request.OrderItemUpdateRequest request);
+    OrderItem toOrderItem(OrderItemUpdateRequest request);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orderNumber", ignore = true)
     @Mapping(target = "deliveryOption", ignore = true)
     @Mapping(target = "deliveryAddress", ignore = true)
-    @Mapping(target = "orderStatus", expression = "java(com.emenu.enums.order.OrderStatus.COMPLETED)")
+    @Mapping(target = "orderStatus", expression = "java(OrderStatus.COMPLETED)")
     @Mapping(target = "source", constant = "POS")
-    @Mapping(target = "orderFrom", expression = "java(com.emenu.enums.order.OrderFromEnum.BUSINESS)")
+    @Mapping(target = "orderFrom", expression = "java(OrderFromEnum.BUSINESS)")
     @Mapping(target = "paymentMethod", source = "payment.paymentMethod")
     @Mapping(target = "customerPaymentMethod", source = "payment.customerPaymentMethod")
     @Mapping(target = "paymentStatus", source = "payment.paymentStatus")
@@ -191,7 +200,7 @@ public interface OrderMapper {
                 .build();
     }
 
-    default com.emenu.features.order.dto.response.OrderDeliveryAddressDto mapDeliveryAddress(Order order) {
+    default OrderDeliveryAddressDto mapDeliveryAddress(Order order) {
         if (order == null || order.getDeliveryAddress() == null) {
             return null;
         }
@@ -207,7 +216,7 @@ public interface OrderMapper {
             return null;
         }
 
-        return com.emenu.features.order.dto.response.OrderDeliveryAddressDto.builder()
+        return OrderDeliveryAddressDto.builder()
                 .village(deliveryAddress.getVillage())
                 .commune(deliveryAddress.getCommune())
                 .district(deliveryAddress.getDistrict())
@@ -222,7 +231,7 @@ public interface OrderMapper {
                 .build();
     }
 
-    default com.emenu.features.order.dto.response.OrderDeliveryOptionDto mapDeliveryOption(Order order) {
+    default OrderDeliveryOptionDto mapDeliveryOption(Order order) {
         if (order == null || order.getDeliveryOption() == null) {
             return null;
         }
@@ -235,7 +244,7 @@ public interface OrderMapper {
             return null;
         }
 
-        return com.emenu.features.order.dto.response.OrderDeliveryOptionDto.builder()
+        return OrderDeliveryOptionDto.builder()
                 .name(deliveryOption.getName())
                 .description(deliveryOption.getDescription())
                 .imageUrl(deliveryOption.getImageUrl())
@@ -278,8 +287,8 @@ public interface OrderMapper {
             return null;
         }
 
-        com.emenu.features.auth.models.User u = history.getChangedByUser();
-        com.emenu.features.auth.models.UserProfile p = u.getProfile();
+        User u = history.getChangedByUser();
+        UserProfile p = u.getProfile();
         return OrderStatusHistoryUserInfo.builder()
                 .userId(history.getChangedByUserId())
                 .firstName(p != null ? p.getFirstName() : null)

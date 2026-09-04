@@ -9,6 +9,8 @@ import com.emenu.features.auth.repository.BusinessSettingRepository;
 import com.emenu.features.subscription.dto.filter.SubscriptionHistoryFilterRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionCancelRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionRenewRequest;
+import com.emenu.features.auth.models.User;
+import com.emenu.features.subscription.dto.response.MySubscriptionSummaryResponse;
 import com.emenu.features.subscription.dto.response.SubscriptionHistoryResponse;
 import com.emenu.features.subscription.models.Subscription;
 import com.emenu.features.subscription.models.SubscriptionPayment;
@@ -31,7 +33,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -49,6 +53,88 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionPaymentRepository subscriptionPaymentRepository;
     private final PaginationMapper paginationMapper;
     private final SubscriptionHistoryMapper subscriptionHistoryMapper;
+    private final SecurityUtils securityUtils;
+
+    @Override
+    @Transactional(readOnly = true)
+    public MySubscriptionSummaryResponse getMySubscriptionSummary() {
+        User currentUser = securityUtils.getCurrentUser();
+        UUID businessId = currentUser.getBusinessId();
+
+        List<SubscriptionHistoryResponse> history = businessId != null
+                ? getAllByBusinessId(businessId)
+                : List.of();
+
+        Optional<Subscription> latestOpt = businessId != null
+                ? subscriptionRepository.findLatestByBusinessId(businessId)
+                : Optional.empty();
+
+        if (latestOpt.isPresent()) {
+            Subscription sub = latestOpt.get();
+            String pName = sub.getPlan() != null ? sub.getPlan().getName() : "Free Trial";
+            LocalDate start = sub.getStartDate() != null ? sub.getStartDate().toLocalDate() : currentUser.getCreatedAt().toLocalDate();
+            LocalDate end = sub.getEndDate() != null ? sub.getEndDate().toLocalDate() : start.plusDays(7);
+            Long remaining = sub.getDaysRemaining();
+
+            String cycle = "7-Day Trial";
+            int totalDays = 7;
+            if (sub.getPlan() != null && sub.getPlan().getDurationType() != null) {
+                switch (sub.getPlan().getDurationType()) {
+                    case FREE_TRIAL -> { cycle = "7-Day Trial"; totalDays = 7; }
+                    case MONTHLY -> { cycle = "Monthly"; totalDays = 30; }
+                    case SIX_MONTHS -> { cycle = "6 Months"; totalDays = 180; }
+                    case YEARLY -> { cycle = "Yearly"; totalDays = 365; }
+                }
+            }
+
+            String remainingText = (remaining != null && remaining > 0) ? (remaining + " Days") : "Expired";
+            int progressPct = (remaining != null) ? (int) Math.max(0, Math.min(100, Math.round((double) remaining / totalDays * 100))) : 0;
+
+            return MySubscriptionSummaryResponse.builder()
+                    .currentSubscriptionId(sub.getId())
+                    .planName(pName)
+                    .billingCycle(cycle)
+                    .subscriptionStartDate(start)
+                    .subscriptionEndDate(end)
+                    .daysRemaining(remaining)
+                    .daysRemainingText(remainingText)
+                    .progressPercent(progressPct)
+                    .isSubscriptionActive(sub.isActive())
+                    .subscriptionStatus(sub.isCancelled() ? "CANCELLED" : (sub.isExpired() ? "EXPIRED" : "ACTIVE"))
+                    .history(history)
+                    .build();
+        }
+
+        LocalDate start = currentUser.getCreatedAt() != null ? currentUser.getCreatedAt().toLocalDate() : LocalDate.now();
+        LocalDate end = start.plusDays(7);
+        LocalDate today = LocalDate.now();
+        long remaining = today.isAfter(end) ? 0L : ChronoUnit.DAYS.between(today, end);
+        String remainingText = remaining > 0 ? (remaining + " Days") : "Expired";
+        int progressPct = (int) Math.max(0, Math.min(100, Math.round((double) remaining / 7.0 * 100)));
+
+        SubscriptionHistoryResponse defaultHistoryItem = new SubscriptionHistoryResponse();
+        defaultHistoryItem.setPlanName("Free Trial");
+        defaultHistoryItem.setStartDate(start);
+        defaultHistoryItem.setEndDate(end);
+        defaultHistoryItem.setStatus("ACTIVE");
+        defaultHistoryItem.setPaymentStatus("FREE / INCLUDED");
+        defaultHistoryItem.setDaysRemaining(remaining);
+
+        List<SubscriptionHistoryResponse> defaultHistory = history.isEmpty() ? List.of(defaultHistoryItem) : history;
+
+        return MySubscriptionSummaryResponse.builder()
+                .planName("Free Trial")
+                .billingCycle("7-Day Trial")
+                .subscriptionStartDate(start)
+                .subscriptionEndDate(end)
+                .daysRemaining(remaining)
+                .daysRemainingText(remainingText)
+                .progressPercent(progressPct)
+                .isSubscriptionActive(true)
+                .subscriptionStatus("ACTIVE")
+                .history(defaultHistory)
+                .build();
+    }
 
     @Override
     @Transactional(readOnly = true)

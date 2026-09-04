@@ -11,15 +11,16 @@ export function proxy(request: NextRequest) {
   const timestamp = new Date().toISOString();
 
   const hasAdminToken = Boolean(
-    request.cookies.get(COOKIE_KEYS.ADMIN_ACCESS_TOKEN)?.value ||
-      request.cookies.get(COOKIE_KEYS.ACCESS_TOKEN)?.value
+    request.cookies.get(COOKIE_KEYS.ADMIN_ACCESS_TOKEN)?.value
   );
 
-  if (pathname.startsWith(ADMIN_PATH) && !hasAdminToken) {
-    const url = request.nextUrl.clone();
-    url.pathname = LOGIN_PATH;
-    url.search = "";
-    return NextResponse.redirect(url);
+  if (pathname.startsWith(ADMIN_PATH)) {
+    if (!hasAdminToken) {
+      const url = request.nextUrl.clone();
+      url.pathname = LOGIN_PATH;
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
   }
 
   const response = NextResponse.next();

@@ -43,13 +43,15 @@ export function getUserInfo() {
 }
 
 export function clearUserInfo(): void {
-  deleteCookie(USER_INFO_KEY);
+  deleteCookie(USER_INFO_KEY, { path: "/" });
 }
-
 
 export function storeAdminUserInfo(userInfo: Record<string, unknown>): void {
   if (typeof window === "undefined") return;
-  setNativeCookie(COOKIE_KEYS.ADMIN_USER_INFO, JSON.stringify(userInfo));
+  setCookie(COOKIE_KEYS.ADMIN_USER_INFO, JSON.stringify(userInfo), {
+    maxAge: 365 * 24 * 60 * 60,
+    path: "/",
+  });
 }
 
 export function getAdminUserInfo() {
@@ -65,5 +67,5 @@ export function getAdminUserInfo() {
 }
 
 export function clearAdminUserInfo(): void {
-  deleteNativeCookie(COOKIE_KEYS.ADMIN_USER_INFO);
+  deleteCookie(COOKIE_KEYS.ADMIN_USER_INFO, { path: "/" });
 }

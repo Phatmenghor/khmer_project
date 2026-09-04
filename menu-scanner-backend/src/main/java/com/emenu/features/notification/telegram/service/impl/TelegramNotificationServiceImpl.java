@@ -27,6 +27,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -242,7 +244,7 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
                 "<b>Table #:</b> " + tableNumber + "\n" +
                 "<b>Status:</b> 🟢 AVAILABLE\n" +
                 "<b>Notice:</b> Table session and active dining orders cleared.\n" +
-                "<b>Time:</b> " + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                "<b>Time:</b> " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         sendHtmlToGroup(businessId, msg);
         log.info("[Telegram Service] Table reset notification sent for businessId: {}, tableNumber: {}", businessId, tableNumber);
     }

@@ -15,11 +15,7 @@ import lombok.ToString;
 import java.util.UUID;
 
 @Entity
-@Table(name = "order_status_history",
-        indexes = {
-                @Index(name = "idx_order_status_history_order_id", columnList = "order_id")
-        }
-)
+@Table(name = "order_status_history")
 @Data
 @ToString(callSuper = true, exclude = {"order", "changedByUser"})
 @EqualsAndHashCode(callSuper = true, exclude = {"order", "changedByUser"})

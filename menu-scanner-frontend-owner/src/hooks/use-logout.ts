@@ -1,44 +1,51 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/store";
-import {
-  selectIsAdmin,
-  selectUserType,
-} from "@/features/auth/store/selectors/auth-selectors";
+import { usePathname } from "next/navigation";
+import { useAppDispatch } from "@/store";
 import { logoutService } from "@/features/auth/store/thunks/social-auth-thunks";
 import { logout } from "@/features/auth/store/slice/auth-slice";
+import { clearAdminTokens, clearClientTokens } from "@/utils/local-storage/token";
+import { clearAdminUserInfo, clearUserInfo } from "@/utils/local-storage/userInfo";
 import { ROUTES } from "@/constants/app-routes/routes";
 
 export function useLogout() {
-  const router = useRouter();
   const pathname = usePathname();
   const dispatch = useAppDispatch();
-  const isAdmin = useAppSelector(selectIsAdmin);
-  const userType = useAppSelector(selectUserType);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = useCallback(async () => {
     if (isLoggingOut) return;
     setIsLoggingOut(true);
 
+    const isAdminPage = typeof window !== "undefined" && (pathname.startsWith("/admin") || window.location.pathname.startsWith("/admin"));
+
+    // Step 1: Instantly purge local tokens from storage & reset Redux state BEFORE API call to prevent concurrent auto-refresh
+    if (isAdminPage) {
+      clearAdminTokens();
+      clearAdminUserInfo();
+    } else {
+      clearClientTokens();
+      clearUserInfo();
+    }
+    dispatch(logout());
+
+    // Step 2: Inform backend to revoke server session & blacklist token
     try {
       await dispatch(logoutService()).unwrap();
     } catch {
-      // Purge local auth tokens even if network fails
+      // Ignore network errors during logout
     } finally {
-      dispatch(logout());
       setIsLoggingOut(false);
 
-      const isAdminPage = pathname.startsWith("/admin");
-      if (!isAdminPage) {
-        window.location.href = ROUTES.HOME;
-      } else {
-        router.push(ROUTES.HOME);
+      // Step 3: Redirect to the corresponding login page per routed zone
+      const redirectTarget = ROUTES.AUTH.LOGIN;
+      if (typeof window !== "undefined") {
+        window.location.href = redirectTarget;
       }
     }
-  }, [dispatch, router, isAdmin, userType, pathname, isLoggingOut]);
+  }, [dispatch, pathname, isLoggingOut]);
 
   return { logout: handleLogout, isLoggingOut };
 }
+

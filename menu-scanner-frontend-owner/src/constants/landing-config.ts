@@ -159,11 +159,11 @@ export const LANDING_CONFIG = {
     note: "Every plan unlocks every feature. You only choose how long you subscribe.",
     plans: [
       {
-        name: "1 Week",
+        name: "Free Trial",
         price: "$0",
         period: "/ 7 days",
-        description: "Try the full platform — every feature unlocked.",
-        durationType: "WEEKLY",
+        description: "Try the full platform — 7 days free trial, every feature unlocked.",
+        durationType: "FREE_TRIAL",
         features: ALL_PLATFORM_FEATURES,
       },
       {
@@ -174,6 +174,14 @@ export const LANDING_CONFIG = {
         durationType: "MONTHLY",
         features: ALL_PLATFORM_FEATURES,
         highlighted: true,
+      },
+      {
+        name: "6 Months",
+        price: "$0",
+        period: "/ 6 months",
+        description: "Great value — full feature set for 6 months.",
+        durationType: "SIX_MONTHS",
+        features: ALL_PLATFORM_FEATURES,
       },
       {
         name: "1 Year",

@@ -33,8 +33,16 @@ export function useBusinessTheme() {
     }
   }, [businessSettings]);
 
-  // Effect: Fetch business settings exactly once.
+  // Effect: Fetch business settings exactly once on public storefront routes only.
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const path = window.location.pathname;
+      const isPublicPath = !path.startsWith("/admin") && path !== "/login";
+      if (!isPublicPath) {
+        return;
+      }
+    }
+
     if (
       businessSettings ||
       isLoading ||

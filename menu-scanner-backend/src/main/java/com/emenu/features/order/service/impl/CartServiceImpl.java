@@ -3,6 +3,7 @@ package com.emenu.features.order.service.impl;
 import com.emenu.exception.custom.NotFoundException;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.models.User;
+import com.emenu.features.order.dto.helper.CartCreateHelper;
 import com.emenu.features.order.dto.request.CartItemCreateRequest;
 import com.emenu.features.order.dto.response.CartSummaryResponse;
 import com.emenu.features.order.mapper.CartMapper;
@@ -28,8 +29,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -64,8 +73,8 @@ public class CartServiceImpl implements CartService {
         cart = cartWithItems.orElse(cart);
 
         List<UUID> deduplicatedCustomizations = request.getCustomizationIds() != null && !request.getCustomizationIds().isEmpty()
-                ? new java.util.ArrayList<>(new java.util.LinkedHashSet<>(request.getCustomizationIds()))
-                : new java.util.ArrayList<>();
+                ? new ArrayList<>(new LinkedHashSet<>(request.getCustomizationIds()))
+                : new ArrayList<>();
 
         Optional<CartItem> matchingItem = findCartItemByProductSizeAndCustomizations(
                 cart, request.getProductId(), request.getProductSizeId(), deduplicatedCustomizations);
@@ -197,15 +206,15 @@ public class CartServiceImpl implements CartService {
             if (productSizeId != null ? !productSizeId.equals(item.getProductSizeId()) : item.getProductSizeId() != null) continue;
 
             List<UUID> itemCustomizationIds = item.getCustomizations() == null
-                    ? new java.util.ArrayList<>()
+                    ? new ArrayList<>()
                     : item.getCustomizations().stream()
                         .map(CartItemCustomization::getProductCustomizationId)
                         .sorted()
                         .toList();
 
             List<UUID> requestCustomizationIds = customizationIds == null
-                    ? new java.util.ArrayList<>()
-                    : new java.util.ArrayList<>(customizationIds);
+                    ? new ArrayList<>()
+                    : new ArrayList<>(customizationIds);
             requestCustomizationIds.sort(null);
 
             if (itemCustomizationIds.equals(requestCustomizationIds)) {
@@ -239,8 +248,7 @@ public class CartServiceImpl implements CartService {
             return existingCart.get();
         }
 
-        com.emenu.features.order.dto.helper.CartCreateHelper helper =
-            new com.emenu.features.order.dto.helper.CartCreateHelper(userId, businessId);
+        CartCreateHelper helper = new CartCreateHelper(userId, businessId);
         Cart newCart = cartMapper.createFromHelper(helper);
         return cartRepository.save(newCart);
     }
@@ -269,23 +277,23 @@ public class CartServiceImpl implements CartService {
     private void deduplicateCartItems(Cart cart) {
         if (cart.getItems() == null || cart.getItems().isEmpty()) return;
 
-        java.util.Map<String, java.util.UUID> latestByKey = new java.util.LinkedHashMap<>();
-        java.util.Map<String, java.time.LocalDateTime> latestTimeByKey = new java.util.LinkedHashMap<>();
-        java.util.List<java.util.UUID> duplicateIds = new java.util.ArrayList<>();
+        Map<String, UUID> latestByKey = new LinkedHashMap<>();
+        Map<String, LocalDateTime> latestTimeByKey = new LinkedHashMap<>();
+        List<UUID> duplicateIds = new ArrayList<>();
 
         for (CartItem item : cart.getItems()) {
             List<UUID> customizationIds = item.getCustomizations() == null
-                    ? new java.util.ArrayList<>()
+                    ? new ArrayList<>()
                     : item.getCustomizations().stream()
                         .map(CartItemCustomization::getProductCustomizationId)
                         .sorted()
                         .toList();
             String customizationKey = customizationIds.isEmpty() ? "none" : String.join(",", customizationIds.stream().map(UUID::toString).toList());
             String key = item.getProductId() + "|" + item.getProductSizeId() + "|" + customizationKey;
-            java.time.LocalDateTime itemTime = item.getCreatedAt();
+            LocalDateTime itemTime = item.getCreatedAt();
 
             if (latestByKey.containsKey(key)) {
-                java.time.LocalDateTime existingTime = latestTimeByKey.get(key);
+                LocalDateTime existingTime = latestTimeByKey.get(key);
                 if (itemTime != null && existingTime != null && itemTime.isAfter(existingTime)) {
                     duplicateIds.add(latestByKey.get(key));
                     latestByKey.put(key, item.getId());
@@ -349,7 +357,7 @@ public class CartServiceImpl implements CartService {
 
     private void updateCartItemCustomizations(CartItem cartItem, List<UUID> customizationIds) {
         if (customizationIds != null && !customizationIds.isEmpty()) {
-            customizationIds = new java.util.ArrayList<>(new java.util.LinkedHashSet<>(customizationIds));
+            customizationIds = new ArrayList<>(new LinkedHashSet<>(customizationIds));
         }
 
         entityManager.createNativeQuery(
@@ -362,8 +370,8 @@ public class CartServiceImpl implements CartService {
 
         if (customizationIds == null || customizationIds.isEmpty()) return;
 
-        java.util.List<CartItemCustomization> newCustomizations = new java.util.ArrayList<>();
-        java.util.Set<UUID> seenIds = new java.util.HashSet<>();
+        List<CartItemCustomization> newCustomizations = new ArrayList<>();
+        Set<UUID> seenIds = new HashSet<>();
 
         for (UUID customizationId : customizationIds) {
             if (!seenIds.add(customizationId)) continue;

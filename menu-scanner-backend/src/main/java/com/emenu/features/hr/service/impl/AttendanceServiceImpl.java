@@ -27,6 +27,7 @@ import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import com.emenu.shared.utils.DateTimeUtils;
 import com.emenu.shared.utils.StringFormatUtils;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -410,7 +411,7 @@ public class AttendanceServiceImpl implements AttendanceService {
             if (startCheck != null && startCheck.getCheckInTime() != null) {
                 LocalTime actualStartTime = startCheck.getCheckInTime().toLocalTime();
                 if (actualStartTime.isAfter(expectedStart)) {
-                    long lateMins = java.time.Duration.between(expectedStart, actualStartTime).toMinutes();
+                    long lateMins = Duration.between(expectedStart, actualStartTime).toMinutes();
                     response.setLateMinutes(lateMins);
                 } else {
                     response.setLateMinutes(0L);
@@ -420,11 +421,11 @@ public class AttendanceServiceImpl implements AttendanceService {
             if (endCheck != null && endCheck.getCheckInTime() != null) {
                 LocalTime actualEndTime = endCheck.getCheckInTime().toLocalTime();
                 if (actualEndTime.isAfter(expectedEnd)) {
-                    long overMins = java.time.Duration.between(expectedEnd, actualEndTime).toMinutes();
+                    long overMins = Duration.between(expectedEnd, actualEndTime).toMinutes();
                     response.setOvertimeMinutes(overMins);
                     response.setEarlyLeaveMinutes(0L);
                 } else if (actualEndTime.isBefore(expectedEnd)) {
-                    long earlyMins = java.time.Duration.between(actualEndTime, expectedEnd).toMinutes();
+                    long earlyMins = Duration.between(actualEndTime, expectedEnd).toMinutes();
                     response.setEarlyLeaveMinutes(earlyMins);
                     response.setOvertimeMinutes(0L);
                 } else {
@@ -438,7 +439,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                     if (checkResp.getCheckInType() == CheckInType.START && checkResp.getCheckInTime() != null) {
                         LocalTime actualStartTime = checkResp.getCheckInTime().toLocalTime();
                         if (actualStartTime.isAfter(expectedStart)) {
-                            long lateMins = java.time.Duration.between(expectedStart, actualStartTime).toMinutes();
+                            long lateMins = Duration.between(expectedStart, actualStartTime).toMinutes();
                             checkResp.setLateMinutes(lateMins);
                             checkResp.setIsLate(true);
                         } else {
@@ -448,13 +449,13 @@ public class AttendanceServiceImpl implements AttendanceService {
                     } else if (checkResp.getCheckInType() == CheckInType.END && checkResp.getCheckInTime() != null) {
                         LocalTime actualEndTime = checkResp.getCheckInTime().toLocalTime();
                         if (actualEndTime.isAfter(expectedEnd)) {
-                            long overMins = java.time.Duration.between(expectedEnd, actualEndTime).toMinutes();
+                            long overMins = Duration.between(expectedEnd, actualEndTime).toMinutes();
                             checkResp.setOvertimeMinutes(overMins);
                             checkResp.setIsOvertime(true);
                             checkResp.setIsEarly(false);
                             checkResp.setEarlyLeaveMinutes(0L);
                         } else if (actualEndTime.isBefore(expectedEnd)) {
-                            long earlyMins = java.time.Duration.between(actualEndTime, expectedEnd).toMinutes();
+                            long earlyMins = Duration.between(actualEndTime, expectedEnd).toMinutes();
                             checkResp.setEarlyLeaveMinutes(earlyMins);
                             checkResp.setIsEarly(true);
                             checkResp.setIsOvertime(false);

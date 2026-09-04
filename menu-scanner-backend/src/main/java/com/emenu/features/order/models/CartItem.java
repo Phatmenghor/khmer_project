@@ -16,12 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "cart_items",
-        indexes = {
-                @Index(name = "idx_cart_items_cart_id",    columnList = "cart_id"),
-                @Index(name = "idx_cart_items_product_id", columnList = "product_id")
-        }
-)
+@Table(name = "cart_items")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

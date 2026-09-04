@@ -7,6 +7,7 @@ import com.emenu.features.main.models.ProductImage;
 import org.mapstruct.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ProductImageMapper {
@@ -37,7 +38,7 @@ return dtos.stream()
         .toList();
     }
 
-    default List<java.util.UUID> getIdsToDelete(List<ProductImageUpdateDto> dtos) {
+    default List<UUID> getIdsToDelete(List<ProductImageUpdateDto> dtos) {
 if (dtos == null) {
     return List.of();
 }

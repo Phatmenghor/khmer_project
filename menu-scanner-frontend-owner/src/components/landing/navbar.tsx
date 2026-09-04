@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Menu, X, ArrowRight, User, LogOut } from "lucide-react";
+import { Menu, X, User, LogOut, LogIn } from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { CustomProfileDropdown } from "@/components/shared/common/custom-profile-dropdown";
 import { NavLinkButton } from "@/components/landing/nav-link-button";
@@ -17,11 +17,10 @@ import { ROUTES } from "@/constants/app-routes/routes";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 
 interface NavbarProps {
-  onRegisterClick?: () => void;
   onLoginClick?: () => void;
 }
 
-export default function Navbar({ onRegisterClick, onLoginClick }: NavbarProps) {
+export default function Navbar({ onLoginClick }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -57,10 +56,6 @@ export default function Navbar({ onRegisterClick, onLoginClick }: NavbarProps) {
   const handleAuthButtonClick = () => {
     if (onLoginClick) {
       onLoginClick();
-      return;
-    }
-    if (onRegisterClick) {
-      onRegisterClick();
       return;
     }
 
@@ -109,28 +104,19 @@ export default function Navbar({ onRegisterClick, onLoginClick }: NavbarProps) {
             ))}
           </nav>
 
-          {/* Desktop Right Action Area: Profile Dropdown or Sign In / Register Button */}
+          {/* Desktop Right Action Area: Profile Dropdown or Modern Sign In Button */}
           <div className="hidden md:flex items-center gap-2">
             {isLoggedIn ? (
               <CustomProfileDropdown />
             ) : (
-              <>
-                <CustomButton
-                  variant="outline"
-                  onClick={handleAuthButtonClick}
-                  className="h-[36px] px-3.5 text-xs font-semibold rounded-[12px] cursor-pointer"
-                >
-                  Sign In
-                </CustomButton>
-                <CustomButton
-                  variant="default"
-                  onClick={() => onRegisterClick ? onRegisterClick() : handleAuthButtonClick()}
-                  className="h-[36px] px-4 text-xs font-semibold rounded-[12px] gap-1.5 shadow-xs hover:shadow-sm transition-all cursor-pointer"
-                >
-                  Register Business
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </CustomButton>
-              </>
+              <CustomButton
+                variant="default"
+                onClick={handleAuthButtonClick}
+                className="h-[38px] px-5 text-xs font-bold rounded-[12px] gap-2 shadow-sm hover:shadow-md hover:shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 bg-gradient-to-r from-primary via-primary/90 to-primary text-primary-foreground border border-primary/20 cursor-pointer"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                Sign In
+              </CustomButton>
             )}
           </div>
 
@@ -201,10 +187,10 @@ export default function Navbar({ onRegisterClick, onLoginClick }: NavbarProps) {
                   setMobileOpen(false);
                   handleAuthButtonClick();
                 }}
-                className="w-full h-[36px] text-xs font-semibold rounded-[12px] gap-1.5"
+                className="w-full h-[38px] text-xs font-bold rounded-[12px] gap-2 shadow-sm hover:shadow-md hover:shadow-primary/20 transition-all bg-gradient-to-r from-primary via-primary/90 to-primary text-primary-foreground border border-primary/20 cursor-pointer justify-center"
               >
-                Register Business
-                <ArrowRight className="w-3.5 h-3.5" />
+                <LogIn className="w-3.5 h-3.5" />
+                Sign In
               </CustomButton>
             )}
           </div>

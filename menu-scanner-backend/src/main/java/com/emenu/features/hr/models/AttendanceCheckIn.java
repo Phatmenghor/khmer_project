@@ -8,11 +8,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "attendance_check_ins",
-        indexes = {
-                @Index(name = "idx_attendance_check_ins_attendance_id", columnList = "attendance_id")
-        }
-)
+@Table(name = "attendance_check_ins")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Builder

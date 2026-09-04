@@ -80,6 +80,13 @@ export interface UserResponseModel {
   lastLoginAt?: string;
   businessId?: string;
   businessName?: string;
+  planName?: string;
+  billingCycle?: string;
+  subscriptionStartDate?: string;
+  subscriptionEndDate?: string;
+  daysRemaining?: number;
+  isSubscriptionActive?: boolean;
+  subscriptionStatus?: string;
   addresses?: Address[];
   emergencyContacts?: EmergencyContact[];
   documents?: Document[];

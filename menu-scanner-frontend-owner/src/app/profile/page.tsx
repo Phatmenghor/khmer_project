@@ -35,6 +35,7 @@ import {
   profileUpdateSchema,
   ProfileFormData,
 } from "@/features/auth/store/models/schema/user.schema";
+import { ProfilePageSkeleton } from "@/components/shared/skeletons";
 import { ProfileHeaderCard } from "../(dashboard)/admin/profile/_components/profile-header-card";
 import { ProfileTabSwitcher } from "../(dashboard)/admin/profile/_components/profile-tab-switcher";
 import { PersonalInfoCard } from "../(dashboard)/admin/profile/_components/personal-info-card";
@@ -209,12 +210,30 @@ export default function UserProfilePage() {
   const currentAvatarUrl = userProfile?.profileImage?.sm || userProfile?.profileImageUrl;
 
   if (isProfileLoading && !userProfile) {
-    return <Loading />;
+    return (
+      <>
+        <Navbar />
+        <main className="min-h-screen bg-background pt-3 pb-6 px-4 sm:px-6 md:px-8 max-w-5xl mx-auto space-y-5">
+          <div className="space-y-4">
+            <div className="flex flex-col space-y-1">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
+                My Profile
+              </h1>
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium">
+                Manage your personal information, contact details, and account security preferences.
+              </p>
+            </div>
+            <ProfilePageSkeleton />
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
   }
 
   return (
     <>
-      <Navbar onRegisterClick={() => setIsRegisterModalOpen(true)} />
+      <Navbar />
       <main className="min-h-screen bg-background pt-3 pb-6 px-4 sm:px-6 md:px-8 max-w-5xl mx-auto space-y-5">
         <div className="space-y-4">
           <div className="flex flex-col space-y-1">

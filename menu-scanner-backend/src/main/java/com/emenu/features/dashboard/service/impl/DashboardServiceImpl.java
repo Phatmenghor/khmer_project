@@ -1,5 +1,6 @@
 package com.emenu.features.dashboard.service.impl;
 
+import com.emenu.enums.common.StockStatus;
 import com.emenu.features.auth.repository.BusinessSettingRepository;
 import com.emenu.features.dashboard.dto.response.*;
 import com.emenu.features.dashboard.service.DashboardService;
@@ -469,7 +470,7 @@ public class DashboardServiceImpl implements DashboardService {
     private boolean isStockEnabled(UUID businessId) {
         return businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
             .map(setting -> setting.getEnableStock() != null &&
-                com.emenu.enums.common.StockStatus.ENABLED.equals(setting.getEnableStock()))
+                StockStatus.ENABLED.equals(setting.getEnableStock()))
             .orElse(false);
     }
 

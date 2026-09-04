@@ -4,12 +4,13 @@ import com.emenu.features.main.dto.response.FavoriteToggleDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", imports = { LocalDateTime.class })
 public interface FavoriteMapper {
 
-    @Mapping(target = "timestamp", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "timestamp", expression = "java(LocalDateTime.now())")
     FavoriteToggleDto toToggleDto(UUID productId, UUID userId, String action,
                                   Boolean isFavorited, String message);
 

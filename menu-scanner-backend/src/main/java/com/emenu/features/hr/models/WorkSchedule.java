@@ -14,12 +14,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "work_schedules",
-        indexes = {
-                @Index(name = "idx_work_schedules_user_id",     columnList = "user_id"),
-                @Index(name = "idx_work_schedules_business_id", columnList = "business_id")
-        }
-)
+@Table(name = "work_schedules")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Builder

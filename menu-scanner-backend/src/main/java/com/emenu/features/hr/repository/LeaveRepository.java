@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -45,7 +46,7 @@ public interface LeaveRepository extends JpaRepository<Leave, UUID>, JpaSpecific
     );
 
     @Query("SELECT COUNT(l) FROM Leave l WHERE l.businessId = :businessId AND l.createdAt >= :startOfDay")
-    long countTodayLeaves(@Param("businessId") UUID businessId, @Param("startOfDay") java.time.LocalDateTime startOfDay);
+    long countTodayLeaves(@Param("businessId") UUID businessId, @Param("startOfDay") LocalDateTime startOfDay);
 
     @Query("SELECT COALESCE(SUM(l.totalDays), 0.0) FROM Leave l WHERE l.isDeleted = false " +
            "AND l.userId = :userId AND l.businessId = :businessId " +

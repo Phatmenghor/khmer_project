@@ -11,25 +11,7 @@ import { fetchBusinessSettingsThunk } from "@/features/business/store/thunks/bus
 import { appImages } from "@/constants/app-resource/icons/app-images";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { SocialMedia } from "@/features/business/store/services/business-settings-service";
-
-function formatTime12Hour(timeStr?: string): string {
-  if (!timeStr) return "";
-  if (timeStr.toUpperCase().includes("AM") || timeStr.toUpperCase().includes("PM")) {
-    return timeStr;
-  }
-  const parts = timeStr.trim().split(":");
-  if (parts.length < 2) return timeStr;
-
-  let hour = parseInt(parts[0], 10);
-  const minute = parts[1].substring(0, 2);
-  if (isNaN(hour)) return timeStr;
-
-  const period = hour >= 12 ? "PM" : "AM";
-  hour = hour % 12 || 12;
-  const formattedHour = String(hour).padStart(2, "0");
-
-  return `${formattedHour}:${minute} ${period}`;
-}
+import { formatTime12Hour } from "@/utils/date/date-time-format";
 
 export function Footer() {
   const dispatch = useAppDispatch();

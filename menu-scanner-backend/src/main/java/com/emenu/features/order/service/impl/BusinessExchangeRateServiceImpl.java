@@ -17,8 +17,12 @@ import com.emenu.features.order.specification.BusinessExchangeRateSpecification;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -114,10 +118,10 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
                     results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
                     successCount++;
                     success = true;
-                } catch (jakarta.validation.ConstraintViolationException ex) {
+                } catch (ConstraintViolationException ex) {
                     errorMsg = ex.getConstraintViolations().stream()
-                            .map(jakarta.validation.ConstraintViolation::getMessage)
-                            .collect(java.util.stream.Collectors.joining(", "));
+                            .map(ConstraintViolation::getMessage)
+                            .collect(Collectors.joining(", "));
                     log.error("Batch business exchange rate creation failed at index {} due to validation: {}", i, errorMsg);
                     results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
                     errorCount++;
@@ -170,8 +174,8 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
         }
         if (businessId == null) {
             log.warn("No business ID available, returning empty exchange rate list");
-            return com.emenu.shared.dto.PaginationResponse.<BusinessExchangeRateResponse>builder()
-                    .content(java.util.Collections.emptyList())
+            return PaginationResponse.<BusinessExchangeRateResponse>builder()
+                    .content(Collections.emptyList())
                     .pageNo(1).pageSize(15).totalElements(0).totalPages(0)
                     .first(true).last(true).hasNext(false).hasPrevious(false)
                     .build();

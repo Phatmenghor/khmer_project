@@ -53,6 +53,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Propagation;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -724,7 +725,7 @@ public class ProductServiceImpl implements ProductService {
                 .failedCount(failedProductIds.size())
                 .failedProductIds(failedProductIds)
                 .message(String.format("Successfully created promotion for %d product(s)", successCount))
-                .timestamp(java.time.LocalDateTime.now())
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 
@@ -1124,7 +1125,7 @@ public class ProductServiceImpl implements ProductService {
 
                 // Set parent product totalStock as sum of all sizes
                 dto.setTotalStock(totalSizesStock);
-                if (dto.getStatus() == ProductStatus.ACTIVE && dto.getStockStatus() == com.emenu.enums.product.StockStatus.ENABLED) {
+                if (dto.getStatus() == ProductStatus.ACTIVE && dto.getStockStatus() == StockStatus.ENABLED) {
                     if (totalSizesStock <= 0) {
                         dto.setStatus(ProductStatus.OUT_OF_STOCK);
                     }
@@ -1147,7 +1148,7 @@ public class ProductServiceImpl implements ProductService {
         dtoList.forEach(dto -> {
             int stock = stockMap.getOrDefault(dto.getId(), 0);
             dto.setTotalStock(stock);
-            if (dto.getStatus() == ProductStatus.ACTIVE && dto.getStockStatus() == com.emenu.enums.product.StockStatus.ENABLED) {
+            if (dto.getStatus() == ProductStatus.ACTIVE && dto.getStockStatus() == StockStatus.ENABLED) {
                 if (stock <= 0) {
                     dto.setStatus(ProductStatus.OUT_OF_STOCK);
                 }
@@ -1162,7 +1163,7 @@ public class ProductServiceImpl implements ProductService {
             stock = ((Number) results.get(0)[1]).intValue();
         }
         dto.setTotalStock(stock);
-        if (dto.getStatus() == ProductStatus.ACTIVE && dto.getStockStatus() == com.emenu.enums.product.StockStatus.ENABLED) {
+        if (dto.getStatus() == ProductStatus.ACTIVE && dto.getStockStatus() == StockStatus.ENABLED) {
             if (stock <= 0) {
                 dto.setStatus(ProductStatus.OUT_OF_STOCK);
             }
@@ -1180,7 +1181,7 @@ public class ProductServiceImpl implements ProductService {
         dtoList.forEach(dto -> {
             int stock = stockMap.getOrDefault(dto.getId(), 0);
             dto.setTotalStock(stock);
-            if (dto.getStatus() == ProductStatus.ACTIVE && dto.getStockStatus() == com.emenu.enums.product.StockStatus.ENABLED) {
+            if (dto.getStatus() == ProductStatus.ACTIVE && dto.getStockStatus() == StockStatus.ENABLED) {
                 if (stock <= 0) {
                     dto.setStatus(ProductStatus.OUT_OF_STOCK);
                 }

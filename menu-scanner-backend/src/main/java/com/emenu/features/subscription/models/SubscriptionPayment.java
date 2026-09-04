@@ -16,11 +16,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "subscription_payments",
-        indexes = {
-                @Index(name = "idx_subscription_payments_business_id", columnList = "business_id")
-        }
-)
+@Table(name = "subscription_payments")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

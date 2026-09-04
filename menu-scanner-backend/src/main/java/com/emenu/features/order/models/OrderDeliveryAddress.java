@@ -1,5 +1,6 @@
 package com.emenu.features.order.models;
 
+import com.emenu.features.location.models.Location;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -16,11 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "order_delivery_addresses",
-        indexes = {
-                @Index(name = "idx_order_delivery_addresses_order_id", columnList = "order_id")
-        }
-)
+@Table(name = "order_delivery_addresses")
 @Data
 @ToString(callSuper = true, exclude = {"order", "location"})
 @EqualsAndHashCode(callSuper = true, exclude = {"order", "location"})
@@ -68,7 +65,7 @@ public class OrderDeliveryAddress extends BaseUUIDEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", insertable = false, updatable = false)
-    private com.emenu.features.location.models.Location location;
+    private Location location;
 
     // Snapshot of location images at time of order - preserves history
     // If location images are updated later, orders still show the original images from checkout

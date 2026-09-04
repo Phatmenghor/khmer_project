@@ -33,8 +33,7 @@ import {
 } from "@/utils/local-storage/userInfo";
 import { SocialSyncResponse } from "../models/response/social-auth-response";
 
-const isAdmin = (userType?: string) => userType === "BUSINESS_USER";
-
+const isAdmin = (userType?: string) => userType === "PLATFORM_USER";
 
 interface ExtendedAuthState extends AuthState {
   socialSync: SocialSyncResponse | null;
@@ -43,7 +42,6 @@ interface ExtendedAuthState extends AuthState {
   isNewUser: boolean;
   profileFetched: boolean;
 }
-
 
 const initialState: ExtendedAuthState = {
   isAuthenticated: false,
@@ -60,19 +58,15 @@ const initialState: ExtendedAuthState = {
   profileFetched: false,
 };
 
-
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-
-
-    setUser: (state, action: PayloadAction<UserAuthResponseModel>) => {
+    setUser: (state, action: PayloadAction<UserAuthResponseModel | null>) => {
       state.user = action.payload;
-      state.isAuthenticated = !!action.payload.accessToken;
+      state.isAuthenticated = !!(action.payload && (action.payload.accessToken || action.payload.userId));
       state.authReady = true;
     },
-
 
     setAuthReady: (state) => {
       state.authReady = true;
@@ -82,8 +76,15 @@ const authSlice = createSlice({
       state.profileFetched = action.payload;
     },
 
-
     logout: (state) => {
+      const isPlatform = state.user?.userType === "PLATFORM_USER" || (typeof window !== "undefined" && window.location.pathname.startsWith("/admin"));
+      if (isPlatform) {
+        clearAdminTokens();
+        clearAdminUserInfo();
+      } else {
+        clearAllTokens();
+        clearUserInfo();
+      }
       state.isAuthenticated = false;
       state.user = null;
       state.profile = null;
@@ -91,33 +92,24 @@ const authSlice = createSlice({
       state.socialSync = null;
       state.isNewUser = false;
       state.profileFetched = false;
-      clearAllTokens();
-      clearUserInfo();
-      clearAdminTokens();
-      clearAdminUserInfo();
     },
-
 
     clearError: (state) => {
       state.error = null;
     },
 
-
     setSocialSync: (state, action: PayloadAction<SocialSyncResponse | null>) => {
       state.socialSync = action.payload;
     },
-
 
     clearNewUserFlag: (state) => {
       state.isNewUser = false;
     },
 
-
     resetAuthState: () => initialState,
   },
 
   extraReducers: (builder) => {
-
     builder
       .addCase(loginService.pending, (state) => {
         state.isLoading = true;
@@ -128,15 +120,12 @@ const authSlice = createSlice({
         state.user = action.payload;
         state.isAuthenticated = !!action.payload.accessToken;
         state.authReady = true;
-
-
       })
       .addCase(loginService.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
         state.isAuthenticated = false;
       });
-
 
     builder
       .addCase(getProfileService.pending, (state) => {
@@ -152,7 +141,6 @@ const authSlice = createSlice({
         state.isProfileLoading = false;
         state.error = action.payload as string;
       });
-
 
     builder
       .addCase(updateProfileService.pending, (state) => {
@@ -175,7 +163,6 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-
     builder
       .addCase(changePasswordService.pending, (state) => {
         state.isLoading = true;
@@ -188,7 +175,6 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       });
-
 
     builder
       .addCase(deleteAccountService.pending, (state) => {
@@ -206,7 +192,6 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-
     builder
       .addCase(telegramAuthenticateService.pending, (state) => {
         state.isSocialLoading = true;
@@ -216,7 +201,6 @@ const authSlice = createSlice({
         state.isSocialLoading = false;
         state.isAuthenticated = true;
         state.isNewUser = action.payload.isNewUser;
-
 
         const socialResponse = action.payload;
         state.user = {
@@ -236,7 +220,6 @@ const authSlice = createSlice({
           isSubscriptionActive: "",
         };
 
-
         if (isAdmin(socialResponse.userType)) {
           storeAdminTokens(socialResponse.accessToken, socialResponse.refreshToken);
           storeAdminUserInfo(state.user);
@@ -249,7 +232,6 @@ const authSlice = createSlice({
         state.isSocialLoading = false;
         state.error = action.payload as string;
       });
-
 
     builder
       .addCase(socialAuthenticateService.pending, (state) => {
@@ -292,7 +274,6 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-
     builder
       .addCase(getSocialSyncService.pending, (state) => {
         state.isLoadingSocialSync = true;
@@ -304,7 +285,6 @@ const authSlice = createSlice({
       .addCase(getSocialSyncService.rejected, (state) => {
         state.isLoadingSocialSync = false;
       });
-
 
     builder
       .addCase(syncTelegramAccountService.pending, (state) => {
@@ -320,7 +300,6 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-
     builder
       .addCase(unsyncSocialAccountService.pending, (state) => {
         state.isSocialLoading = true;
@@ -335,7 +314,6 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-
     builder
       .addCase(logoutService.pending, (state) => {
         state.isLoading = true;
@@ -344,15 +322,12 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isAuthenticated = false;
 
+        const isPlatform = state.user?.userType === "PLATFORM_USER" || (typeof window !== "undefined" && window.location.pathname.startsWith("/admin"));
 
-        const isAdmin = state.user?.userType === "BUSINESS_USER";
-
-        if (isAdmin) {
-
+        if (isPlatform) {
           clearAdminTokens();
           clearAdminUserInfo();
         } else {
-
           clearAllTokens();
           clearUserInfo();
         }
@@ -364,19 +339,15 @@ const authSlice = createSlice({
         state.profileFetched = false;
       })
       .addCase(logoutService.rejected, (state) => {
-
         state.isLoading = false;
         state.isAuthenticated = false;
 
+        const isPlatform = state.user?.userType === "PLATFORM_USER" || (typeof window !== "undefined" && window.location.pathname.startsWith("/admin"));
 
-        const isAdmin = state.user?.userType === "BUSINESS_USER";
-
-        if (isAdmin) {
-
+        if (isPlatform) {
           clearAdminTokens();
           clearAdminUserInfo();
         } else {
-
           clearAllTokens();
           clearUserInfo();
         }
@@ -385,8 +356,6 @@ const authSlice = createSlice({
         state.profile = null;
         state.socialSync = null;
         state.isNewUser = false;
-        clearAdminTokens();
-        clearAdminUserInfo();
       });
   },
 });

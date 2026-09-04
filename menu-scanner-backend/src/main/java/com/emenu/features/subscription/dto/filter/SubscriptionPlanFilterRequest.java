@@ -5,11 +5,15 @@ import com.emenu.shared.dto.BaseFilterRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SubscriptionPlanFilterRequest extends BaseFilterRequest {
     private List<SubscriptionPlanStatus> statuses;
-}
+
+    public SubscriptionPlanFilterRequest() {
+        setSortBy("durationType");
+        setSortDirection("ASC");
+    }
+}

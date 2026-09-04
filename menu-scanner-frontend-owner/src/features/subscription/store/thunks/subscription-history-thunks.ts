@@ -32,3 +32,13 @@ export const fetchAllSubscriptionsByBusinessIdService = createApiThunk<
   );
   return response.data.data;
 });
+
+export const fetchMySubscriptionSummaryService = createApiThunk<any, void>(
+  "subscription-history/fetchMySummary",
+  async () => {
+    const response = await axiosClientWithAuth.get(
+      "/api/v1/subscriptions/my-summary"
+    );
+    return response.data.data;
+  }
+);

@@ -22,11 +22,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "order_items",
-        indexes = {
-                @Index(name = "idx_order_items_order_id", columnList = "order_id")
-        }
-)
+@Table(name = "order_items")
 @Data
 @ToString(callSuper = true, exclude = {"order", "product", "productSize", "itemCustomizations"})
 @EqualsAndHashCode(callSuper = true, exclude = {"order", "product", "productSize", "itemCustomizations"})

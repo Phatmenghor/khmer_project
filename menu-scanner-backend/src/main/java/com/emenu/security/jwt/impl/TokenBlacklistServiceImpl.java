@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -116,7 +117,7 @@ public class TokenBlacklistServiceImpl implements TokenBlacklistService {
 
     private LocalDateTime convertToLocalDateTime(Date date) {
         return date.toInstant()
-                .atZone(java.time.ZoneId.systemDefault())
+                .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
     }
 }

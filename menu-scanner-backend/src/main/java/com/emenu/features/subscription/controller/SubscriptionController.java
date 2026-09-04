@@ -3,6 +3,7 @@ package com.emenu.features.subscription.controller;
 import com.emenu.features.subscription.dto.filter.SubscriptionHistoryFilterRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionCancelRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionRenewRequest;
+import com.emenu.features.subscription.dto.response.MySubscriptionSummaryResponse;
 import com.emenu.features.subscription.dto.response.SubscriptionHistoryResponse;
 import com.emenu.features.subscription.service.SubscriptionService;
 import com.emenu.security.SecurityUtils;
@@ -22,6 +23,12 @@ public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
     private final SecurityUtils securityUtils;
+
+    @GetMapping("/my-summary")
+    public ResponseEntity<ApiResponse<MySubscriptionSummaryResponse>> getMySubscriptionSummary() {
+        MySubscriptionSummaryResponse response = subscriptionService.getMySubscriptionSummary();
+        return ResponseEntity.ok(ApiResponse.success("My subscription summary retrieved successfully", response));
+    }
 
     @PostMapping("/history")
     public ResponseEntity<ApiResponse<PaginationResponse<SubscriptionHistoryResponse>>> getSubscriptionHistory(

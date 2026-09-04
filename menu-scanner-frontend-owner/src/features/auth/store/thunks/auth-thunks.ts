@@ -4,8 +4,8 @@ import {
 } from "../models/request/auth-request";
 import { axiosClient, axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
-import { storeAdminTokens, storeTokens, clearAllTokens } from "@/utils/local-storage/token";
-import { storeAdminUserInfo, storeUserInfo } from "@/utils/local-storage/userInfo";
+import { storeAdminTokens, storeTokens, clearToken, clearRefreshToken, clearAdminTokens } from "@/utils/local-storage/token";
+import { storeAdminUserInfo, storeUserInfo, clearUserInfo, clearAdminUserInfo } from "@/utils/local-storage/userInfo";
 
 export const loginService = createApiThunk<any, LoginCredentialsRequest>(
   "auth/login",
@@ -17,31 +17,19 @@ export const loginService = createApiThunk<any, LoginCredentialsRequest>(
       throw new Error("Password is required.");
     }
 
-    const response = await axiosClient.post("/api/v1/auth/login", credentials);
+    const payload = {
+      ...credentials,
+      userType: credentials.userType || "BUSINESS_USER",
+    };
+
+    const response = await axiosClient.post("/api/v1/auth/login", payload);
     const data = response.data.data;
 
-    if (credentials.userType === "BUSINESS_USER" && data.userType && data.userType !== "BUSINESS_USER" && data.userType !== "BUSINESS_OWNER") {
-      clearAllTokens();
-      throw new Error("Access denied. Public sign-in is strictly for Business accounts.");
-    }
-
-    if (credentials.userType === "PLATFORM_USER" && data.userType && data.userType !== "PLATFORM_USER") {
-      clearAllTokens();
-      throw new Error("Access denied. Only Platform Users can sign in here.");
-    }
-
     if (data?.accessToken) {
-      const isAdmin = (userType?: string) =>
-        userType === "BUSINESS_USER" ||
-        userType === "PLATFORM_USER" ||
-        userType === "BUSINESS_OWNER" ||
-        userType === "SUPER_ADMIN";
-
-      if (isAdmin(data.userType)) {
+      const isPlatformUser = data.userType === "PLATFORM_USER" || payload.userType === "PLATFORM_USER";
+      if (isPlatformUser) {
         storeAdminTokens(data.accessToken, data.refreshToken);
         storeAdminUserInfo(data);
-        storeTokens(data.accessToken, data.refreshToken);
-        storeUserInfo(data);
       } else {
         storeTokens(data.accessToken, data.refreshToken);
         storeUserInfo(data);
@@ -51,6 +39,7 @@ export const loginService = createApiThunk<any, LoginCredentialsRequest>(
     return data;
   }
 );
+
 
 export const getProfileService = createApiThunk<any, void>(
   "auth/getProfile",

@@ -61,10 +61,7 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps = {
         const fetchedPlans = await fetchPublicPlansDeduplicated();
         if (!isMounted) return;
 
-        // Map API response to display format. Names/prices come from the
-        // API (source of truth for billing), but copy and features are
-        // driven entirely by LANDING_CONFIG so every plan shows the same
-        // feature list ('all features on every plan').
+        // Map API response directly as returned from backend (backend controls sorting order).
         const displayPlans = fetchedPlans.map((apiPlan) => {
           const staticPlan = LANDING_CONFIG.pricing.plans.find(
             p => p.durationType === apiPlan.durationType
@@ -102,9 +99,11 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps = {
 
   const getPeriodLabel = (durationType: string): string => {
     const typeMap: { [key: string]: string } = {
+      FREE_TRIAL: "/ 7 days",
       DAILY: "/ day",
       WEEKLY: "/ week",
       MONTHLY: "/ month",
+      SIX_MONTHS: "/ 6 months",
       YEARLY: "/ year",
     };
     return typeMap[durationType] || "/ month";
@@ -167,7 +166,7 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps = {
             </div>
           </div>
         ) : (
-          <div className="grid lg:grid-cols-3 sm:grid-cols-2 gap-4 mt-11 items-start">
+          <div className="grid xl:grid-cols-4 lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4 mt-11 items-start">
             {plans.map(({ id, name, price, period, description, features = [], highlighted = false }, i) => {
               const planData: PlanData = { id, name, price, period, description };
               return (

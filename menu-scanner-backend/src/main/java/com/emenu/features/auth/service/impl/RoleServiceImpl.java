@@ -37,6 +37,9 @@ import com.emenu.shared.dto.BatchImportResponse;
 import com.emenu.shared.cancellation.RequestCancellationRegistry;
 import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import java.util.stream.Collectors;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -121,10 +124,10 @@ public class RoleServiceImpl implements RoleService {
                     results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
                     successCount++;
                     success = true;
-                } catch (jakarta.validation.ConstraintViolationException ex) {
+                } catch (ConstraintViolationException ex) {
                     errorMsg = ex.getConstraintViolations().stream()
-                            .map(jakarta.validation.ConstraintViolation::getMessage)
-                            .collect(java.util.stream.Collectors.joining(", "));
+                            .map(ConstraintViolation::getMessage)
+                            .collect(Collectors.joining(", "));
                     log.error("Batch role creation failed at index {} due to validation: {}", i, errorMsg);
                     results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
                     errorCount++;

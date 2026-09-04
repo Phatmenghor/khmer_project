@@ -9,11 +9,7 @@ import lombok.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "leave_status_history",
-        indexes = {
-                @Index(name = "idx_leave_status_history_leave_id", columnList = "leave_id")
-        }
-)
+@Table(name = "leave_status_history")
 @Data
 @ToString(callSuper = true, exclude = {"leave", "changedByUser"})
 @EqualsAndHashCode(callSuper = true, exclude = {"leave", "changedByUser"})

@@ -12,6 +12,7 @@ import {
   storeTokens,
   storeAdminTokens,
   clearAllTokens,
+  clearClientTokens,
   clearAdminTokens,
 } from "../local-storage/token";
 
@@ -19,33 +20,29 @@ const getActiveToken = (): string | undefined => {
   if (typeof window === "undefined") return undefined;
 
   if (isAdminPath()) {
-    return getAdminToken() || getToken();
+    return getAdminToken();
   }
-  return getToken() || getAdminToken();
+  return getToken();
 };
 
 const getActiveRefreshToken = (): string | undefined => {
   if (typeof window === "undefined") return undefined;
 
   if (isAdminPath()) {
-    return getAdminRefreshToken() || getRefreshToken();
+    return getAdminRefreshToken();
   }
-  return getRefreshToken() || getAdminRefreshToken();
+  return getRefreshToken();
 };
 
 const isAdminUser = (): boolean => {
   if (typeof window === "undefined") return false;
-
-  if (isAdminPath()) {
-    return !!getAdminToken();
-  }
-
-  return false;
+  return isAdminPath() && !!getAdminToken();
 };
 
 const isAdminPath = (): boolean =>
   typeof window !== "undefined" &&
   window.location.pathname.startsWith("/admin");
+
 import { toast } from "sonner";
 
 type RequestMetadata = {
@@ -437,36 +434,34 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
       const originalRequest = err.config;
 
       if (err.response?.status === 401 && originalRequest && !originalRequest._retry) {
+        const isAuthEndpoint =
+          originalRequest.url?.includes("/api/v1/auth/refresh") ||
+          originalRequest.url?.includes("/api/v1/users/logout") ||
+          originalRequest.url?.includes("/api/v1/auth/login");
 
-        if (originalRequest.url?.includes("/api/v1/auth/refresh")) {
-          const admin = isAdminUser();
-          const hadToken = admin ? !!getAdminToken() : !!getToken();
-
+        if (isAuthEndpoint) {
+          const admin = isAdminPath();
           if (admin) {
             clearAdminTokens();
           } else {
             clearAllTokens();
           }
 
-          if (typeof window !== "undefined") {
+          if (typeof window !== "undefined" && originalRequest.url?.includes("/api/v1/auth/refresh")) {
             const isProtected = admin
               ? window.location.pathname.startsWith("/admin") && !window.location.pathname.includes("/login")
               : window.location.pathname.startsWith("/profile");
 
-            if (isProtected && hadToken) {
+            if (isProtected) {
               toast.error("Session expired. Please login again.");
-
               setTimeout(() => {
-                window.location.href = admin ? "/admin/login" : "/login";
-
-                setTimeout(() => {
-                  window.location.reload();
-                }, 500);
-              }, 1000);
+                window.location.href = "/login";
+              }, 500);
             }
           }
           return Promise.reject(error);
         }
+
 
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
@@ -486,16 +481,15 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         originalRequest._retry = true;
         isRefreshing = true;
 
-        const admin = isAdminUser();
+        const admin = isAdminPath();
         const refreshToken = getActiveRefreshToken();
 
         if (!refreshToken) {
           isRefreshing = false;
-          const admin = isAdminUser();
           const hadToken = admin ? !!getAdminToken() : !!getToken();
 
           if (admin) clearAdminTokens();
-          else clearAllTokens();
+          else clearClientTokens();
 
           if (typeof window !== "undefined") {
             const isProtected = admin
@@ -506,7 +500,7 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
               toast.error("Session expired. Please login again.");
 
               setTimeout(() => {
-                window.location.href = admin ? "/admin/login" : "/login";
+                window.location.href = "/login";
 
                 setTimeout(() => {
                   window.location.reload();
@@ -545,11 +539,13 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           return axiosInstance(originalRequest);
         } catch (refreshError: any) {
           processQueue(refreshError, null);
-          const admin = isAdminUser();
           const hadToken = admin ? !!getAdminToken() : !!getToken();
 
-          clearAllTokens();
-          clearAdminTokens();
+          if (admin) {
+            clearAdminTokens();
+          } else {
+            clearClientTokens();
+          }
 
           const friendlyMsg = "Session expired. Please login again.";
           const expiredError = new Error(friendlyMsg);
@@ -563,7 +559,7 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
               toast.error(friendlyMsg);
 
               setTimeout(() => {
-                window.location.href = admin ? "/admin/login" : "/login";
+                window.location.href = "/login";
               }, 500);
             }
           }

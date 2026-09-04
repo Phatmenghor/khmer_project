@@ -32,6 +32,7 @@ import com.emenu.security.jwt.JWTGenerator;
 import com.emenu.security.jwt.TokenBlacklistService;
 import com.emenu.shared.constants.AuthConstants;
 import com.emenu.shared.constants.AuthStatusMessages;
+import com.emenu.shared.constants.BusinessConstants;
 import com.emenu.shared.utils.TokenUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -57,10 +59,12 @@ import com.emenu.features.order.models.PaymentOption;
 import com.emenu.features.order.repository.BusinessExchangeRateRepository;
 import com.emenu.features.order.repository.DeliveryOptionRepository;
 import com.emenu.features.order.repository.PaymentOptionRepository;
+import com.emenu.enums.sub_scription.SubscriptionPlanDurationType;
 import com.emenu.features.portfolio.models.PortfolioProfile;
 import com.emenu.features.portfolio.repository.PortfolioProfileRepository;
-import com.emenu.shared.constants.BusinessConstants;
-import java.math.BigDecimal;
+import com.emenu.features.subscription.models.SubscriptionPlan;
+import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
+import com.emenu.features.subscription.repository.SubscriptionRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -76,6 +80,8 @@ public class AuthServiceImpl implements AuthService {
     private final DeliveryOptionRepository deliveryOptionRepository;
     private final PaymentOptionRepository paymentOptionRepository;
     private final PortfolioProfileRepository portfolioProfileRepository;
+    private final SubscriptionRepository subscriptionRepository;
+    private final SubscriptionPlanRepository planRepository;
     private final UserMapper userMapper;
     private final RefreshTokenResponseMapper refreshTokenResponseMapper;
     private final PasswordEncoder passwordEncoder;
@@ -104,9 +110,10 @@ public class AuthServiceImpl implements AuthService {
         String subscriptionWarning = null;
         if (userEntity.isBusinessUser() && userEntity.getBusinessId() != null) {
             subscriptionWarning = validateBusinessSubscriptionAndStatus(userEntity);
-        } else if (userEntity.isPlatformUser() || userEntity.isCustomer()) {
-            // PLATFORM_USER and CUSTOMER only need account status validation (already done above)
-            log.info("User type {} requires only account status validation", userEntity.getUserType());
+        } else if (userEntity.isCustomer() && userEntity.getBusinessId() != null) {
+            validateCustomerBusinessStatus(userEntity.getBusinessId());
+        } else if (userEntity.isPlatformUser()) {
+            log.info("Platform user login context validated for user_id={}", userEntity.getId());
         }
 
         List<String> roleNames = userEntity.getRoles().stream()
@@ -226,42 +233,53 @@ public class AuthServiceImpl implements AuthService {
         UserType userTypeEnum = loginRequestData.getUserType();
         UUID businessIdValue = loginRequestData.getBusinessId();
 
-        if (userTypeEnum == null) {
-            log.warn("User login failed - missing user type");
-            throw new ValidationException(
-                    "User type is required. Please specify whether you are logging in as CUSTOMER, PLATFORM_USER, or BUSINESS_USER."
-            );
-        }
-
-        if (userTypeEnum == UserType.BUSINESS_USER || userTypeEnum == UserType.CUSTOMER) {
-            if (businessIdValue != null) {
-                Optional<User> userInBusiness = userRepository.findByUserIdentifierAndUserTypeAndBusinessIdAndIsDeletedFalse(userIdentifier, userTypeEnum, businessIdValue);
-                if (userInBusiness.isPresent()) {
-                    return userInBusiness.get();
+        if (userTypeEnum != null) {
+            if (userTypeEnum == UserType.BUSINESS_USER || userTypeEnum == UserType.CUSTOMER) {
+                if (businessIdValue != null) {
+                    Optional<User> userInBusiness = userRepository.findByUserIdentifierAndUserTypeAndBusinessIdAndIsDeletedFalse(userIdentifier, userTypeEnum, businessIdValue);
+                    if (userInBusiness.isPresent()) {
+                        return userInBusiness.get();
+                    }
                 }
+            }
+
+            Optional<User> userTyped = userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userTypeEnum);
+            if (userTyped.isPresent()) {
+                return userTyped.get();
             }
         }
 
-        return userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userTypeEnum)
-                .orElseThrow(() -> {
-                    log.warn("User login failed - user not found: identifier={}, type={}", userIdentifier, userTypeEnum);
-                    String userTypeLabel = userTypeEnum.name().toLowerCase().replace("_", " ");
-                    return new ValidationException(
-                            "Account not found as " + userTypeLabel + ". Please check your user identifier and ensure you're logging in with the correct account type."
-                    );
-                });
+        // Fallback lookup: search by userIdentifier alone regardless of specified userType
+        Optional<User> userByIdentifier = userRepository.findByUserIdentifierAndIsDeletedFalse(userIdentifier);
+        if (userByIdentifier.isPresent()) {
+            User foundUser = userByIdentifier.get();
+            // Allow PLATFORM_USER or BUSINESS_USER (portal users) to log in seamlessly
+            if (foundUser.isPlatformUser() || foundUser.isBusinessUser() || userTypeEnum == null) {
+                return foundUser;
+            }
+        }
+
+        log.warn("User login failed - user not found: identifier={}, type={}", userIdentifier, userTypeEnum);
+        String userTypeLabel = userTypeEnum != null ? userTypeEnum.name().toLowerCase().replace("_", " ") : "account";
+        throw new ValidationException(
+                "Account not found as " + userTypeLabel + ". Please check your user identifier and ensure you're logging in with the correct account type."
+        );
     }
 
     private void validateLoginContext(LoginRequest loginRequestData, User userEntity) {
-        if (!loginRequestData.getUserType().equals(userEntity.getUserType())) {
-            log.warn("User login failed - user type mismatch: expected={}, found={}", loginRequestData.getUserType(), userEntity.getUserType());
-            throw new ValidationException(
-                    "User type mismatch. Expected: " + loginRequestData.getUserType() +
-                            ", Found: " + userEntity.getUserType()
-            );
+        if (loginRequestData.getUserType() != null && !loginRequestData.getUserType().equals(userEntity.getUserType())) {
+            boolean isPortalUser = (userEntity.isPlatformUser() || userEntity.isBusinessUser()) &&
+                                   (loginRequestData.getUserType() == UserType.BUSINESS_USER || loginRequestData.getUserType() == UserType.PLATFORM_USER);
+            if (!isPortalUser) {
+                log.warn("User login failed - user type mismatch: expected={}, found={}", loginRequestData.getUserType(), userEntity.getUserType());
+                throw new ValidationException(
+                        "User type mismatch. Expected: " + loginRequestData.getUserType() +
+                                ", Found: " + userEntity.getUserType()
+                );
+            }
         }
 
-        if (loginRequestData.getUserType() == UserType.BUSINESS_USER || loginRequestData.getUserType() == UserType.CUSTOMER) {
+        if (userEntity.isBusinessUser() || userEntity.isCustomer()) {
             if (loginRequestData.getBusinessId() != null && userEntity.getBusinessId() != null) {
                 if (!loginRequestData.getBusinessId().equals(userEntity.getBusinessId())) {
                     log.warn("User login failed - business mismatch: user_id={}, expected_business={}, user_business={}",
@@ -300,25 +318,163 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse registerQuickUser(QuickRegisterRequest registrationRequestData) {
         log.info("Quick user registration initiated: identifier={}", registrationRequestData.getUserIdentifier());
 
-        if (userRepository.existsByUserIdentifierAndIsDeletedFalse(registrationRequestData.getUserIdentifier())) {
-            log.warn("Quick registration failed - duplicate username: identifier={}", registrationRequestData.getUserIdentifier());
+        // 1. Create default Business entity for this new Business Owner
+        Business businessEntity = new Business();
+        String businessName = extractBusinessNameFromIdentifier(registrationRequestData.getUserIdentifier());
+        businessEntity.setName(businessName);
+        businessEntity.setSubdomain(slugifyQuickBusiness(businessName));
+        businessEntity.setStatus(BusinessStatus.ACTIVE);
+        Business savedBusinessEntity = businessRepository.save(businessEntity);
+
+        // 2. Ensure user identifier is not duplicated within this new business
+        if (userRepository.existsByUserIdentifierAndUserTypeAndBusinessIdAndIsDeletedFalse(
+                registrationRequestData.getUserIdentifier(),
+                UserType.BUSINESS_USER,
+                savedBusinessEntity.getId())) {
+            log.warn("Quick registration failed - duplicate username for business: identifier={}", registrationRequestData.getUserIdentifier());
             throw new ValidationException("This username is already taken. Please choose another username or sign in.");
         }
 
+        // 3. Create Business Owner User linked to the new business ID
         User userEntity = new User();
         userEntity.setUserIdentifier(registrationRequestData.getUserIdentifier());
         userEntity.setPassword(passwordEncoder.encode(registrationRequestData.getPassword()));
         userEntity.setUserType(UserType.BUSINESS_USER);
         userEntity.setAccountStatus(AccountStatus.ACTIVE);
+        userEntity.setBusinessId(savedBusinessEntity.getId());
 
         Role defaultRole = getOrCreateBusinessUserRole();
         userEntity.setRoles(List.of(defaultRole));
 
         User savedUserEntity = userRepository.save(userEntity);
 
-        log.info("Quick user registration completed successfully: identifier={}, user_id={}",
-                savedUserEntity.getUserIdentifier(), savedUserEntity.getId());
+        // Link Owner ID to Business
+        savedBusinessEntity.setOwnerId(savedUserEntity.getId());
+        businessRepository.save(savedBusinessEntity);
+
+        // 4. Initialize default business settings, rates, delivery & payment options
+        initializeQuickUserBusinessDefaults(savedBusinessEntity.getId());
+
+        // 5. Attach 7-Day Free Trial Subscription
+        createQuickUser7DayTrialSubscription(savedBusinessEntity);
+
+        log.info("Quick user registration completed successfully: identifier={}, user_id={}, business_id={}",
+                savedUserEntity.getUserIdentifier(), savedUserEntity.getId(), savedBusinessEntity.getId());
         return userMapper.toResponse(savedUserEntity);
+    }
+
+    private void validateCustomerBusinessStatus(UUID businessId) {
+        Business businessEntity = businessRepository.findById(businessId).orElse(null);
+        if (businessEntity != null && !businessEntity.isActive()) {
+            log.warn("Customer login blocked - business not active: business_id={}, status={}", businessId, businessEntity.getStatus());
+            throw new ValidationException("This store is currently inactive or suspended. E-Menu Client access is unavailable.");
+        }
+    }
+
+    private String extractBusinessNameFromIdentifier(String identifier) {
+        if (identifier == null || identifier.isBlank()) return "My Store";
+        String raw = identifier.contains("@") ? identifier.substring(0, identifier.indexOf("@")) : identifier;
+        raw = raw.replaceAll("[._-]", " ").trim();
+        if (raw.isEmpty()) return "My Store";
+        String[] words = raw.split("\\s+");
+        StringBuilder sb = new StringBuilder();
+        for (String w : words) {
+            if (!w.isEmpty()) {
+                sb.append(Character.toUpperCase(w.charAt(0))).append(w.substring(1).toLowerCase()).append(" ");
+            }
+        }
+        return sb.toString().trim() + " Store";
+    }
+
+    private String slugifyQuickBusiness(String name) {
+        if (name == null) return "store-" + UUID.randomUUID().toString().substring(0, 6);
+        String base = name.trim().toLowerCase()
+                .replaceAll("[^a-z0-9]", "-")
+                .replaceAll("-{2,}", "-")
+                .replaceAll("^-|-$", "");
+        if (base.isEmpty()) base = "store";
+        if (!businessRepository.existsBySubdomainAndIsDeletedFalse(base)) {
+            return base;
+        }
+        return base + "-" + UUID.randomUUID().toString().substring(0, 6);
+    }
+
+    private void initializeQuickUserBusinessDefaults(UUID businessId) {
+        if (businessSettingRepository != null) {
+            BusinessSetting businessSetting = new BusinessSetting();
+            businessSetting.setBusinessId(businessId);
+            businessSetting.setTaxPercentage(BusinessConstants.DEFAULT_TAX_PERCENTAGE);
+            businessSetting.setLowStockThreshold(BusinessConstants.DEFAULT_LOW_STOCK_THRESHOLD);
+            businessSetting.setEnableStock(StockStatus.DISABLED);
+            businessSetting.setStoreDescription(BusinessConstants.DEFAULT_STORE_DESCRIPTION);
+            businessSettingRepository.save(businessSetting);
+        }
+
+        if (portfolioProfileRepository != null) {
+            PortfolioProfile portfolioProfile = new PortfolioProfile();
+            portfolioProfile.setBusinessId(businessId);
+            portfolioProfileRepository.save(portfolioProfile);
+        }
+
+        if (businessExchangeRateRepository != null) {
+            BusinessExchangeRate exchangeRate = new BusinessExchangeRate();
+            exchangeRate.setBusinessId(businessId);
+            exchangeRate.setUsdToKhrRate(4000.0);
+            exchangeRate.setStatus(BusinessExchangeRate.ExchangeRateStatus.ACTIVE);
+            businessExchangeRateRepository.save(exchangeRate);
+        }
+
+        if (deliveryOptionRepository != null) {
+            DeliveryOption deliveryOption = new DeliveryOption();
+            deliveryOption.setBusinessId(businessId);
+            deliveryOption.setName("Store Pickup");
+            deliveryOption.setStatus(Status.ACTIVE);
+            deliveryOption.setPrice(BigDecimal.ZERO);
+            deliveryOptionRepository.save(deliveryOption);
+        }
+
+        if (paymentOptionRepository != null) {
+            PaymentOption bankPaymentOption = new PaymentOption();
+            bankPaymentOption.setBusinessId(businessId);
+            bankPaymentOption.setName("Bank Transfer");
+            bankPaymentOption.setPaymentOptionType(PaymentOptionType.BANK);
+            bankPaymentOption.setStatus(Status.ACTIVE);
+            paymentOptionRepository.save(bankPaymentOption);
+
+            PaymentOption cashPaymentOption = new PaymentOption();
+            cashPaymentOption.setBusinessId(businessId);
+            cashPaymentOption.setName("Cash");
+            cashPaymentOption.setPaymentOptionType(PaymentOptionType.CASH);
+            cashPaymentOption.setStatus(Status.ACTIVE);
+            paymentOptionRepository.save(cashPaymentOption);
+        }
+    }
+
+    private void createQuickUser7DayTrialSubscription(Business business) {
+        if (subscriptionRepository != null && planRepository != null) {
+            List<SubscriptionPlan> activePlans = planRepository.findAllActivePlans();
+            Optional<SubscriptionPlan> trialPlanOpt = activePlans.stream()
+                    .filter(p -> p.getDurationType() != null && p.getDurationType() == SubscriptionPlanDurationType.FREE_TRIAL)
+                    .findFirst();
+
+            if (trialPlanOpt.isEmpty()) {
+                log.warn("Quick registration: No active FREE_TRIAL subscription plan configured in database by owner.");
+                return;
+            }
+
+            SubscriptionPlan trialPlan = trialPlanOpt.get();
+            Subscription subscription = new Subscription();
+            subscription.setBusinessId(business.getId());
+            subscription.setPlan(trialPlan);
+            subscription.setPlanId(trialPlan.getId());
+            subscription.setStartDate(LocalDateTime.now());
+            subscription.setEndDate(LocalDateTime.now().plusDays(7));
+            subscription.setAutoRenew(false);
+
+            subscriptionRepository.save(subscription);
+            business.activateSubscription();
+            businessRepository.save(business);
+        }
     }
 
     private Role getOrCreateBusinessUserRole() {

@@ -15,11 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "subscription_plans",
-        indexes = {
-                @Index(name = "idx_subscription_plans_status", columnList = "status")
-        }
-)
+@Table(name = "subscription_plans")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

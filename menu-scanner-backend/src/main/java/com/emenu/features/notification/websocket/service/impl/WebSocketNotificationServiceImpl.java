@@ -9,6 +9,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -93,7 +94,7 @@ public class WebSocketNotificationServiceImpl implements WebSocketNotificationSe
         if (businessId == null) return;
         String bid = businessId.toString();
         try {
-            Map<String, Object> data = new java.util.HashMap<>();
+            Map<String, Object> data = new HashMap<>();
             data.put("type", eventType != null ? eventType : "TABLE_STATUS_UPDATED");
             if (payload != null) {
                 data.putAll(payload);

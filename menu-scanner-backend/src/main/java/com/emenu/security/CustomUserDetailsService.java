@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,7 +70,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDetails loadUserById(String userIdStr) throws UsernameNotFoundException {
         try {
-            java.util.UUID userId = java.util.UUID.fromString(userIdStr);
+            UUID userId = UUID.fromString(userIdStr);
             User user = userRepository.findByIdAndIsDeletedFalse(userId)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found for ID: " + userIdStr));
 

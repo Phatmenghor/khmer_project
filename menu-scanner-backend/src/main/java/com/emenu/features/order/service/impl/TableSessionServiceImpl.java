@@ -27,6 +27,7 @@ import com.emenu.features.counter.ReferenceNumberGenerator;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import java.util.stream.Collectors;
@@ -154,7 +155,7 @@ public class TableSessionServiceImpl implements TableSessionService {
         responseList.forEach(r -> enrichResponseWithBusinessTax(r, filter.getBusinessId()));
 
         List<TableSessionResponse.TableSessionOrderRowResponse> allRoundRows = responseList.stream()
-                .flatMap(s -> s.getRoundRows() != null ? s.getRoundRows().stream() : java.util.stream.Stream.empty())
+                .flatMap(s -> s.getRoundRows() != null ? s.getRoundRows().stream() : Stream.empty())
                 .filter(r -> {
                     if (filter.getStatus() == null || filter.getStatus().isBlank() || "ALL".equalsIgnoreCase(filter.getStatus())) {
                         return true;

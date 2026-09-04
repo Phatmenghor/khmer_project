@@ -1,5 +1,6 @@
 package com.emenu.features.order.mapper;
 
+import com.emenu.enums.order.TableStatus;
 import com.emenu.features.order.dto.request.CreateTableRequest;
 import com.emenu.features.order.dto.response.DiningTableResponse;
 import com.emenu.features.order.models.DiningTable;
@@ -11,7 +12,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, imports = { TableStatus.class })
 public interface DiningTableMapper {
 
     @Mapping(target = "seatedMinutes", expression = "java(calculateSeatedMinutes(table))")
@@ -20,7 +21,7 @@ public interface DiningTableMapper {
     List<DiningTableResponse> toResponseList(List<DiningTable> tables);
 
     @Mapping(target = "name", source = "number")
-    @Mapping(target = "status", expression = "java(com.emenu.enums.order.TableStatus.AVAILABLE)")
+    @Mapping(target = "status", expression = "java(TableStatus.AVAILABLE)")
     DiningTable toEntity(CreateTableRequest request);
 
     default Long calculateSeatedMinutes(DiningTable table) {

@@ -26,6 +26,7 @@ import com.emenu.features.auth.service.UserValidationService;
 import com.emenu.features.hr.repository.LeaveRepository;
 import com.emenu.enums.hr.LeaveStatusEnum;
 import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
+import com.emenu.features.subscription.repository.SubscriptionRepository;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.constants.AuthConstants;
 import com.emenu.shared.domain.BaseUUIDEntity;
@@ -33,8 +34,11 @@ import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import com.emenu.shared.utils.FilterUtils;
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -88,6 +92,7 @@ public class UserServiceImpl implements UserService {
     private final WebSocketNotificationService webSocketNotificationService;
     private final RequestCancellationRegistry cancellationRegistry;
     private final LeaveRepository leaveRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
     @Override
     public UserResponse createUser(@Valid UserCreateRequest requestData) {
@@ -136,10 +141,10 @@ public class UserServiceImpl implements UserService {
                     results.add(new BatchImportResponse.RowResult<>(i, true, null, resp));
                     successCount++;
                     success = true;
-                } catch (jakarta.validation.ConstraintViolationException ex) {
+                } catch (ConstraintViolationException ex) {
                     errorMsg = ex.getConstraintViolations().stream()
-                            .map(jakarta.validation.ConstraintViolation::getMessage)
-                            .collect(java.util.stream.Collectors.joining(", "));
+                            .map(ConstraintViolation::getMessage)
+                            .collect(Collectors.joining(", "));
                     log.error("Batch user creation failed at index {} due to validation: {}", i, errorMsg);
                     results.add(new BatchImportResponse.RowResult<>(i, false, errorMsg, null));
                     errorCount++;
@@ -315,6 +320,8 @@ public class UserServiceImpl implements UserService {
                 }));
 
         if (userDetailsResponse != null && userDetailsResponse.getBusinessId() != null) {
+            enrichUserSubscription(userDetailsResponse, userDetailsResponse.getBusinessId());
+
             BusinessSetting setting = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(userDetailsResponse.getBusinessId())
                     .orElse(null);
 
@@ -325,14 +332,14 @@ public class UserServiceImpl implements UserService {
                 int sickQuota = (setting != null && setting.getSickLeaveDaysPerYear() != null) ? setting.getSickLeaveDaysPerYear() : 10;
                 int specialQuota = (setting != null && setting.getSpecialLeaveDaysPerYear() != null) ? setting.getSpecialLeaveDaysPerYear() : 5;
 
-            int targetYear = java.time.LocalDate.now().getYear();
+            int targetYear = LocalDate.now().getYear();
             boolean isProRated = false;
             double annualCalc = annualQuota;
             double sickCalc = sickQuota;
             double specialCalc = specialQuota;
 
             if (userDetailsResponse.getJoinDate() != null) {
-                java.time.LocalDate join = userDetailsResponse.getJoinDate();
+                LocalDate join = userDetailsResponse.getJoinDate();
                 if (join.getYear() == targetYear) {
                     isProRated = true;
                     int monthsWorked = Math.max(1, 12 - join.getMonthValue() + 1);
@@ -347,8 +354,8 @@ public class UserServiceImpl implements UserService {
                 }
             }
 
-            java.time.LocalDate startOfYear = java.time.LocalDate.of(targetYear, 1, 1);
-                java.time.LocalDate endOfYear = java.time.LocalDate.of(targetYear, 12, 31);
+            LocalDate startOfYear = LocalDate.of(targetYear, 1, 1);
+            LocalDate endOfYear = LocalDate.of(targetYear, 12, 31);
                 List<LeaveStatusEnum> activeStatuses = List.of(LeaveStatusEnum.PENDING, LeaveStatusEnum.APPROVED);
 
                 double usedAnnual = leaveRepository.sumUsedLeaveDays(userEntityId, userDetailsResponse.getBusinessId(), "ANNUAL", activeStatuses, startOfYear, endOfYear);
@@ -692,4 +699,40 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    private void enrichUserSubscription(UserResponse response, UUID businessId) {
+        if (response == null || businessId == null || subscriptionRepository == null) return;
+        subscriptionRepository.findLatestByBusinessId(businessId)
+                .ifPresentOrElse(sub -> {
+                    response.setPlanName(sub.getPlan() != null ? sub.getPlan().getName() : "Free Trial");
+                    if (sub.getPlan() != null && sub.getPlan().getDurationType() != null) {
+                        response.setBillingCycle(switch (sub.getPlan().getDurationType()) {
+                            case FREE_TRIAL -> "7-Day Trial";
+                            case MONTHLY -> "Monthly";
+                            case SIX_MONTHS -> "6 Months";
+                            case YEARLY -> "Yearly";
+                        });
+                    } else {
+                        response.setBillingCycle("7-Day Trial");
+                    }
+                    response.setSubscriptionStartDate(sub.getStartDate() != null ? sub.getStartDate().toLocalDate() : null);
+                    response.setSubscriptionEndDate(sub.getEndDate() != null ? sub.getEndDate().toLocalDate() : null);
+                    response.setDaysRemaining(sub.getDaysRemaining());
+                    response.setIsSubscriptionActive(sub.isActive());
+                    response.setSubscriptionStatus(sub.isCancelled() ? "CANCELLED" : (sub.isExpired() ? "EXPIRED" : "ACTIVE"));
+                }, () -> {
+                    response.setPlanName("Free Trial");
+                    response.setBillingCycle("7-Day Trial");
+                    response.setIsSubscriptionActive(true);
+                    response.setSubscriptionStatus("ACTIVE");
+                    if (response.getCreatedAt() != null) {
+                        LocalDate start = response.getCreatedAt().toLocalDate();
+                        LocalDate end = start.plusDays(7);
+                        response.setSubscriptionStartDate(start);
+                        response.setSubscriptionEndDate(end);
+                        LocalDate today = LocalDate.now();
+                        long days = today.isAfter(end) ? 0L : java.time.temporal.ChronoUnit.DAYS.between(today, end);
+                        response.setDaysRemaining(days);
+                    }
+                });
+    }
 }

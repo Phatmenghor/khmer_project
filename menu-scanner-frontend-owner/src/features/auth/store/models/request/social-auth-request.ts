@@ -1,5 +1,6 @@
 export type SocialProvider = "TELEGRAM" | "GOOGLE";
-export type UserType = "CUSTOMER" | "BUSINESS_USER" | "PLATFORM_USER";
+export type UserType = "BUSINESS_USER" | "PLATFORM_USER";
+
 
 export interface TelegramAuthData {
   id: number;

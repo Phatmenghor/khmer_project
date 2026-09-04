@@ -10,12 +10,7 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name = "portfolio_review",
-        indexes = {
-                @Index(name = "idx_portfolio_review_profile_id",  columnList = "profile_id"),
-                @Index(name = "idx_portfolio_review_business_id", columnList = "business_id")
-        }
-)
+@Table(name = "portfolio_review")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

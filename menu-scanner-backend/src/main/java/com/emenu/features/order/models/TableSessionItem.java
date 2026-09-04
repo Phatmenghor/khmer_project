@@ -8,10 +8,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "table_session_items", indexes = {
-    @Index(name = "idx_table_session_items_session_id", columnList = "session_id"),
-    @Index(name = "idx_table_session_items_product_id", columnList = "product_id")
-})
+@Table(name = "table_session_items")
 @Getter
 @Setter
 @NoArgsConstructor

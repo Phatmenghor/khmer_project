@@ -13,11 +13,17 @@ export const selectSubscriptionHistoryContent = (state: RootState) =>
 export const selectSelectedHistory = (state: RootState) =>
   state.subscriptionHistory.selectedHistory;
 
+export const selectMySubscriptionSummary = (state: RootState) =>
+  state.subscriptionHistory.mySummary;
+
 export const selectIsLoading = (state: RootState) =>
   state.subscriptionHistory.isLoading;
 
 export const selectIsFetchingDetail = (state: RootState) =>
   state.subscriptionHistory.operations.isFetchingDetail;
+
+export const selectIsFetchingSummary = (state: RootState) =>
+  state.subscriptionHistory.operations.isFetchingSummary;
 
 export const selectError = (state: RootState) =>
   state.subscriptionHistory.error;

@@ -1,5 +1,6 @@
 package com.emenu.config;
 
+import com.emenu.shared.logging.RestTemplateLoggingInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -23,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -48,12 +50,12 @@ public class ApplicationConfig {
     }
 
     @Bean(name = "telegramRestTemplate")
-    public RestTemplate telegramRestTemplate(com.emenu.shared.logging.RestTemplateLoggingInterceptor loggingInterceptor) {
+    public RestTemplate telegramRestTemplate(RestTemplateLoggingInterceptor loggingInterceptor) {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(5_000);
         factory.setReadTimeout(10_000);
         RestTemplate restTemplate = new RestTemplate(factory);
-        restTemplate.setInterceptors(java.util.List.of(loggingInterceptor));
+        restTemplate.setInterceptors(List.of(loggingInterceptor));
         return restTemplate;
     }
 

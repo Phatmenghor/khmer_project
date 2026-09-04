@@ -1,6 +1,7 @@
 import {
   AllSubscriptionHistoryResponseModel,
   SubscriptionHistoryResponseModel,
+  MySubscriptionSummaryModel,
 } from "../response/subscription-history-response";
 
 export interface SubscriptionHistoryFilters {
@@ -14,11 +15,13 @@ export interface SubscriptionHistoryFilters {
 
 export interface SubscriptionHistoryOperations {
   isFetchingDetail: boolean;
+  isFetchingSummary: boolean;
 }
 
 export interface SubscriptionHistoryManagementState {
   data: AllSubscriptionHistoryResponseModel | null;
   selectedHistory: SubscriptionHistoryResponseModel | null;
+  mySummary: MySubscriptionSummaryModel | null;
   isLoading: boolean;
   error: string | null;
   filters: SubscriptionHistoryFilters;

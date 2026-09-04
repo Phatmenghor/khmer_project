@@ -6,9 +6,9 @@ const steps = [
   {
     number: "01",
     icon: ChefHat,
-    title: "Register Your Business",
+    title: "Sign In & Setup Profile",
     description:
-      "Sign up free, enter your business details, and get your account ready in minutes. No credit card required.",
+      "Sign in securely, enter your business details, and get your storefront ready in minutes.",
   },
   {
     number: "02",

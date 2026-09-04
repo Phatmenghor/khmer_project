@@ -33,6 +33,10 @@ export const autoFetchProfileMiddleware: Middleware =
 
     if (!userActions.includes(type)) return result;
 
+    if (typeof window !== "undefined" && window.location.pathname === "/login") {
+      return result;
+    }
+
     const state = storeAPI.getState() as { auth: AuthSlice };
     if (
       state.auth.profileFetched ||

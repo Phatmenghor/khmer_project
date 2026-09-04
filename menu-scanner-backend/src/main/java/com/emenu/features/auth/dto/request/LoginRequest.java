@@ -2,7 +2,6 @@ package com.emenu.features.auth.dto.request;
 
 import com.emenu.enums.user.UserType;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -19,7 +18,6 @@ public class LoginRequest {
     @Size(max = 72, message = "Password must not exceed 72 characters")
     private String password;
 
-    @NotNull(message = "User type is required")
     private UserType userType;
 
     private UUID businessId;

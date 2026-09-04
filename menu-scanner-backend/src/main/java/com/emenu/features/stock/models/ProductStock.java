@@ -7,17 +7,11 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Entity
-@Table(name = "product_stock",
-        indexes = {
-                @Index(name = "idx_product_stock_product_id",        columnList = "product_id"),
-                @Index(name = "idx_product_stock_biz_product",        columnList = "business_id,product_id"),
-                @Index(name = "idx_product_stock_biz_product_size",   columnList = "business_id,product_id,product_size_id"),
-                @Index(name = "idx_product_stock_expiry_date",        columnList = "expiry_date")
-        }
-)
+@Table(name = "product_stock")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -79,7 +73,7 @@ public class ProductStock extends BaseUUIDEntity {
 
     public Integer getDaysUntilExpiry() {
         if (expiryDate == null) return null;
-        return (int) java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), expiryDate);
+        return (int) ChronoUnit.DAYS.between(LocalDate.now(), expiryDate);
     }
 
     @Override

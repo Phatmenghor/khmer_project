@@ -1,6 +1,7 @@
 package com.emenu.features.order.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.math.BigDecimal;
@@ -783,9 +784,9 @@ public class OrderServiceImpl implements OrderService {
                     if ("FIXED_AMOUNT".equalsIgnoreCase(item.getPromotionType())) {
                         basePrice = finalPrice.add(item.getPromotionValue());
                     } else if ("PERCENTAGE".equalsIgnoreCase(item.getPromotionType()) && item.getPromotionValue().compareTo(new BigDecimal("100")) < 0) {
-                        BigDecimal remainingRatio = BigDecimal.ONE.subtract(item.getPromotionValue().divide(new BigDecimal("100"), 4, java.math.RoundingMode.HALF_UP));
+                        BigDecimal remainingRatio = BigDecimal.ONE.subtract(item.getPromotionValue().divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP));
                         if (remainingRatio.compareTo(BigDecimal.ZERO) > 0) {
-                            basePrice = finalPrice.divide(remainingRatio, 2, java.math.RoundingMode.HALF_UP);
+                            basePrice = finalPrice.divide(remainingRatio, 2, RoundingMode.HALF_UP);
                         }
                     }
                 }
@@ -1137,7 +1138,7 @@ public class OrderServiceImpl implements OrderService {
         // Pre-validate stock availability for all items before performing deductions
         for (OrderItem item : order.getItems()) {
             Product product = productRepository.findById(item.getProductId()).orElse(null);
-            if (product == null || product.getStockStatus() != com.emenu.enums.product.StockStatus.ENABLED) {
+            if (product == null || product.getStockStatus() == null || !product.getStockStatus().isEnabled()) {
                 continue;
             }
 
@@ -1157,7 +1158,7 @@ public class OrderServiceImpl implements OrderService {
 
         for (OrderItem item : order.getItems()) {
             Product product = productRepository.findById(item.getProductId()).orElse(null);
-            if (product == null || product.getStockStatus() != com.emenu.enums.product.StockStatus.ENABLED) {
+            if (product == null || product.getStockStatus() == null || !product.getStockStatus().isEnabled()) {
                 continue;
             }
 
@@ -1242,7 +1243,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public List<OrderResponse> getGuestOrders(List<UUID> orderIds) {
         if (orderIds == null || orderIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         List<Order> orders = orderRepository.findAllById(orderIds);
         batchLoadStatusHistories(orders);

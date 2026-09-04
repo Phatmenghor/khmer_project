@@ -12,10 +12,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "product_favorites",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "product_id"}),
-        indexes = {
-                @Index(name = "idx_product_favorites_product_id", columnList = "product_id")
-        }
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "product_id"})
 )
 @Data
 @EqualsAndHashCode(callSuper = true)

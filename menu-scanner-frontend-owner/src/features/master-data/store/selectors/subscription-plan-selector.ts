@@ -12,7 +12,6 @@ export const selectSelectedSubscriptionPlan = (state: RootState) =>
 
 export const selectSubscriptionPlanContent = (state: RootState) =>
   state.subscriptionPlan.data?.content || [];
-selectSubscriptionPlanState;
 
 export const selectIsLoading = (state: RootState) =>
   state.subscriptionPlan.isLoading;

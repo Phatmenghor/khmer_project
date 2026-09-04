@@ -35,4 +35,12 @@ public class UserResponse extends BaseAuditResponse {
     private String phoneNumber;
     private ImageUrls profileImage;
     private LocalDateTime lastLoginAt;
+
+    private String planName;
+    private String billingCycle;
+    private LocalDate subscriptionStartDate;
+    private LocalDate subscriptionEndDate;
+    private Long daysRemaining;
+    private Boolean isSubscriptionActive;
+    private String subscriptionStatus;
 }

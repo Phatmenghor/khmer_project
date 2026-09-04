@@ -8,7 +8,7 @@ import org.mapstruct.*;
 
 import java.time.LocalDateTime;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", imports = { LocalDateTime.class })
 public interface SocialAuthResponseMapper {
 
     @Mapping(target = "success", constant = "true")
@@ -21,7 +21,7 @@ public interface SocialAuthResponseMapper {
     @Mapping(target = "provider", source = "provider")
     @Mapping(target = "socialId", source = "userInfo.id")
     @Mapping(target = "socialUsername", source = "userInfo.username")
-    @Mapping(target = "syncedAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "syncedAt", expression = "java(LocalDateTime.now())")
     @Mapping(target = "operationType", expression = "java(determineOperation(user))")
     @Mapping(target = "isNewUser", expression = "java(isNewUser(user))")
     SocialAuthResponse toResponse(User user, String accessToken, String refreshToken,

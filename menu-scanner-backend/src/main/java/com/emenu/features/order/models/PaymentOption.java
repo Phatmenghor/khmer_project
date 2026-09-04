@@ -17,11 +17,7 @@ import org.hibernate.type.SqlTypes;
 import java.util.UUID;
 
 @Entity
-@Table(name = "payment_options",
-        indexes = {
-                @Index(name = "idx_payment_options_business_id", columnList = "business_id")
-        }
-)
+@Table(name = "payment_options")
 @Data
 @Builder
 @EqualsAndHashCode(callSuper = true)

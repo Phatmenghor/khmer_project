@@ -11,6 +11,7 @@ import com.emenu.exception.custom.ResourceNotFoundException;
 import com.emenu.exception.custom.InvalidOperationException;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.security.SecurityUtils;
+import com.emenu.features.stock.specification.StockMovementSpecification;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -224,8 +226,7 @@ public class StockServiceImpl implements StockService {
 
         Pageable pageable = PaginationUtils.createPageable(request.getPageNo(), request.getPageSize());
 
-        org.springframework.data.jpa.domain.Specification<StockMovement> spec =
-            com.emenu.features.stock.specification.StockMovementSpecification.filterMovements(
+        Specification<StockMovement> spec = StockMovementSpecification.filterMovements(
                 request.getBusinessId(),
                 request.getProductStockId(),
                 request.getMovementType(),

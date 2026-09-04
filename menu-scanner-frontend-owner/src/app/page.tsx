@@ -21,7 +21,6 @@ export default function LandingPage() {
     <>
       <Navbar
         onLoginClick={() => setIsLoginModalOpen(true)}
-        onRegisterClick={() => setIsRegisterModalOpen(true)}
       />
       <main className="overflow-x-hidden md:px-[6%] space-y-2">
         <HeroSection />

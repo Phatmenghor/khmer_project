@@ -5,6 +5,7 @@ import com.emenu.features.order.dto.response.CartSummaryResponse;
 import com.emenu.features.order.service.CartService;
 import com.emenu.shared.dto.ApiResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ public class CartController {
 
     @Data
     public static class GetCartRequest {
-        @jakarta.validation.constraints.NotNull(message = "Business ID is required")
+        @NotNull(message = "Business ID is required")
         private UUID businessId;
         private String search;
     }

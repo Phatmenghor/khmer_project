@@ -13,6 +13,7 @@ import com.emenu.features.stock.dto.response.ProductStockItemDto;
 import com.emenu.features.stock.mapper.ProductStockMapper;
 import com.emenu.features.stock.models.ProductStock;
 import com.emenu.features.stock.repository.ProductStockRepository;
+import com.emenu.features.stock.repository.projection.ProductStockItemProjection;
 import com.emenu.features.stock.service.ProductStockService;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
@@ -129,7 +130,7 @@ public class ProductStockServiceImpl implements ProductStockService {
                 request.getSortDirection()
         );
 
-        Page<com.emenu.features.stock.repository.projection.ProductStockItemProjection> pageResult = productStockRepository.findProductStockItems(
+        Page<ProductStockItemProjection> pageResult = productStockRepository.findProductStockItems(
                 request.getBusinessId(),
                 search,
                 status,
@@ -170,7 +171,7 @@ public class ProductStockServiceImpl implements ProductStockService {
                 request.getSortDirection()
         );
 
-        Page<com.emenu.features.stock.repository.projection.ProductStockItemProjection> pageResult = productStockRepository.findProductStockItems(
+        Page<ProductStockItemProjection> pageResult = productStockRepository.findProductStockItems(
                 request.getBusinessId(),
                 search,
                 status,

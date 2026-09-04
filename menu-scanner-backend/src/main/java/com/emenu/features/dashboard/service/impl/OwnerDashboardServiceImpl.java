@@ -26,9 +26,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.UUID;
 
 @Service
@@ -340,7 +342,7 @@ public class OwnerDashboardServiceImpl implements OwnerDashboardService {
         List<OwnerDashboardDailyTrendsResponse.DailyPoint> points = new ArrayList<>();
         BigDecimal totalAmount = BigDecimal.ZERO;
 
-        for (Map.Entry<String, BigDecimal> e : new java.util.TreeMap<>(dailyMap).entrySet()) {
+        for (Map.Entry<String, BigDecimal> e : new TreeMap<>(dailyMap).entrySet()) {
             points.add(OwnerDashboardDailyTrendsResponse.DailyPoint.builder()
                     .date(e.getKey()).count(0L).amount(e.getValue()).build());
             totalAmount = totalAmount.add(e.getValue());
@@ -357,7 +359,7 @@ public class OwnerDashboardServiceImpl implements OwnerDashboardService {
         LocalDateTime start   = range[0];
         LocalDateTime end     = range[1];
 
-        Map<String, Long> dailyMap = new java.util.LinkedHashMap<>();
+        Map<String, Long> dailyMap = new LinkedHashMap<>();
         fillDailyCountMap(dailyMap, start, end);
 
         @SuppressWarnings("unchecked")
@@ -379,7 +381,7 @@ public class OwnerDashboardServiceImpl implements OwnerDashboardService {
         List<OwnerDashboardDailyTrendsResponse.DailyPoint> points = new ArrayList<>();
         long totalCount = 0L;
 
-        for (Map.Entry<String, Long> e : new java.util.TreeMap<>(dailyMap).entrySet()) {
+        for (Map.Entry<String, Long> e : new TreeMap<>(dailyMap).entrySet()) {
             points.add(OwnerDashboardDailyTrendsResponse.DailyPoint.builder()
                     .date(e.getKey()).count(e.getValue()).amount(BigDecimal.ZERO).build());
             totalCount += e.getValue();

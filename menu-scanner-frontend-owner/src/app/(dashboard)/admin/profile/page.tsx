@@ -38,6 +38,7 @@ import { SpacesMultiSizeResult } from "@/services/spaces-service";
 import { GENDER_OPTIONS } from "@/constants/app-resource/status/create-update-status";
 import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
 import Loading from "@/components/shared/common/loading";
+import { ProfilePageSkeleton } from "@/components/shared/skeletons";
 import { getErrorMessage } from "@/utils/error/get-error-message";
 import {
   profileUpdateSchema,
@@ -216,7 +217,11 @@ export default function AdminProfilePage() {
   const currentAvatarUrl = userProfile?.profileImage?.sm || userProfile?.profileImageUrl;
 
   if (isProfileLoading && !userProfile) {
-    return <Loading />;
+    return (
+      <div className="flex flex-1 flex-col gap-3 px-1">
+        <ProfilePageSkeleton />
+      </div>
+    );
   }
 
   return (

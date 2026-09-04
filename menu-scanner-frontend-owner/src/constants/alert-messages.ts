@@ -3,9 +3,7 @@
  */
 
 export const AlertMessages = {
-  // ================================
-  // ACCOUNT STATUS ALERTS
-  // ================================
+  // Account Status
   account: {
     inactive: "Your account is inactive. Please contact the system owner for assistance.",
     locked: "Your account is locked. Please contact support to resolve this issue.",
@@ -14,9 +12,7 @@ export const AlertMessages = {
     disabledPlatform: "Account has been disabled by the platform administrator.",
   },
 
-  // ================================
-  // SUBSCRIPTION WARNINGS & ERRORS (BUSINESS_USER ONLY)
-  // ================================
+  // Subscription Warnings & Errors
   subscription: {
     active: "Your business subscription is active.",
     expired: "Your business subscription has expired. Please renew your subscription to continue using the platform.",
@@ -26,27 +22,21 @@ export const AlertMessages = {
     gracePeriodExpired: "Your subscription grace period has expired. Please renew your subscription to regain access.",
   },
 
-  // ================================
-  // BUSINESS STATUS ALERTS
-  // ================================
+  // Business Status
   business: {
     inactive: "Your business account is currently inactive. Please contact support.",
     suspended: "Your business account is currently suspended. Please contact support.",
     notFound: "Business account not found. Please check your account details.",
   },
 
-  // ================================
-  // AVAILABILITY & STOCK WARNINGS
-  // ================================
+  // Stock Warnings
   stock: {
     low: (itemName: string) => `Stock is running low for ${itemName}`,
     outOfStock: (itemName: string) => `${itemName} is out of stock`,
     unavailable: (itemName: string) => `${itemName} is currently unavailable`,
   },
 
-  // ================================
-  // AUTH ERROR MESSAGES
-  // ================================
+  // Auth Error Messages
   auth: {
     invalidPassword: "Your password is incorrect. Please try again or reset your password if you've forgotten it.",
     accountNotFound: "Account not found. Please check your user identifier.",

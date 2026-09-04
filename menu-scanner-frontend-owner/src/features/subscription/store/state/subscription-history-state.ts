@@ -4,7 +4,9 @@ import {
   selectSubscriptionHistoryData,
   selectSubscriptionHistoryContent,
   selectSelectedHistory,
+  selectMySubscriptionSummary,
   selectIsLoading,
+  selectIsFetchingSummary,
   selectError,
   selectFilters,
   selectOperations,
@@ -18,6 +20,8 @@ export const useSubscriptionHistoryState = () => {
   const subscriptionHistoryData = useAppSelector(selectSubscriptionHistoryData);
   const subscriptionHistoryContent = useAppSelector(selectSubscriptionHistoryContent);
   const selectedHistory = useAppSelector(selectSelectedHistory);
+  const mySummary = useAppSelector(selectMySubscriptionSummary);
+  const isFetchingSummary = useAppSelector(selectIsFetchingSummary);
   const filters = useAppSelector(selectFilters);
   const operations = useAppSelector(selectOperations);
   const pagination = useAppSelector(selectPagination);
@@ -29,6 +33,8 @@ export const useSubscriptionHistoryState = () => {
     subscriptionHistoryData,
     subscriptionHistoryContent,
     selectedHistory,
+    mySummary,
+    isFetchingSummary,
     isLoading,
     error,
     filters,

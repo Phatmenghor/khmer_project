@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Slf4j
@@ -46,7 +47,7 @@ public class SubscriptionExpiryCheckScheduler {
 
         expiringSubscriptions.forEach(subscription -> {
             try {
-                long daysRemaining = java.time.temporal.ChronoUnit.DAYS
+                long daysRemaining = ChronoUnit.DAYS
                         .between(now.toLocalDate(), subscription.getEndDate().toLocalDate());
 
                 String businessName = subscription.getBusiness() != null

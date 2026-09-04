@@ -1,12 +1,63 @@
 "use client";
 
-import React from "react";
-import { CreditCard, Calendar, CheckCircle2, ShieldCheck, Clock, ArrowUpRight, History } from "lucide-react";
+import React, { useEffect } from "react";
+import {
+  CreditCard,
+  ShieldCheck,
+  Clock,
+  ArrowUpRight,
+  History,
+  Sparkles,
+  Zap,
+  Calendar,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomButton } from "@/components/shared/button/custom-button";
-import { DisplayField } from "@/components/shared/form-field/display-field";
 import { formatDate } from "@/utils/date/date-time-format";
 import { useRouter } from "next/navigation";
+import { useSubscriptionHistoryState } from "@/features/subscription/store/state/subscription-history-state";
+import { fetchMySubscriptionSummaryService } from "@/features/subscription/store/thunks/subscription-history-thunks";
+import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
+import { SubscriptionHistorySkeleton } from "@/components/shared/skeletons";
+
+function getPlanIcon(name?: string) {
+  if (!name) return <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />;
+  const n = name.toLowerCase();
+  if (n.includes("pro") || n.includes("premium")) {
+    return <Zap className="w-4 h-4 text-amber-500 shrink-0" />;
+  }
+  if (n.includes("enterprise")) {
+    return <Sparkles className="w-4 h-4 text-indigo-500 shrink-0" />;
+  }
+  return <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />;
+}
+
+function getStatusBadge(statusStr?: string) {
+  if (!statusStr) return null;
+  const s = statusStr.toUpperCase();
+  if (s === "ACTIVE") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[11px] font-bold tracking-wide">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+        ACTIVE
+      </span>
+    );
+  }
+  if (s === "EXPIRED") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-[11px] font-bold tracking-wide">
+        <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+        EXPIRED
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[11px] font-bold tracking-wide">
+      <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+      {s}
+    </span>
+  );
+}
 
 interface PlanHistorySectionProps {
   userProfile?: any;
@@ -14,120 +65,192 @@ interface PlanHistorySectionProps {
 
 export function PlanHistorySection({ userProfile }: PlanHistorySectionProps) {
   const router = useRouter();
+  const { mySummary, isFetchingSummary, dispatch } = useSubscriptionHistoryState();
 
-  const currentPlanName =
-    userProfile?.planName ||
-    userProfile?.business?.planName ||
-    userProfile?.currentPlanName ||
-    "Free Trial";
+  useEffect(() => {
+    dispatch(fetchMySubscriptionSummaryService());
+  }, [dispatch]);
 
-  const subscriptionStatus = userProfile?.isSubscriptionActive
-    ? "ACTIVE"
-    : userProfile?.businessStatus || "ACTIVE";
+  if (isFetchingSummary && !mySummary) {
+    return <SubscriptionHistorySkeleton />;
+  }
 
-  const startDate = userProfile?.subscriptionStartDate || userProfile?.createdAt;
-  const endDate = userProfile?.subscriptionEndDate;
-  const daysRemaining = userProfile?.daysRemaining ?? (userProfile?.isSubscriptionActive ? "7 Days" : "Expired");
+  const currentPlanName = mySummary?.planName || "—";
+  const billingCycle = mySummary?.billingCycle || "—";
+  const subscriptionStatus = mySummary?.subscriptionStatus || "—";
+  const startDate = mySummary?.subscriptionStartDate;
+  const endDate = mySummary?.subscriptionEndDate;
+  const daysRemainingText = mySummary?.daysRemainingText || "—";
+  const progressPercent = mySummary?.progressPercent ?? 0;
+  const historyList = mySummary?.history || [];
+
+  const historyColumns: TableColumn<any>[] = [
+    {
+      key: "planName",
+      label: "Plan Name",
+      render: (item) => (
+        <div className="flex items-center gap-2 font-bold text-foreground">
+          {getPlanIcon(item.planName || currentPlanName)}
+          <span>{item.planName || currentPlanName}</span>
+        </div>
+      ),
+    },
+    {
+      key: "startDate",
+      label: "Start Date",
+      render: (item) => (
+        <span className="text-muted-foreground font-semibold">
+          {formatDate(item.startDate || startDate)}
+        </span>
+      ),
+    },
+    {
+      key: "endDate",
+      label: "End Date",
+      render: (item) => (
+        <span className="text-muted-foreground font-semibold">
+          {formatDate(item.endDate || endDate)}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (item) => getStatusBadge(item.status),
+    },
+    {
+      key: "paymentStatus",
+      label: "Payment Status",
+      className: "text-right",
+      render: (item) => (
+        <span className="font-extrabold text-foreground block text-right">
+          {item.paymentStatus || (item.totalPaid != null ? `$${item.totalPaid}` : "—")}
+        </span>
+      ),
+    },
+  ];
 
   return (
-    <div className="space-y-4">
-      {/* Current Active Plan Card */}
-      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-card to-card shadow-xs overflow-hidden">
-        <CardHeader className="pb-3 border-b border-border/50">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
-                <CreditCard className="w-5 h-5" />
+    <div className="space-y-5">
+      {/* Active Subscription Overview Card */}
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-card to-card shadow-md overflow-hidden relative">
+        <div className="absolute -top-12 -right-12 w-40 h-40 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
+
+        <CardHeader className="pb-4 border-b border-border/50 relative z-10">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-2xs shrink-0">
+                <CreditCard className="w-6 h-6" />
               </div>
               <div>
-                <CardTitle className="text-base font-extrabold flex items-center gap-2">
-                  <span>Current Subscription Plan</span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-[10px] font-extrabold uppercase tracking-wider">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    {subscriptionStatus}
-                  </span>
-                </CardTitle>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Manage your subscription, billing details, and active plan features.
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <CardTitle className="text-lg font-black tracking-tight text-foreground">
+                    Current Subscription Plan
+                  </CardTitle>
+                  {getStatusBadge(subscriptionStatus)}
+                </div>
+                <p className="text-xs text-muted-foreground font-medium mt-0.5">
+                  Manage your active plan features, subscription renewals, and billing history.
                 </p>
               </div>
             </div>
+
+            <CustomButton
+              variant="default"
+              size="sm"
+              onClick={() => router.push("/pricing")}
+              className="text-xs font-bold gap-1.5 shadow-sm hover:shadow-md transition-all shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              <span>Upgrade Plan</span>
+              <ArrowUpRight className="w-4 h-4" />
+            </CustomButton>
           </div>
         </CardHeader>
 
-        <CardContent className="p-4 sm:p-6 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <DisplayField label="Active Plan" value={currentPlanName} />
-            <DisplayField label="Billing Cycle" value="Monthly / Annual" />
-            <DisplayField label="Subscription Start" value={formatDate(startDate)} />
-            <DisplayField label="Subscription End" value={formatDate(endDate) || "Ongoing"} />
-          </div>
-
-          <div className="p-3.5 rounded-xl bg-accent/40 border border-border/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <Clock className="w-4 h-4 text-primary shrink-0" />
-              <div className="text-xs">
-                <span className="font-bold text-foreground">Time Remaining: </span>
-                <span className="font-extrabold text-primary">{daysRemaining}</span>
+        <CardContent className="p-4 sm:p-6 space-y-5 relative z-10">
+          {/* Information Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="p-3.5 rounded-xl bg-background/80 border border-border/60 shadow-2xs backdrop-blur-xs">
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                Active Plan
+              </span>
+              <div className="flex items-center gap-2">
+                {getPlanIcon(currentPlanName)}
+                <span className="text-sm font-extrabold text-foreground">{currentPlanName}</span>
               </div>
             </div>
-            <CustomButton
-              variant="outline"
-              size="sm"
-              onClick={() => router.push("/pricing")}
-              className="text-xs font-bold gap-1.5 shadow-2xs"
-            >
-              <span>Upgrade Plan</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </CustomButton>
+
+            <div className="p-3.5 rounded-xl bg-background/80 border border-border/60 shadow-2xs backdrop-blur-xs">
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                Billing Cycle
+              </span>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-primary shrink-0" />
+                <span className="text-sm font-extrabold text-foreground">{billingCycle}</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-background/80 border border-border/60 shadow-2xs backdrop-blur-xs">
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                Subscription Start
+              </span>
+              <span className="text-sm font-extrabold text-foreground">{formatDate(startDate)}</span>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-background/80 border border-border/60 shadow-2xs backdrop-blur-xs">
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                Subscription End
+              </span>
+              <span className="text-sm font-extrabold text-foreground">
+                {formatDate(endDate)}
+              </span>
+            </div>
+          </div>
+
+          {/* Time Remaining Bar */}
+          <div className="p-4 rounded-2xl bg-accent/40 border border-border/60 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-primary shrink-0" />
+                <span className="font-bold text-foreground">Time Remaining</span>
+              </div>
+              <span className="font-black text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20 text-xs">
+                {daysRemainingText}
+              </span>
+            </div>
+            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-primary to-emerald-500 rounded-full transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Subscription History Table */}
-      <Card className="border-border/80 shadow-2xs">
-        <CardHeader className="pb-3 border-b border-border/50">
-          <CardTitle className="text-sm font-extrabold flex items-center gap-2">
-            <History className="w-4 h-4 text-primary shrink-0" />
-            <span>Subscription & Plan History</span>
-          </CardTitle>
+      {/* Subscription & Plan History Table */}
+      <Card className="border-border/80 shadow-2xs overflow-hidden">
+        <CardHeader className="py-3.5 px-4 sm:px-6 border-b border-border/50 bg-muted/20">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm font-extrabold flex items-center gap-2 text-foreground">
+              <History className="w-4 h-4 text-primary shrink-0" />
+              <span>Subscription & Plan History</span>
+            </CardTitle>
+            <span className="text-xs font-bold text-muted-foreground bg-muted px-2.5 py-0.5 rounded-full border border-border/60">
+              {historyList.length} {historyList.length === 1 ? "Record" : "Records"}
+            </span>
+          </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-muted/50 border-b border-border/60 text-muted-foreground font-extrabold uppercase text-[10px] tracking-wider">
-                <tr>
-                  <th className="py-3 px-4">Plan Name</th>
-                  <th className="py-3 px-4">Start Date</th>
-                  <th className="py-3 px-4">End Date</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 text-right">Payment</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/40">
-                <tr className="hover:bg-accent/30 transition-colors">
-                  <td className="py-3 px-4 font-bold text-foreground flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>{currentPlanName}</span>
-                  </td>
-                  <td className="py-3 px-4 text-muted-foreground font-medium">
-                    {formatDate(startDate)}
-                  </td>
-                  <td className="py-3 px-4 text-muted-foreground font-medium">
-                    {formatDate(endDate) || "Ongoing"}
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-[10px] font-bold uppercase">
-                      Active
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-right font-extrabold text-foreground">
-                    FREE / INCLUDED
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <DataTableWithPagination
+            data={historyList}
+            columns={historyColumns}
+            loading={isFetchingSummary}
+            emptyMessage="No subscription history records found"
+            showPagination={historyList.length > 5}
+            showPageSizeSelector={false}
+            getRowKey={(row: any, idx: number) => row.subscriptionId || idx}
+          />
         </CardContent>
       </Card>
     </div>

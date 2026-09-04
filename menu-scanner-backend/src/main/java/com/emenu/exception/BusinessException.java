@@ -21,8 +21,6 @@ public class BusinessException extends RuntimeException {
         this.details = details;
     }
 
-    // ─── 404 Not Found ──────────────────────────────────────────────────────────
-
     public static BusinessException notFound(String message) {
         return new BusinessException(message, HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", null);
     }
@@ -30,8 +28,6 @@ public class BusinessException extends RuntimeException {
     public static BusinessException notFound(String message, String errorCode) {
         return new BusinessException(message, HttpStatus.NOT_FOUND, errorCode, null);
     }
-
-    // ─── 400 Bad Request ────────────────────────────────────────────────────────
 
     public static BusinessException badRequest(String message) {
         return new BusinessException(message, HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", null);
@@ -45,8 +41,6 @@ public class BusinessException extends RuntimeException {
         return new BusinessException(message, HttpStatus.BAD_REQUEST, errorCode, details);
     }
 
-    // ─── 409 Conflict ───────────────────────────────────────────────────────────
-
     public static BusinessException conflict(String message) {
         return new BusinessException(message, HttpStatus.CONFLICT, "CONFLICT", null);
     }
@@ -54,8 +48,6 @@ public class BusinessException extends RuntimeException {
     public static BusinessException conflict(String message, String errorCode) {
         return new BusinessException(message, HttpStatus.CONFLICT, errorCode, null);
     }
-
-    // ─── 403 Forbidden ──────────────────────────────────────────────────────────
 
     public static BusinessException forbidden(String message) {
         return new BusinessException(message, HttpStatus.FORBIDDEN, "FORBIDDEN", null);
@@ -65,8 +57,6 @@ public class BusinessException extends RuntimeException {
         return new BusinessException(message, HttpStatus.FORBIDDEN, errorCode, null);
     }
 
-    // ─── 401 Unauthorized ───────────────────────────────────────────────────────
-
     public static BusinessException unauthorized(String message) {
         return new BusinessException(message, HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", null);
     }
@@ -75,13 +65,9 @@ public class BusinessException extends RuntimeException {
         return new BusinessException(message, HttpStatus.UNAUTHORIZED, errorCode, null);
     }
 
-    // ─── 422 Unprocessable ──────────────────────────────────────────────────────
-
     public static BusinessException unprocessable(String message) {
         return new BusinessException(message, HttpStatus.UNPROCESSABLE_ENTITY, "UNPROCESSABLE", null);
     }
-
-    // ─── Generic factory ────────────────────────────────────────────────────────
 
     public static BusinessException of(String message, HttpStatus status, String errorCode) {
         return new BusinessException(message, status, errorCode, null);
