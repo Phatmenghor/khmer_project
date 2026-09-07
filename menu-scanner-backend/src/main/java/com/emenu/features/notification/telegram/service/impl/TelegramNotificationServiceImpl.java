@@ -27,6 +27,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -34,6 +35,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.emenu.features.subscription.repository.SubscriptionRepository;
+import com.emenu.features.subscription.util.SubscriptionPdfReceiptGenerator;
+import com.emenu.features.subscription.models.Subscription;
+import com.emenu.features.auth.models.User;
+import com.emenu.features.auth.repository.UserRepository;
+import java.time.LocalDate;
 
 @Service
 @Slf4j
@@ -51,23 +59,38 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     @Value("${telegram.bot.group-chat-id:}")
     private String adminGroupChatId;
 
+    @Value("${telegram.bot.order-group-chat-id:}")
+    private String orderGroupChatId;
+
+    @Value("${telegram.bot.subscription-group-chat-id:}")
+    private String subscriptionGroupChatId;
+
+    @Value("${telegram.bot.staff-group-chat-id:}")
+    private String staffGroupChatId;
+
     private final BusinessSettingRepository businessSettingRepository;
     private final TelegramNotificationMapper telegramNotificationMapper;
     private final RestTemplate restTemplate;
     private final TelegramMessageLogRepository telegramMessageLogRepository;
     private final SpacesService spacesService;
+    private final SubscriptionRepository subscriptionRepository;
+    private final UserRepository userRepository;
 
     public TelegramNotificationServiceImpl(
             BusinessSettingRepository businessSettingRepository,
             TelegramNotificationMapper telegramNotificationMapper,
             @Qualifier("telegramRestTemplate") RestTemplate restTemplate,
             TelegramMessageLogRepository telegramMessageLogRepository,
-            SpacesService spacesService) {
+            SpacesService spacesService,
+            SubscriptionRepository subscriptionRepository,
+            UserRepository userRepository) {
         this.businessSettingRepository = businessSettingRepository;
         this.telegramNotificationMapper = telegramNotificationMapper;
         this.restTemplate = restTemplate;
         this.telegramMessageLogRepository = telegramMessageLogRepository;
         this.spacesService = spacesService;
+        this.subscriptionRepository = subscriptionRepository;
+        this.userRepository = userRepository;
     }
 
     // ── Status & management ───────────────────────────────────────────────────
@@ -193,7 +216,12 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     public void notifyNewStaff(UUID businessId, String name, String position,
                                String phone, String email, List<String> roles) {
         log.info("[Telegram Service] Sending new staff alert for business={}, staff={}", businessId, name);
-        sendByBusinessId(businessId, TelegramMessageBuilder.newStaff(name, position, phone, email, roles), "HTML", null, null, null);
+        String msg = TelegramMessageBuilder.newStaff(name, position, phone, email, roles);
+        sendAdminAlert(msg);
+        String staffChatId = resolveStaffChatId(businessId);
+        if (staffChatId != null && !staffChatId.isBlank() && !staffChatId.equals(adminGroupChatId)) {
+            sendToChatId(staffChatId, msg, "HTML", businessId, null, null);
+        }
     }
 
     // ── Subscription notifications (Async) ───────────────────────────────────
@@ -202,7 +230,18 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     @Async("taskExecutor")
     public void notifyBusinessOwnerRegistered(UUID businessId, String ownerName, String businessName,
                                               String planName, String expiryDate) {
-        sendAdminAlert(TelegramMessageBuilder.businessOwnerRegistered(ownerName, businessName, planName, expiryDate));
+        notifyBusinessOwnerRegistered(businessId, ownerName, businessName, null, null, planName, expiryDate, null, null, null);
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void notifyBusinessOwnerRegistered(UUID businessId, String ownerName, String businessName,
+                                              String ownerPhone, String ownerEmail,
+                                              String planName, String expiryDate,
+                                              BigDecimal paymentAmount, String paymentMethod, String paymentReference) {
+        String msg = TelegramMessageBuilder.businessOwnerRegistered(ownerName, businessName, ownerPhone, ownerEmail,
+                planName, expiryDate, paymentAmount, paymentMethod, paymentReference);
+        sendSubscriptionNotification(businessId, msg);
         log.info("[Telegram Service] Business owner registration alert sent for: {}", businessName);
     }
 
@@ -210,7 +249,8 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     @Async("taskExecutor")
     public void notifySubscriptionExpiringSoon(UUID businessId, String businessName,
                                                long daysRemaining, String expiryDate) {
-        sendAdminAlert(TelegramMessageBuilder.subscriptionExpiringSoon(businessName, daysRemaining, expiryDate));
+        String msg = TelegramMessageBuilder.subscriptionExpiringSoon(businessName, daysRemaining, expiryDate);
+        sendSubscriptionNotification(businessId, msg);
         log.info("[Telegram Service] Subscription expiring soon alert sent for: {} (days remaining: {})", businessName, daysRemaining);
     }
 
@@ -218,14 +258,36 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     @Async("taskExecutor")
     public void notifySubscriptionRenewed(UUID businessId, String businessName,
                                           String planName, String newExpiryDate) {
-        sendAdminAlert(TelegramMessageBuilder.subscriptionRenewed(businessName, planName, newExpiryDate));
+        notifySubscriptionRenewed(businessId, businessName, null, null, null, planName, newExpiryDate, null, null, null);
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void notifySubscriptionRenewed(UUID businessId, String businessName,
+                                          String ownerName, String ownerPhone, String ownerEmail,
+                                          String planName, String newExpiryDate,
+                                          BigDecimal paymentAmount, String paymentMethod, String paymentReference) {
+        String msg = TelegramMessageBuilder.subscriptionRenewed(businessName, ownerName, ownerPhone, ownerEmail,
+                planName, newExpiryDate, paymentAmount, paymentMethod, paymentReference);
+        sendSubscriptionNotification(businessId, msg);
         log.info("[Telegram Service] Subscription renewal alert sent for: {}", businessName);
     }
 
     @Override
     @Async("taskExecutor")
     public void notifySubscriptionCancelled(UUID businessId, String businessName) {
-        sendAdminAlert(TelegramMessageBuilder.subscriptionCancelled(businessName));
+        notifySubscriptionCancelled(businessId, businessName, null, null, null, null, null, null, null, null);
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void notifySubscriptionCancelled(UUID businessId, String businessName,
+                                            String ownerName, String ownerPhone, String ownerEmail,
+                                            String planName, String reason,
+                                            BigDecimal refundAmount, String paymentMethod, String paymentReference) {
+        String msg = TelegramMessageBuilder.subscriptionCancelled(businessName, ownerName, ownerPhone, ownerEmail,
+                planName, reason, refundAmount, paymentMethod, paymentReference);
+        sendSubscriptionNotification(businessId, msg);
         log.info("[Telegram Service] Subscription cancellation alert sent for: {}", businessName);
     }
 
@@ -233,8 +295,70 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     @Async("taskExecutor")
     public void notifySubscriptionPlanChanged(UUID businessId, String businessName,
                                               String oldPlanName, String newPlanName, String newExpiryDate) {
-        sendAdminAlert(TelegramMessageBuilder.subscriptionPlanChanged(businessName, oldPlanName, newPlanName, newExpiryDate));
+        notifySubscriptionPlanChanged(businessId, businessName, null, null, null, oldPlanName, newPlanName, newExpiryDate, null, null, null);
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void notifySubscriptionPlanChanged(UUID businessId, String businessName,
+                                              String ownerName, String ownerPhone, String ownerEmail,
+                                              String oldPlanName, String newPlanName, String newExpiryDate,
+                                              BigDecimal paymentAmount, String paymentMethod, String paymentReference) {
+        String msg = TelegramMessageBuilder.subscriptionPlanChanged(businessName, ownerName, ownerPhone, ownerEmail,
+                oldPlanName, newPlanName, newExpiryDate, paymentAmount, paymentMethod, paymentReference);
+        sendSubscriptionNotification(businessId, msg);
         log.info("[Telegram Service] Subscription plan change alert sent for: {} (from {} to {})", businessName, oldPlanName, newPlanName);
+    }
+
+    private void sendSubscriptionNotification(UUID businessId, String msg) {
+        sendAdminAlert(msg);
+        String subChatId = resolveSubscriptionChatId(businessId);
+        if (subChatId != null && !subChatId.isBlank() && !subChatId.equals(adminGroupChatId)) {
+            sendToChatId(subChatId, msg, "HTML", businessId, null, null);
+        }
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void notifySubscriptionReceiptPdf(UUID subscriptionId) {
+        if (!enabled || subscriptionId == null) return;
+        try {
+            log.info("[Telegram Service] Asynchronously processing Subscription PDF Receipt for subscriptionId={}", subscriptionId);
+            Subscription subscription = subscriptionRepository.findByIdWithRelationships(subscriptionId).orElse(null);
+            if (subscription == null) return;
+
+            UUID businessId = subscription.getBusinessId();
+            String chatId = resolveSubscriptionChatId(businessId);
+            if (chatId == null || chatId.isBlank()) {
+                log.info("[Telegram Service] No Telegram group chat ID resolved for subscription. Skipping PDF push for subscriptionId={}", subscriptionId);
+                return;
+            }
+
+            BusinessSetting settings = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId).orElse(null);
+            User owner = null;
+            if (subscription.getBusiness() != null && subscription.getBusiness().getOwnerId() != null) {
+                owner = userRepository.findByIdAndIsDeletedFalse(subscription.getBusiness().getOwnerId()).orElse(null);
+            }
+
+            byte[] pdfBytes = SubscriptionPdfReceiptGenerator.generateReceiptPdf(subscription, settings, owner);
+            if (pdfBytes != null && pdfBytes.length > 0) {
+                String datePart = subscription.getCreatedAt() != null
+                        ? subscription.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+                        : LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+                String codePart = subscription.getId() != null ? subscription.getId().toString().substring(0, 8).toUpperCase() : "00000000";
+                String pdfFileName = String.format("subscription-receipt-SUB-%s-%s.pdf", datePart, codePart);
+
+                String caption = String.format("📑 Official Subscription Receipt for %s (#SUB-%s-%s)",
+                        subscription.getBusiness() != null ? subscription.getBusiness().getName() : "Store",
+                        datePart, codePart);
+
+                sendDocumentToChatId(chatId, pdfBytes, pdfFileName, caption);
+                log.info("[Telegram Service] Subscription PDF Receipt successfully dispatched as document to Telegram chat_id={}", chatId);
+            }
+        } catch (Exception e) {
+            log.error("[Telegram Service] Failed to send Subscription PDF Receipt to Telegram for subscriptionId={}: {}",
+                    subscriptionId, e.getMessage(), e);
+        }
     }
 
     @Override
@@ -392,10 +516,42 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     }
 
     private String resolveChatId(UUID businessId) {
-        if (businessId == null) return null;
-        return businessSettingRepository
-                .findByBusinessIdAndIsDeletedFalse(businessId)
-                .map(BusinessSetting::getTelegramGroupChatId)
-                .orElse(null);
+        return resolveOrderChatId(businessId);
+    }
+
+    private String resolveOrderChatId(UUID businessId) {
+        if (businessId != null) {
+            Optional<BusinessSetting> opt = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId);
+            if (opt.isPresent()) {
+                String id = opt.get().getResolvedOrderTelegramGroupChatId();
+                if (id != null && !id.isBlank()) return id;
+            }
+        }
+        if (orderGroupChatId != null && !orderGroupChatId.isBlank()) return orderGroupChatId;
+        return adminGroupChatId;
+    }
+
+    private String resolveSubscriptionChatId(UUID businessId) {
+        if (businessId != null) {
+            Optional<BusinessSetting> opt = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId);
+            if (opt.isPresent()) {
+                String id = opt.get().getResolvedSubscriptionTelegramGroupChatId();
+                if (id != null && !id.isBlank()) return id;
+            }
+        }
+        if (subscriptionGroupChatId != null && !subscriptionGroupChatId.isBlank()) return subscriptionGroupChatId;
+        return adminGroupChatId;
+    }
+
+    private String resolveStaffChatId(UUID businessId) {
+        if (businessId != null) {
+            Optional<BusinessSetting> opt = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId);
+            if (opt.isPresent()) {
+                String id = opt.get().getResolvedStaffTelegramGroupChatId();
+                if (id != null && !id.isBlank()) return id;
+            }
+        }
+        if (staffGroupChatId != null && !staffGroupChatId.isBlank()) return staffGroupChatId;
+        return adminGroupChatId;
     }
 }

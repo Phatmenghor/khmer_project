@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  payway-payment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: payway-payment-service
+    ports:
+      - "7073:7073"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=payway_payment_service
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=Hour1819
+      - BAKONG_SERVICE_API_KEYS=sk_payway_default_secret_key_123456789
+      - BAKONG_BASE_URL=https://api-bakong.nbc.gov.kh
+      - BAKONG_ACCOUNT_ID=phatmenghor@bkrt
+      - BAKONG_EMAIL=phatmenghor19@gmail.com
+      - TELEGRAM_BOT_ENABLED=true
+      - TELEGRAM_BOT_TOKEN=8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU
+      - TELEGRAM_GROUP_CHAT_ID=-1002784141362
+    restart: always

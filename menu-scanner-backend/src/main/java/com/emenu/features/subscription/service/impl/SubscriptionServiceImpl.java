@@ -6,10 +6,13 @@ import com.emenu.enums.sub_scription.SubscriptionPaymentType;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.BusinessSettingRepository;
+import com.emenu.features.auth.repository.UserRepository;
+import com.emenu.features.subscription.util.SubscriptionPdfReceiptGenerator;
 import com.emenu.features.subscription.dto.filter.SubscriptionHistoryFilterRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionCancelRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionRenewRequest;
 import com.emenu.features.auth.models.User;
+import com.emenu.features.auth.models.BusinessSetting;
 import com.emenu.features.subscription.dto.response.MySubscriptionSummaryResponse;
 import com.emenu.features.subscription.dto.response.SubscriptionHistoryResponse;
 import com.emenu.features.subscription.models.Subscription;
@@ -51,9 +54,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final BusinessRepository businessRepository;
     private final BusinessSettingRepository businessSettingRepository;
     private final SubscriptionPaymentRepository subscriptionPaymentRepository;
+    private final UserRepository userRepository;
     private final PaginationMapper paginationMapper;
     private final SubscriptionHistoryMapper subscriptionHistoryMapper;
     private final SecurityUtils securityUtils;
+    private final com.emenu.features.notification.telegram.service.TelegramNotificationService telegramNotificationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -81,6 +86,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             if (sub.getPlan() != null && sub.getPlan().getDurationType() != null) {
                 switch (sub.getPlan().getDurationType()) {
                     case FREE_TRIAL -> { cycle = "7-Day Trial"; totalDays = 7; }
+                    case DAILY -> { cycle = "Daily"; totalDays = 1; }
+                    case WEEKLY -> { cycle = "Weekly"; totalDays = 7; }
                     case MONTHLY -> { cycle = "Monthly"; totalDays = 30; }
                     case SIX_MONTHS -> { cycle = "6 Months"; totalDays = 180; }
                     case YEARLY -> { cycle = "Yearly"; totalDays = 365; }
@@ -113,6 +120,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         int progressPct = (int) Math.max(0, Math.min(100, Math.round((double) remaining / 7.0 * 100)));
 
         SubscriptionHistoryResponse defaultHistoryItem = new SubscriptionHistoryResponse();
+        defaultHistoryItem.setInvoiceNumber("SUB-" + start.format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd")) + "-TRIAL");
         defaultHistoryItem.setPlanName("Free Trial");
         defaultHistoryItem.setStartDate(start);
         defaultHistoryItem.setEndDate(end);
@@ -169,6 +177,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         createRenewalPayment(savedNew, request, plan);
         updateBusinessSubscriptionStatus(savedNew.getBusinessId());
         savedNew = subscriptionRepository.findByIdWithRelationships(savedNew.getId()).orElse(savedNew);
+        telegramNotificationService.notifySubscriptionReceiptPdf(savedNew.getId());
         log.info("Subscription renewed: new subscription {} created, old {} kept as history - new end date: {}",
                 savedNew.getId(), subscriptionId, savedNew.getEndDate());
         return toHistoryResponse(savedNew);
@@ -241,9 +250,19 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     private SubscriptionHistoryResponse toHistoryResponse(Subscription subscription) {
         SubscriptionHistoryResponse response = subscriptionHistoryMapper.toResponse(subscription);
-        if (response != null && subscription != null && subscription.getBusinessId() != null) {
-            businessSettingRepository.findByBusinessIdAndIsDeletedFalse(subscription.getBusinessId())
-                    .ifPresent(s -> response.setLogoBusinessUrl(s.getLogoBusiness() != null ? s.getLogoBusiness().getSm() : null));
+        if (response != null && subscription != null) {
+            String datePart = subscription.getCreatedAt() != null
+                    ? subscription.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"))
+                    : (subscription.getStartDate() != null ? subscription.getStartDate().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd")) : LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd")));
+            String codePart = subscription.getId() != null
+                    ? subscription.getId().toString().substring(0, 8).toUpperCase()
+                    : "00000000";
+            response.setInvoiceNumber("SUB-" + datePart + "-" + codePart);
+
+            if (subscription.getBusinessId() != null) {
+                businessSettingRepository.findByBusinessIdAndIsDeletedFalse(subscription.getBusinessId())
+                        .ifPresent(s -> response.setLogoBusinessUrl(s.getLogoBusiness() != null ? s.getLogoBusiness().getSm() : null));
+            }
         }
         return response;
     }
@@ -288,5 +307,25 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }
         businessRepository.save(business);
         log.info("Updated business subscription status: {} - Active: {}", businessId, activeSubscription.isPresent());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] getSubscriptionReceiptPdf(UUID subscriptionId) {
+        log.info("Generating subscription PDF receipt for subscriptionId: {}", subscriptionId);
+        Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
+                .orElseThrow(() -> new NotFoundException("Subscription not found: " + subscriptionId));
+
+        subscription = subscriptionRepository.findByIdWithRelationships(subscription.getId()).orElse(subscription);
+
+        BusinessSetting settings = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(subscription.getBusinessId())
+                .orElse(null);
+
+        User owner = null;
+        if (subscription.getBusiness() != null && subscription.getBusiness().getOwnerId() != null) {
+            owner = userRepository.findByIdAndIsDeletedFalse(subscription.getBusiness().getOwnerId()).orElse(null);
+        }
+
+        return SubscriptionPdfReceiptGenerator.generateReceiptPdf(subscription, settings, owner);
     }
 }

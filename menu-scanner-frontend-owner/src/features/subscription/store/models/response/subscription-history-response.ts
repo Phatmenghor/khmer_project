@@ -13,6 +13,7 @@ export interface SubscriptionHistoryPaymentItem {
 
 export interface SubscriptionHistoryResponseModel {
   subscriptionId: string;
+  invoiceNumber?: string;
   businessId: string;
   businessName: string;
   logoBusinessUrl?: string;

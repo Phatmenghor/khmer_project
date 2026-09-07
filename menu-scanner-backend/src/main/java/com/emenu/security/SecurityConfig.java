@@ -7,6 +7,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -78,14 +79,19 @@ public class SecurityConfig {
                         .requestMatchers("/api/images/**").permitAll()
                         .requestMatchers("/api/v1/spaces/**").permitAll()
                         .requestMatchers("/api/v1/table-sessions/**").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/orders/checkout").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/orders/guest-lookup").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/orders/*").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/v1/orders/*/cancel").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/orders/checkout").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/orders/guest-lookup").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/orders/*").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/orders/*/cancel").permitAll()
                         .requestMatchers("/api/v1/orders/*/receipt/pdf").permitAll()
 
                         // ── Telegram webhook (HMAC-validated in controller) ──
                         .requestMatchers("/api/v1/telegram/webhook").permitAll()
+
+                        // ── PayWay Webhook Callback (Public / Middleware webhook) ──
+                        .requestMatchers("/api/v1/payments/payway-callback").permitAll()
+
+
 
                         // ── API documentation ──
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()

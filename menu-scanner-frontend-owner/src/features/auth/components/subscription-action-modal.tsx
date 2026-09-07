@@ -33,7 +33,8 @@ import {
   CancelSubscriptionData,
 } from "../store/models/schema/business-owner.schema";
 import { BusinessOwnerResponseModel } from "../store/models/response/business-owner-response";
-import { fetchAllSubscriptionsByBusinessIdService } from "@/features/subscription/store/thunks/subscription-history-thunks";
+import { fetchAllSubscriptionsByBusinessIdService, fetchMySubscriptionSummaryService } from "@/features/subscription/store/thunks/subscription-history-thunks";
+import { getBusinessProfileService } from "../store/thunks/auth-thunks";
 import { SubscriptionHistoryResponseModel } from "@/features/subscription/store/models/response/subscription-history-response";
 import { Info, RefreshCw, ArrowRightLeft, XCircle, CreditCard } from "lucide-react";
 import { CustomTabSwitcher, TabOption } from "@/components/shared/common/custom-tab-switcher";
@@ -75,10 +76,12 @@ export default function SubscriptionActionModal({
 }: SubscriptionActionModalProps) {
   const dispatch = useAppDispatch();
   const allPlans = useAppSelector(selectSubscriptionPlan);
-  const planOptions = (allPlans?.content ?? []).map((p) => ({
-    value: p.id,
-    label: `${p.name} — $${p.price} (${p.durationType})`,
-  }));
+  const planOptions = (allPlans?.content ?? [])
+    .filter((p) => p.durationType !== "FREE_TRIAL")
+    .map((p) => ({
+      value: p.id,
+      label: `${p.name} — $${p.price} (${p.durationType})`,
+    }));
 
   const [activeTab, setActiveTab] = useState("renew");
   const [subscriptionHistory, setSubscriptionHistory] = useState<SubscriptionHistoryResponseModel[]>([]);
@@ -155,6 +158,8 @@ export default function SubscriptionActionModal({
         businessOwnerData: data,
       })).unwrap();
       showToast.success(`Plan changed for ${owner.businessName}`);
+      dispatch(getBusinessProfileService());
+      dispatch(fetchMySubscriptionSummaryService());
       onSuccess?.();
       handleClose();
     } catch (error: unknown) {
@@ -274,8 +279,7 @@ export default function SubscriptionActionModal({
                         control={renewForm.control}
                         name="paymentAmount"
                         label="Payment Amount"
-                        type="number"
-                        placeholder="0.00"
+                        placeholder="Enter payment amount..."
                         disabled={isSubmitting}
                         error={getFieldError(renewForm.formState.errors.paymentAmount)}
                       />
@@ -292,7 +296,7 @@ export default function SubscriptionActionModal({
                         control={renewForm.control}
                         name="paymentReference"
                         label="Reference No."
-                        placeholder="Optional reference"
+                        placeholder="Enter reference number..."
                         disabled={isSubmitting}
                         error={getFieldError(renewForm.formState.errors.paymentReference)}
                       />
@@ -313,7 +317,7 @@ export default function SubscriptionActionModal({
                   <CardTitle className="text-xs font-bold">Change Plan</CardTitle>
                   <div className="flex items-start gap-1.5 text-xs text-muted-foreground bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 rounded-lg p-2 mt-1">
                     <Info className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
-                    <span>Plan changes take effect immediately. New period starts from today and end date is recalculated based on the new plan&apos;s duration.</span>
+                    <span>New plan duration is added onto your current subscription end date (or starts today if expired). You will keep all your remaining days.</span>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -333,8 +337,7 @@ export default function SubscriptionActionModal({
                         control={changePlanForm.control}
                         name="paymentAmount"
                         label="Payment Amount"
-                        type="number"
-                        placeholder="0.00"
+                        placeholder="Enter payment amount..."
                         disabled={isSubmitting}
                         error={getFieldError(changePlanForm.formState.errors.paymentAmount)}
                       />
@@ -351,7 +354,7 @@ export default function SubscriptionActionModal({
                         control={changePlanForm.control}
                         name="paymentReference"
                         label="Reference No."
-                        placeholder="Optional reference"
+                        placeholder="Enter reference number..."
                         disabled={isSubmitting}
                         error={getFieldError(changePlanForm.formState.errors.paymentReference)}
                       />
@@ -382,7 +385,7 @@ export default function SubscriptionActionModal({
                         control={cancelForm.control}
                         name="reason"
                         label="Reason"
-                        placeholder="Cancellation reason"
+                        placeholder="Enter cancellation reason..."
                         required
                         disabled={isSubmitting}
                         error={getFieldError(cancelForm.formState.errors.reason)}
@@ -391,8 +394,7 @@ export default function SubscriptionActionModal({
                         control={cancelForm.control}
                         name="paymentAmount"
                         label="Payment Amount"
-                        type="number"
-                        placeholder="0.00"
+                        placeholder="Enter payment amount..."
                         disabled={isSubmitting}
                         error={getFieldError(cancelForm.formState.errors.paymentAmount)}
                       />
@@ -409,7 +411,7 @@ export default function SubscriptionActionModal({
                         control={cancelForm.control}
                         name="paymentReference"
                         label="Reference No."
-                        placeholder="Optional reference"
+                        placeholder="Enter reference number..."
                         disabled={isSubmitting}
                         error={getFieldError(cancelForm.formState.errors.paymentReference)}
                       />

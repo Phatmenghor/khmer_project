@@ -5,6 +5,11 @@ import {
   fetchSubscriptionHistoryByIdService,
   fetchMySubscriptionSummaryService,
 } from "../thunks/subscription-history-thunks";
+import {
+  updateBusinessOwnerChangePlanService,
+  updateBusinessOwnerRenewService,
+  updateBusinessOwnerCancelService,
+} from "@/features/auth/store/thunks/business-owner-thunks";
 
 const initialState: SubscriptionHistoryManagementState = {
   data: null,
@@ -107,6 +112,29 @@ const subscriptionHistorySlice = createSlice({
         state.operations.isFetchingSummary = false;
         state.error = action.payload as string;
       });
+
+    builder.addMatcher(
+      (action) =>
+        [
+          updateBusinessOwnerChangePlanService.fulfilled.type,
+          updateBusinessOwnerRenewService.fulfilled.type,
+          updateBusinessOwnerCancelService.fulfilled.type,
+        ].includes(action.type),
+      (state, action: any) => {
+        const updated = action.payload;
+        if (updated && state.mySummary) {
+          state.mySummary = {
+            ...state.mySummary,
+            planName: updated.currentPlanName || state.mySummary.planName,
+            subscriptionStartDate: updated.subscriptionStartDate || state.mySummary.subscriptionStartDate,
+            subscriptionEndDate: updated.subscriptionEndDate || state.mySummary.subscriptionEndDate,
+            daysRemaining: updated.daysRemaining ?? state.mySummary.daysRemaining,
+            isSubscriptionActive: updated.subscriptionStatus === "ACTIVE",
+            subscriptionStatus: updated.subscriptionStatus || state.mySummary.subscriptionStatus,
+          };
+        }
+      }
+    );
   },
 });
 

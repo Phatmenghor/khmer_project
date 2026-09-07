@@ -10,6 +10,8 @@ import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,5 +73,14 @@ public class SubscriptionController {
             @RequestBody SubscriptionCancelRequest request) {
         SubscriptionHistoryResponse response = subscriptionService.cancelSubscription(id, request);
         return ResponseEntity.ok(ApiResponse.success("Subscription cancelled successfully", response));
+    }
+
+    @GetMapping("/{id}/receipt/pdf")
+    public ResponseEntity<byte[]> getSubscriptionReceiptPdf(@PathVariable UUID id) {
+        byte[] pdfBytes = subscriptionService.getSubscriptionReceiptPdf(id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("inline", "subscription-receipt-" + id + ".pdf");
+        return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
 }

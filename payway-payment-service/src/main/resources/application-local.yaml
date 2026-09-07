@@ -1,0 +1,56 @@
+# ============================================================
+# application-local.yaml — LOCAL DEV PROFILE
+# ============================================================
+spring:
+  datasource:
+    url: "jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:payway_payment_service}"
+    username: "${DB_USERNAME:postgres}"
+    password: "${DB_PASSWORD:Hour1819}"
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+server:
+  port: "${SERVER_PORT:7073}"
+
+security:
+  basic:
+    username: "${SECURITY_BASIC_USERNAME:admin}"
+    password: "${SECURITY_BASIC_PASSWORD:password}"
+
+# ── Bakong Configuration ──────────────────────────────────────────────────────
+bakong:
+  service:
+    api-keys: "${BAKONG_SERVICE_API_KEYS:${PAYWAY_SERVICE_API_KEYS:sk_payway_default_secret_key_123456789}}"
+  base-url: "${BAKONG_BASE_URL:https://api-bakong.nbc.gov.kh}"
+  api-url: "${BAKONG_API_URL:https://api-bakong.nbc.gov.kh}"
+  account-id: "${BAKONG_ACCOUNT_ID:phatmenghor@bkrt}"
+  email: "${BAKONG_EMAIL:${EMAIL:phatmenghor19@gmail.com}}"
+  enabled: true
+
+# ── Telegram Notifications ───────────────────────────────────────────────────
+telegram:
+  bot:
+    token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
+    enabled: "${TELEGRAM_BOT_ENABLED:true}"
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
+    webhook-url: "${TELEGRAM_WEBHOOK_URL:}"
+    auto-setup: "${TELEGRAM_BOT_AUTO_SETUP:true}"
+
+logging:
+  level:
+    root: INFO
+    com.emenu: DEBUG
+    org.springframework: WARN
+    org.hibernate.orm.deprecation: ERROR
+    org.hibernate.orm.connections.pooling: WARN

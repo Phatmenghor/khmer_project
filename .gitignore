@@ -1,5 +1,6 @@
-# Claude Code local configuration and temporary files
+# Claude Code & Gemini local configuration and temporary files
 .claude/
+.gemini/
 
 # IDE
 .idea/
@@ -12,8 +13,13 @@
 .DS_Store
 Thumbs.db
 
-# Build artifacts
+# Build artifacts & logs
 target/
 build/
 dist/
+.next/
+node_modules/
+*.log
+*.csv
+
 

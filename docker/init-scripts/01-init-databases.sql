@@ -4,8 +4,10 @@
 -- =============================================================================
 
 CREATE DATABASE resource_storage_service;
+CREATE DATABASE payway_payment_service;
 CREATE DATABASE e_menu_platform;
 
 -- Grant privileges
 GRANT ALL PRIVILEGES ON DATABASE resource_storage_service TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE payway_payment_service TO postgres;
 GRANT ALL PRIVILEGES ON DATABASE e_menu_platform TO postgres;

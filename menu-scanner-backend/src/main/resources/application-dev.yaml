@@ -83,6 +83,12 @@ spaces:
   service-url: "${SPACES_SERVICE_URL:http://localhost:7072}"
   api-key: "${SPACES_API_KEY:sk_emenu_VuyZm-4mlyyX7v0vIXE_SPkeB-WmyfBZ}"
 
+# ── ABA PayWay Payment Gateway Microservice ──────────────────────────────────
+payway-service:
+  service-url: "${PAYWAY_SERVICE_URL:http://localhost:7073}"
+  api-key: "${PAYWAY_SERVICE_API_KEY:sk_payway_default_secret_key_123456789}"
+
+
 logging:
   level:
     root: INFO

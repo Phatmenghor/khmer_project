@@ -137,12 +137,21 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         if (subscriptionRecord != null) {
             String planName = subscriptionRecord.getPlan() != null ? subscriptionRecord.getPlan().getName() : "N/A";
             String expiryDate = subscriptionRecord.getEndDate().toLocalDate().toString();
+            BigDecimal payAmount = paymentRecord != null ? paymentRecord.getAmount() : null;
+            String payMethod = paymentRecord != null && paymentRecord.getPaymentMethod() != null ? paymentRecord.getPaymentMethod().name() : null;
+            String payRef = paymentRecord != null ? paymentRecord.getReferenceNumber() : null;
+
             telegramNotificationService.notifyBusinessOwnerRegistered(
                 businessEntity.getId(),
                 ownerUserEntity.getFullName(),
                 businessEntity.getName(),
+                ownerUserEntity.getPhoneNumber(),
+                ownerUserEntity.getEmail(),
                 planName,
-                expiryDate
+                expiryDate,
+                payAmount,
+                payMethod,
+                payRef
             );
         }
 
@@ -207,12 +216,21 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         if (subscriptionRecord != null) {
             String planName = subscriptionRecord.getPlan() != null ? subscriptionRecord.getPlan().getName() : "N/A";
             String expiryDate = subscriptionRecord.getEndDate().toLocalDate().toString();
+            BigDecimal payAmount = paymentRecord != null ? paymentRecord.getAmount() : null;
+            String payMethod = paymentRecord != null && paymentRecord.getPaymentMethod() != null ? paymentRecord.getPaymentMethod().name() : null;
+            String payRef = paymentRecord != null ? paymentRecord.getReferenceNumber() : null;
+
             telegramNotificationService.notifyBusinessOwnerRegistered(
                 businessEntity.getId(),
                 ownerUserEntity.getFullName(),
                 businessEntity.getName(),
+                ownerUserEntity.getPhoneNumber(),
+                ownerUserEntity.getEmail(),
                 planName,
-                expiryDate
+                expiryDate,
+                payAmount,
+                payMethod,
+                payRef
             );
         }
 
@@ -323,8 +341,14 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         telegramNotificationService.notifySubscriptionRenewed(
             businessEntity.getId(),
             businessEntity.getName(),
+            ownerEntity.getFullName(),
+            ownerEntity.getPhoneNumber(),
+            ownerEntity.getEmail(),
             planName,
-            newExpiryDate
+            newExpiryDate,
+            amount,
+            method,
+            renewRequestData.getPaymentReference()
         );
 
         return buildEnrichedDetailResponse(ownerEntity);
@@ -355,12 +379,16 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 });
 
         // Always create a new subscription for plan change (consistent audit trail)
+        LocalDateTime newStartDate = (currentSubscriptionRecord != null && !currentSubscriptionRecord.isExpired() && currentSubscriptionRecord.getEndDate() != null && currentSubscriptionRecord.getEndDate().isAfter(LocalDateTime.now()))
+                ? currentSubscriptionRecord.getEndDate()
+                : LocalDateTime.now();
+
         Subscription newSubscription = new Subscription();
         newSubscription.setBusinessId(businessEntity.getId());
         newSubscription.setPlanId(newPlanEntity.getId());
         newSubscription.setPlan(newPlanEntity);
-        newSubscription.setStartDate(LocalDateTime.now());
-        newSubscription.setEndDate(newPlanEntity.calculateEndDate(LocalDateTime.now()));
+        newSubscription.setStartDate(newStartDate);
+        newSubscription.setEndDate(newPlanEntity.calculateEndDate(newStartDate));
         newSubscription.setAutoRenew(currentSubscriptionRecord.getAutoRenew());
         newSubscription = subscriptionRepository.save(newSubscription);
 
@@ -369,28 +397,32 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 ? changePlanRequestData.getPaymentAmount() : BigDecimal.ZERO;
         String method = changePlanRequestData.getPaymentMethod() != null && !changePlanRequestData.getPaymentMethod().isBlank()
                 ? changePlanRequestData.getPaymentMethod() : PaymentMethod.CASH.name();
-        createSubscriptionPaymentForRenewal(newSubscription, amount, method,
-                changePlanRequestData.getPaymentReference());
-
-        currentSubscriptionRecord = newSubscription;
+        createSubscriptionPaymentForRenewal(newSubscription, amount, method, changePlanRequestData.getPaymentReference());
 
         businessEntity.activateSubscription();
         businessRepository.save(businessEntity);
 
         log.info("Subscription plan changed successfully: owner_id={}, subscription_id={}, new_plan_id={}",
-                ownerId, currentSubscriptionRecord.getId(), changePlanRequestData.getNewPlanId());
+                ownerId, newSubscription.getId(), changePlanRequestData.getNewPlanId());
         webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "planChanged", "ownerId", ownerId.toString()));
 
         // Send Telegram notification
         String newPlanName = newPlanEntity.getName();
-        String newExpiryDate = currentSubscriptionRecord.getEndDate().toLocalDate().toString();
+        String newExpiryDate = newSubscription.getEndDate().toLocalDate().toString();
         telegramNotificationService.notifySubscriptionPlanChanged(
             businessEntity.getId(),
             businessEntity.getName(),
+            ownerEntity.getFullName(),
+            ownerEntity.getPhoneNumber(),
+            ownerEntity.getEmail(),
             oldPlanName,
             newPlanName,
-            newExpiryDate
+            newExpiryDate,
+            amount,
+            method,
+            changePlanRequestData.getPaymentReference()
         );
+        telegramNotificationService.notifySubscriptionReceiptPdf(newSubscription.getId());
 
         return buildEnrichedDetailResponse(ownerEntity);
     }
@@ -432,9 +464,18 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "cancelled", "ownerId", ownerId.toString()));
 
         // Send Telegram notification
+        String planName = currentSubscriptionRecord.getPlan() != null ? currentSubscriptionRecord.getPlan().getName() : "N/A";
         telegramNotificationService.notifySubscriptionCancelled(
             businessEntity.getId(),
-            businessEntity.getName()
+            businessEntity.getName(),
+            ownerEntity.getFullName(),
+            ownerEntity.getPhoneNumber(),
+            ownerEntity.getEmail(),
+            planName,
+            cancelRequestData.getReason(),
+            cancelRequestData.getPaymentAmount(),
+            cancelRequestData.getPaymentMethod(),
+            cancelRequestData.getPaymentReference()
         );
 
         return buildEnrichedDetailResponse(ownerEntity);

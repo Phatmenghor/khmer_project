@@ -13,6 +13,12 @@ export const selectSelectedSubscriptionPlan = (state: RootState) =>
 export const selectSubscriptionPlanContent = (state: RootState) =>
   state.subscriptionPlan.data?.content || [];
 
+export const selectPublicSubscriptionPlans = (state: RootState) =>
+  state.subscriptionPlan.publicPlans;
+
+export const selectIsFetchingPublicPlans = (state: RootState) =>
+  state.subscriptionPlan.isFetchingPublic;
+
 export const selectIsLoading = (state: RootState) =>
   state.subscriptionPlan.isLoading;
 

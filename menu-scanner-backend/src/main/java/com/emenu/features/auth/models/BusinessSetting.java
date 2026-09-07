@@ -67,6 +67,36 @@ public class BusinessSetting extends BaseUUIDEntity {
     @Column(name = "telegram_group_chat_id", length = 50)
     private String telegramGroupChatId;
 
+    @Column(name = "order_telegram_group_chat_id", length = 50)
+    private String orderTelegramGroupChatId;
+
+    @Column(name = "subscription_telegram_group_chat_id", length = 50)
+    private String subscriptionTelegramGroupChatId;
+
+    @Column(name = "staff_telegram_group_chat_id", length = 50)
+    private String staffTelegramGroupChatId;
+
+    public String getResolvedOrderTelegramGroupChatId() {
+        if (orderTelegramGroupChatId != null && !orderTelegramGroupChatId.isBlank()) {
+            return orderTelegramGroupChatId;
+        }
+        return telegramGroupChatId;
+    }
+
+    public String getResolvedSubscriptionTelegramGroupChatId() {
+        if (subscriptionTelegramGroupChatId != null && !subscriptionTelegramGroupChatId.isBlank()) {
+            return subscriptionTelegramGroupChatId;
+        }
+        return telegramGroupChatId;
+    }
+
+    public String getResolvedStaffTelegramGroupChatId() {
+        if (staffTelegramGroupChatId != null && !staffTelegramGroupChatId.isBlank()) {
+            return staffTelegramGroupChatId;
+        }
+        return telegramGroupChatId;
+    }
+
     @Column(name = "receipt_size")
     @Enumerated(EnumType.STRING)
     private ReceiptSize receiptSize = ReceiptSize.SIZE_58MM;

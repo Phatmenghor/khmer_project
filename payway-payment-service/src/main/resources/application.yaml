@@ -1,0 +1,82 @@
+# ============================================================
+# application.yaml — BASE CONFIG (Bakong Payment Service)
+# ============================================================
+spring:
+  profiles:
+    active: "${SPRING_PROFILES_ACTIVE:local}"
+  application:
+    name: payway-payment-service
+
+  datasource:
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+          fetch_size: 50
+          time_zone: Asia/Phnom_Penh
+        order_inserts: true
+        order_updates: true
+
+# ── Security Configuration ───────────────────────────────────────────────────
+security:
+  basic:
+    username: "${SECURITY_BASIC_USERNAME:admin}"
+    password: "${SECURITY_BASIC_PASSWORD:password}"
+
+# ── Base Bakong Configuration ────────────────────────────────────────────────
+bakong:
+  service:
+    api-keys: "${BAKONG_SERVICE_API_KEYS:${PAYWAY_SERVICE_API_KEYS:sk_payway_default_secret_key_123456789}}"
+  base-url: "${BAKONG_BASE_URL:https://api-bakong.nbc.gov.kh}"
+  api-url: "${BAKONG_API_URL:https://api-bakong.nbc.gov.kh}"
+  account-id: "${BAKONG_ACCOUNT_ID:phatmenghor@bkrt}"
+  email: "${BAKONG_EMAIL:${EMAIL:phatmenghor19@gmail.com}}"
+  enabled: true
+
+# ── Telegram Notifications ───────────────────────────────────────────────────
+telegram:
+  bot:
+    token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
+    enabled: "${TELEGRAM_BOT_ENABLED:true}"
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
+    webhook-url: "${TELEGRAM_WEBHOOK_URL:}"
+    auto-setup: "${TELEGRAM_BOT_AUTO_SETUP:true}"
+
+# ── SpringDoc OpenAPI / Swagger ──────────────────────────────────────────────
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operationsSorter: alpha
+    tagsSorter: alpha
+
+# ── Logging Configuration ─────────────────────────────────────────────────────
+logging:
+  level:
+    root: INFO
+    com.emenu: INFO
+    org.hibernate.orm.deprecation: ERROR
+    org.hibernate.orm.connections.pooling: WARN
+
+# ── Actuator & Monitoring ─────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always

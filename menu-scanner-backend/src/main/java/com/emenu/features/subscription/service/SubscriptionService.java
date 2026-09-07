@@ -25,4 +25,6 @@ public interface SubscriptionService {
     SubscriptionHistoryResponse renewSubscription(UUID subscriptionId, SubscriptionRenewRequest request);
 
     SubscriptionHistoryResponse cancelSubscription(UUID subscriptionId, SubscriptionCancelRequest request);
+
+    byte[] getSubscriptionReceiptPdf(UUID subscriptionId);
 }

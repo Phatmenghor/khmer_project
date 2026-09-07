@@ -5,6 +5,7 @@
 
 import { axiosClientWithAuth, axiosClient } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
+import { SubscriptionPlanResponseModel } from "../models/response/subscription-plan-response";
 import {
   AllSubscriptionPlanRequest,
   CreateSubscriptionPlanRequest,
@@ -82,10 +83,14 @@ export const deleteSubscriptionPlanService = createApiThunk<any, string>(
   }
 );
 
+
 /**
  * Fetch all active SubscriptionPlans (public endpoint - no authentication required)
  */
-export const fetchAllPublicSubscriptionPlansService = createApiThunk<any, void>(
+export const fetchAllPublicSubscriptionPlansService = createApiThunk<
+  SubscriptionPlanResponseModel[],
+  void
+>(
   "subscription-plans/fetchPublic",
   async () => {
     const response = await axiosClient.get(

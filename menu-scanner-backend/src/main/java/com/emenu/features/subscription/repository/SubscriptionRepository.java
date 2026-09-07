@@ -153,7 +153,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
                 LEFT JOIN FETCH s.plan p
                 WHERE s.businessId = :businessId
                 AND s.isDeleted = false
-                ORDER BY s.createdAt DESC
+                ORDER BY CASE WHEN s.planChangeReason IS NULL AND s.cancellationReason IS NULL THEN 0 ELSE 1 END ASC, s.createdAt DESC, s.id DESC
             """)
     List<Subscription> findLatestByBusinessIdList(@Param("businessId") UUID businessId);
 

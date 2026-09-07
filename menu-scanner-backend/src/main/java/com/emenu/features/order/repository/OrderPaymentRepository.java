@@ -41,5 +41,10 @@ public interface OrderPaymentRepository extends JpaRepository<OrderPayment, UUID
 
     @Query("SELECT SUM(bop.totalAmount) FROM OrderPayment bop WHERE bop.businessId = :businessId AND bop.status = 'COMPLETED' AND bop.createdAt >= :fromDate AND bop.createdAt <= :toDate AND bop.isDeleted = false")
     BigDecimal getRevenueByDateRange(@Param("businessId") UUID businessId, @Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
+
+    Optional<OrderPayment> findByPaymentReference(String paymentReference);
+
+    Optional<OrderPayment> findByPaymentReferenceAndIsDeletedFalse(String paymentReference);
+
 }
 

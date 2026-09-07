@@ -4,11 +4,8 @@ import com.emenu.features.subscription.dto.request.SubscriptionPlanCreateRequest
 import com.emenu.features.subscription.dto.response.SubscriptionPlanResponse;
 import com.emenu.features.subscription.dto.update.SubscriptionPlanUpdateRequest;
 import com.emenu.features.subscription.models.SubscriptionPlan;
-import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import org.mapstruct.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -35,6 +32,10 @@ public interface SubscriptionPlanMapper {
             }
         } catch (Exception e) {
             response.setActiveSubscriptionsCount(0L);
+        }
+
+        if (plan.getDurationType() != null) {
+            response.setPeriodLabel(plan.getDurationType().getPeriodLabel());
         }
     }
 }

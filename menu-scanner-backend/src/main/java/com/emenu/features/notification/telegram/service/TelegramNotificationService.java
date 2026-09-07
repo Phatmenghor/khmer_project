@@ -5,6 +5,7 @@ import com.emenu.features.order.models.Order;
 import com.emenu.features.order.models.TableSession;
 import com.emenu.features.order.models.TableSessionItem;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,16 +57,38 @@ public interface TelegramNotificationService {
     void notifyBusinessOwnerRegistered(UUID businessId, String ownerName, String businessName,
                                        String planName, String expiryDate);
 
+    void notifyBusinessOwnerRegistered(UUID businessId, String ownerName, String businessName,
+                                       String ownerPhone, String ownerEmail,
+                                       String planName, String expiryDate,
+                                       BigDecimal paymentAmount, String paymentMethod, String paymentReference);
+
     void notifySubscriptionExpiringSoon(UUID businessId, String businessName,
                                         long daysRemaining, String expiryDate);
 
     void notifySubscriptionRenewed(UUID businessId, String businessName,
                                    String planName, String newExpiryDate);
 
+    void notifySubscriptionRenewed(UUID businessId, String businessName,
+                                   String ownerName, String ownerPhone, String ownerEmail,
+                                   String planName, String newExpiryDate,
+                                   BigDecimal paymentAmount, String paymentMethod, String paymentReference);
+
     void notifySubscriptionCancelled(UUID businessId, String businessName);
+
+    void notifySubscriptionCancelled(UUID businessId, String businessName,
+                                     String ownerName, String ownerPhone, String ownerEmail,
+                                     String planName, String reason,
+                                     BigDecimal refundAmount, String paymentMethod, String paymentReference);
 
     void notifySubscriptionPlanChanged(UUID businessId, String businessName,
                                        String oldPlanName, String newPlanName, String newExpiryDate);
+
+    void notifySubscriptionPlanChanged(UUID businessId, String businessName,
+                                       String ownerName, String ownerPhone, String ownerEmail,
+                                       String oldPlanName, String newPlanName, String newExpiryDate,
+                                       BigDecimal paymentAmount, String paymentMethod, String paymentReference);
+
+    void notifySubscriptionReceiptPdf(UUID subscriptionId);
 
     // ── Bot events ────────────────────────────────────────────────────────────
 

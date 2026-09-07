@@ -19,6 +19,8 @@ export interface OperationStates {
 export interface SubscriptionPlanManagementState {
   data: AllSubscriptionPlanResponseModel | null;
   selectedSubscriptionPlan: SubscriptionPlanResponseModel | null;
+  publicPlans: SubscriptionPlanResponseModel[] | null;
+  isFetchingPublic: boolean;
   isLoading: boolean;
   error: string | null;
   filters: SubscriptionPlanFilters;

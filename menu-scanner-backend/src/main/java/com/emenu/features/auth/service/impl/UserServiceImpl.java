@@ -707,6 +707,8 @@ public class UserServiceImpl implements UserService {
                     if (sub.getPlan() != null && sub.getPlan().getDurationType() != null) {
                         response.setBillingCycle(switch (sub.getPlan().getDurationType()) {
                             case FREE_TRIAL -> "7-Day Trial";
+                            case DAILY -> "Daily";
+                            case WEEKLY -> "Weekly";
                             case MONTHLY -> "Monthly";
                             case SIX_MONTHS -> "6 Months";
                             case YEARLY -> "Yearly";

@@ -7,8 +7,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -18,5 +16,6 @@ public class SubscriptionPlanResponse extends BaseAuditResponse {
     private BigDecimal price;
     private SubscriptionPlanStatus status;
     private SubscriptionPlanDurationType durationType;
+    private String periodLabel;
     private Long activeSubscriptionsCount;
 }

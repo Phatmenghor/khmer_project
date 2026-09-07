@@ -2,7 +2,7 @@ import { ActionButton } from "@/components/button/action-button";
 import { indexDisplay } from "@/utils/common/common";
 import { formatDate } from "@/utils/date/date-time-format";
 import { formatEnumLabel } from "@/utils/common/enum-convert";
-import { Eye, ShieldCheck, ShieldAlert } from "lucide-react";
+import { Eye, Download, ShieldCheck, ShieldAlert, Loader2 } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { TableImage } from "@/components/shared/table/table-image";
 import { SubscriptionConfig } from "@/constants/app-resource/default/default";
@@ -10,19 +10,23 @@ import {
   AllSubscriptionHistoryResponseModel,
   SubscriptionHistoryResponseModel,
 } from "../store/models/response/subscription-history-response";
+import { downloadSubscriptionReceiptPdfService } from "../store/thunks/subscription-history-thunks";
 
 interface SubscriptionHistoryTableHandlers {
   handleViewDetail: (row: SubscriptionHistoryResponseModel) => void;
+  handleDownloadReceipt?: (row: SubscriptionHistoryResponseModel) => void;
 }
 
 interface SubscriptionHistoryTableOptions {
   data: AllSubscriptionHistoryResponseModel | null;
   handlers: SubscriptionHistoryTableHandlers;
+  downloadingId?: string | null;
 }
 
 export const subscriptionHistoryTableColumns = ({
   data,
   handlers,
+  downloadingId,
 }: SubscriptionHistoryTableOptions): TableColumn<SubscriptionHistoryResponseModel>[] => {
   const { handleViewDetail } = handlers;
 
@@ -211,16 +215,39 @@ export const subscriptionHistoryTableColumns = ({
     {
       key: "actions",
       label: "Actions",
-      minWidth: "60px",
-      maxWidth: "80px",
+      minWidth: "100px",
+      maxWidth: "120px",
       isPinnedRight: true,
-      render: (row) => (
-        <ActionButton
-          icon={<Eye className="w-3.5 h-3.5" />}
-          tooltip="View Subscription Detail"
-          onClick={() => handleViewDetail(row)}
-        />
-      ),
+      render: (row) => {
+        const isDownloading = downloadingId === row.subscriptionId;
+
+        return (
+          <div className="flex items-center gap-1.5">
+            <ActionButton
+              icon={<Eye className="w-3.5 h-3.5" />}
+              tooltip="View Subscription Detail"
+              onClick={() => handleViewDetail(row)}
+            />
+            <ActionButton
+              icon={
+                isDownloading ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                ) : (
+                  <Download className="w-3.5 h-3.5 text-primary" />
+                )
+              }
+              tooltip={isDownloading ? "Downloading PDF..." : "Download PDF Receipt"}
+              onClick={() => {
+                if (handlers.handleDownloadReceipt) {
+                  handlers.handleDownloadReceipt(row);
+                } else if (row.subscriptionId) {
+                  downloadSubscriptionReceiptPdfService(row.subscriptionId);
+                }
+              }}
+            />
+          </div>
+        );
+      },
     },
   ];
 };

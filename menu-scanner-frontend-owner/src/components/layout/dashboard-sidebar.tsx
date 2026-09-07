@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, ChevronLeft, ChevronRight, LogOut, User, KeyRound } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CustomButton } from "@/components/shared/button/custom-button";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ROUTES, SIDEBAR_MENU } from "@/constants/app-routes/routes";
 import { SmartImage } from "@/components/shared/image/smart-image";
@@ -18,15 +18,6 @@ import {
   selectBusinessName,
   selectBusinessLogo,
 } from "@/features/business/store/selectors/business-settings-selector";
-import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useLogout } from "@/hooks/use-logout";
 import { SignoutModal } from "@/components/shared/modal/signout-modal";
 import { getProfileImageUrl, getUserInitials } from "@/utils/user/user-helper";

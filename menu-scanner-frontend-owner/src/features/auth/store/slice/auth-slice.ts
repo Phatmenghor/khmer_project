@@ -18,6 +18,11 @@ import {
   unsyncSocialAccountService,
   logoutService,
 } from "../thunks/social-auth-thunks";
+import {
+  updateBusinessOwnerChangePlanService,
+  updateBusinessOwnerRenewService,
+  updateBusinessOwnerCancelService,
+} from "../thunks/business-owner-thunks";
 import { AuthState } from "../models/type/auth-types";
 import {
   storeTokens,
@@ -357,6 +362,29 @@ const authSlice = createSlice({
         state.socialSync = null;
         state.isNewUser = false;
       });
+
+    builder.addMatcher(
+      (action) =>
+        [
+          updateBusinessOwnerChangePlanService.fulfilled.type,
+          updateBusinessOwnerRenewService.fulfilled.type,
+          updateBusinessOwnerCancelService.fulfilled.type,
+        ].includes(action.type),
+      (state, action: any) => {
+        const updated = action.payload;
+        if (updated && state.profile) {
+          state.profile = {
+            ...state.profile,
+            planName: updated.currentPlanName || state.profile.planName,
+            subscriptionStartDate: updated.subscriptionStartDate || state.profile.subscriptionStartDate,
+            subscriptionEndDate: updated.subscriptionEndDate || state.profile.subscriptionEndDate,
+            daysRemaining: updated.daysRemaining ?? state.profile.daysRemaining,
+            isSubscriptionActive: updated.subscriptionStatus === "ACTIVE",
+            subscriptionStatus: updated.subscriptionStatus || state.profile.subscriptionStatus,
+          };
+        }
+      }
+    );
   },
 });
 

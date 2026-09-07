@@ -20,7 +20,7 @@ import {
   setStatusFilter,
   setPageNo,
 } from "@/features/subscription/store/slice/subscription-history-slice";
-import { fetchAllSubscriptionHistoryService } from "@/features/subscription/store/thunks/subscription-history-thunks";
+import { fetchAllSubscriptionHistoryService, downloadSubscriptionReceiptPdfService } from "@/features/subscription/store/thunks/subscription-history-thunks";
 import { subscriptionHistoryTableColumns } from "@/features/subscription/table/subscription-history-table";
 import { SubscriptionHistoryDetailModal } from "@/features/subscription/components/subscription-history-detail-modal";
 import { SubscriptionHistoryResponseModel } from "@/features/subscription/store/models/response/subscription-history-response";
@@ -120,19 +120,35 @@ export default function SubscriptionHistoryPage() {
     dispatch(setBusinessIdFilter(item?.id ?? ""));
   };
 
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
   const handleViewDetail = (row: SubscriptionHistoryResponseModel) => {
     setDetailState({ isOpen: true, subscriptionId: row.subscriptionId });
   };
 
-  const tableHandlers = useMemo(() => ({ handleViewDetail }), []);
+  const handleDownloadReceipt = async (row: SubscriptionHistoryResponseModel) => {
+    if (!row.subscriptionId) return;
+    setDownloadingId(row.subscriptionId);
+    try {
+      await downloadSubscriptionReceiptPdfService(row.subscriptionId);
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  const tableHandlers = useMemo(
+    () => ({ handleViewDetail, handleDownloadReceipt }),
+    []
+  );
 
   const columns = useMemo(
     () =>
       subscriptionHistoryTableColumns({
         data: subscriptionHistoryData,
         handlers: tableHandlers,
+        downloadingId,
       }),
-    [subscriptionHistoryData, tableHandlers]
+    [subscriptionHistoryData, tableHandlers, downloadingId]
   );
 
   const handlePageChangeWrapper = (page: number) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   CreditCard,
   ShieldCheck,
@@ -10,15 +10,20 @@ import {
   Sparkles,
   Zap,
   Calendar,
+  Eye,
+  Download,
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { ActionButton } from "@/components/button/action-button";
 import { formatDate } from "@/utils/date/date-time-format";
 import { useRouter } from "next/navigation";
 import { useSubscriptionHistoryState } from "@/features/subscription/store/state/subscription-history-state";
-import { fetchMySubscriptionSummaryService } from "@/features/subscription/store/thunks/subscription-history-thunks";
+import { fetchMySubscriptionSummaryService, downloadSubscriptionReceiptPdfService } from "@/features/subscription/store/thunks/subscription-history-thunks";
 import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
 import { SubscriptionHistorySkeleton } from "@/components/shared/skeletons";
+import { SubscriptionHistoryDetailModal } from "@/features/subscription/components/subscription-history-detail-modal";
 
 function getPlanIcon(name?: string) {
   if (!name) return <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />;
@@ -66,6 +71,8 @@ interface PlanHistorySectionProps {
 export function PlanHistorySection({ userProfile }: PlanHistorySectionProps) {
   const router = useRouter();
   const { mySummary, isFetchingSummary, dispatch } = useSubscriptionHistoryState();
+  const [selectedDetailSubId, setSelectedDetailSubId] = useState<string | null>(null);
+  const [downloadingSubId, setDownloadingSubId] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchMySubscriptionSummaryService());
@@ -121,12 +128,53 @@ export function PlanHistorySection({ userProfile }: PlanHistorySectionProps) {
     {
       key: "paymentStatus",
       label: "Payment Status",
-      className: "text-right",
       render: (item) => (
-        <span className="font-extrabold text-foreground block text-right">
+        <span className="font-extrabold text-foreground text-left">
           {item.paymentStatus || (item.totalPaid != null ? `$${item.totalPaid}` : "—")}
         </span>
       ),
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      minWidth: "100px",
+      maxWidth: "120px",
+      isPinnedRight: true,
+      render: (item) => {
+        const subId = item.subscriptionId || mySummary?.currentSubscriptionId;
+        const isDownloading = downloadingSubId === subId;
+
+        return (
+          <div className="flex items-center justify-end gap-1.5">
+            <ActionButton
+              icon={<Eye className="w-3.5 h-3.5" />}
+              tooltip="View Subscription Detail"
+              onClick={() => setSelectedDetailSubId(subId)}
+            />
+            <ActionButton
+              icon={
+                isDownloading ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                ) : (
+                  <Download className="w-3.5 h-3.5 text-primary" />
+                )
+              }
+              tooltip={isDownloading ? "Downloading PDF..." : "Download PDF Receipt"}
+              onClick={async () => {
+                if (!subId) {
+                  return;
+                }
+                setDownloadingSubId(subId);
+                try {
+                  await downloadSubscriptionReceiptPdfService(subId);
+                } finally {
+                  setDownloadingSubId(null);
+                }
+              }}
+            />
+          </div>
+        );
+      },
     },
   ];
 
@@ -253,6 +301,14 @@ export function PlanHistorySection({ userProfile }: PlanHistorySectionProps) {
           />
         </CardContent>
       </Card>
+
+      {selectedDetailSubId && (
+        <SubscriptionHistoryDetailModal
+          subscriptionId={selectedDetailSubId}
+          isOpen={Boolean(selectedDetailSubId)}
+          onClose={() => setSelectedDetailSubId(null)}
+        />
+      )}
     </div>
   );
 }

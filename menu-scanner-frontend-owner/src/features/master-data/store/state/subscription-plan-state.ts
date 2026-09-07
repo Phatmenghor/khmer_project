@@ -8,6 +8,8 @@ import {
   selectSubscriptionPlan,
   selectSubscriptionPlanContent,
   selectSubscriptionPlanState,
+  selectPublicSubscriptionPlans,
+  selectIsFetchingPublicPlans,
 } from "../selectors/subscription-plan-selector";
 
 export const useSubscriptionPlanState = () => {
@@ -17,6 +19,8 @@ export const useSubscriptionPlanState = () => {
   const subscriptionPlanState = useAppSelector(selectSubscriptionPlanState);
   const subscriptionPlanData = useAppSelector(selectSubscriptionPlan);
   const subscriptionPlanContent = useAppSelector(selectSubscriptionPlanContent);
+  const publicPlans = useAppSelector(selectPublicSubscriptionPlans);
+  const isFetchingPublic = useAppSelector(selectIsFetchingPublicPlans);
   const filters = useAppSelector(selectFilters);
   const operations = useAppSelector(selectOperations);
   const pagination = useAppSelector(selectPagination);
@@ -27,6 +31,8 @@ export const useSubscriptionPlanState = () => {
     subscriptionPlanState,
     subscriptionPlanData,
     subscriptionPlanContent,
+    publicPlans,
+    isFetchingPublic,
     isLoading,
     error,
     filters,

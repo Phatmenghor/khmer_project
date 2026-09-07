@@ -15,6 +15,7 @@ import java.util.UUID;
 public class SubscriptionHistoryResponse {
 
     private UUID subscriptionId;
+    private String invoiceNumber;
     private UUID businessId;
     private String businessName;
     private String logoBusinessUrl;

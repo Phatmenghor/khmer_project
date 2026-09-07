@@ -9,6 +9,7 @@ import { SubscriptionPlanManagementState } from "../models/type/subscription-pla
 import {
   createSubscriptionPlanService,
   deleteSubscriptionPlanService,
+  fetchAllPublicSubscriptionPlansService,
   fetchAllSubscriptionPlanService,
   fetchSubscriptionPlanByIdService,
   updateSubscriptionPlanService,
@@ -20,6 +21,8 @@ import {
 const initialState: SubscriptionPlanManagementState = {
   data: null,
   selectedSubscriptionPlan: null,
+  publicPlans: null,
+  isFetchingPublic: false,
   isLoading: true,
   error: null,
   filters: {
@@ -188,6 +191,27 @@ const subscriptionPlanSlice = createSlice({
         state.operations.isDeleting = false;
         state.error = action.payload as string;
       });
+
+    // Fetch Public Subscription Plans handlers
+    builder
+      .addCase(fetchAllPublicSubscriptionPlansService.pending, (state) => {
+        state.isFetchingPublic = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchAllPublicSubscriptionPlansService.fulfilled,
+        (state, action) => {
+          state.isFetchingPublic = false;
+          state.publicPlans = action.payload;
+        }
+      )
+      .addCase(
+        fetchAllPublicSubscriptionPlansService.rejected,
+        (state, action) => {
+          state.isFetchingPublic = false;
+          state.error = action.payload as string;
+        }
+      );
   },
 });
 

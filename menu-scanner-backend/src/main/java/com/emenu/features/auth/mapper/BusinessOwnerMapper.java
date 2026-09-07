@@ -33,7 +33,7 @@ public interface BusinessOwnerMapper {
     @Mapping(target = "daysRemaining", expression = "java(subscription != null ? subscription.getDaysRemaining() : null)")
     @Mapping(target = "paymentId", expression = "java(payment != null ? payment.getId() : null)")
     @Mapping(target = "paymentAmount", expression = "java(payment != null ? payment.getAmount() : null)")
-    @Mapping(target = "paymentStatus", expression = "java(payment != null && payment.getStatus() != null ? payment.getStatus().name() : null)")
+    @Mapping(target = "paymentStatus", expression = "java(payment != null && payment.getStatus() != null ? (payment.getStatus().isCompleted() ? \"PAID\" : payment.getStatus().name()) : \"PAID\")")
     @Mapping(target = "paymentMethod", expression = "java(payment != null && payment.getPaymentMethod() != null ? payment.getPaymentMethod().name() : null)")
     @Mapping(target = "createdAt", source = "owner.createdAt")
     BusinessOwnerCreateResponse toCreateResponse(

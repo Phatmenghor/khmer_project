@@ -1,6 +1,8 @@
 package com.emenu.features.notification.telegram;
 
 import com.emenu.enums.order.OrderStatus;
+import com.emenu.features.notification.telegram.component.TelegramMessageComponent;
+import com.emenu.features.notification.telegram.component.TelegramMessageComposer;
 import com.emenu.features.order.models.Order;
 import com.emenu.features.order.models.OrderDeliveryAddress;
 import com.emenu.features.order.models.OrderItem;
@@ -182,39 +184,160 @@ public final class TelegramMessageBuilder {
 
     public static String businessOwnerRegistered(String ownerName, String businessName,
                                                   String planName, String expiryDate) {
-        return "🏢 <b>NEW BUSINESS OWNER REGISTERED</b>\n\n" +
-                "• <b>Owner:</b> " + escapeHtml(ownerName) + "\n" +
-                "• <b>Business:</b> " + escapeHtml(businessName) + "\n" +
-                "• <b>Plan:</b> " + escapeHtml(planName) + "\n" +
-                "• <b>Expiry Date:</b> " + escapeHtml(expiryDate);
+        return businessOwnerRegistered(ownerName, businessName, null, null, planName, expiryDate, null, null, null);
+    }
+
+    public static String businessOwnerRegistered(String ownerName, String businessName, String ownerPhone, String ownerEmail,
+                                                  String planName, String expiryDate,
+                                                  BigDecimal paymentAmount, String paymentMethod, String paymentReference) {
+        TelegramMessageComposer composer = TelegramMessageComposer.create()
+                .header("🏢", "NEW BUSINESS OWNER REGISTERED")
+                .timeField("Date/Time", LocalDateTime.now())
+                .statusField("Status", "🟢", "ACTIVE")
+                .section("🏢", "Business & Owner Info")
+                .field("Business Name", businessName)
+                .field("Owner Name", ownerName)
+                .field("Contact Phone", ownerPhone)
+                .field("Email", ownerEmail)
+                .section("📦", "Initial Plan Details")
+                .field("Selected Plan", planName != null ? planName : "N/A")
+                .field("Expiry Date", expiryDate != null ? expiryDate : "N/A");
+
+        if (paymentAmount != null || hasText(paymentMethod) || hasText(paymentReference)) {
+            composer.section("💳", "Initial Payment")
+                    .field("Amount Paid", paymentAmount != null ? "$" + fmt(paymentAmount) : null)
+                    .field("Payment Method", paymentMethod)
+                    .codeField("Reference No.", paymentReference)
+                    .total("TOTAL PAID", paymentAmount != null ? paymentAmount : BigDecimal.ZERO);
+        } else {
+            composer.divider()
+                    .note("ℹ️", "New business account registered successfully.");
+        }
+
+        return composer.build();
     }
 
     public static String subscriptionExpiringSoon(String businessName, long daysRemaining, String expiryDate) {
-        return "⚠️ <b>SUBSCRIPTION EXPIRING SOON</b>\n\n" +
-                "• <b>Business:</b> " + escapeHtml(businessName) + "\n" +
-                "• <b>Days Remaining:</b> " + daysRemaining + " day(s)\n" +
-                "• <b>Expiry Date:</b> " + escapeHtml(expiryDate);
+        return TelegramMessageComposer.create()
+                .header("⚠️", "SUBSCRIPTION EXPIRING SOON")
+                .timeField("Date/Time", LocalDateTime.now())
+                .statusField("Status", "🟡", "EXPIRING SOON")
+                .section("🏢", "Business Info")
+                .field("Business Name", businessName)
+                .field("Days Remaining", daysRemaining + " day(s)")
+                .field("Expiry Date", expiryDate != null ? expiryDate : "N/A")
+                .divider()
+                .note("💡", "Notice: Please remind business owner to renew subscription.")
+                .build();
     }
 
     public static String subscriptionRenewed(String businessName, String planName, String newExpiryDate) {
-        return "🎉 <b>SUBSCRIPTION RENEWED</b>\n\n" +
-                "• <b>Business:</b> " + escapeHtml(businessName) + "\n" +
-                "• <b>Plan:</b> " + escapeHtml(planName) + "\n" +
-                "• <b>New Expiry:</b> " + escapeHtml(newExpiryDate);
+        return subscriptionRenewed(businessName, null, null, null, planName, newExpiryDate, null, null, null);
+    }
+
+    public static String subscriptionRenewed(String businessName, String ownerName, String ownerPhone, String ownerEmail,
+                                              String planName, String newExpiryDate,
+                                              BigDecimal paymentAmount, String paymentMethod, String paymentReference) {
+        TelegramMessageComposer composer = TelegramMessageComposer.create()
+                .header("🎉", "SUBSCRIPTION RENEWED")
+                .timeField("Date/Time", LocalDateTime.now())
+                .statusField("Status", "🟢", "ACTIVE")
+                .section("🏢", "Business & Owner Info")
+                .field("Business Name", businessName)
+                .field("Owner Name", ownerName)
+                .field("Contact Phone", ownerPhone)
+                .field("Email", ownerEmail)
+                .section("📦", "Plan Details")
+                .field("Plan Name", planName != null ? planName : "N/A")
+                .field("New Expiry Date", newExpiryDate != null ? newExpiryDate : "N/A");
+
+        if (paymentAmount != null || hasText(paymentMethod) || hasText(paymentReference)) {
+            composer.section("💳", "Payment Summary")
+                    .field("Payment Amount", paymentAmount != null ? "$" + fmt(paymentAmount) : null)
+                    .field("Payment Method", paymentMethod)
+                    .codeField("Reference No.", paymentReference)
+                    .total("TOTAL CHARGED", paymentAmount != null ? paymentAmount : BigDecimal.ZERO);
+        } else {
+            composer.divider()
+                    .note("ℹ️", "Subscription renewed successfully.");
+        }
+
+        return composer.build();
     }
 
     public static String subscriptionCancelled(String businessName) {
-        return "🚫 <b>SUBSCRIPTION CANCELLED</b>\n\n" +
-                "• <b>Business:</b> " + escapeHtml(businessName);
+        return subscriptionCancelled(businessName, null, null, null, null, null, null, null, null);
+    }
+
+    public static String subscriptionCancelled(String businessName, String ownerName, String ownerPhone, String ownerEmail,
+                                                String planName, String reason,
+                                                BigDecimal refundAmount, String paymentMethod, String paymentReference) {
+        TelegramMessageComposer composer = TelegramMessageComposer.create()
+                .header("🚫", "SUBSCRIPTION CANCELLED")
+                .timeField("Date/Time", LocalDateTime.now())
+                .statusField("Status", "🔴", "CANCELLED")
+                .section("🏢", "Business & Owner Info")
+                .field("Business Name", businessName)
+                .field("Owner Name", ownerName)
+                .field("Contact Phone", ownerPhone)
+                .field("Email", ownerEmail);
+
+        if (hasText(planName)) {
+            composer.section("📦", "Plan Details")
+                    .field("Cancelled Plan", planName);
+        }
+
+        if (refundAmount != null || hasText(paymentMethod) || hasText(paymentReference)) {
+            composer.section("💳", "Refund / Settlement Summary")
+                    .field("Refund Amount", refundAmount != null ? "$" + fmt(refundAmount) : null)
+                    .field("Payment Method", paymentMethod)
+                    .codeField("Reference No.", paymentReference)
+                    .total("REFUND TOTAL", refundAmount != null ? refundAmount : BigDecimal.ZERO);
+        } else {
+            composer.divider();
+        }
+
+        if (hasText(reason)) {
+            composer.note("📝", "Reason for Cancellation: \"" + reason + "\"");
+        }
+
+        return composer.build();
     }
 
     public static String subscriptionPlanChanged(String businessName, String oldPlanName,
                                                   String newPlanName, String newExpiryDate) {
-        return "🔄 <b>SUBSCRIPTION PLAN CHANGED</b>\n\n" +
-                "• <b>Business:</b> " + escapeHtml(businessName) + "\n" +
-                "• <b>Old Plan:</b> " + escapeHtml(oldPlanName) + "\n" +
-                "• <b>New Plan:</b> " + escapeHtml(newPlanName) + "\n" +
-                "• <b>New Expiry:</b> " + escapeHtml(newExpiryDate);
+        return subscriptionPlanChanged(businessName, null, null, null, oldPlanName, newPlanName, newExpiryDate, null, null, null);
+    }
+
+    public static String subscriptionPlanChanged(String businessName, String ownerName, String ownerPhone, String ownerEmail,
+                                                  String oldPlanName, String newPlanName, String newExpiryDate,
+                                                  BigDecimal paymentAmount, String paymentMethod, String paymentReference) {
+        TelegramMessageComposer composer = TelegramMessageComposer.create()
+                .header("🔄", "SUBSCRIPTION PLAN CHANGED")
+                .timeField("Date/Time", LocalDateTime.now())
+                .statusField("Status", "🔵", "ACTIVE (PLAN CHANGED)")
+                .section("🏢", "Business & Owner Info")
+                .field("Business Name", businessName)
+                .field("Owner Name", ownerName)
+                .field("Contact Phone", ownerPhone)
+                .field("Email", ownerEmail)
+                .section("📦", "Plan Details")
+                .field("Previous Plan", oldPlanName != null ? oldPlanName : "N/A")
+                .field("New Plan", newPlanName != null ? newPlanName : "N/A")
+                .field("New Expiry Date", newExpiryDate != null ? newExpiryDate : "N/A");
+
+        if (paymentAmount != null || hasText(paymentMethod) || hasText(paymentReference)) {
+            composer.section("💳", "Payment Summary")
+                    .field("Payment Amount", paymentAmount != null ? "$" + fmt(paymentAmount) : null)
+                    .field("Payment Method", paymentMethod)
+                    .codeField("Reference No.", paymentReference)
+                    .total("TOTAL CHARGED", paymentAmount != null ? paymentAmount : BigDecimal.ZERO);
+        } else {
+            composer.divider()
+                    .note("ℹ️", "Plan transition updated successfully.");
+        }
+
+        return composer.build();
     }
 
     public static String testMessage() {

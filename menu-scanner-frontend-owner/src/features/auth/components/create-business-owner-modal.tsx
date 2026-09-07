@@ -63,10 +63,12 @@ export default function CreateBusinessOwnerModal({ isOpen, onClose }: Props) {
   const { isCreating } = operations;
 
   const allPlans = useAppSelector(selectSubscriptionPlan);
-  const planOptions = (allPlans?.content ?? []).map((p) => ({
-    value: p.id,
-    label: `${p.name} — $${p.price}`,
-  }));
+  const planOptions = (allPlans?.content ?? [])
+    .filter((p) => p.durationType !== "FREE_TRIAL")
+    .map((p) => ({
+      value: p.id,
+      label: `${p.name} — $${p.price}`,
+    }));
 
   const {
     control,

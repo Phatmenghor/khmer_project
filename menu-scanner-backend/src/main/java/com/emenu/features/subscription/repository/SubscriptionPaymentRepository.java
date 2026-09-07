@@ -27,4 +27,9 @@ public interface SubscriptionPaymentRepository extends JpaRepository<Subscriptio
             @Param("subscriptionId") UUID subscriptionId,
             @Param("status") SubscriptionPaymentStatus status
     );
+
+    Optional<SubscriptionPayment> findByReferenceNumber(String referenceNumber);
+
+    Optional<SubscriptionPayment> findByReferenceNumberAndIsDeletedFalse(String referenceNumber);
+
 }
