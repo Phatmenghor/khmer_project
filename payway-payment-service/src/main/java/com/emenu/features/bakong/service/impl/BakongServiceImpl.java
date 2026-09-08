@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.emenu.config.exception.BakongPaymentException;
 import com.emenu.config.exception.BakongUpstreamException;
 import com.emenu.features.bakong.common.BakongReactiveExecutor;
+import com.emenu.features.bakong.config.BakongProperties;
 import com.emenu.features.bakong.dto.BakongQrResponse;
 import com.emenu.features.bakong.dto.BakongRequest;
 import com.emenu.features.bakong.dto.BakongResponse;
@@ -24,7 +25,6 @@ import kh.gov.nbc.bakong_khqr.model.KHQRData;
 import kh.gov.nbc.bakong_khqr.model.KHQRResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,7 +36,6 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.Base64;
 import java.util.Map;
 
 @Service
@@ -46,18 +45,13 @@ public class BakongServiceImpl implements BakongService {
 
     private final RestClient restClient;
     private final ObjectMapper mapper;
+    private final BakongProperties bakongProperties;
     private final BakongTokenService bakongTokenService;
     private final MerchantInfoMapper merchantInfoMapper;
     private final TransactionStatusMapper transactionStatusMapper;
     private final TelegramNotifier telegramNotifier;
     private final BakongReactiveExecutor reactiveExecutor;
     private final BakongTransactionRepository bakongTransactionRepository;
-
-    @Value("${bakong.account-id}")
-    private String bakongAccountId;
-
-    @Value("${bakong.api-url:https://api-bakong.nbc.gov.kh}")
-    private String baseUrl;
 
     @Override
     public Mono<BakongQrResponse> generateQR(BakongRequest bakongRequest, String requestUrl) {
@@ -68,15 +62,13 @@ public class BakongServiceImpl implements BakongService {
                     bakongRequest.getCurrency());
             try {
                 KHQRResponse<KHQRData> response = BakongKHQR.generateMerchant(
-                        merchantInfoMapper.toMerchantInfo(bakongRequest, bakongAccountId)
+                        merchantInfoMapper.toMerchantInfo(bakongRequest, bakongProperties.getAccountId())
                 );
 
                 if (response.getKHQRStatus() != null && response.getKHQRStatus().getCode() != 0) {
                     String statusMsg = response.getKHQRStatus().getMessage();
-                    log.error("Bakong KHQR generation returned status code={}, errorCode={}: {}",
-                            response.getKHQRStatus().getCode(),
-                            response.getKHQRStatus().getErrorCode(),
-                            statusMsg);
+                    log.error("Bakong KHQR generation error: code={}, message={}",
+                            response.getKHQRStatus().getCode(), statusMsg);
                     throw new BakongPaymentException("Bakong KHQR Generation Error: " + statusMsg);
                 }
 
@@ -87,7 +79,6 @@ public class BakongServiceImpl implements BakongService {
 
                 if (qrData != null && md5 != null) {
                     saveTransactionRecord(bakongRequest, qrData);
-                    log.info("Persisted BakongTransaction record in DB table for md5={}", md5);
                 }
 
                 telegramNotifier.notifyQrGenerated(requestUrl, bakongRequest, response);
@@ -97,10 +88,8 @@ public class BakongServiceImpl implements BakongService {
                         .md5(md5)
                         .build();
             } catch (Exception ex) {
-                log.error("Failed to generate Bakong KHQR for merchantName={} amount={}: {}",
-                        bakongRequest.getMerchantName(),
-                        bakongRequest.getAmount(),
-                        ex.getMessage());
+                log.error("Failed to generate Bakong KHQR for merchantName={}: {}",
+                        bakongRequest.getMerchantName(), ex.getMessage());
                 telegramNotifier.notifyIssue("QR generation failed", requestUrl, bakongRequest, ex);
                 throw new BakongPaymentException("Failed to generate Bakong KHQR: " + ex.getMessage(), ex);
             }
@@ -150,7 +139,7 @@ public class BakongServiceImpl implements BakongService {
     }
 
     private BakongResponse doCheckTransactionByMd5(CheckTransactionRequest request, String requestUrl) {
-        String url = baseUrl.replaceAll("/+$", "") + "/v1/check_transaction_by_md5";
+        String url = bakongProperties.getApiUrl() + "/v1/check_transaction_by_md5";
         log.info("Checking transaction status for md5={} against upstreamUrl={}", request.getMd5(), url);
 
         try {
@@ -158,9 +147,7 @@ public class BakongServiceImpl implements BakongService {
             BakongResponse response = mapper.readValue(responseBody, BakongResponse.class);
 
             log.info("Upstream response received for md5={}, responseCode={}, message={}",
-                    request.getMd5(),
-                    response.getResponseCode(),
-                    response.getResponseMessage());
+                    request.getMd5(), response.getResponseCode(), response.getResponseMessage());
 
             updateTransactionRecordStatus(request.getMd5(), response);
 
@@ -223,7 +210,7 @@ public class BakongServiceImpl implements BakongService {
                     .amount(BigDecimal.valueOf(request.getAmount()))
                     .currency(request.getCurrency() != null ? request.getCurrency().name() : "KHR")
                     .status(TransactionState.NOT_SCANNED.name())
-                    .toAccountId(bakongAccountId)
+                    .toAccountId(bakongProperties.getAccountId())
                     .rawQrString(qrData.getQr())
                     .build();
             bakongTransactionRepository.save(transaction);
@@ -251,8 +238,7 @@ public class BakongServiceImpl implements BakongService {
                     tx.setStatus(TransactionState.FAILED.name());
                 }
                 BakongTransaction updated = bakongTransactionRepository.save(tx);
-                log.info("Updated BakongTransaction status to {} (hash={}, from={}) for md5={}",
-                        updated.getStatus(), updated.getHash(), updated.getFromAccountId(), md5);
+                log.info("Updated BakongTransaction status to {} for md5={}", updated.getStatus(), md5);
             });
         } catch (Exception ex) {
             log.warn("Failed to update status for BakongTransaction md5={}: {}", md5, ex.getMessage());

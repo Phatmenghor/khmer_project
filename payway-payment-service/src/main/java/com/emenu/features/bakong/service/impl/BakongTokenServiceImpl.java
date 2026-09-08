@@ -3,13 +3,13 @@ package com.emenu.features.bakong.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.emenu.features.bakong.common.TelegramNotifier;
+import com.emenu.features.bakong.config.BakongProperties;
 import com.emenu.features.bakong.model.BakongTokenLog;
 import com.emenu.features.bakong.repository.BakongTokenRepository;
 import com.emenu.features.bakong.service.BakongTokenService;
 import com.emenu.features.bakong.common.BakongJwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -17,6 +17,7 @@ import org.springframework.web.client.RestClientResponseException;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,14 +26,9 @@ public class BakongTokenServiceImpl implements BakongTokenService {
 
     private final RestClient restClient;
     private final ObjectMapper mapper;
+    private final BakongProperties bakongProperties;
     private final TelegramNotifier telegramNotifier;
     private final BakongTokenRepository bakongTokenRepository;
-
-    @Value("${bakong.api-url:https://api-bakong.nbc.gov.kh}")
-    private String apiUrl;
-
-    @Value("${bakong.email}")
-    private String email;
 
     private String cachedToken;
     private Instant tokenExpiry;
@@ -50,12 +46,11 @@ public class BakongTokenServiceImpl implements BakongTokenService {
 
     @Override
     public synchronized String renewToken() {
-        log.info("Initiating Bakong token renewal for email={}", email);
+        String email = bakongProperties.getEmail();
+        String renewUrl = bakongProperties.getApiUrl() + "/v1/renew_token";
+        log.info("Initiating Bakong token renewal for email={} endpoint={}", email, renewUrl);
 
         try {
-            String renewUrl = apiUrl.replaceAll("/+$", "") + "/v1/renew_token";
-            log.info("Calling Bakong upstream renew_token endpoint={}", renewUrl);
-
             String responseBody = restClient.post()
                     .uri(renewUrl)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -80,51 +75,38 @@ public class BakongTokenServiceImpl implements BakongTokenService {
             persistTokenLog(newToken, tokenExpiry, "ACTIVE", "RENEW_TOKEN", null);
 
             return cachedToken;
-        } catch (RestClientResponseException ex) {
-            String cleanMsg = "Bakong upstream server returned HTTP " + ex.getStatusCode().value() + " (" + ex.getStatusText() + ")";
-            log.error("Failed to renew Bakong token: {}", cleanMsg);
-            persistTokenLog(null, null, "FAILED", "RENEW_TOKEN_ERROR", cleanMsg);
+        } catch (Exception ex) {
+            return handleRenewalFailure(ex, renewUrl, email);
+        }
+    }
 
-            try {
-                var dbTokenOpt = bakongTokenRepository.findTopByEmailAndStatusOrderByCreatedAtDesc(email, "ACTIVE");
-                if (dbTokenOpt.isPresent() && dbTokenOpt.get().getToken() != null && !dbTokenOpt.get().getToken().isBlank()) {
-                    log.warn("Bakong renew_token failed, falling back to latest active token from database table");
-                    updateCachedToken(dbTokenOpt.get().getToken());
-                    return cachedToken;
-                }
-            } catch (Exception dbEx) {
-                log.warn("Failed to check fallback token from database: {}", dbEx.getMessage());
-            }
+    private String handleRenewalFailure(Exception ex, String renewUrl, String email) {
+        String cleanMsg = (ex instanceof RestClientResponseException rce)
+                ? ("Bakong upstream server returned HTTP " + rce.getStatusCode().value() + " (" + rce.getStatusText() + ")")
+                : ex.getMessage();
 
-            telegramNotifier.notifyIssue(
-                    "Bakong token renewal failed",
-                    apiUrl.replaceAll("/+$", "") + "/v1/renew_token",
-                    Map.of("email", email),
-                    new RuntimeException(cleanMsg)
-            );
-            throw new RuntimeException(cleanMsg, ex);
-        } catch (Exception e) {
-            log.error("Failed to renew Bakong token: {}", e.getMessage());
-            persistTokenLog(null, null, "FAILED", "RENEW_TOKEN_ERROR", e.getMessage());
+        log.error("Failed to renew Bakong token: {}", cleanMsg);
+        persistTokenLog(null, null, "FAILED", "RENEW_TOKEN_ERROR", cleanMsg);
 
-            try {
-                var dbTokenOpt = bakongTokenRepository.findTopByEmailAndStatusOrderByCreatedAtDesc(email, "ACTIVE");
-                if (dbTokenOpt.isPresent() && dbTokenOpt.get().getToken() != null && !dbTokenOpt.get().getToken().isBlank()) {
-                    log.warn("Bakong renew_token failed, falling back to latest active token from database table");
-                    updateCachedToken(dbTokenOpt.get().getToken());
-                    return cachedToken;
-                }
-            } catch (Exception dbEx) {
-                log.warn("Failed to check fallback token from database: {}", dbEx.getMessage());
-            }
+        Optional<String> dbFallback = findLatestActiveDatabaseToken();
+        if (dbFallback.isPresent()) {
+            log.warn("Bakong renew_token failed, falling back to latest active token from database table");
+            updateCachedToken(dbFallback.get());
+            return cachedToken;
+        }
 
-            telegramNotifier.notifyIssue(
-                    "Bakong token renewal failed",
-                    apiUrl.replaceAll("/+$", "") + "/v1/renew_token",
-                    Map.of("email", email),
-                    e
-            );
-            throw new RuntimeException("Failed to obtain Bakong token: " + e.getMessage(), e);
+        telegramNotifier.notifyIssue("Bakong token renewal failed", renewUrl, Map.of("email", email), ex);
+        throw new RuntimeException("Failed to obtain Bakong token: " + cleanMsg, ex);
+    }
+
+    private Optional<String> findLatestActiveDatabaseToken() {
+        try {
+            return bakongTokenRepository.findTopByEmailAndStatusOrderByCreatedAtDesc(bakongProperties.getEmail(), "ACTIVE")
+                    .map(BakongTokenLog::getToken)
+                    .filter(token -> token != null && !token.isBlank());
+        } catch (Exception ex) {
+            log.warn("Failed to query fallback token from database: {}", ex.getMessage());
+            return Optional.empty();
         }
     }
 
@@ -134,13 +116,14 @@ public class BakongTokenServiceImpl implements BakongTokenService {
         }
 
         try {
-            bakongTokenRepository.findTopByEmailAndStatusOrderByCreatedAtDesc(email, "ACTIVE").ifPresent(dbToken -> {
-                if (dbToken.getToken() != null && dbToken.getExpiresAt() != null && Instant.now().isBefore(dbToken.getExpiresAt())) {
-                    cachedToken = dbToken.getToken();
-                    tokenExpiry = dbToken.getExpiresAt();
-                    log.info("Loaded active Bakong token from database table (bakong_token_logs), expiresAt={}", tokenExpiry);
-                }
-            });
+            bakongTokenRepository.findTopByEmailAndStatusOrderByCreatedAtDesc(bakongProperties.getEmail(), "ACTIVE")
+                    .ifPresent(dbToken -> {
+                        if (dbToken.getToken() != null && dbToken.getExpiresAt() != null && Instant.now().isBefore(dbToken.getExpiresAt())) {
+                            cachedToken = dbToken.getToken();
+                            tokenExpiry = dbToken.getExpiresAt();
+                            log.info("Loaded active Bakong token from database table (bakong_token_logs), expiresAt={}", tokenExpiry);
+                        }
+                    });
         } catch (Exception ex) {
             log.warn("Failed to load active Bakong token from database table: {}", ex.getMessage());
         }
@@ -154,7 +137,7 @@ public class BakongTokenServiceImpl implements BakongTokenService {
     private void persistTokenLog(String token, Instant expiresAt, String status, String action, String errorMessage) {
         try {
             BakongTokenLog tokenLog = BakongTokenLog.builder()
-                    .email(email)
+                    .email(bakongProperties.getEmail())
                     .token(token)
                     .expiresAt(expiresAt)
                     .status(status)
