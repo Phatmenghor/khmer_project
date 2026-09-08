@@ -50,6 +50,9 @@ telegram:
     group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
     webhook-url: "${TELEGRAM_WEBHOOK_URL:}"
     auto-setup: "${TELEGRAM_BOT_AUTO_SETUP:true}"
+    api-url: "${TELEGRAM_BOT_API_URL:https://api.telegram.org}"
+    send-message-url: "${TELEGRAM_SEND_MESSAGE_URL:https://api.telegram.org/bot{token}/sendMessage}"
+    get-chat-url: "${TELEGRAM_GET_CHAT_URL:https://api.telegram.org/bot{token}/getChat?chat_id={chatId}}"
 
 # ── SpringDoc OpenAPI / Swagger ──────────────────────────────────────────────
 springdoc:
