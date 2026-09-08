@@ -54,9 +54,6 @@ public class RequestIdFilter extends OncePerRequestFilter {
         try {
             chain.doFilter(request, response);
         } finally {
-            long duration = System.currentTimeMillis() - start;
-            int status = response.getStatus();
-            log.info("HTTP {} {} {} {}ms", request.getMethod(), path, status, duration);
             MDC.clear();
         }
     }
