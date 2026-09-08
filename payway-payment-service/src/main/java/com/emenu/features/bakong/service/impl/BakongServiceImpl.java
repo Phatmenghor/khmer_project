@@ -221,12 +221,22 @@ public class BakongServiceImpl implements BakongService {
             bakongTransactionRepository.findByMd5(md5).ifPresent(tx -> {
                 if (response.isSuccess()) {
                     tx.setStatus(TransactionState.PAID.name());
+                    if (response.getData() instanceof Map<?, ?> dataMap) {
+                        Object hashObj = dataMap.get("hash");
+                        if (hashObj != null) tx.setHash(hashObj.toString());
+                        Object fromAcc = dataMap.get("fromAccountId");
+                        if (fromAcc != null) tx.setFromAccountId(fromAcc.toString());
+                        Object toAcc = dataMap.get("toAccountId");
+                        if (toAcc != null) tx.setToAccountId(toAcc.toString());
+                    }
                 } else if (response.getResponseCode() == 1) {
                     tx.setStatus(TransactionState.WAITING_FOR_PAYMENT.name());
                 } else {
                     tx.setStatus(TransactionState.FAILED.name());
                 }
-                bakongTransactionRepository.save(tx);
+                BakongTransaction updated = bakongTransactionRepository.save(tx);
+                log.info("Updated BakongTransaction status to {} (hash={}, from={}) for md5={}",
+                        updated.getStatus(), updated.getHash(), updated.getFromAccountId(), md5);
             });
         } catch (Exception ex) {
             log.warn("Failed to update status for BakongTransaction md5={}: {}", md5, ex.getMessage());
