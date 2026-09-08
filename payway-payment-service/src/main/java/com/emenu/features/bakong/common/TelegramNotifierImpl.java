@@ -1,12 +1,8 @@
-package com.emenu.features.bakong.common.integration.telegram;
+package com.emenu.features.bakong.common;
 
 import com.emenu.features.bakong.dto.BakongRequest;
 import com.emenu.features.bakong.dto.BakongResponse;
 import com.emenu.features.bakong.dto.CheckTransactionRequest;
-import com.emenu.features.bakong.common.integration.telegram.component.TelegramClientComponent;
-import com.emenu.features.bakong.common.integration.telegram.component.TelegramMessageComposer;
-import com.emenu.features.bakong.common.integration.telegram.config.TelegramProperties;
-import com.emenu.features.bakong.common.util.TextUtils;
 import kh.gov.nbc.bakong_khqr.model.KHQRData;
 import kh.gov.nbc.bakong_khqr.model.KHQRResponse;
 import lombok.RequiredArgsConstructor;

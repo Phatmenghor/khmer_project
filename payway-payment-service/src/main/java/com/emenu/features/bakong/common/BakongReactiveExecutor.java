@@ -1,4 +1,4 @@
-package com.emenu.features.bakong.common.component;
+package com.emenu.features.bakong.common;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

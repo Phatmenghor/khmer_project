@@ -1,4 +1,4 @@
-package com.emenu.features.bakong.common.util;
+package com.emenu.features.bakong.common;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;

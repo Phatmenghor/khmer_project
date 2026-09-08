@@ -2,11 +2,11 @@ package com.emenu.features.bakong.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.emenu.features.bakong.common.integration.telegram.TelegramNotifier;
+import com.emenu.features.bakong.common.TelegramNotifier;
 import com.emenu.features.bakong.model.BakongTokenLog;
 import com.emenu.features.bakong.repository.BakongTokenRepository;
 import com.emenu.features.bakong.service.BakongTokenService;
-import com.emenu.features.bakong.common.util.BakongJwtUtils;
+import com.emenu.features.bakong.common.BakongJwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,4 +1,4 @@
-package com.emenu.features.bakong.common.util;
+package com.emenu.features.bakong.common;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package com.emenu.features.bakong.common.validation;
+package com.emenu.features.bakong.common;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
