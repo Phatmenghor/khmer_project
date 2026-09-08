@@ -120,25 +120,14 @@ public class BakongServiceImpl implements BakongService {
     }
 
     @Override
-    public Mono<byte[]> getQRImage(KHQRData qr, String requestUrl) {
-        return reactiveExecutor.executeReactive("getQRImage", () -> {
-            try {
-                if (qr == null || qr.getQr() == null || qr.getQr().isBlank()) {
-                    log.warn("Received empty QR payload for image generation");
-                    throw new BakongPaymentException("Invalid or empty QR data payload");
-                }
-
-                log.info("Encoding official KHQR Merchant Stand PNG image for payload length={}", qr.getQr().length());
-                byte[] imageBytes = QrImageUtils.generateKhqrMerchantCard(qr.getQr(), "eMenu Merchant", null, null);
-
-                log.info("Bakong QR image generated successfully size={} bytes", imageBytes.length);
-                return imageBytes;
-            } catch (Exception e) {
-                log.error("Unexpected QR image generation error: {}", e.getMessage());
-                telegramNotifier.notifyIssue("QR image generation failed", requestUrl, qr, e);
-                throw new BakongPaymentException("QR image generation failed: " + e.getMessage(), e);
-            }
-        });
+    public Mono<byte[]> getQRImage(BakongRequest bakongRequest, String requestUrl) {
+        return generateQR(bakongRequest, requestUrl)
+                .map(qrResponse -> QrImageUtils.generateKhqrMerchantCard(
+                        qrResponse.getQr(),
+                        bakongRequest.getMerchantName(),
+                        bakongRequest.getAmount(),
+                        bakongRequest.getCurrency() != null ? bakongRequest.getCurrency().name() : "USD"
+                ));
     }
 
     @Override

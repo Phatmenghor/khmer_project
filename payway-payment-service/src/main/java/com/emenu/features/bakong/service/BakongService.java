@@ -6,7 +6,6 @@ import com.emenu.features.bakong.dto.BakongResponse;
 import com.emenu.features.bakong.dto.CheckTransactionRequest;
 import com.emenu.features.bakong.dto.TransactionStatusResponse;
 import com.emenu.shared.dto.ApiResponse;
-import kh.gov.nbc.bakong_khqr.model.KHQRData;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -14,7 +13,7 @@ public interface BakongService {
 
     Mono<BakongQrResponse> generateQR(BakongRequest bakongRequest, String requestUrl);
 
-    Mono<byte[]> getQRImage(KHQRData qr, String requestUrl);
+    Mono<byte[]> getQRImage(BakongRequest bakongRequest, String requestUrl);
 
     Mono<BakongResponse> checkTransactionByMD5(CheckTransactionRequest request, String requestUrl);
 

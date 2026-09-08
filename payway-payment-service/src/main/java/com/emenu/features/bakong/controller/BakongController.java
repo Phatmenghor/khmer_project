@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -39,6 +40,18 @@ public class BakongController {
     ) {
         return service.generateQR(request, servletRequest.getRequestURL().toString())
                 .map(response -> ResponseEntity.ok(ApiResponse.success("Bakong KHQR generated successfully", response)));
+    }
+
+    @PostMapping(value = "/generate-qr-image", produces = MediaType.IMAGE_PNG_VALUE)
+    public Mono<ResponseEntity<byte[]>> generateQRImage(
+            @Valid @RequestBody BakongRequest request,
+            HttpServletRequest servletRequest
+    ) {
+        return service.getQRImage(request, servletRequest.getRequestURL().toString())
+                .map(imageBytes -> ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"khqr-merchant-card.png\"")
+                        .contentType(MediaType.IMAGE_PNG)
+                        .body(imageBytes));
     }
 
     @PostMapping("/check-transaction")
