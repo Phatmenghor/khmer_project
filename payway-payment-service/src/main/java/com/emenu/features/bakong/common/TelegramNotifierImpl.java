@@ -8,6 +8,7 @@ import kh.gov.nbc.bakong_khqr.model.KHQRResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import jakarta.annotation.PostConstruct;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
@@ -34,57 +35,72 @@ public class TelegramNotifierImpl implements TelegramNotifier {
     }
 
     @Override
+    @Async("taskExecutor")
     public void notifyQrGenerated(String requestUrl, BakongRequest request, KHQRResponse<KHQRData> response) {
-        if (response == null || response.getData() == null) {
-            log.warn("Skipping Telegram QR notification because response data is missing");
-            return;
+        try {
+            if (response == null || response.getData() == null) {
+                log.warn("Skipping Telegram QR notification because response data is missing");
+                return;
+            }
+
+            String md5 = response.getData().getMd5();
+            log.info("Sending Telegram QR notification for md5={}", md5);
+
+            String message = TelegramMessageComposer.create()
+                    .header("📌", "BAKONG KHQR GENERATED")
+                    .field("Merchant", request.getMerchantName())
+                    .field("Amount", request.getAmount() + " " + request.getCurrency())
+                    .codeField("MD5 Code", md5)
+                    .codeField("Request URL", requestUrl)
+                    .build();
+
+            telegramClientComponent.sendMessage(message);
+        } catch (Exception ex) {
+            log.error("Failed to process async Telegram QR notification: {}", ex.getMessage(), ex);
         }
-
-        String md5 = response.getData().getMd5();
-        log.info("Sending Telegram QR notification for md5={}", md5);
-
-        String message = TelegramMessageComposer.create()
-                .header("📌", "BAKONG KHQR GENERATED")
-                .field("Merchant", request.getMerchantName())
-                .field("Amount", request.getAmount() + " " + request.getCurrency())
-                .codeField("MD5 Code", md5)
-                .codeField("Request URL", requestUrl)
-                .build();
-
-        telegramClientComponent.sendMessage(message);
     }
 
     @Override
+    @Async("taskExecutor")
     public void notifyTransactionChecked(String requestUrl, String upstreamUrl, CheckTransactionRequest request, BakongResponse response) {
-        log.info("Sending Telegram transaction notification for md5={}", request.getMd5());
+        try {
+            log.info("Sending Telegram transaction notification for md5={}", request.getMd5());
 
-        String statusLabel = response.isSuccess() ? "SUCCESS" : ("CODE " + response.getResponseCode());
-        String statusEmoji = response.isSuccess() ? "✅" : "⚠️";
+            String statusLabel = response.isSuccess() ? "SUCCESS" : ("CODE " + response.getResponseCode());
+            String statusEmoji = response.isSuccess() ? "✅" : "⚠️";
 
-        String message = TelegramMessageComposer.create()
-                .header("💳", "BAKONG TRANSACTION CHECKED")
-                .codeField("MD5 Code", request.getMd5())
-                .statusField("Status", statusEmoji, statusLabel)
-                .field("Response Message", response.getResponseMessage())
-                .codeField("Request URL", requestUrl)
-                .codeField("Upstream URL", upstreamUrl)
-                .build();
+            String message = TelegramMessageComposer.create()
+                    .header("💳", "BAKONG TRANSACTION CHECKED")
+                    .codeField("MD5 Code", request.getMd5())
+                    .statusField("Status", statusEmoji, statusLabel)
+                    .field("Response Message", response.getResponseMessage())
+                    .codeField("Request URL", requestUrl)
+                    .codeField("Upstream URL", upstreamUrl)
+                    .build();
 
-        telegramClientComponent.sendMessage(message);
+            telegramClientComponent.sendMessage(message);
+        } catch (Exception ex) {
+            log.error("Failed to process async Telegram transaction notification: {}", ex.getMessage(), ex);
+        }
     }
 
     @Override
+    @Async("taskExecutor")
     public void notifyIssue(String title, String requestUrl, Object requestPayload, Throwable throwable) {
-        log.warn("Sending Telegram issue notification title={} requestUrl={}", title, requestUrl);
+        try {
+            log.warn("Sending Telegram issue notification title={} requestUrl={}", title, requestUrl);
 
-        String message = TelegramMessageComposer.create()
-                .header("⚠️", "BAKONG GATEWAY ISSUE")
-                .field("Title", title)
-                .codeField("Request URL", requestUrl)
-                .codeField("Error Details", toThrowableMessage(throwable))
-                .build();
+            String message = TelegramMessageComposer.create()
+                    .header("⚠️", "BAKONG GATEWAY ISSUE")
+                    .field("Title", title)
+                    .codeField("Request URL", requestUrl)
+                    .codeField("Error Details", toThrowableMessage(throwable))
+                    .build();
 
-        telegramClientComponent.sendMessage(message);
+            telegramClientComponent.sendMessage(message);
+        } catch (Exception ex) {
+            log.error("Failed to process async Telegram issue notification: {}", ex.getMessage(), ex);
+        }
     }
 
     private boolean hasText(String value) {
