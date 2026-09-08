@@ -1,6 +1,7 @@
 package com.emenu.features.bakong.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.emenu.features.bakong.component.BakongReactiveExecutor;
 import com.emenu.features.bakong.dto.BakongRequest;
 import com.emenu.features.bakong.dto.BakongResponse;
 import com.emenu.features.bakong.dto.CheckTransactionRequest;
@@ -34,9 +35,6 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +47,7 @@ public class BakongServiceImpl implements BakongService {
     private final MerchantInfoMapper merchantInfoMapper;
     private final TransactionStatusMapper transactionStatusMapper;
     private final TelegramNotifier telegramNotifier;
-    private final ExecutorService bakongExecutorService;
+    private final BakongReactiveExecutor reactiveExecutor;
     private final BakongTransactionRepository bakongTransactionRepository;
 
     @Value("${bakong.account-id}")
@@ -60,7 +58,7 @@ public class BakongServiceImpl implements BakongService {
 
     @Override
     public Mono<KHQRResponse<KHQRData>> generateQR(BakongRequest bakongRequest, String requestUrl) {
-        return executeReactive("generateQR", () -> {
+        return reactiveExecutor.executeReactive("generateQR", () -> {
             log.info("Generating Bakong KHQR for merchantName={}, amount={} {}",
                     bakongRequest.merchantName(),
                     bakongRequest.amount(),
@@ -93,7 +91,7 @@ public class BakongServiceImpl implements BakongService {
 
     @Override
     public Mono<byte[]> getQRImage(KHQRData qr, String requestUrl) {
-        return executeReactive("getQRImage", () -> {
+        return reactiveExecutor.executeReactive("getQRImage", () -> {
             try {
                 if (qr == null || qr.getQr() == null || qr.getQr().isBlank()) {
                     log.warn("Received empty QR payload for image generation");
@@ -115,7 +113,7 @@ public class BakongServiceImpl implements BakongService {
 
     @Override
     public Mono<BakongResponse> checkTransactionByMD5(CheckTransactionRequest request, String requestUrl) {
-        return executeReactive("checkTransactionByMD5", () -> doCheckTransactionByMd5(request, requestUrl));
+        return reactiveExecutor.executeReactive("checkTransactionByMD5", () -> doCheckTransactionByMd5(request, requestUrl));
     }
 
     @Override
@@ -232,24 +230,5 @@ public class BakongServiceImpl implements BakongService {
         } catch (Exception ex) {
             log.warn("Failed to update status for BakongTransaction md5={}: {}", md5, ex.getMessage());
         }
-    }
-
-    private <T> Mono<T> executeReactive(String operation, Callable<T> task) {
-        return Mono.create(sink -> {
-            Future<?> future = bakongExecutorService.submit(() -> {
-                try {
-                    sink.success(task.call());
-                } catch (Throwable throwable) {
-                    sink.error(throwable);
-                }
-            });
-
-            sink.onCancel(() -> future.cancel(true));
-            sink.onDispose(() -> {
-                if (!future.isDone()) {
-                    future.cancel(true);
-                }
-            });
-        });
     }
 }

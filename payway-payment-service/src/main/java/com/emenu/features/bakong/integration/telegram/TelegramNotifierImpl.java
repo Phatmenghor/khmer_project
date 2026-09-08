@@ -60,65 +60,68 @@ public class TelegramNotifierImpl implements TelegramNotifier {
             return;
         }
 
-        log.info("Sending Telegram QR notification for md5={}", response.getData().getMd5());
-        sendMessage(
-                """
-                ✅ Bakong QR Generated
-                🌐 Request URL: %s
-                📦 Request: %s
-                🧾 MD5: %s
-                💵 Amount: %s %s
-                🏪 Merchant: %s
+        String md5 = response.getData().getMd5();
+        log.info("Sending Telegram QR notification for md5={}", md5);
+
+        String message = """
+                <b>BAKONG KHQR GENERATED</b>
+
+                • <b>Merchant:</b> %s
+                • <b>Amount:</b> %s %s
+                • <b>MD5 Code:</b> <code>%s</code>
+                • <b>Request URL:</b> <code>%s</code>
                 """.formatted(
-                        requestUrl,
-                        toPayload(request),
-                        response.getData().getMd5(),
-                        request.amount(),
-                        request.currency(),
-                        request.merchantName()
-                )
+                escapeHtml(request.merchantName()),
+                request.amount(),
+                request.currency(),
+                escapeHtml(md5),
+                escapeHtml(requestUrl)
         );
+
+        sendMessage(message);
     }
 
     @Override
     public void notifyTransactionChecked(String requestUrl, String upstreamUrl, CheckTransactionRequest request, BakongResponse response) {
         log.info("Sending Telegram transaction notification for md5={}", request.md5());
-        sendMessage(
-                """
-                🔍 Bakong Transaction Checked
-                🌐 Request URL: %s
-                🔗 Upstream URL: %s
-                📦 Request: %s
-                🧾 MD5: %s
-                📨 Response Code: %s
-                💬 Message: %s
+
+        String statusLabel = response.isSuccess() ? "SUCCESS" : ("CODE " + response.responseCode());
+        String message = """
+                <b>BAKONG TRANSACTION CHECKED</b>
+
+                • <b>MD5 Code:</b> <code>%s</code>
+                • <b>Status:</b> %s
+                • <b>Response Message:</b> %s
+                • <b>Request URL:</b> <code>%s</code>
+                • <b>Upstream URL:</b> <code>%s</code>
                 """.formatted(
-                        requestUrl,
-                        upstreamUrl,
-                        toPayload(request),
-                        request.md5(),
-                        response.responseCode(),
-                        response.responseMessage()
-                )
+                escapeHtml(request.md5()),
+                escapeHtml(statusLabel),
+                escapeHtml(response.responseMessage()),
+                escapeHtml(requestUrl),
+                escapeHtml(upstreamUrl)
         );
+
+        sendMessage(message);
     }
 
     @Override
     public void notifyIssue(String title, String requestUrl, Object requestPayload, Throwable throwable) {
         log.warn("Sending Telegram issue notification title={} requestUrl={}", title, requestUrl);
-        sendMessage(
-                """
-                🚨 %s
-                🌐 Request URL: %s
-                📦 Request: %s
-                ❗ Error: %s
+
+        String message = """
+                <b>BAKONG GATEWAY ISSUE</b>
+
+                • <b>Title:</b> %s
+                • <b>Request URL:</b> <code>%s</code>
+                • <b>Error Details:</b> <code>%s</code>
                 """.formatted(
-                        title,
-                        requestUrl,
-                        toPayload(requestPayload),
-                        toThrowableMessage(throwable)
-                )
+                escapeHtml(title),
+                escapeHtml(requestUrl),
+                escapeHtml(toThrowableMessage(throwable))
         );
+
+        sendMessage(message);
     }
 
     private void sendMessage(String message) {
@@ -136,7 +139,8 @@ public class TelegramNotifierImpl implements TelegramNotifier {
                     .uri("https://api.telegram.org/bot{token}/sendMessage", token)
                     .body(Map.of(
                             "chat_id", groupChatId,
-                            "text", TextUtils.abbreviate(message, 3500)
+                            "text", TextUtils.abbreviate(message, 3500),
+                            "parse_mode", "HTML"
                     ))
                     .retrieve()
                     .toBodilessEntity();
@@ -189,14 +193,6 @@ public class TelegramNotifierImpl implements TelegramNotifier {
         return value != null && !value.isBlank();
     }
 
-    private String toPayload(Object payload) {
-        try {
-            return TextUtils.abbreviate(objectMapper.writeValueAsString(payload), 1200);
-        } catch (Exception ex) {
-            return TextUtils.abbreviate(String.valueOf(payload), 1200);
-        }
-    }
-
     private String toThrowableMessage(Throwable throwable) {
         if (throwable == null) {
             return "Unknown error";
@@ -208,5 +204,10 @@ public class TelegramNotifierImpl implements TelegramNotifier {
         }
 
         return TextUtils.abbreviate(message, 1200);
+    }
+
+    private static String escapeHtml(String text) {
+        if (text == null) return "";
+        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 }
