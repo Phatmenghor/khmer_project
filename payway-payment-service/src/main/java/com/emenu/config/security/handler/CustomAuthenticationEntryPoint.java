@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
@@ -25,6 +26,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
+        ensureTraceId(request);
         log.warn("Unauthorized access attempt on path=[{}]: {}", request.getRequestURI(), authException.getMessage());
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -36,5 +38,18 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         );
 
         objectMapper.writeValue(response.getWriter(), apiResponse);
+    }
+
+    private void ensureTraceId(HttpServletRequest request) {
+        String traceId = MDC.get("traceId");
+        if (traceId == null || traceId.isBlank()) {
+            traceId = request.getHeader("X-Request-ID");
+            if (traceId == null || traceId.isBlank()) {
+                traceId = request.getHeader("X-Trace-ID");
+            }
+            if (traceId != null && !traceId.isBlank()) {
+                MDC.put("traceId", traceId.trim());
+            }
+        }
     }
 }
