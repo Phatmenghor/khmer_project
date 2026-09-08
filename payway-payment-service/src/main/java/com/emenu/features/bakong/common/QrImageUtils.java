@@ -26,7 +26,7 @@ public final class QrImageUtils {
     public static byte[] generatePngQrCode(String qrContent, int width, int height) throws Exception {
         Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
-        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
+        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
         hints.put(EncodeHintType.MARGIN, 1);
 
         QRCodeWriter writer = new QRCodeWriter();
@@ -78,7 +78,7 @@ public final class QrImageUtils {
                 if (logoStream != null) {
                     BufferedImage logoImg = ImageIO.read(logoStream);
                     if (logoImg != null) {
-                        int logoWidth = 165;
+                        int logoWidth = 170;
                         int logoHeight = (int) ((double) logoImg.getHeight() / logoImg.getWidth() * logoWidth);
                         int logoX = (cardWidth - logoWidth) / 2;
                         int logoY = (mainHeaderHeight - logoHeight) / 2 - 1;
@@ -93,14 +93,14 @@ public final class QrImageUtils {
                 drawFallbackKhqrText(g2d, cardWidth, mainHeaderHeight);
             }
 
-            // 3. Merchant Name (Matching SVG: "Company Name" style)
+            // 3. Bolder & Larger Merchant Name (Matching SVG: "Company Name" style)
             String displayName = (merchantName != null && !merchantName.isBlank()) ? merchantName : "Company Name";
-            g2d.setColor(new Color(32, 32, 32));
-            g2d.setFont(new Font("SansSerif", Font.PLAIN, 22));
+            g2d.setColor(new Color(20, 20, 20));
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 26));
             g2d.drawString(displayName, 45, 160);
 
-            // 4. Formatted Amount & Currency Section
-            int currentY = 215;
+            // 4. Bolder & Larger Formatted Amount & Currency Section
+            int currentY = 220;
             if (amount != null && amount > 0) {
                 String formattedAmt;
                 if ("KHR".equalsIgnoreCase(currency)) {
@@ -111,24 +111,24 @@ public final class QrImageUtils {
                 String currStr = (currency != null ? currency.toUpperCase() : "USD");
 
                 g2d.setColor(Color.BLACK);
-                g2d.setFont(new Font("SansSerif", Font.BOLD, 42));
+                g2d.setFont(new Font("SansSerif", Font.BOLD, 48));
                 g2d.drawString(formattedAmt, 45, currentY);
 
                 int amtWidth = g2d.getFontMetrics().stringWidth(formattedAmt);
-                g2d.setFont(new Font("SansSerif", Font.PLAIN, 22));
-                g2d.setColor(new Color(32, 32, 32));
-                g2d.drawString(currStr, 45 + amtWidth + 14, currentY - 4);
+                g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
+                g2d.setColor(new Color(30, 30, 30));
+                g2d.drawString(currStr, 45 + amtWidth + 16, currentY - 5);
 
-                currentY += 35;
+                currentY += 40;
             } else {
                 currentY += 15;
             }
 
             // 5. Dashed Line Separator (Matching SVG stroke="black" stroke-opacity="0.5" stroke-dasharray="8 8")
-            g2d.setColor(new Color(0, 0, 0, 90));
+            g2d.setColor(new Color(0, 0, 0, 85));
             Stroke dashedStroke = new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{8.0f, 8.0f}, 0.0f);
             g2d.setStroke(dashedStroke);
-            int lineY = Math.max(255, currentY);
+            int lineY = Math.max(265, currentY);
             g2d.drawLine(30, lineY, cardWidth - 30, lineY);
 
             // 6. Direct QR Code Placement (Matching KHQR - digital payment.svg)
@@ -139,6 +139,44 @@ public final class QrImageUtils {
             byte[] qrBytes = generatePngQrCode(qrContent, qrSize, qrSize);
             BufferedImage qrImg = ImageIO.read(new ByteArrayInputStream(qrBytes));
             g2d.drawImage(qrImg, qrX, qrY, qrSize, qrSize, null);
+
+            // 7. Center Bakong Logo Badge Overlay on QR Code
+            int centerX = qrX + (qrSize / 2);
+            int centerY = qrY + (qrSize / 2);
+
+            boolean centerLogoDrawn = false;
+            try (InputStream bgLogoStream = QrImageUtils.class.getResourceAsStream("/assets/khqr/KHQR available here - logo with bg.png")) {
+                if (bgLogoStream != null) {
+                    BufferedImage bgLogoImg = ImageIO.read(bgLogoStream);
+                    if (bgLogoImg != null) {
+                        int badgeRadius = 34; // 68px diameter
+                        int whiteRadius = 38; // 76px outer white circle padding
+
+                        // White Outer Circular Padding
+                        g2d.setColor(Color.WHITE);
+                        g2d.fillOval(centerX - whiteRadius, centerY - whiteRadius, whiteRadius * 2, whiteRadius * 2);
+
+                        // Draw Red KHQR Badge centered
+                        g2d.drawImage(bgLogoImg, centerX - badgeRadius, centerY - (badgeRadius * bgLogoImg.getHeight() / bgLogoImg.getWidth()), badgeRadius * 2, (badgeRadius * 2 * bgLogoImg.getHeight() / bgLogoImg.getWidth()), null);
+                        centerLogoDrawn = true;
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+
+            if (!centerLogoDrawn) {
+                // Fallback circular red emblem badge if image is missing
+                int badgeRadius = 32;
+                int whiteRadius = 36;
+                g2d.setColor(Color.WHITE);
+                g2d.fillOval(centerX - whiteRadius, centerY - whiteRadius, whiteRadius * 2, whiteRadius * 2);
+                g2d.setColor(new Color(226, 26, 26));
+                g2d.fillOval(centerX - badgeRadius, centerY - badgeRadius, badgeRadius * 2, badgeRadius * 2);
+                g2d.setColor(Color.WHITE);
+                g2d.setFont(new Font("SansSerif", Font.BOLD, 14));
+                FontMetrics fm = g2d.getFontMetrics();
+                g2d.drawString("KHQR", centerX - (fm.stringWidth("KHQR") / 2), centerY + 5);
+            }
 
             g2d.dispose();
 
