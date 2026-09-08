@@ -87,8 +87,13 @@ public class BakongServiceImpl implements BakongService {
 
                 String qrImageBase64 = null;
                 if (qr != null && !qr.isBlank()) {
-                    byte[] pngBytes = QrImageUtils.generatePngQrCode(qr, 300, 300);
-                    qrImageBase64 = "data:image/png;base64," + Base64.getEncoder().encodeToString(pngBytes);
+                    byte[] cardBytes = QrImageUtils.generateKhqrMerchantCard(
+                            qr,
+                            bakongRequest.getMerchantName(),
+                            bakongRequest.getAmount(),
+                            bakongRequest.getCurrency() != null ? bakongRequest.getCurrency().name() : "USD"
+                    );
+                    qrImageBase64 = "data:image/png;base64," + Base64.getEncoder().encodeToString(cardBytes);
                 }
 
                 if (qrData != null && md5 != null) {
@@ -123,8 +128,8 @@ public class BakongServiceImpl implements BakongService {
                     throw new BakongPaymentException("Invalid or empty QR data payload");
                 }
 
-                log.info("Encoding ZXing PNG QR image for payload length={}", qr.getQr().length());
-                byte[] imageBytes = QrImageUtils.generatePngQrCode(qr.getQr(), 300, 300);
+                log.info("Encoding official KHQR Merchant Stand PNG image for payload length={}", qr.getQr().length());
+                byte[] imageBytes = QrImageUtils.generateKhqrMerchantCard(qr.getQr(), "eMenu Merchant", null, null);
 
                 log.info("Bakong QR image generated successfully size={} bytes", imageBytes.length);
                 return imageBytes;
