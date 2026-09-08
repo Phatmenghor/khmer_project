@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.time.Instant;
 import java.util.Map;
@@ -79,6 +80,29 @@ public class BakongTokenServiceImpl implements BakongTokenService {
             persistTokenLog(newToken, tokenExpiry, "ACTIVE", "RENEW_TOKEN", null);
 
             return cachedToken;
+        } catch (RestClientResponseException ex) {
+            String cleanMsg = "Bakong upstream server returned HTTP " + ex.getStatusCode().value() + " (" + ex.getStatusText() + ")";
+            log.error("Failed to renew Bakong token: {}", cleanMsg);
+            persistTokenLog(null, null, "FAILED", "RENEW_TOKEN_ERROR", cleanMsg);
+
+            try {
+                var dbTokenOpt = bakongTokenRepository.findTopByEmailAndStatusOrderByCreatedAtDesc(email, "ACTIVE");
+                if (dbTokenOpt.isPresent() && dbTokenOpt.get().getToken() != null && !dbTokenOpt.get().getToken().isBlank()) {
+                    log.warn("Bakong renew_token failed, falling back to latest active token from database table");
+                    updateCachedToken(dbTokenOpt.get().getToken());
+                    return cachedToken;
+                }
+            } catch (Exception dbEx) {
+                log.warn("Failed to check fallback token from database: {}", dbEx.getMessage());
+            }
+
+            telegramNotifier.notifyIssue(
+                    "Bakong token renewal failed",
+                    apiUrl.replaceAll("/+$", "") + "/v1/renew_token",
+                    Map.of("email", email),
+                    new RuntimeException(cleanMsg)
+            );
+            throw new RuntimeException(cleanMsg, ex);
         } catch (Exception e) {
             log.error("Failed to renew Bakong token: {}", e.getMessage());
             persistTokenLog(null, null, "FAILED", "RENEW_TOKEN_ERROR", e.getMessage());
