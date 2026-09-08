@@ -171,17 +171,9 @@ public class LoggingAspect {
             return "MultipartFile(name=" + file.getOriginalFilename() + ", size=" + file.getSize() + "B)";
         }
         try {
-            String json = objectMapper.writeValueAsString(obj);
-            if (json.length() > 1000) {
-                return json.substring(0, 997) + "...";
-            }
-            return json;
+            return objectMapper.writeValueAsString(obj);
         } catch (Exception e) {
-            String str = obj.toString();
-            if (str.length() > 500) {
-                return str.substring(0, 497) + "...";
-            }
-            return str;
+            return obj.toString();
         }
     }
 }
