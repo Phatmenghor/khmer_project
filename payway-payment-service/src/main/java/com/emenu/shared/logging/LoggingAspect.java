@@ -63,12 +63,14 @@ public class LoggingAspect {
 
             if (result instanceof Mono<?> mono) {
                 return mono.doOnNext(val -> {
+                    if (MDC.get("traceId") == null && traceId != null) MDC.put("traceId", traceId);
                     long execTime = System.currentTimeMillis() - start;
                     String resPayload = formatResult(val);
                     log.info("<-- AUDIT RESPONSE [{} {}{}] [duration={}ms] traceId={} payload={}",
                             method, uri, queryString, execTime, traceId, resPayload);
                     persistAuditLog(traceId, remoteAddr, rawApiKey, method, uri + queryString, reqArgs, resPayload, true, null, execTime);
                 }).doOnError(err -> {
+                    if (MDC.get("traceId") == null && traceId != null) MDC.put("traceId", traceId);
                     long execTime = System.currentTimeMillis() - start;
                     log.error("<-- AUDIT RESPONSE ERROR [{} {}{}] [duration={}ms] traceId={} error={}",
                             method, uri, queryString, execTime, traceId, err.getMessage());
@@ -76,11 +78,13 @@ public class LoggingAspect {
                 });
             } else if (result instanceof Flux<?> flux) {
                 return flux.doOnNext(val -> {
+                    if (MDC.get("traceId") == null && traceId != null) MDC.put("traceId", traceId);
                     String eventPayload = formatResult(val);
                     log.info("<-- AUDIT STREAM EVENT [{} {}{}] traceId={} payload={}",
                             method, uri, queryString, traceId, eventPayload);
                     persistAuditLog(traceId, remoteAddr, rawApiKey, method, uri + queryString, reqArgs, eventPayload, true, null, System.currentTimeMillis() - start);
                 }).doOnError(err -> {
+                    if (MDC.get("traceId") == null && traceId != null) MDC.put("traceId", traceId);
                     long execTime = System.currentTimeMillis() - start;
                     log.error("<-- AUDIT STREAM ERROR [{} {}{}] [duration={}ms] traceId={} error={}",
                             method, uri, queryString, execTime, traceId, err.getMessage());
