@@ -13,7 +13,7 @@ public interface BakongService {
 
     Mono<BakongQrResponse> generateQR(BakongRequest bakongRequest, String requestUrl);
 
-    Mono<byte[]> getQRImage(BakongRequest bakongRequest, String requestUrl);
+    Mono<byte[]> getQRImage(CheckTransactionRequest request, String requestUrl);
 
     Mono<BakongResponse> checkTransactionByMD5(CheckTransactionRequest request, String requestUrl);
 

@@ -85,17 +85,6 @@ public class BakongServiceImpl implements BakongService {
                 String md5 = qrData == null ? null : qrData.getMd5();
                 log.info("KHQR generated successfully, md5={}", md5);
 
-                String qrImageBase64 = null;
-                if (qr != null && !qr.isBlank()) {
-                    byte[] cardBytes = QrImageUtils.generateKhqrMerchantCard(
-                            qr,
-                            bakongRequest.getMerchantName(),
-                            bakongRequest.getAmount(),
-                            bakongRequest.getCurrency() != null ? bakongRequest.getCurrency().name() : "USD"
-                    );
-                    qrImageBase64 = "data:image/png;base64," + Base64.getEncoder().encodeToString(cardBytes);
-                }
-
                 if (qrData != null && md5 != null) {
                     saveTransactionRecord(bakongRequest, qrData);
                     log.info("Persisted BakongTransaction record in DB table for md5={}", md5);
@@ -106,7 +95,6 @@ public class BakongServiceImpl implements BakongService {
                 return BakongQrResponse.builder()
                         .qr(qr)
                         .md5(md5)
-                        .qrImageBase64(qrImageBase64)
                         .build();
             } catch (Exception ex) {
                 log.error("Failed to generate Bakong KHQR for merchantName={} amount={}: {}",
@@ -120,14 +108,23 @@ public class BakongServiceImpl implements BakongService {
     }
 
     @Override
-    public Mono<byte[]> getQRImage(BakongRequest bakongRequest, String requestUrl) {
-        return generateQR(bakongRequest, requestUrl)
-                .map(qrResponse -> QrImageUtils.generateKhqrMerchantCard(
-                        qrResponse.getQr(),
-                        bakongRequest.getMerchantName(),
-                        bakongRequest.getAmount(),
-                        bakongRequest.getCurrency() != null ? bakongRequest.getCurrency().name() : "USD"
-                ));
+    public Mono<byte[]> getQRImage(CheckTransactionRequest request, String requestUrl) {
+        return reactiveExecutor.executeReactive("getQRImage", () -> {
+            BakongTransaction tx = bakongTransactionRepository.findByMd5(request.getMd5())
+                    .orElseThrow(() -> new BakongPaymentException("Bakong Transaction not found for MD5: " + request.getMd5()));
+
+            if (tx.getRawQrString() == null || tx.getRawQrString().isBlank()) {
+                throw new BakongPaymentException("Stored QR payload is empty for MD5: " + request.getMd5());
+            }
+
+            Double amt = tx.getAmount() != null ? tx.getAmount().doubleValue() : null;
+            return QrImageUtils.generateKhqrMerchantCard(
+                    tx.getRawQrString(),
+                    tx.getMerchantName(),
+                    amt,
+                    tx.getCurrency()
+            );
+        });
     }
 
     @Override
@@ -222,6 +219,7 @@ public class BakongServiceImpl implements BakongService {
         try {
             BakongTransaction transaction = BakongTransaction.builder()
                     .md5(qrData.getMd5())
+                    .merchantName(request.getMerchantName())
                     .amount(BigDecimal.valueOf(request.getAmount()))
                     .currency(request.getCurrency() != null ? request.getCurrency().name() : "KHR")
                     .status(TransactionState.NOT_SCANNED.name())

@@ -13,6 +13,5 @@ public class BakongQrResponse {
 
     private String qr;
     private String md5;
-    private String qrImageBase64;
 }
 

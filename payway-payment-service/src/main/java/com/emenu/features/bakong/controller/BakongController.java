@@ -42,9 +42,9 @@ public class BakongController {
                 .map(response -> ResponseEntity.ok(ApiResponse.success("Bakong KHQR generated successfully", response)));
     }
 
-    @PostMapping(value = "/generate-qr-image", produces = MediaType.IMAGE_PNG_VALUE)
-    public Mono<ResponseEntity<byte[]>> generateQRImage(
-            @Valid @RequestBody BakongRequest request,
+    @PostMapping(value = "/get-qr-image", produces = MediaType.IMAGE_PNG_VALUE)
+    public Mono<ResponseEntity<byte[]>> getQRImage(
+            @Valid @RequestBody CheckTransactionRequest request,
             HttpServletRequest servletRequest
     ) {
         return service.getQRImage(request, servletRequest.getRequestURL().toString())
