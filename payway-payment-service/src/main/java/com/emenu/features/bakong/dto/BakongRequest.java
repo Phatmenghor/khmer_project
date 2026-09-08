@@ -29,4 +29,5 @@ public class BakongRequest {
     private String storeLabel;
     private String terminalLabel;
     private String mobileNumber;
+    private Long expirationTimestamp;
 }

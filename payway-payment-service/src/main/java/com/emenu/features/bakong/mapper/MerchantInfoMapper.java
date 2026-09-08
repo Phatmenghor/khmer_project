@@ -22,6 +22,7 @@ public interface MerchantInfoMapper {
     @Mapping(target = "mobileNumber", source = "request.mobileNumber")
     @Mapping(target = "storeLabel", source = "request.storeLabel")
     @Mapping(target = "terminalLabel", source = "request.terminalLabel")
+    @Mapping(target = "expirationTimestamp", source = "request.expirationTimestamp")
     MerchantInfo toMerchantInfo(BakongRequest request, String bakongAccountId);
 
     @AfterMapping
@@ -37,6 +38,10 @@ public interface MerchantInfoMapper {
         }
         if (info.getMerchantCity() == null || info.getMerchantCity().isBlank()) {
             info.setMerchantCity("Phnom Penh");
+        }
+        // Dynamic KHQR requires expirationTimestamp in millis
+        if (info.getAmount() != null && info.getExpirationTimestamp() == null) {
+            info.setExpirationTimestamp(System.currentTimeMillis() + (15 * 60 * 1000L));
         }
     }
 }

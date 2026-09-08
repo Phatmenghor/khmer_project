@@ -69,6 +69,15 @@ public class BakongServiceImpl implements BakongService {
                         merchantInfoMapper.toMerchantInfo(bakongRequest, bakongAccountId)
                 );
 
+                if (response.getKHQRStatus() != null && response.getKHQRStatus().getCode() != 0) {
+                    String statusMsg = response.getKHQRStatus().getMessage();
+                    log.error("Bakong KHQR generation returned status code={}, errorCode={}: {}",
+                            response.getKHQRStatus().getCode(),
+                            response.getKHQRStatus().getErrorCode(),
+                            statusMsg);
+                    throw new BakongPaymentException("Bakong KHQR Generation Error: " + statusMsg);
+                }
+
                 String md5 = response.getData() == null ? null : response.getData().getMd5();
                 log.info("KHQR generated successfully, md5={}", md5);
 

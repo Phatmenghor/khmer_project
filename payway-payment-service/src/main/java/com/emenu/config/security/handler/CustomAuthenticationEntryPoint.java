@@ -47,9 +47,10 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             if (traceId == null || traceId.isBlank()) {
                 traceId = request.getHeader("X-Trace-ID");
             }
-            if (traceId != null && !traceId.isBlank()) {
-                MDC.put("traceId", traceId.trim());
+            if (traceId == null || traceId.isBlank()) {
+                traceId = java.util.UUID.randomUUID().toString();
             }
+            MDC.put("traceId", traceId.trim());
         }
     }
 }
