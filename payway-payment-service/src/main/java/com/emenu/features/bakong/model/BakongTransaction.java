@@ -48,9 +48,6 @@ public class BakongTransaction extends BaseUUIDEntity {
     @Column(name = "subscription_id", length = 100)
     private String subscriptionId;
 
-    @Column(name = "business_id", length = 100)
-    private String businessId;
-
     @Column(name = "raw_qr_string", columnDefinition = "TEXT")
     private String rawQrString;
 }
