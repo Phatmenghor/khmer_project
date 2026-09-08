@@ -45,7 +45,7 @@ public abstract class BaseUUIDEntity {
     @Column(name = "updated_by")
     private String updatedBy;
 
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
     private Boolean isDeleted = false;
 
     @Column(name = "deleted_at")
