@@ -2,7 +2,6 @@ package com.emenu.features.bakong.controller;
 
 import com.emenu.config.OpenApiConfig;
 import com.emenu.features.bakong.dto.BakongQrResponse;
-import com.emenu.features.bakong.dto.BakongQrImageRequest;
 import com.emenu.features.bakong.dto.BakongRequest;
 import com.emenu.features.bakong.dto.CheckTransactionRequest;
 import com.emenu.features.bakong.dto.StreamCheckTransactionRequest;
@@ -12,9 +11,7 @@ import com.emenu.shared.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import kh.gov.nbc.bakong_khqr.model.KHQRData;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -44,21 +41,6 @@ public class BakongController {
                 .map(response -> ResponseEntity.ok(ApiResponse.success("Bakong KHQR generated successfully", response)));
     }
 
-    @PostMapping("/get-qr-image")
-    public Mono<ResponseEntity<byte[]>> getQRImage(
-            @Valid @RequestBody BakongQrImageRequest request,
-            HttpServletRequest servletRequest
-    ) {
-        KHQRData qrData = new KHQRData();
-        qrData.setQr(request.getQr());
-        return service.getQRImage(qrData, servletRequest.getRequestURL().toString())
-                .map(imageBytes -> ResponseEntity
-                        .ok()
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"qrcode.png\"")
-                        .contentType(MediaType.IMAGE_PNG)
-                        .body(imageBytes));
-    }
-
     @PostMapping("/check-transaction")
     public Mono<ResponseEntity<ApiResponse<TransactionStatusResponse>>> checkTransaction(
             @Valid @RequestBody CheckTransactionRequest request,
@@ -68,16 +50,8 @@ public class BakongController {
                 .map(status -> ResponseEntity.ok(ApiResponse.success("Bakong transaction status retrieved successfully", status)));
     }
 
-    @PostMapping(value = "/check-transaction/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ApiResponse<TransactionStatusResponse>> streamCheckTransaction(
-            @Valid @RequestBody StreamCheckTransactionRequest request,
-            HttpServletRequest servletRequest
-    ) {
-        return service.streamCheckTransaction(request.getMd5(), request.getIntervalSeconds(), servletRequest.getRequestURL().toString());
-    }
-
     @GetMapping(value = "/check-transaction/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ApiResponse<TransactionStatusResponse>> streamCheckTransactionGet(
+    public Flux<ApiResponse<TransactionStatusResponse>> streamCheckTransaction(
             @Valid StreamCheckTransactionRequest request,
             HttpServletRequest servletRequest
     ) {
