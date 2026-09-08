@@ -21,8 +21,6 @@ security:
     password: "${SECURITY_BASIC_PASSWORD:admin123}"
 
 bakong:
-  service:
-    api-keys: "${BAKONG_SERVICE_API_KEYS:${PAYWAY_SERVICE_API_KEYS:sk_payway_default_secret_key_123456789}}"
   api-url: "${BAKONG_API_URL:https://api-bakong.nbc.gov.kh}"
   account-id: "${BAKONG_ACCOUNT_ID:phatmenghor@bkrt}"
   email: "${BAKONG_EMAIL:${EMAIL:phatmenghor19@gmail.com}}"
