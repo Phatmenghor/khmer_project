@@ -1,4 +1,4 @@
-package com.emenu.features.bakong.util;
+package com.emenu.features.bakong.common.util;
 
 public final class TextUtils {
 
@@ -7,7 +7,7 @@ public final class TextUtils {
 
     public static String abbreviate(String value, int maxLength) {
         if (value == null) {
-            return "null";
+            return null;
         }
 
         if (value.length() <= maxLength) {

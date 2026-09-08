@@ -1,7 +1,7 @@
-package com.emenu.features.bakong.integration.telegram.component;
+package com.emenu.features.bakong.common.integration.telegram.component;
 
-import com.emenu.features.bakong.integration.telegram.config.TelegramProperties;
-import com.emenu.features.bakong.util.TextUtils;
+import com.emenu.features.bakong.common.integration.telegram.config.TelegramProperties;
+import com.emenu.features.bakong.common.util.TextUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

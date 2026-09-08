@@ -1,4 +1,4 @@
-package com.emenu.features.bakong.integration.telegram.component;
+package com.emenu.features.bakong.common.integration.telegram.component;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

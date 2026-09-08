@@ -1,4 +1,4 @@
-package com.emenu.features.bakong.integration.telegram;
+package com.emenu.features.bakong.common.integration.telegram;
 
 import com.emenu.features.bakong.dto.BakongRequest;
 import com.emenu.features.bakong.dto.BakongResponse;

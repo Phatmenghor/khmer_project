@@ -1,19 +1,20 @@
-package com.emenu.features.bakong.validation;
+package com.emenu.features.bakong.common.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
+@Documented
 @Constraint(validatedBy = BakongRequestValidator.class)
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
 public @interface ValidBakongRequest {
-
-    String message() default "invalid Bakong request";
+    String message() default "Invalid Bakong KHQR request payload";
 
     Class<?>[] groups() default {};
 

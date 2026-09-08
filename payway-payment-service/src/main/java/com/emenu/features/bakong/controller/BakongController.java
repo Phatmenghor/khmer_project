@@ -3,14 +3,12 @@ package com.emenu.features.bakong.controller;
 import com.emenu.features.bakong.dto.BakongQrImageRequest;
 import com.emenu.features.bakong.dto.BakongRequest;
 import com.emenu.features.bakong.dto.CheckTransactionRequest;
+import com.emenu.features.bakong.dto.StreamCheckTransactionRequest;
 import com.emenu.features.bakong.dto.TransactionStatusResponse;
 import com.emenu.features.bakong.service.BakongService;
 import com.emenu.shared.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import kh.gov.nbc.bakong_khqr.model.KHQRData;
 import kh.gov.nbc.bakong_khqr.model.KHQRResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -68,12 +65,19 @@ public class BakongController {
                 .map(status -> ResponseEntity.ok(ApiResponse.success("Bakong transaction status retrieved successfully", status)));
     }
 
-    @GetMapping(value = "/check-transaction/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PostMapping(value = "/check-transaction/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ApiResponse<TransactionStatusResponse>> streamCheckTransaction(
-            @RequestParam @NotBlank String md5,
-            @RequestParam(defaultValue = "3") @Min(1) @Max(30) Integer intervalSeconds,
+            @Valid @RequestBody StreamCheckTransactionRequest request,
             HttpServletRequest servletRequest
     ) {
-        return service.streamCheckTransaction(md5, intervalSeconds, servletRequest.getRequestURL().toString());
+        return service.streamCheckTransaction(request.getMd5(), request.getIntervalSeconds(), servletRequest.getRequestURL().toString());
+    }
+
+    @GetMapping(value = "/check-transaction/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ApiResponse<TransactionStatusResponse>> streamCheckTransactionGet(
+            @Valid StreamCheckTransactionRequest request,
+            HttpServletRequest servletRequest
+    ) {
+        return service.streamCheckTransaction(request.getMd5(), request.getIntervalSeconds(), servletRequest.getRequestURL().toString());
     }
 }

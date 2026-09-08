@@ -1,4 +1,4 @@
-package com.emenu.features.bakong.integration.telegram.config;
+package com.emenu.features.bakong.common.integration.telegram.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
