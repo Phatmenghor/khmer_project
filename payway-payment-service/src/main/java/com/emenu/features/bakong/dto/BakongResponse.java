@@ -1,18 +1,29 @@
 package com.emenu.features.bakong.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public record BakongResponse(
-        int responseCode,
-        String responseMessage,
-        Integer errorCode,
-        Object data
-) {
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class BakongResponse {
+
+    private int responseCode;
+    private String responseMessage;
+    private Integer errorCode;
+    private Object data;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public boolean isSuccess() {
         return responseCode == 0;
     }
+
+    public int responseCode() { return getResponseCode(); }
+    public String responseMessage() { return getResponseMessage(); }
+    public Integer errorCode() { return getErrorCode(); }
+    public Object data() { return getData(); }
 }

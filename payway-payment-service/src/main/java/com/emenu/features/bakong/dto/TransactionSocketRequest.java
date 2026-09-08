@@ -5,19 +5,27 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record TransactionSocketRequest(
-        @NotBlank(message = "MD5 is required")
-        @Size(min = 32, max = 32, message = "MD5 must be exactly 32 characters")
-        String md5,
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TransactionSocketRequest {
 
-        @NotNull(message = "Interval seconds is required")
-        @Min(value = 1, message = "Interval must be at least 1 second")
-        @Max(value = 30, message = "Interval must not exceed 30 seconds")
-        Integer intervalSeconds
-) {
+    @NotBlank(message = "MD5 is required")
+    @Size(min = 32, max = 32, message = "MD5 must be exactly 32 characters")
+    private String md5;
 
-    public TransactionSocketRequest {
-        intervalSeconds = intervalSeconds == null ? 3 : intervalSeconds;
-    }
+    @NotNull(message = "Interval seconds is required")
+    @Min(value = 1, message = "Interval must be at least 1 second")
+    @Max(value = 30, message = "Interval must not exceed 30 seconds")
+    @Builder.Default
+    private Integer intervalSeconds = 3;
+
+    public String md5() { return getMd5(); }
+    public Integer intervalSeconds() { return getIntervalSeconds() != null ? getIntervalSeconds() : 3; }
 }

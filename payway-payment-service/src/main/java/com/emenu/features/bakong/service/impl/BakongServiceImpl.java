@@ -1,6 +1,8 @@
 package com.emenu.features.bakong.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.emenu.config.exception.BakongPaymentException;
+import com.emenu.config.exception.BakongUpstreamException;
 import com.emenu.features.bakong.component.BakongReactiveExecutor;
 import com.emenu.features.bakong.dto.BakongRequest;
 import com.emenu.features.bakong.dto.BakongResponse;
@@ -84,7 +86,7 @@ public class BakongServiceImpl implements BakongService {
                         bakongRequest.amount(),
                         ex.getMessage());
                 telegramNotifier.notifyIssue("QR generation failed", requestUrl, bakongRequest, ex);
-                throw ex;
+                throw new BakongPaymentException("Failed to generate Bakong KHQR: " + ex.getMessage(), ex);
             }
         });
     }
@@ -95,7 +97,7 @@ public class BakongServiceImpl implements BakongService {
             try {
                 if (qr == null || qr.getQr() == null || qr.getQr().isBlank()) {
                     log.warn("Received empty QR payload for image generation");
-                    return "Invalid QR data".getBytes(StandardCharsets.UTF_8);
+                    throw new BakongPaymentException("Invalid or empty QR data payload");
                 }
 
                 log.info("Encoding ZXing PNG QR image for payload length={}", qr.getQr().length());
@@ -106,7 +108,7 @@ public class BakongServiceImpl implements BakongService {
             } catch (Exception e) {
                 log.error("Unexpected QR image generation error: {}", e.getMessage());
                 telegramNotifier.notifyIssue("QR image generation failed", requestUrl, qr, e);
-                return ("Unexpected error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8);
+                throw new BakongPaymentException("QR image generation failed: " + e.getMessage(), e);
             }
         });
     }
@@ -160,11 +162,11 @@ public class BakongServiceImpl implements BakongService {
 
             log.error("Transaction check failed status={} for md5={}", ex.getStatusCode(), request.md5());
             telegramNotifier.notifyIssue("Transaction check failed", requestUrl, request, ex);
-            throw new RuntimeException("Invalid upstream response", ex);
+            throw new BakongUpstreamException("Transaction check failed status=" + ex.getStatusCode(), ex.getStatusCode().value(), ex.getResponseBodyAsString());
         } catch (Exception e) {
             log.error("Transaction check failed for md5={}: {}", request.md5(), e.getMessage());
             telegramNotifier.notifyIssue("Transaction check failed", requestUrl, request, e);
-            throw new RuntimeException("Invalid upstream response", e);
+            throw new BakongUpstreamException("Transaction check failed: " + e.getMessage(), e);
         }
     }
 
@@ -184,7 +186,7 @@ public class BakongServiceImpl implements BakongService {
         } catch (Exception ex) {
             log.error("Transaction check retry failed for md5={}: {}", request.md5(), ex.getMessage());
             telegramNotifier.notifyIssue("Transaction check failed", requestUrl, request, ex);
-            throw new RuntimeException("Invalid upstream response", ex);
+            throw new BakongUpstreamException("Transaction check retry failed: " + ex.getMessage(), ex);
         }
     }
 
