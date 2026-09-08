@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.emenu.config.exception.BakongPaymentException;
 import com.emenu.config.exception.BakongUpstreamException;
 import com.emenu.features.bakong.common.BakongReactiveExecutor;
+import com.emenu.features.bakong.dto.BakongQrResponse;
 import com.emenu.features.bakong.dto.BakongRequest;
 import com.emenu.features.bakong.dto.BakongResponse;
 import com.emenu.features.bakong.dto.CheckTransactionRequest;
@@ -35,6 +36,7 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.Map;
 
 @Service
@@ -58,7 +60,7 @@ public class BakongServiceImpl implements BakongService {
     private String baseUrl;
 
     @Override
-    public Mono<KHQRResponse<KHQRData>> generateQR(BakongRequest bakongRequest, String requestUrl) {
+    public Mono<BakongQrResponse> generateQR(BakongRequest bakongRequest, String requestUrl) {
         return reactiveExecutor.executeReactive("generateQR", () -> {
             log.info("Generating Bakong KHQR for merchantName={}, amount={} {}",
                     bakongRequest.getMerchantName(),
@@ -78,16 +80,29 @@ public class BakongServiceImpl implements BakongService {
                     throw new BakongPaymentException("Bakong KHQR Generation Error: " + statusMsg);
                 }
 
-                String md5 = response.getData() == null ? null : response.getData().getMd5();
+                KHQRData qrData = response.getData();
+                String qr = qrData == null ? null : qrData.getQr();
+                String md5 = qrData == null ? null : qrData.getMd5();
                 log.info("KHQR generated successfully, md5={}", md5);
 
-                if (response.getData() != null && md5 != null) {
-                    saveTransactionRecord(bakongRequest, response.getData());
+                String qrImageBase64 = null;
+                if (qr != null && !qr.isBlank()) {
+                    byte[] pngBytes = QrImageUtils.generatePngQrCode(qr, 300, 300);
+                    qrImageBase64 = "data:image/png;base64," + Base64.getEncoder().encodeToString(pngBytes);
+                }
+
+                if (qrData != null && md5 != null) {
+                    saveTransactionRecord(bakongRequest, qrData);
                     log.info("Persisted BakongTransaction record in DB table for md5={}", md5);
                 }
 
                 telegramNotifier.notifyQrGenerated(requestUrl, bakongRequest, response);
-                return response;
+
+                return BakongQrResponse.builder()
+                        .qr(qr)
+                        .md5(md5)
+                        .qrImageBase64(qrImageBase64)
+                        .build();
             } catch (Exception ex) {
                 log.error("Failed to generate Bakong KHQR for merchantName={} amount={}: {}",
                         bakongRequest.getMerchantName(),

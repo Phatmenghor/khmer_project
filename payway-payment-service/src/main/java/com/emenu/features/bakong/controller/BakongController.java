@@ -1,6 +1,7 @@
 package com.emenu.features.bakong.controller;
 
 import com.emenu.config.OpenApiConfig;
+import com.emenu.features.bakong.dto.BakongQrResponse;
 import com.emenu.features.bakong.dto.BakongQrImageRequest;
 import com.emenu.features.bakong.dto.BakongRequest;
 import com.emenu.features.bakong.dto.CheckTransactionRequest;
@@ -12,7 +13,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kh.gov.nbc.bakong_khqr.model.KHQRData;
-import kh.gov.nbc.bakong_khqr.model.KHQRResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -36,7 +36,7 @@ public class BakongController {
     private final BakongService service;
 
     @PostMapping("/generate-qr")
-    public Mono<ResponseEntity<ApiResponse<KHQRResponse<KHQRData>>>> generateQR(
+    public Mono<ResponseEntity<ApiResponse<BakongQrResponse>>> generateQR(
             @Valid @RequestBody BakongRequest request,
             HttpServletRequest servletRequest
     ) {
