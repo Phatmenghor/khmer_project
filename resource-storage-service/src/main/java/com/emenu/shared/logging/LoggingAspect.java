@@ -1,20 +1,33 @@
 package com.emenu.shared.logging;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Aspect
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class LoggingAspect {
+
+    private final ObjectMapper objectMapper;
 
     @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
     public void controllerPointcut() {}
@@ -27,20 +40,50 @@ public class LoggingAspect {
         HttpServletRequest request = getRequest();
         String method = request != null ? request.getMethod() : "UNKNOWN";
         String uri = request != null ? request.getRequestURI() : "UNKNOWN";
+        String queryString = (request != null && request.getQueryString() != null) ? "?" + request.getQueryString() : "";
+        String remoteAddr = request != null ? getClientIp(request) : "UNKNOWN";
         String methodName = joinPoint.getSignature().toShortString();
         String apiKeyPrefix = request != null ? prefixOf(request.getHeader("X-API-Key")) : "none";
 
-        log.info("Received {} request to endpoint={} [apiKey={}, method={}]", method, uri, apiKeyPrefix, methodName);
+        String reqArgs = formatArgs(joinPoint.getArgs());
+
+        log.info("--> AUDIT REQUEST [{} {}{}] ip={} [apiKey={}, handler={}] payload={}",
+                method, uri, queryString, remoteAddr, apiKeyPrefix, methodName, reqArgs);
 
         long start = System.currentTimeMillis();
         try {
             Object result = joinPoint.proceed();
             long duration = System.currentTimeMillis() - start;
-            log.info("Request completed successfully endpoint={} [duration={}ms]", uri, duration);
+
+            if (result instanceof Mono<?> mono) {
+                return mono.doOnNext(val -> {
+                    long execTime = System.currentTimeMillis() - start;
+                    log.info("<-- AUDIT RESPONSE [{} {}{}] [duration={}ms] payload={}",
+                            method, uri, queryString, execTime, formatResult(val));
+                }).doOnError(err -> {
+                    long execTime = System.currentTimeMillis() - start;
+                    log.error("<-- AUDIT RESPONSE ERROR [{} {}{}] [duration={}ms] error={}",
+                            method, uri, queryString, execTime, err.getMessage());
+                });
+            } else if (result instanceof Flux<?> flux) {
+                return flux.doOnNext(val -> {
+                    log.info("<-- AUDIT STREAM EVENT [{} {}{}] payload={}",
+                            method, uri, queryString, formatResult(val));
+                }).doOnError(err -> {
+                    long execTime = System.currentTimeMillis() - start;
+                    log.error("<-- AUDIT STREAM ERROR [{} {}{}] [duration={}ms] error={}",
+                            method, uri, queryString, execTime, err.getMessage());
+                });
+            }
+
+            String resBody = formatResult(result);
+            log.info("<-- AUDIT RESPONSE [{} {}{}] [duration={}ms] payload={}",
+                    method, uri, queryString, duration, resBody);
             return result;
         } catch (Throwable ex) {
             long duration = System.currentTimeMillis() - start;
-            log.error("Request failed endpoint={} [duration={}ms] with message={}", uri, duration, ex.getMessage());
+            log.error("<-- AUDIT RESPONSE ERROR [{} {}{}] [duration={}ms] error={}",
+                    method, uri, queryString, duration, ex.getMessage());
             throw ex;
         }
     }
@@ -48,7 +91,7 @@ public class LoggingAspect {
     @Around("servicePointcut()")
     public Object logService(ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = joinPoint.getSignature().toShortString();
-        String sanitizedArgs = sanitizeArgs(joinPoint.getArgs());
+        String sanitizedArgs = formatArgs(joinPoint.getArgs());
 
         log.debug("Entering service method: {} with args={}", methodName, sanitizedArgs);
 
@@ -56,44 +99,89 @@ public class LoggingAspect {
         try {
             Object result = joinPoint.proceed();
             long duration = System.currentTimeMillis() - start;
-            log.debug("Exiting service method: {} [duration={}ms, success=true]", methodName, duration);
+            if (result instanceof Mono<?> mono) {
+                return mono.doOnNext(val -> {
+                    long execTime = System.currentTimeMillis() - start;
+                    log.debug("Exiting service reactive method: {} [duration={}ms, success=true] result={}",
+                            methodName, execTime, formatResult(val));
+                }).doOnError(err -> {
+                    long execTime = System.currentTimeMillis() - start;
+                    log.error("Service reactive method failed: {} [duration={}ms] error={}",
+                            methodName, execTime, err.getMessage());
+                });
+            } else if (result instanceof Flux<?> flux) {
+                return flux.doOnNext(val -> {
+                    log.debug("Service reactive stream item: {} result={}", methodName, formatResult(val));
+                }).doOnError(err -> {
+                    long execTime = System.currentTimeMillis() - start;
+                    log.error("Service reactive stream failed: {} [duration={}ms] error={}",
+                            methodName, execTime, err.getMessage());
+                });
+            }
+            log.debug("Exiting service method: {} [duration={}ms, success=true] result={}",
+                    methodName, duration, formatResult(result));
             return result;
         } catch (Throwable ex) {
             long duration = System.currentTimeMillis() - start;
-            log.error("Exception in service method: {} [duration={}ms] with message={}", methodName, duration, ex.getMessage());
+            log.error("Service method failed: {} [duration={}ms] error={}", methodName, duration, ex.getMessage());
             throw ex;
         }
     }
 
     private HttpServletRequest getRequest() {
-        var attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        return attributes != null ? attributes.getRequest() : null;
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        return attrs != null ? attrs.getRequest() : null;
+    }
+
+    private String getClientIp(HttpServletRequest request) {
+        String xf = request.getHeader("X-Forwarded-For");
+        if (xf != null && !xf.isBlank()) {
+            return xf.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 
     private String prefixOf(String apiKey) {
-        if (apiKey == null || apiKey.length() < 12) return "***";
-        return apiKey.substring(0, 12) + "***";
+        if (apiKey == null || apiKey.length() < 8) return "none";
+        return apiKey.substring(0, 8) + "...";
     }
 
-    private String sanitizeArgs(Object[] args) {
-        if (args == null || args.length == 0) {
-            return "[]";
+    private String formatArgs(Object[] args) {
+        if (args == null || args.length == 0) return "[]";
+        return Arrays.stream(args)
+                .filter(arg -> !(arg instanceof ServletRequest) && !(arg instanceof ServletResponse))
+                .map(this::safeSerialize)
+                .collect(Collectors.joining(", ", "[", "]"));
+    }
+
+    private String formatResult(Object result) {
+        if (result == null) return "null";
+        if (result instanceof ResponseEntity<?> re) {
+            return "ResponseEntity(status=" + re.getStatusCode() + ", body=" + safeSerialize(re.getBody()) + ")";
         }
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < args.length; i++) {
-            if (i > 0) sb.append(", ");
-            Object arg = args[i];
-            if (arg == null) {
-                sb.append("null");
-            } else if (arg instanceof MultipartFile file) {
-                sb.append("MultipartFile(name=").append(file.getOriginalFilename())
-                        .append(", size=").append(file.getSize()).append("B)");
-            } else {
-                String argStr = arg.toString();
-                sb.append(argStr.length() > 100 ? argStr.substring(0, 97) + "..." : argStr);
+        return safeSerialize(result);
+    }
+
+    private String safeSerialize(Object obj) {
+        if (obj == null) return "null";
+        if (obj instanceof byte[] bytes) {
+            return "byte[" + bytes.length + "]";
+        }
+        if (obj instanceof MultipartFile file) {
+            return "MultipartFile(name=" + file.getOriginalFilename() + ", size=" + file.getSize() + "B)";
+        }
+        try {
+            String json = objectMapper.writeValueAsString(obj);
+            if (json.length() > 1000) {
+                return json.substring(0, 997) + "...";
             }
+            return json;
+        } catch (Exception e) {
+            String str = obj.toString();
+            if (str.length() > 500) {
+                return str.substring(0, 497) + "...";
+            }
+            return str;
         }
-        sb.append("]");
-        return sb.toString();
     }
 }
