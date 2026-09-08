@@ -71,9 +71,9 @@ public class TelegramNotifierImpl implements TelegramNotifier {
                 • <b>MD5 Code:</b> <code>%s</code>
                 • <b>Request URL:</b> <code>%s</code>
                 """.formatted(
-                escapeHtml(request.merchantName()),
-                request.amount(),
-                request.currency(),
+                escapeHtml(request.getMerchantName()),
+                request.getAmount(),
+                request.getCurrency(),
                 escapeHtml(md5),
                 escapeHtml(requestUrl)
         );
@@ -83,9 +83,9 @@ public class TelegramNotifierImpl implements TelegramNotifier {
 
     @Override
     public void notifyTransactionChecked(String requestUrl, String upstreamUrl, CheckTransactionRequest request, BakongResponse response) {
-        log.info("Sending Telegram transaction notification for md5={}", request.md5());
+        log.info("Sending Telegram transaction notification for md5={}", request.getMd5());
 
-        String statusLabel = response.isSuccess() ? "SUCCESS" : ("CODE " + response.responseCode());
+        String statusLabel = response.isSuccess() ? "SUCCESS" : ("CODE " + response.getResponseCode());
         String message = """
                 <b>BAKONG TRANSACTION CHECKED</b>
 
@@ -95,9 +95,9 @@ public class TelegramNotifierImpl implements TelegramNotifier {
                 • <b>Request URL:</b> <code>%s</code>
                 • <b>Upstream URL:</b> <code>%s</code>
                 """.formatted(
-                escapeHtml(request.md5()),
+                escapeHtml(request.getMd5()),
                 escapeHtml(statusLabel),
-                escapeHtml(response.responseMessage()),
+                escapeHtml(response.getResponseMessage()),
                 escapeHtml(requestUrl),
                 escapeHtml(upstreamUrl)
         );

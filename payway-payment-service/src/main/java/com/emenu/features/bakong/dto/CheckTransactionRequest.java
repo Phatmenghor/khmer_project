@@ -16,6 +16,4 @@ public class CheckTransactionRequest {
     @NotBlank(message = "MD5 is required")
     @Size(min = 32, max = 32, message = "MD5 must be exactly 32 characters")
     private String md5;
-
-    public String md5() { return getMd5(); }
 }

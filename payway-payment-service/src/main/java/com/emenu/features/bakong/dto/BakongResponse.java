@@ -21,9 +21,4 @@ public class BakongResponse {
     public boolean isSuccess() {
         return responseCode == 0;
     }
-
-    public int responseCode() { return getResponseCode(); }
-    public String responseMessage() { return getResponseMessage(); }
-    public Integer errorCode() { return getErrorCode(); }
-    public Object data() { return getData(); }
 }

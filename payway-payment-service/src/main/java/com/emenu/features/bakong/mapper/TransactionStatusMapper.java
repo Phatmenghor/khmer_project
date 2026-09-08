@@ -35,7 +35,7 @@ public class TransactionStatusMapper {
             return TransactionState.PAID;
         }
 
-        if (response.responseCode() == 1) {
+        if (response.getResponseCode() == 1) {
             return TransactionState.WAITING;
         }
 
@@ -51,7 +51,7 @@ public class TransactionStatusMapper {
             return TransactionState.PAID;
         }
 
-        if (response.responseCode() == 1) {
+        if (response.getResponseCode() == 1) {
             return attemptIndex <= 0 ? TransactionState.NOT_SCANNED : TransactionState.WAITING_FOR_PAYMENT;
         }
 

@@ -15,8 +15,4 @@ public class TransactionStatusResponse {
     private TransactionState state;
     private boolean terminal;
     private BakongResponse transaction;
-
-    public TransactionState state() { return getState(); }
-    public boolean terminal() { return isTerminal(); }
-    public BakongResponse transaction() { return getTransaction(); }
 }

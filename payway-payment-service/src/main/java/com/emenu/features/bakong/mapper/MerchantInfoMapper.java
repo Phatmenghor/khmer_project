@@ -31,8 +31,8 @@ public interface MerchantInfoMapper {
 
     @AfterMapping
     default void calculateExpirationTimestamp(@MappingTarget MerchantInfo merchantInfo, BakongRequest request) {
-        if (request != null && request.expirationTimestamp() != null) {
-            merchantInfo.setExpirationTimestamp(System.currentTimeMillis() + request.expirationTimestamp() * 60L * 1000);
+        if (request != null && request.getExpirationTimestamp() != null) {
+            merchantInfo.setExpirationTimestamp(System.currentTimeMillis() + request.getExpirationTimestamp() * 60L * 1000);
         }
     }
 }

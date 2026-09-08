@@ -9,12 +9,12 @@ public class BakongRequestValidator implements ConstraintValidator<ValidBakongRe
 
     @Override
     public boolean isValid(BakongRequest value, ConstraintValidatorContext context) {
-        if (value == null || value.amount() == null) {
+        if (value == null || value.getAmount() == null) {
             return true;
         }
 
-        KHQRCurrency currency = value.currency() == null ? KHQRCurrency.KHR : value.currency();
-        if (currency == KHQRCurrency.KHR && value.amount() % 1 != 0) {
+        KHQRCurrency currency = value.getCurrency() == null ? KHQRCurrency.KHR : value.getCurrency();
+        if (currency == KHQRCurrency.KHR && value.getAmount() % 1 != 0) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("KHR amount must be a whole number. Use USD for fractional amounts.")
                     .addPropertyNode("amount")

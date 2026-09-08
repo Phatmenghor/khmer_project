@@ -23,9 +23,5 @@ public class TransactionSocketRequest {
     @NotNull(message = "Interval seconds is required")
     @Min(value = 1, message = "Interval must be at least 1 second")
     @Max(value = 30, message = "Interval must not exceed 30 seconds")
-    @Builder.Default
-    private Integer intervalSeconds = 3;
-
-    public String md5() { return getMd5(); }
-    public Integer intervalSeconds() { return getIntervalSeconds() != null ? getIntervalSeconds() : 3; }
+    private Integer intervalSeconds;
 }
