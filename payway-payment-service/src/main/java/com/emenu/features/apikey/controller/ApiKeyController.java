@@ -1,9 +1,11 @@
 package com.emenu.features.apikey.controller;
 
+import com.emenu.config.OpenApiConfig;
 import com.emenu.features.apikey.dto.request.ApiKeyCreateRequest;
 import com.emenu.features.apikey.dto.response.ApiKeyResponse;
 import com.emenu.features.apikey.service.ApiKeyService;
 import com.emenu.shared.dto.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/admin/keys")
 @RequiredArgsConstructor
 @Validated
+@SecurityRequirement(name = OpenApiConfig.BASIC_AUTH_SCHEME)
 public class ApiKeyController {
 
     private final ApiKeyService apiKeyService;

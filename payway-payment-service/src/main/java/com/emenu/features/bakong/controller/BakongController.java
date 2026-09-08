@@ -1,5 +1,6 @@
 package com.emenu.features.bakong.controller;
 
+import com.emenu.config.OpenApiConfig;
 import com.emenu.features.bakong.dto.BakongQrImageRequest;
 import com.emenu.features.bakong.dto.BakongRequest;
 import com.emenu.features.bakong.dto.CheckTransactionRequest;
@@ -7,6 +8,7 @@ import com.emenu.features.bakong.dto.StreamCheckTransactionRequest;
 import com.emenu.features.bakong.dto.TransactionStatusResponse;
 import com.emenu.features.bakong.service.BakongService;
 import com.emenu.shared.dto.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kh.gov.nbc.bakong_khqr.model.KHQRData;
@@ -28,6 +30,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/v1/bakong")
 @RequiredArgsConstructor
 @Validated
+@SecurityRequirement(name = OpenApiConfig.API_KEY_SCHEME)
 public class BakongController {
 
     private final BakongService service;

@@ -53,7 +53,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             path.startsWith("/v3/api-docs") ||
             path.startsWith("/swagger-ui") ||
             path.startsWith("/swagger-resources") ||
-            path.startsWith("/webjars")) {
+            path.startsWith("/webjars") ||
+            path.startsWith("/api/v1/admin/keys")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -61,13 +62,6 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         String rawKey = request.getHeader(API_KEY_HEADER);
         if (rawKey == null || rawKey.isBlank()) {
             rawKey = request.getHeader(API_KEY_HEADER_ALT);
-        }
-
-        // If request is to admin keys endpoint and has HTTP Basic auth header, let Basic Auth chain handle it if X-Api-Key is missing
-        String authHeader = request.getHeader("Authorization");
-        if (path.startsWith("/api/v1/admin/keys") && (rawKey == null || rawKey.isBlank()) && authHeader != null && authHeader.startsWith("Basic ")) {
-            filterChain.doFilter(request, response);
-            return;
         }
 
         if (rawKey == null || rawKey.isBlank()) {

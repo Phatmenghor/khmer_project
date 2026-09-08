@@ -30,7 +30,7 @@ spring:
 security:
   basic:
     username: "${SECURITY_BASIC_USERNAME:admin}"
-    password: "${SECURITY_BASIC_PASSWORD:password}"
+    password: "${SECURITY_BASIC_PASSWORD:admin123}"
 
 # ── Base Bakong Configuration ────────────────────────────────────────────────
 bakong:

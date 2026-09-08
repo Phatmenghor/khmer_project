@@ -49,6 +49,7 @@ public class SecurityConfig {
         return registration;
     }
 
+    /** Admin endpoints (API key management) — Basic Auth only (admin:admin123), separate from per-project API keys. */
     @Bean
     @Order(1)
     public SecurityFilterChain adminFilterChain(HttpSecurity http) throws Exception {
@@ -62,12 +63,12 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                         .accessDeniedHandler(customAccessDeniedHandler)
-                )
-                .addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                );
 
         return http.build();
     }
 
+    /** Bakong Business Endpoints — Authenticated via X-Api-Key header filter. */
     @Bean
     @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
