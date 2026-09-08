@@ -17,12 +17,6 @@ public interface MerchantInfoMapper {
     @Mapping(target = "currency", source = "request.currency")
     @Mapping(target = "amount", source = "request.amount")
     @Mapping(target = "merchantName", source = "request.merchantName")
-    @Mapping(target = "merchantCity", source = "request.merchantCity")
-    @Mapping(target = "billNumber", source = "request.billNumber")
-    @Mapping(target = "mobileNumber", source = "request.mobileNumber")
-    @Mapping(target = "storeLabel", source = "request.storeLabel")
-    @Mapping(target = "terminalLabel", source = "request.terminalLabel")
-    @Mapping(target = "expirationTimestamp", source = "request.expirationTimestamp")
     MerchantInfo toMerchantInfo(BakongRequest request, String bakongAccountId);
 
     @AfterMapping

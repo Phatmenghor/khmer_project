@@ -24,11 +24,6 @@ public class BakongRequest {
     private Double amount;
 
     private String merchantName;
-    private String merchantCity;
-    private String billNumber;
-    private String storeLabel;
-    private String terminalLabel;
-    private String mobileNumber;
 
     /**
      * Optional expiration duration in minutes (e.g., 15, 30, 60).
