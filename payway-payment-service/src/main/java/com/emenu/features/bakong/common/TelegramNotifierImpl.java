@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.CompletableFuture;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -28,7 +30,7 @@ public class TelegramNotifierImpl implements TelegramNotifier {
                 hasText(telegramProperties.getGroupChatId())
         );
 
-        telegramClientComponent.validateChatAccess();
+        CompletableFuture.runAsync(telegramClientComponent::validateChatAccess);
     }
 
     @Override

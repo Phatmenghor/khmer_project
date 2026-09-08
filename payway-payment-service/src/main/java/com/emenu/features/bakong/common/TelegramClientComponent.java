@@ -38,11 +38,11 @@ public class TelegramClientComponent {
                     .toBodilessEntity();
             log.info("Telegram group chat validation succeeded for chatId={}", telegramProperties.getGroupChatId());
         } catch (RestClientResponseException ex) {
-            log.error(
-                    "Telegram group chat validation status={} responseBody={}",
-                    ex.getStatusCode(),
-                    ex.getResponseBodyAsString()
-            );
+            if (ex.getStatusCode().value() == 429) {
+                log.warn("Telegram rate limit reached (HTTP 429 Too Many Requests). Skipping startup check: {}", ex.getResponseBodyAsString());
+            } else {
+                log.error("Telegram group chat validation status={} responseBody={}", ex.getStatusCode(), ex.getResponseBodyAsString());
+            }
         } catch (Exception ex) {
             log.error("Telegram group chat validation failed: {}", ex.getMessage());
         }
@@ -70,12 +70,11 @@ public class TelegramClientComponent {
                     .toBodilessEntity();
             log.info("Telegram notification sent successfully to group ChatId={}", telegramProperties.getGroupChatId());
         } catch (RestClientResponseException ex) {
-            log.error(
-                    "Failed to send Telegram notification status={} responseBody={}",
-                    ex.getStatusCode(),
-                    ex.getResponseBodyAsString(),
-                    ex
-            );
+            if (ex.getStatusCode().value() == 429) {
+                log.warn("Telegram notification rate limit reached (HTTP 429 Too Many Requests). Message queued/skipped.");
+            } else {
+                log.error("Failed to send Telegram notification status={} responseBody={}", ex.getStatusCode(), ex.getResponseBodyAsString(), ex);
+            }
         } catch (Exception ex) {
             log.error("Failed to send Telegram notification: {}", ex.getMessage());
         }
