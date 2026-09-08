@@ -8,6 +8,8 @@ import com.emenu.features.bakong.dto.StreamCheckTransactionRequest;
 import com.emenu.features.bakong.dto.TransactionStatusResponse;
 import com.emenu.features.bakong.service.BakongService;
 import com.emenu.shared.dto.ApiResponse;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -21,6 +23,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
@@ -37,6 +40,8 @@ public class BakongController {
 
     @PostMapping("/generate-qr")
     public Mono<ResponseEntity<ApiResponse<KHQRResponse<KHQRData>>>> generateQR(
+            @Parameter(description = "API Key (or use Authorize button at top)", in = ParameterIn.HEADER)
+            @RequestHeader(value = "X-Api-Key", required = false) String apiKey,
             @Valid @RequestBody BakongRequest request,
             HttpServletRequest servletRequest
     ) {
@@ -46,6 +51,8 @@ public class BakongController {
 
     @PostMapping("/get-qr-image")
     public Mono<ResponseEntity<byte[]>> getQRImage(
+            @Parameter(description = "API Key (or use Authorize button at top)", in = ParameterIn.HEADER)
+            @RequestHeader(value = "X-Api-Key", required = false) String apiKey,
             @Valid @RequestBody BakongQrImageRequest request,
             HttpServletRequest servletRequest
     ) {
@@ -61,6 +68,8 @@ public class BakongController {
 
     @PostMapping("/check-transaction")
     public Mono<ResponseEntity<ApiResponse<TransactionStatusResponse>>> checkTransaction(
+            @Parameter(description = "API Key (or use Authorize button at top)", in = ParameterIn.HEADER)
+            @RequestHeader(value = "X-Api-Key", required = false) String apiKey,
             @Valid @RequestBody CheckTransactionRequest request,
             HttpServletRequest servletRequest
     ) {
@@ -70,6 +79,8 @@ public class BakongController {
 
     @PostMapping(value = "/check-transaction/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ApiResponse<TransactionStatusResponse>> streamCheckTransaction(
+            @Parameter(description = "API Key (or use Authorize button at top)", in = ParameterIn.HEADER)
+            @RequestHeader(value = "X-Api-Key", required = false) String apiKey,
             @Valid @RequestBody StreamCheckTransactionRequest request,
             HttpServletRequest servletRequest
     ) {
@@ -78,6 +89,8 @@ public class BakongController {
 
     @GetMapping(value = "/check-transaction/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ApiResponse<TransactionStatusResponse>> streamCheckTransactionGet(
+            @Parameter(description = "API Key (or use Authorize button at top)", in = ParameterIn.HEADER)
+            @RequestHeader(value = "X-Api-Key", required = false) String apiKey,
             @Valid StreamCheckTransactionRequest request,
             HttpServletRequest servletRequest
     ) {
