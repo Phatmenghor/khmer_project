@@ -193,8 +193,8 @@ public class LoggingAspect {
     }
 
     private String prefixOf(String apiKey) {
-        if (apiKey == null || apiKey.length() < 8) return "none";
-        return apiKey.substring(0, 8) + "...";
+        if (apiKey == null || apiKey.isBlank()) return "none";
+        return apiKey;
     }
 
     private String formatArgs(Object[] args) {

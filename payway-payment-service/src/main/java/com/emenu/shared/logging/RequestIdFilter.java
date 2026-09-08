@@ -63,6 +63,6 @@ public class RequestIdFilter extends OncePerRequestFilter {
         if (reqId != null && !reqId.isBlank()) return reqId.trim();
         String traceId = req.getHeader(TRACE_ID_HEADER);
         if (traceId != null && !traceId.isBlank()) return traceId.trim();
-        return UUID.randomUUID().toString().substring(0, 18);
+        return UUID.randomUUID().toString();
     }
 }
