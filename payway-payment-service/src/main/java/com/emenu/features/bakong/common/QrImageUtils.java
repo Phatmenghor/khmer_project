@@ -131,7 +131,7 @@ public final class QrImageUtils {
             int lineY = Math.max(265, currentY);
             g2d.drawLine(30, lineY, cardWidth - 30, lineY);
 
-            // 6. Direct QR Code Placement (Matching KHQR - digital payment.svg)
+            // 6. Direct QR Code Placement (Clean QR without center logo overlay)
             int qrSize = 450;
             int qrX = (cardWidth - qrSize) / 2;
             int qrY = lineY + 20;
@@ -139,59 +139,6 @@ public final class QrImageUtils {
             byte[] qrBytes = generatePngQrCode(qrContent, qrSize, qrSize);
             BufferedImage qrImg = ImageIO.read(new ByteArrayInputStream(qrBytes));
             g2d.drawImage(qrImg, qrX, qrY, qrSize, qrSize, null);
-
-            // 7. Center Logo Overlay on QR Code (Using scanmekhlogo.png)
-            int centerX = qrX + (qrSize / 2);
-            int centerY = qrY + (qrSize / 2);
-
-            boolean centerLogoDrawn = false;
-            try (InputStream logoStream = QrImageUtils.class.getResourceAsStream("/assets/khqr/scanmekhlogo.png")) {
-                if (logoStream != null) {
-                    BufferedImage logoImg = ImageIO.read(logoStream);
-                    if (logoImg != null) {
-                        int logoWidth = 64;
-                        int logoHeight = (int) ((double) logoImg.getHeight() / logoImg.getWidth() * logoWidth);
-                        int whiteRadius = 38; // White circle padding for QR scan precision
-
-                        // White Outer Circular Padding
-                        g2d.setColor(Color.WHITE);
-                        g2d.fillOval(centerX - whiteRadius, centerY - whiteRadius, whiteRadius * 2, whiteRadius * 2);
-
-                        // Draw scanmekhlogo.png centered
-                        g2d.drawImage(logoImg, centerX - (logoWidth / 2), centerY - (logoHeight / 2), logoWidth, logoHeight, null);
-                        centerLogoDrawn = true;
-                    }
-                }
-            } catch (Exception ignored) {
-            }
-
-            if (!centerLogoDrawn) {
-                try (InputStream redLogoStream = QrImageUtils.class.getResourceAsStream("/assets/khqr/KHQR Logo red.png")) {
-                    if (redLogoStream != null) {
-                        BufferedImage redLogoImg = ImageIO.read(redLogoStream);
-                        if (redLogoImg != null) {
-                            int logoWidth = 56;
-                            int logoHeight = (int) ((double) redLogoImg.getHeight() / redLogoImg.getWidth() * logoWidth);
-                            int whiteRadius = 36;
-                            g2d.setColor(Color.WHITE);
-                            g2d.fillOval(centerX - whiteRadius, centerY - whiteRadius, whiteRadius * 2, whiteRadius * 2);
-                            g2d.drawImage(redLogoImg, centerX - (logoWidth / 2), centerY - (logoHeight / 2), logoWidth, logoHeight, null);
-                            centerLogoDrawn = true;
-                        }
-                    }
-                } catch (Exception ignored) {
-                }
-            }
-
-            if (!centerLogoDrawn) {
-                int whiteRadius = 36;
-                g2d.setColor(Color.WHITE);
-                g2d.fillOval(centerX - whiteRadius, centerY - whiteRadius, whiteRadius * 2, whiteRadius * 2);
-                g2d.setColor(new Color(226, 26, 26));
-                g2d.setFont(new Font("SansSerif", Font.BOLD, 15));
-                FontMetrics fm = g2d.getFontMetrics();
-                g2d.drawString("KHQR", centerX - (fm.stringWidth("KHQR") / 2), centerY + 5);
-            }
 
             g2d.dispose();
 
