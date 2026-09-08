@@ -1,5 +1,6 @@
 package com.emenu.features.bakong.controller;
 
+import com.emenu.features.bakong.dto.BakongQrImageRequest;
 import com.emenu.features.bakong.dto.BakongRequest;
 import com.emenu.features.bakong.dto.CheckTransactionRequest;
 import com.emenu.features.bakong.dto.TransactionStatusResponse;
@@ -45,10 +46,12 @@ public class BakongController {
 
     @PostMapping("/get-qr-image")
     public Mono<ResponseEntity<byte[]>> getQRImage(
-            @RequestBody KHQRData qr,
+            @Valid @RequestBody BakongQrImageRequest request,
             HttpServletRequest servletRequest
     ) {
-        return service.getQRImage(qr, servletRequest.getRequestURL().toString())
+        KHQRData qrData = new KHQRData();
+        qrData.setQr(request.getQr());
+        return service.getQRImage(qrData, servletRequest.getRequestURL().toString())
                 .map(imageBytes -> ResponseEntity
                         .ok()
                         .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"qrcode.png\"")

@@ -5,8 +5,10 @@ import com.emenu.features.apikey.dto.response.ApiKeyResponse;
 import com.emenu.features.apikey.service.ApiKeyService;
 import com.emenu.shared.dto.ApiResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +23,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/admin/keys")
 @RequiredArgsConstructor
+@Validated
 public class ApiKeyController {
 
     private final ApiKeyService apiKeyService;
@@ -36,7 +39,7 @@ public class ApiKeyController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> revokeApiKey(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<Void>> revokeApiKey(@PathVariable @NotNull(message = "API key ID is required") UUID id) {
         apiKeyService.revokeApiKey(id);
         return ResponseEntity.ok(ApiResponse.success("API key revoked successfully", null));
     }
