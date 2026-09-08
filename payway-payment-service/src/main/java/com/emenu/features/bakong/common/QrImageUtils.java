@@ -153,16 +153,42 @@ public final class QrImageUtils {
             int tagWidth = g2d.getFontMetrics().stringWidth(tagline);
             g2d.drawString(tagline, (cardWidth - tagWidth) / 2, 805);
 
-            // Member of KHQR footer text
-            g2d.setFont(new Font("SansSerif", Font.BOLD, 13));
-            g2d.setColor(new Color(226, 26, 26));
-            g2d.drawString("Member of KHQR", 45, 855);
+            // Member of KHQR footer logo
+            g2d.setFont(new Font("SansSerif", Font.PLAIN, 12));
+            g2d.setColor(new Color(120, 120, 120));
+            g2d.drawString("Member of", 45, 838);
 
-            g2d.setFont(new Font("SansSerif", Font.PLAIN, 13));
-            g2d.setColor(new Color(110, 110, 110));
-            String acceptText = "Accepted via Bakong & KHQR Banks";
+            boolean redLogoDrawn = false;
+            try (InputStream redLogoStream = QrImageUtils.class.getResourceAsStream("/assets/khqr/KHQR Logo red.png")) {
+                if (redLogoStream != null) {
+                    BufferedImage redLogoImg = ImageIO.read(redLogoStream);
+                    if (redLogoImg != null) {
+                        int rLogoWidth = 110;
+                        int rLogoHeight = (int) ((double) redLogoImg.getHeight() / redLogoImg.getWidth() * rLogoWidth);
+                        g2d.drawImage(redLogoImg, 45, 846, rLogoWidth, rLogoHeight, null);
+                        redLogoDrawn = true;
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+
+            if (!redLogoDrawn) {
+                g2d.setFont(new Font("SansSerif", Font.BOLD, 14));
+                g2d.setColor(new Color(226, 26, 26));
+                g2d.drawString("KHQR", 45, 860);
+            }
+
+            g2d.setFont(new Font("SansSerif", Font.PLAIN, 12));
+            g2d.setColor(new Color(120, 120, 120));
+            String acceptLabel = "Accepted here";
+            int accLblWidth = g2d.getFontMetrics().stringWidth(acceptLabel);
+            g2d.drawString(acceptLabel, cardWidth - 45 - accLblWidth, 838);
+
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 13));
+            g2d.setColor(new Color(30, 30, 30));
+            String acceptText = "Bakong & KHQR Banks";
             int accWidth = g2d.getFontMetrics().stringWidth(acceptText);
-            g2d.drawString(acceptText, cardWidth - 45 - accWidth, 855);
+            g2d.drawString(acceptText, cardWidth - 45 - accWidth, 858);
 
             // Bottom Red Bar Accent
             g2d.setColor(new Color(226, 26, 26));
