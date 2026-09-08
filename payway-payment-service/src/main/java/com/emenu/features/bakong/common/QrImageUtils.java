@@ -140,24 +140,25 @@ public final class QrImageUtils {
             BufferedImage qrImg = ImageIO.read(new ByteArrayInputStream(qrBytes));
             g2d.drawImage(qrImg, qrX, qrY, qrSize, qrSize, null);
 
-            // 7. Center Bakong Logo Badge Overlay on QR Code
+            // 7. Center KHQR Red Logo Overlay on QR Code (Using KHQR Logo red.png without background box)
             int centerX = qrX + (qrSize / 2);
             int centerY = qrY + (qrSize / 2);
 
             boolean centerLogoDrawn = false;
-            try (InputStream bgLogoStream = QrImageUtils.class.getResourceAsStream("/assets/khqr/KHQR available here - logo with bg.png")) {
-                if (bgLogoStream != null) {
-                    BufferedImage bgLogoImg = ImageIO.read(bgLogoStream);
-                    if (bgLogoImg != null) {
-                        int badgeRadius = 34; // 68px diameter
-                        int whiteRadius = 38; // 76px outer white circle padding
+            try (InputStream redLogoStream = QrImageUtils.class.getResourceAsStream("/assets/khqr/KHQR Logo red.png")) {
+                if (redLogoStream != null) {
+                    BufferedImage redLogoImg = ImageIO.read(redLogoStream);
+                    if (redLogoImg != null) {
+                        int logoWidth = 56;
+                        int logoHeight = (int) ((double) redLogoImg.getHeight() / redLogoImg.getWidth() * logoWidth);
+                        int whiteRadius = 36; // Outer white circle padding for QR readability
 
                         // White Outer Circular Padding
                         g2d.setColor(Color.WHITE);
                         g2d.fillOval(centerX - whiteRadius, centerY - whiteRadius, whiteRadius * 2, whiteRadius * 2);
 
-                        // Draw Red KHQR Badge centered
-                        g2d.drawImage(bgLogoImg, centerX - badgeRadius, centerY - (badgeRadius * bgLogoImg.getHeight() / bgLogoImg.getWidth()), badgeRadius * 2, (badgeRadius * 2 * bgLogoImg.getHeight() / bgLogoImg.getWidth()), null);
+                        // Draw KHQR Logo red (transparent logo) centered
+                        g2d.drawImage(redLogoImg, centerX - (logoWidth / 2), centerY - (logoHeight / 2), logoWidth, logoHeight, null);
                         centerLogoDrawn = true;
                     }
                 }
@@ -165,15 +166,13 @@ public final class QrImageUtils {
             }
 
             if (!centerLogoDrawn) {
-                // Fallback circular red emblem badge if image is missing
+                // Fallback circular red text logo if image is missing
                 int badgeRadius = 32;
                 int whiteRadius = 36;
                 g2d.setColor(Color.WHITE);
                 g2d.fillOval(centerX - whiteRadius, centerY - whiteRadius, whiteRadius * 2, whiteRadius * 2);
                 g2d.setColor(new Color(226, 26, 26));
-                g2d.fillOval(centerX - badgeRadius, centerY - badgeRadius, badgeRadius * 2, badgeRadius * 2);
-                g2d.setColor(Color.WHITE);
-                g2d.setFont(new Font("SansSerif", Font.BOLD, 14));
+                g2d.setFont(new Font("SansSerif", Font.BOLD, 15));
                 FontMetrics fm = g2d.getFontMetrics();
                 g2d.drawString("KHQR", centerX - (fm.stringWidth("KHQR") / 2), centerY + 5);
             }
