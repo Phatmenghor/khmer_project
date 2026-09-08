@@ -89,17 +89,14 @@ public final class QrImageUtils {
                 drawFallbackKhqrText(g2d, cardWidth, headerHeight);
             }
 
-            // 3. Merchant / Company Name Section
-            g2d.setColor(new Color(110, 110, 110));
-            g2d.setFont(new Font("SansSerif", Font.PLAIN, 18));
-            g2d.drawString("Company Name", 50, 185);
+            // 3. Merchant / Company Name Section (No redundant grey label above)
+            String displayName = (merchantName != null && !merchantName.isBlank()) ? merchantName : "Company Name";
+            g2d.setColor(new Color(20, 20, 20));
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 26));
+            g2d.drawString(displayName, 50, 195);
 
-            String displayName = (merchantName != null && !merchantName.isBlank()) ? merchantName : "eMenu Merchant";
-            g2d.setColor(new Color(15, 15, 15));
-            g2d.setFont(new Font("SansSerif", Font.BOLD, 28));
-            g2d.drawString(displayName, 50, 225);
-
-            // 4. Formatted Amount & Currency
+            // 4. Formatted Amount & Currency Section
+            int currentY = 245;
             if (amount != null && amount > 0) {
                 String formattedAmt;
                 if ("KHR".equalsIgnoreCase(currency)) {
@@ -110,35 +107,40 @@ public final class QrImageUtils {
                 String currStr = (currency != null ? currency.toUpperCase() : "USD");
 
                 g2d.setColor(Color.BLACK);
-                g2d.setFont(new Font("SansSerif", Font.BOLD, 42));
-                g2d.drawString(formattedAmt, 50, 285);
+                g2d.setFont(new Font("SansSerif", Font.BOLD, 40));
+                g2d.drawString(formattedAmt, 50, currentY);
 
                 int amtWidth = g2d.getFontMetrics().stringWidth(formattedAmt);
                 g2d.setFont(new Font("SansSerif", Font.BOLD, 22));
-                g2d.setColor(new Color(70, 70, 70));
-                g2d.drawString(currStr, 50 + amtWidth + 14, 280);
+                g2d.setColor(new Color(60, 60, 60));
+                g2d.drawString(currStr, 50 + amtWidth + 12, currentY - 4);
+
+                currentY += 40;
+            } else {
+                currentY += 15;
             }
 
             // 5. Dashed Separator Line
-            g2d.setColor(new Color(215, 215, 215));
+            g2d.setColor(new Color(210, 210, 210));
             Stroke dashedStroke = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{8.0f, 6.0f}, 0.0f);
             g2d.setStroke(dashedStroke);
-            g2d.drawLine(40, 318, cardWidth - 40, 318);
+            int lineY = Math.max(285, currentY);
+            g2d.drawLine(40, lineY, cardWidth - 40, lineY);
 
-            // 6. Rounded Container Frame around QR Code (from Official Standee Design)
-            int frameWidth = 430;
-            int frameHeight = 430;
+            // 6. Rounded Container Frame around QR Code (from Official Standee/Tag Design)
+            int frameWidth = 440;
+            int frameHeight = 440;
             int frameX = (cardWidth - frameWidth) / 2;
-            int frameY = 345;
+            int frameY = lineY + 25;
 
             g2d.setColor(Color.WHITE);
-            g2d.fillRoundRect(frameX, frameY, frameWidth, frameHeight, 28, 28);
-            g2d.setColor(new Color(225, 225, 225));
+            g2d.fillRoundRect(frameX, frameY, frameWidth, frameHeight, 24, 24);
+            g2d.setColor(new Color(230, 230, 230));
             g2d.setStroke(new BasicStroke(2));
-            g2d.drawRoundRect(frameX, frameY, frameWidth, frameHeight, 28, 28);
+            g2d.drawRoundRect(frameX, frameY, frameWidth, frameHeight, 24, 24);
 
             // 7. Embedded QR Code inside Rounded Frame
-            int qrSize = 390;
+            int qrSize = 400;
             int qrX = (cardWidth - qrSize) / 2;
             int qrY = frameY + (frameHeight - qrSize) / 2;
 
@@ -147,16 +149,18 @@ public final class QrImageUtils {
             g2d.drawImage(qrImg, qrX, qrY, qrSize, qrSize, null);
 
             // 8. Footer Section (Scan. Pay. Done. & Member Branding)
-            g2d.setColor(new Color(100, 100, 100));
+            int footerStartY = frameY + frameHeight + 35;
+            g2d.setColor(new Color(110, 110, 110));
             g2d.setFont(new Font("SansSerif", Font.PLAIN, 16));
             String tagline = "Scan. Pay. Done.";
             int tagWidth = g2d.getFontMetrics().stringWidth(tagline);
-            g2d.drawString(tagline, (cardWidth - tagWidth) / 2, 805);
+            g2d.drawString(tagline, (cardWidth - tagWidth) / 2, footerStartY);
 
             // Member of KHQR footer logo
+            int memberY = footerStartY + 30;
             g2d.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            g2d.setColor(new Color(120, 120, 120));
-            g2d.drawString("Member of", 45, 838);
+            g2d.setColor(new Color(130, 130, 130));
+            g2d.drawString("Member of", 45, memberY);
 
             boolean redLogoDrawn = false;
             try (InputStream redLogoStream = QrImageUtils.class.getResourceAsStream("/assets/khqr/KHQR Logo red.png")) {
@@ -165,7 +169,7 @@ public final class QrImageUtils {
                     if (redLogoImg != null) {
                         int rLogoWidth = 110;
                         int rLogoHeight = (int) ((double) redLogoImg.getHeight() / redLogoImg.getWidth() * rLogoWidth);
-                        g2d.drawImage(redLogoImg, 45, 846, rLogoWidth, rLogoHeight, null);
+                        g2d.drawImage(redLogoImg, 45, memberY + 8, rLogoWidth, rLogoHeight, null);
                         redLogoDrawn = true;
                     }
                 }
@@ -173,22 +177,37 @@ public final class QrImageUtils {
             }
 
             if (!redLogoDrawn) {
+                try (InputStream bgLogoStream = QrImageUtils.class.getResourceAsStream("/assets/khqr/KHQR available here - logo with bg.png")) {
+                    if (bgLogoStream != null) {
+                        BufferedImage bgLogoImg = ImageIO.read(bgLogoStream);
+                        if (bgLogoImg != null) {
+                            int rLogoWidth = 100;
+                            int rLogoHeight = (int) ((double) bgLogoImg.getHeight() / bgLogoImg.getWidth() * rLogoWidth);
+                            g2d.drawImage(bgLogoImg, 45, memberY + 8, rLogoWidth, rLogoHeight, null);
+                            redLogoDrawn = true;
+                        }
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+
+            if (!redLogoDrawn) {
                 g2d.setFont(new Font("SansSerif", Font.BOLD, 14));
                 g2d.setColor(new Color(226, 26, 26));
-                g2d.drawString("KHQR", 45, 860);
+                g2d.drawString("KHQR", 45, memberY + 22);
             }
 
             g2d.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            g2d.setColor(new Color(120, 120, 120));
+            g2d.setColor(new Color(130, 130, 130));
             String acceptLabel = "Accepted here";
             int accLblWidth = g2d.getFontMetrics().stringWidth(acceptLabel);
-            g2d.drawString(acceptLabel, cardWidth - 45 - accLblWidth, 838);
+            g2d.drawString(acceptLabel, cardWidth - 45 - accLblWidth, memberY);
 
             g2d.setFont(new Font("SansSerif", Font.BOLD, 13));
             g2d.setColor(new Color(30, 30, 30));
             String acceptText = "Bakong & KHQR Banks";
             int accWidth = g2d.getFontMetrics().stringWidth(acceptText);
-            g2d.drawString(acceptText, cardWidth - 45 - accWidth, 858);
+            g2d.drawString(acceptText, cardWidth - 45 - accWidth, memberY + 20);
 
             // Bottom Red Bar Accent
             g2d.setColor(new Color(226, 26, 26));
