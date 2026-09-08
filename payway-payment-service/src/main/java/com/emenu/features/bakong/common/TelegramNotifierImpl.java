@@ -8,10 +8,14 @@ import kh.gov.nbc.bakong_khqr.model.KHQRResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.MDC;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @RequiredArgsConstructor
@@ -20,6 +24,15 @@ public class TelegramNotifierImpl implements TelegramNotifier {
 
     private final TelegramProperties telegramProperties;
     private final TelegramClientComponent telegramClientComponent;
+
+    private final Set<String> notifiedIssueTraceIds = ConcurrentHashMap.newKeySet();
+
+    private boolean isAlreadyNotified(String traceId) {
+        if (notifiedIssueTraceIds.size() > 500) {
+            notifiedIssueTraceIds.clear();
+        }
+        return !notifiedIssueTraceIds.add(traceId);
+    }
 
     @PostConstruct
     void logTelegramConfiguration() {
@@ -56,7 +69,7 @@ public class TelegramNotifierImpl implements TelegramNotifier {
 
             telegramClientComponent.sendMessage(message);
         } catch (Exception ex) {
-            log.error("Failed to process async Telegram QR notification: {}", ex.getMessage(), ex);
+            log.warn("Failed to process async Telegram QR notification: {}", ex.getMessage());
         }
     }
 
@@ -80,7 +93,7 @@ public class TelegramNotifierImpl implements TelegramNotifier {
 
             telegramClientComponent.sendMessage(message);
         } catch (Exception ex) {
-            log.error("Failed to process async Telegram transaction notification: {}", ex.getMessage(), ex);
+            log.warn("Failed to process async Telegram transaction notification: {}", ex.getMessage());
         }
     }
 
@@ -88,6 +101,14 @@ public class TelegramNotifierImpl implements TelegramNotifier {
     @Async("taskExecutor")
     public void notifyIssue(String title, String requestUrl, Object requestPayload, Throwable throwable) {
         try {
+            String traceId = MDC.get("traceId");
+            if (traceId != null && !traceId.isBlank() && !"none".equalsIgnoreCase(traceId)) {
+                if (isAlreadyNotified(traceId)) {
+                    log.info("Skipping duplicate Telegram issue notification for traceId={}", traceId);
+                    return;
+                }
+            }
+
             log.warn("Sending Telegram issue notification title={} requestUrl={}", title, requestUrl);
 
             String message = TelegramMessageComposer.create()
@@ -99,7 +120,7 @@ public class TelegramNotifierImpl implements TelegramNotifier {
 
             telegramClientComponent.sendMessage(message);
         } catch (Exception ex) {
-            log.error("Failed to process async Telegram issue notification: {}", ex.getMessage(), ex);
+            log.warn("Failed to process async Telegram issue notification: {}", ex.getMessage());
         }
     }
 

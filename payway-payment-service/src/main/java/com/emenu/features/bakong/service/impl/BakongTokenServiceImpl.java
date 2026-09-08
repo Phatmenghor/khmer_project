@@ -33,11 +33,24 @@ public class BakongTokenServiceImpl implements BakongTokenService {
     @Value("${bakong.email}")
     private String email;
 
+    @Value("${bakong.token:}")
+    private String configuredToken;
+
     private String cachedToken;
     private Instant tokenExpiry;
 
     @Override
     public synchronized String getToken() {
+        if (configuredToken != null && !configuredToken.isBlank()) {
+            if (cachedToken == null) {
+                updateCachedToken(configuredToken);
+                log.info("Using configured static Bakong token from application properties");
+            }
+            if (tokenExpiry == null || Instant.now().isBefore(tokenExpiry)) {
+                return cachedToken;
+            }
+        }
+
         initializeFromDatabaseIfNeeded();
 
         if (cachedToken != null && tokenExpiry != null && Instant.now().isBefore(tokenExpiry)) {
@@ -65,8 +78,11 @@ public class BakongTokenServiceImpl implements BakongTokenService {
             JsonNode root = mapper.readTree(responseBody);
             JsonNode tokenNode = root.path("data").path("token");
             if (tokenNode.isMissingNode() || tokenNode.isNull()) {
-                log.warn("Bakong renew_token response missing token field");
-                throw new RuntimeException("Bakong token not returned in response");
+                String respMsg = root.path("responseMessage").asText("");
+                String codeStr = root.path("responseCode").asText("");
+                String detail = !respMsg.isBlank() ? (respMsg + " (code=" + codeStr + ")") : responseBody;
+                log.warn("Bakong renew_token response missing token field: {}", responseBody);
+                throw new RuntimeException("Bakong token missing in upstream response: " + detail);
             }
 
             String newToken = tokenNode.asText();
@@ -80,13 +96,30 @@ public class BakongTokenServiceImpl implements BakongTokenService {
             log.error("Failed to renew Bakong token: {}", e.getMessage());
             persistTokenLog(null, null, "FAILED", "RENEW_TOKEN_ERROR", e.getMessage());
 
+            if (configuredToken != null && !configuredToken.isBlank()) {
+                log.warn("Bakong renew_token failed, falling back to configured static token");
+                updateCachedToken(configuredToken);
+                return cachedToken;
+            }
+
+            try {
+                var dbTokenOpt = bakongTokenRepository.findTopByEmailAndStatusOrderByCreatedAtDesc(email, "ACTIVE");
+                if (dbTokenOpt.isPresent() && dbTokenOpt.get().getToken() != null && !dbTokenOpt.get().getToken().isBlank()) {
+                    log.warn("Bakong renew_token failed, falling back to latest active token from database table");
+                    updateCachedToken(dbTokenOpt.get().getToken());
+                    return cachedToken;
+                }
+            } catch (Exception dbEx) {
+                log.warn("Failed to check fallback token from database: {}", dbEx.getMessage());
+            }
+
             telegramNotifier.notifyIssue(
                     "Bakong token renewal failed",
                     baseUrl.replaceAll("/+$", "") + "/v1/renew_token",
                     Map.of("email", email),
                     e
             );
-            throw new RuntimeException("Failed to obtain Bakong token", e);
+            throw new RuntimeException("Failed to obtain Bakong token: " + e.getMessage(), e);
         }
     }
 

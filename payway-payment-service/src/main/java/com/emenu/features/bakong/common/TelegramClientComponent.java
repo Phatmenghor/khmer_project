@@ -1,7 +1,7 @@
 package com.emenu.features.bakong.common;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
@@ -9,12 +9,23 @@ import org.springframework.web.client.RestClientResponseException;
 import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class TelegramClientComponent {
 
     private final TelegramProperties telegramProperties;
     private final RestClient restClient;
+
+    public TelegramClientComponent(TelegramProperties telegramProperties) {
+        this.telegramProperties = telegramProperties;
+
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(3000); // 3s Connect Timeout
+        factory.setReadTimeout(3000);    // 3s Read Timeout
+
+        this.restClient = RestClient.builder()
+                .requestFactory(factory)
+                .build();
+    }
 
     public void validateChatAccess() {
         if (!telegramProperties.isEnabled() || !telegramProperties.isAutoSetup()) {
@@ -71,12 +82,12 @@ public class TelegramClientComponent {
             log.info("Telegram notification sent successfully to group ChatId={}", telegramProperties.getGroupChatId());
         } catch (RestClientResponseException ex) {
             if (ex.getStatusCode().value() == 429) {
-                log.warn("Telegram notification rate limit reached (HTTP 429 Too Many Requests). Message queued/skipped.");
+                log.warn("Telegram notification rate limit reached (HTTP 429 Too Many Requests). Skipping message.");
             } else {
-                log.error("Failed to send Telegram notification status={} responseBody={}", ex.getStatusCode(), ex.getResponseBodyAsString(), ex);
+                log.warn("Failed to send Telegram notification status={} message={}", ex.getStatusCode(), ex.getMessage());
             }
         } catch (Exception ex) {
-            log.error("Failed to send Telegram notification: {}", ex.getMessage());
+            log.warn("Telegram notification skipped: {}", ex.getMessage());
         }
     }
 
