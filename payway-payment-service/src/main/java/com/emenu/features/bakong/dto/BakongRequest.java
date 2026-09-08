@@ -26,15 +26,14 @@ public class BakongRequest {
     private String merchantName;
 
     /**
-     * Optional expiration duration in minutes (e.g., 15, 30, 60).
-     * Set to -1 or 0 for Keep-Alive (Never Expire).
-     * Default: 15 minutes.
+     * Optional custom expiration duration in minutes (e.g. 15, 30, 60).
+     * If omitted or <= 0, defaults to mandatory 15 minutes expiration.
      */
     private Integer expirationMinutes;
 
     /**
-     * Optional explicit expiration timestamp in Epoch Milliseconds.
-     * Set to -1 or 0 for Keep-Alive (Never Expire).
+     * Optional explicit future expiration timestamp in Epoch Milliseconds.
+     * If omitted or in the past, defaults to mandatory 15 minutes expiration.
      */
     private Long expirationTimestamp;
 }
