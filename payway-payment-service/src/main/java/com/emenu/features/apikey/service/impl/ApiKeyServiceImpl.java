@@ -35,16 +35,17 @@ public class ApiKeyServiceImpl implements ApiKeyService {
     @Override
     @Transactional
     public ApiKeyResponse createApiKey(ApiKeyCreateRequest request) {
-        if (request == null || request.getProjectCode() == null || request.getProjectCode().isBlank()) {
-            throw new IllegalArgumentException("Project code is required for API key creation");
+        if (request == null || request.getLabel() == null || request.getLabel().isBlank()) {
+            throw new IllegalArgumentException("Label is required for API key creation");
         }
 
-        String rawKey = ApiKeyUtil.generateKey(request.getProjectCode());
+        String projectCode = request.getLabel().trim();
+        String rawKey = ApiKeyUtil.generateKey(projectCode);
 
         ApiKey apiKey = ApiKey.builder()
-                .projectCode(request.getProjectCode())
+                .projectCode(projectCode)
                 .apiKey(rawKey)
-                .label(request.getLabel())
+                .label(request.getLabel().trim())
                 .active(true)
                 .build();
 

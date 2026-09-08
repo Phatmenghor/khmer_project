@@ -16,7 +16,10 @@ public final class ApiKeyUtil {
         byte[] bytes = new byte[24];
         SECURE_RANDOM.nextBytes(bytes);
         String randomPart = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-        String cleanPrefix = projectCode.toLowerCase().replaceAll("[^a-z0-9]", "");
+        String cleanPrefix = projectCode == null ? "key" : projectCode.toLowerCase().replaceAll("[^a-z0-9]", "");
+        if (cleanPrefix.isEmpty()) {
+            cleanPrefix = "key";
+        }
         return "sk_" + cleanPrefix + "_" + randomPart;
     }
 
