@@ -29,5 +29,17 @@ public class BakongRequest {
     private String storeLabel;
     private String terminalLabel;
     private String mobileNumber;
+
+    /**
+     * Optional expiration duration in minutes (e.g., 15, 30, 60).
+     * Set to -1 or 0 for Keep-Alive (Never Expire).
+     * Default: 15 minutes.
+     */
+    private Integer expirationMinutes;
+
+    /**
+     * Optional explicit expiration timestamp in Epoch Milliseconds.
+     * Set to -1 or 0 for Keep-Alive (Never Expire).
+     */
     private Long expirationTimestamp;
 }

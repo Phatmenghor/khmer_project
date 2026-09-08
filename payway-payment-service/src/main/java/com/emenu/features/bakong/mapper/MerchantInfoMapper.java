@@ -26,7 +26,7 @@ public interface MerchantInfoMapper {
     MerchantInfo toMerchantInfo(BakongRequest request, String bakongAccountId);
 
     @AfterMapping
-    default void applyDefaults(@MappingTarget MerchantInfo info, String bakongAccountId) {
+    default void applyDefaults(@MappingTarget MerchantInfo info, BakongRequest request, String bakongAccountId) {
         if (info.getMerchantId() == null || info.getMerchantId().isBlank()) {
             info.setMerchantId(bakongAccountId != null ? bakongAccountId : "Bakong");
         }
@@ -39,9 +39,30 @@ public interface MerchantInfoMapper {
         if (info.getMerchantCity() == null || info.getMerchantCity().isBlank()) {
             info.setMerchantCity("Phnom Penh");
         }
-        // Dynamic KHQR requires expirationTimestamp in millis
-        if (info.getAmount() != null && info.getExpirationTimestamp() == null) {
-            info.setExpirationTimestamp(System.currentTimeMillis() + (15 * 60 * 1000L));
+
+        // Calculate Expiration Timestamp logic
+        if (request != null) {
+            Integer minutes = request.getExpirationMinutes();
+            Long timestamp = request.getExpirationTimestamp();
+
+            if (minutes != null) {
+                if (minutes <= 0) {
+                    // Keep-Alive / Never Expire
+                    info.setExpirationTimestamp(null);
+                } else {
+                    info.setExpirationTimestamp(System.currentTimeMillis() + (minutes * 60 * 1000L));
+                }
+            } else if (timestamp != null) {
+                if (timestamp <= 0) {
+                    // Keep-Alive / Never Expire
+                    info.setExpirationTimestamp(null);
+                } else {
+                    info.setExpirationTimestamp(timestamp);
+                }
+            } else if (info.getAmount() != null) {
+                // Default: 15 minutes
+                info.setExpirationTimestamp(System.currentTimeMillis() + (15 * 60 * 1000L));
+            }
         }
     }
 }
