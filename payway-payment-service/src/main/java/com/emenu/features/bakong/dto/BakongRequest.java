@@ -24,16 +24,5 @@ public class BakongRequest {
     private Double amount;
 
     private String merchantName;
-
-    /**
-     * Optional custom expiration duration in minutes (e.g. 15, 30, 60).
-     * If omitted or <= 0, defaults to mandatory 15 minutes expiration.
-     */
     private Integer expirationMinutes;
-
-    /**
-     * Optional explicit future expiration timestamp in Epoch Milliseconds.
-     * If omitted or in the past, defaults to mandatory 15 minutes expiration.
-     */
-    private Long expirationTimestamp;
 }

@@ -34,23 +34,10 @@ public interface MerchantInfoMapper {
             info.setMerchantCity("Phnom Penh");
         }
 
-        // MANDATORY EXPIRATION: Every KHQR MUST ALWAYS have a valid future expiration timestamp!
         long now = System.currentTimeMillis();
-        long defaultExpirationMs = 15 * 60 * 1000L; // 15 minutes mandatory default
-
-        if (request != null) {
-            Integer minutes = request.getExpirationMinutes();
-            Long timestamp = request.getExpirationTimestamp();
-
-            if (minutes != null && minutes > 0) {
-                info.setExpirationTimestamp(now + (minutes * 60 * 1000L));
-            } else if (timestamp != null && timestamp > now) {
-                info.setExpirationTimestamp(timestamp);
-            } else {
-                info.setExpirationTimestamp(now + defaultExpirationMs);
-            }
-        } else {
-            info.setExpirationTimestamp(now + defaultExpirationMs);
-        }
+        int minutes = (request != null && request.getExpirationMinutes() != null && request.getExpirationMinutes() > 0)
+                ? request.getExpirationMinutes()
+                : 15;
+        info.setExpirationTimestamp(now + (minutes * 60 * 1000L));
     }
 }
