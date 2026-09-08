@@ -10,6 +10,7 @@ import org.mapstruct.ReportingPolicy;
 public interface MerchantInfoMapper {
 
     @Mapping(target = "bakongAccountId", source = "bakongAccountId")
+    @Mapping(target = "merchantId", source = "bakongAccountId")
     @Mapping(target = "currency", source = "request.currency")
     @Mapping(target = "amount", source = "request.amount")
     @Mapping(target = "merchantName", source = "request.merchantName")
