@@ -1,5 +1,7 @@
 package com.emenu.features.apikey.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +14,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiKeyResponse {
 
     private UUID id;
@@ -19,5 +22,7 @@ public class ApiKeyResponse {
     private String projectCode;
     private String label;
     private boolean active;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "Asia/Phnom_Penh")
     private ZonedDateTime createdAt;
 }
