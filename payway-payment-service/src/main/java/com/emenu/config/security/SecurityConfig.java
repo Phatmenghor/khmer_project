@@ -1,6 +1,7 @@
 package com.emenu.config.security;
 
-import com.emenu.config.OpenApiConfig;
+import com.emenu.config.security.handler.CustomAccessDeniedHandler;
+import com.emenu.config.security.handler.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -32,6 +33,8 @@ import java.util.List;
 public class SecurityConfig {
 
     private final ApiKeyAuthFilter apiKeyAuthFilter;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Value("${security.basic.username}")
     private String basicUsername;
@@ -55,7 +58,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults());
+                .httpBasic(Customizer.withDefaults())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
+                .addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -72,6 +80,10 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
                 )
                 .addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

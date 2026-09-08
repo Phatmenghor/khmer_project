@@ -7,9 +7,15 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.stream.Collectors;
 
@@ -30,6 +36,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest request) {
         log.warn("Constraint violation on path=[{}]: {}", request.getRequestURI(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ex.getMessage()));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+        String msg = String.format("Parameter '%s' should be of type %s", ex.getName(), ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown");
+        log.warn("Type mismatch on path=[{}]: {}", request.getRequestURI(), msg);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(msg));
     }
 
     @ExceptionHandler(BakongUpstreamException.class)
@@ -66,6 +79,36 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleInvalidSignature(InvalidSignatureException ex, HttpServletRequest request) {
         log.warn("Invalid signature error on path=[{}]: {}", request.getRequestURI(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ex.getMessage()));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAuthenticationException(AuthenticationException ex, HttpServletRequest request) {
+        log.warn("Authentication error on path=[{}]: {}", request.getRequestURI(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error("Unauthorized: " + ex.getMessage()));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
+        log.warn("Access denied on path=[{}]: {}", request.getRequestURI(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error("Access Denied: You do not have permission to access this resource."));
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+        log.warn("Method not supported on path=[{}]: {}", request.getRequestURI(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(ApiResponse.error("HTTP Method '" + ex.getMethod() + "' not supported for this endpoint."));
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpServletRequest request) {
+        log.warn("Media type not supported on path=[{}]: {}", request.getRequestURI(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(ApiResponse.error("Content type '" + ex.getContentType() + "' not supported."));
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNoResourceFound(NoResourceFoundException ex, HttpServletRequest request) {
+        log.warn("No resource found on path=[{}]: {}", request.getRequestURI(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error("Resource not found: " + request.getRequestURI()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
