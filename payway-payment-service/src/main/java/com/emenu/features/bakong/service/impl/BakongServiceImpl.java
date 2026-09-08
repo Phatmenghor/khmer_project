@@ -8,7 +8,11 @@ import com.emenu.features.bakong.config.BakongProperties;
 import com.emenu.features.bakong.dto.BakongQrResponse;
 import com.emenu.features.bakong.dto.BakongRequest;
 import com.emenu.features.bakong.dto.BakongResponse;
+import com.emenu.features.bakong.dto.CheckAccountRequest;
+import com.emenu.features.bakong.dto.CheckHashRequest;
+import com.emenu.features.bakong.dto.CheckMd5ListRequest;
 import com.emenu.features.bakong.dto.CheckTransactionRequest;
+import com.emenu.features.bakong.dto.GenerateDeeplinkRequest;
 import com.emenu.features.bakong.dto.TransactionStatusResponse;
 import com.emenu.features.bakong.enums.TransactionState;
 import com.emenu.features.bakong.common.TelegramNotifier;
@@ -36,6 +40,7 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -117,6 +122,27 @@ public class BakongServiceImpl implements BakongService {
     }
 
     @Override
+    public Mono<BakongResponse> generateDeeplink(GenerateDeeplinkRequest request, String requestUrl) {
+        return reactiveExecutor.executeReactive("generateDeeplink", () -> {
+            String url = bakongProperties.getApiUrl() + "/v1/generate_deeplink_by_qr";
+            log.info("Generating Bakong deeplink against upstreamUrl={}", url);
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("qr", request.getQr());
+
+            if (request.getAppName() != null || request.getAppIconUrl() != null || request.getAppDeepLinkCallback() != null) {
+                Map<String, String> sourceInfo = new HashMap<>();
+                if (request.getAppName() != null) sourceInfo.put("appName", request.getAppName());
+                if (request.getAppIconUrl() != null) sourceInfo.put("appIconUrl", request.getAppIconUrl());
+                if (request.getAppDeepLinkCallback() != null) sourceInfo.put("appDeepLinkCallback", request.getAppDeepLinkCallback());
+                payload.put("sourceInfo", sourceInfo);
+            }
+
+            return executePostRequest(url, payload, null);
+        });
+    }
+
+    @Override
     public Mono<BakongResponse> checkTransactionByMD5(CheckTransactionRequest request, String requestUrl) {
         return reactiveExecutor.executeReactive("checkTransactionByMD5", () -> doCheckTransactionByMd5(request, requestUrl));
     }
@@ -125,6 +151,33 @@ public class BakongServiceImpl implements BakongService {
     public Mono<TransactionStatusResponse> checkTransactionStatus(CheckTransactionRequest request, String requestUrl) {
         return checkTransactionByMD5(request, requestUrl)
                 .map(transactionStatusMapper::toStatus);
+    }
+
+    @Override
+    public Mono<BakongResponse> checkTransactionByHash(CheckHashRequest request, String requestUrl) {
+        return reactiveExecutor.executeReactive("checkTransactionByHash", () -> {
+            String url = bakongProperties.getApiUrl() + "/v1/check_transaction_by_hash";
+            log.info("Checking transaction by hash={} against upstreamUrl={}", request.getHash(), url);
+            return executeAuthenticatedPost(url, Map.of("hash", request.getHash()), requestUrl, request);
+        });
+    }
+
+    @Override
+    public Mono<BakongResponse> checkBakongAccount(CheckAccountRequest request, String requestUrl) {
+        return reactiveExecutor.executeReactive("checkBakongAccount", () -> {
+            String url = bakongProperties.getApiUrl() + "/v1/check_bakong_account";
+            log.info("Checking Bakong accountId={} against upstreamUrl={}", request.getAccountId(), url);
+            return executeAuthenticatedPost(url, Map.of("accountId", request.getAccountId()), requestUrl, request);
+        });
+    }
+
+    @Override
+    public Mono<BakongResponse> checkTransactionByMd5List(CheckMd5ListRequest request, String requestUrl) {
+        return reactiveExecutor.executeReactive("checkTransactionByMd5List", () -> {
+            String url = bakongProperties.getApiUrl() + "/v1/check_transaction_by_md5_list";
+            log.info("Checking transaction by MD5 list (size={}) against upstreamUrl={}", request.getMd5List().size(), url);
+            return executeAuthenticatedPost(url, request.getMd5List(), requestUrl, request);
+        });
     }
 
     @Override
@@ -141,65 +194,49 @@ public class BakongServiceImpl implements BakongService {
     private BakongResponse doCheckTransactionByMd5(CheckTransactionRequest request, String requestUrl) {
         String url = bakongProperties.getApiUrl() + "/v1/check_transaction_by_md5";
         log.info("Checking transaction status for md5={} against upstreamUrl={}", request.getMd5(), url);
+        BakongResponse response = executeAuthenticatedPost(url, Map.of("md5", request.getMd5()), requestUrl, request);
+        updateTransactionRecordStatus(request.getMd5(), response);
+        if (response.isSuccess()) {
+            telegramNotifier.notifyTransactionChecked(requestUrl, url, request, response);
+        }
+        return response;
+    }
 
+    private BakongResponse executeAuthenticatedPost(String url, Object body, String requestUrl, Object originalRequest) {
         try {
-            String responseBody = doCheckTransactionRequest(url, request, bakongTokenService.getToken());
-            BakongResponse response = mapper.readValue(responseBody, BakongResponse.class);
-
-            log.info("Upstream response received for md5={}, responseCode={}, message={}",
-                    request.getMd5(), response.getResponseCode(), response.getResponseMessage());
-
-            updateTransactionRecordStatus(request.getMd5(), response);
-
-            if (response.isSuccess()) {
-                telegramNotifier.notifyTransactionChecked(requestUrl, url, request, response);
-            }
-            return response;
+            return executePostRequest(url, body, bakongTokenService.getToken());
         } catch (RestClientResponseException ex) {
             if (ex.getStatusCode() == HttpStatus.UNAUTHORIZED || ex.getStatusCode() == HttpStatus.FORBIDDEN) {
-                log.warn("Bakong token rejected by upstream for md5={}, renewing token and retrying", request.getMd5());
-                return retryCheckTransaction(url, request, requestUrl);
+                log.warn("Bakong token rejected by upstream, renewing token and retrying request to {}", url);
+                return executePostRequest(url, body, bakongTokenService.renewToken());
             }
-
-            log.error("Transaction check failed status={} for md5={}", ex.getStatusCode(), request.getMd5());
-            telegramNotifier.notifyIssue("Transaction check failed", requestUrl, request, ex);
-            throw new BakongUpstreamException("Transaction check failed status=" + ex.getStatusCode(), ex.getStatusCode().value(), ex.getResponseBodyAsString());
+            log.error("Upstream HTTP error status={} on url={}", ex.getStatusCode(), url);
+            telegramNotifier.notifyIssue("Bakong API error", requestUrl, originalRequest, ex);
+            throw new BakongUpstreamException("Bakong API request failed: HTTP " + ex.getStatusCode().value(), ex.getStatusCode().value(), ex.getResponseBodyAsString());
         } catch (Exception e) {
-            log.error("Transaction check failed for md5={}: {}", request.getMd5(), e.getMessage());
-            telegramNotifier.notifyIssue("Transaction check failed", requestUrl, request, e);
-            throw new BakongUpstreamException("Transaction check failed: " + e.getMessage(), e);
+            log.error("Bakong API request failed on url={}: {}", url, e.getMessage());
+            telegramNotifier.notifyIssue("Bakong API error", requestUrl, originalRequest, e);
+            throw new BakongUpstreamException("Bakong API request failed: " + e.getMessage(), e);
         }
     }
 
-    private BakongResponse retryCheckTransaction(String url, CheckTransactionRequest request, String requestUrl) {
-        log.info("Retrying transaction check with renewed token for md5={}", request.getMd5());
-        try {
-            String responseBody = doCheckTransactionRequest(url, request, bakongTokenService.renewToken());
-            BakongResponse response = mapper.readValue(responseBody, BakongResponse.class);
-
-            log.info("Transaction check retry succeeded for md5={}, responseCode={}", request.getMd5(), response.getResponseCode());
-            updateTransactionRecordStatus(request.getMd5(), response);
-
-            if (response.isSuccess()) {
-                telegramNotifier.notifyTransactionChecked(requestUrl, url, request, response);
-            }
-            return response;
-        } catch (Exception ex) {
-            log.error("Transaction check retry failed for md5={}: {}", request.getMd5(), ex.getMessage());
-            telegramNotifier.notifyIssue("Transaction check failed", requestUrl, request, ex);
-            throw new BakongUpstreamException("Transaction check retry failed: " + ex.getMessage(), ex);
-        }
-    }
-
-    private String doCheckTransactionRequest(String url, CheckTransactionRequest request, String bearerToken) {
-        return restClient.post()
+    private BakongResponse executePostRequest(String url, Object body, String bearerToken) {
+        var spec = restClient.post()
                 .uri(url)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + bearerToken)
-                .body(Map.of("md5", request.getMd5()))
-                .retrieve()
-                .body(String.class);
+                .accept(MediaType.APPLICATION_JSON);
+
+        if (bearerToken != null && !bearerToken.isBlank()) {
+            spec.header(HttpHeaders.AUTHORIZATION, "Bearer " + bearerToken);
+        }
+
+        String responseBody = spec.body(body).retrieve().body(String.class);
+        try {
+            return mapper.readValue(responseBody, BakongResponse.class);
+        } catch (Exception ex) {
+            log.error("Failed to parse Bakong response JSON: {}", responseBody);
+            throw new BakongUpstreamException("Failed to parse Bakong response", 500, responseBody);
+        }
     }
 
     private void saveTransactionRecord(BakongRequest request, KHQRData qrData) {
