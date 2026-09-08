@@ -27,30 +27,17 @@ public class BakongTokenServiceImpl implements BakongTokenService {
     private final TelegramNotifier telegramNotifier;
     private final BakongTokenRepository bakongTokenRepository;
 
-    @Value("${bakong.base-url}")
-    private String baseUrl;
+    @Value("${bakong.api-url:https://api-bakong.nbc.gov.kh}")
+    private String apiUrl;
 
     @Value("${bakong.email}")
     private String email;
-
-    @Value("${bakong.token:}")
-    private String configuredToken;
 
     private String cachedToken;
     private Instant tokenExpiry;
 
     @Override
     public synchronized String getToken() {
-        if (configuredToken != null && !configuredToken.isBlank()) {
-            if (cachedToken == null) {
-                updateCachedToken(configuredToken);
-                log.info("Using configured static Bakong token from application properties");
-            }
-            if (tokenExpiry == null || Instant.now().isBefore(tokenExpiry)) {
-                return cachedToken;
-            }
-        }
-
         initializeFromDatabaseIfNeeded();
 
         if (cachedToken != null && tokenExpiry != null && Instant.now().isBefore(tokenExpiry)) {
@@ -65,7 +52,7 @@ public class BakongTokenServiceImpl implements BakongTokenService {
         log.info("Initiating Bakong token renewal for email={}", email);
 
         try {
-            String renewUrl = baseUrl.replaceAll("/+$", "") + "/v1/renew_token";
+            String renewUrl = apiUrl.replaceAll("/+$", "") + "/v1/renew_token";
             log.info("Calling Bakong upstream renew_token endpoint={}", renewUrl);
 
             String responseBody = restClient.post()
@@ -96,12 +83,6 @@ public class BakongTokenServiceImpl implements BakongTokenService {
             log.error("Failed to renew Bakong token: {}", e.getMessage());
             persistTokenLog(null, null, "FAILED", "RENEW_TOKEN_ERROR", e.getMessage());
 
-            if (configuredToken != null && !configuredToken.isBlank()) {
-                log.warn("Bakong renew_token failed, falling back to configured static token");
-                updateCachedToken(configuredToken);
-                return cachedToken;
-            }
-
             try {
                 var dbTokenOpt = bakongTokenRepository.findTopByEmailAndStatusOrderByCreatedAtDesc(email, "ACTIVE");
                 if (dbTokenOpt.isPresent() && dbTokenOpt.get().getToken() != null && !dbTokenOpt.get().getToken().isBlank()) {
@@ -115,7 +96,7 @@ public class BakongTokenServiceImpl implements BakongTokenService {
 
             telegramNotifier.notifyIssue(
                     "Bakong token renewal failed",
-                    baseUrl.replaceAll("/+$", "") + "/v1/renew_token",
+                    apiUrl.replaceAll("/+$", "") + "/v1/renew_token",
                     Map.of("email", email),
                     e
             );

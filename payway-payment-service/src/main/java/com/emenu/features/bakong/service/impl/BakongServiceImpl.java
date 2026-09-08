@@ -56,7 +56,7 @@ public class BakongServiceImpl implements BakongService {
     @Value("${bakong.account-id}")
     private String bakongAccountId;
 
-    @Value("${bakong.base-url}")
+    @Value("${bakong.api-url:https://api-bakong.nbc.gov.kh}")
     private String baseUrl;
 
     @Override
