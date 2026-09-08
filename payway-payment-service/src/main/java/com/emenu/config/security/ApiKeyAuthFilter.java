@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,9 +33,6 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
     private final ApiKeyRepository apiKeyRepository;
     private final ObjectMapper objectMapper;
-
-    @Value("${bakong.service.api-keys:sk_payway_default_secret_key_123456789}")
-    private String apiKeys;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -69,21 +64,14 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        List<String> configuredApiKeys = Arrays.asList(apiKeys.split(","));
-
         Optional<ApiKey> found = apiKeyRepository.findByApiKeyAndActiveTrue(rawKey);
-        String projectCode = "menu-scanner";
-
-        if (found.isPresent()) {
-            projectCode = found.get().getProjectCode();
-        } else {
-            if (!configuredApiKeys.contains(rawKey) && !configuredApiKeys.contains("*")) {
-                reject(response, "Unauthorized: Invalid or revoked API Key.", HttpStatus.UNAUTHORIZED);
-                return;
-            }
+        if (found.isEmpty()) {
+            reject(response, "Unauthorized: Invalid or revoked API Key.", HttpStatus.UNAUTHORIZED);
+            return;
         }
 
-        ApiKeyContext ctx = new ApiKeyContext(projectCode, rawKey);
+        ApiKey apiKey = found.get();
+        ApiKeyContext ctx = new ApiKeyContext(apiKey.getProjectCode(), rawKey);
         request.setAttribute(ApiKeyContext.REQUEST_ATTR, ctx);
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(

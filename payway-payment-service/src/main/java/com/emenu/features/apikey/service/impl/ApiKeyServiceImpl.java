@@ -7,6 +7,7 @@ import com.emenu.features.apikey.model.ApiKey;
 import com.emenu.features.apikey.repository.ApiKeyRepository;
 import com.emenu.features.apikey.service.ApiKeyService;
 import com.emenu.features.apikey.util.ApiKeyUtil;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,27 @@ import java.util.UUID;
 public class ApiKeyServiceImpl implements ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
+
+    @PostConstruct
+    @Transactional
+    public void seedDefaultApiKeysIfNeeded() {
+        if (apiKeyRepository.count() == 0) {
+            log.info("Seeding initial active API keys into database table (api_keys)");
+            ApiKey defaultKey1 = ApiKey.builder()
+                    .projectCode("scanme-kh")
+                    .apiKey("sk_scanmekh_gB2Ee6mHGBcQmEvTPurFWNMn_-506pSV")
+                    .label("ScanMe KH Default Key")
+                    .active(true)
+                    .build();
+            ApiKey defaultKey2 = ApiKey.builder()
+                    .projectCode("payway-service")
+                    .apiKey("sk_payway_default_secret_key_123456789")
+                    .label("Payway Service Default Key")
+                    .active(true)
+                    .build();
+            apiKeyRepository.saveAll(List.of(defaultKey1, defaultKey2));
+        }
+    }
 
     @Override
     @Transactional(readOnly = true)
