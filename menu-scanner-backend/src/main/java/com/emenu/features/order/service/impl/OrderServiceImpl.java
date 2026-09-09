@@ -61,7 +61,7 @@ import com.emenu.features.notification.websocket.service.WebSocketNotificationSe
 import com.emenu.features.order.service.OrderService;
 import com.emenu.features.stock.service.impl.StockServiceImpl;
 import com.emenu.security.SecurityUtils;
-import com.emenu.features.counter.ReferenceNumberGenerator;
+import com.emenu.features.master.service.ReferenceNumberGenerator;
 import com.emenu.shared.dto.ImageUrls;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.generate.PaymentReferenceGenerator;

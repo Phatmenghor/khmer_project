@@ -9,6 +9,7 @@ import { Sparkles } from "lucide-react";
 import { useSubscriptionPlanState } from "@/features/master-data/store/state/subscription-plan-state";
 import { fetchAllPublicSubscriptionPlansService } from "@/features/master-data/store/thunks/subscription-plan-thunks";
 import { PricingCardItem } from "./pricing-card-item";
+import { cn } from "@/lib/utils";
 
 interface PricingSectionProps {
   onSelectPlan?: () => void;
@@ -40,7 +41,7 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps = {
       ({ name, price, period, description, highlighted }) => ({
         id: undefined,
         name,
-        price: `$${price}`,
+        price: typeof price === "number" ? `$${price}` : price.startsWith("$") ? price : `$${price}`,
         period,
         description,
         highlighted,
@@ -78,6 +79,14 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps = {
       setSelectedPlan(plan);
       setIsModalOpen(true);
     }
+  };
+
+  // Smart Responsive Grid Class based on plan count (e.g. 3 plans -> 3 cols centered)
+  const getGridColsClass = (count: number) => {
+    if (count === 1) return "grid-cols-1 max-w-md mx-auto";
+    if (count === 2) return "grid-cols-1 sm:grid-cols-2 max-w-3xl mx-auto";
+    if (count === 3) return "grid-cols-1 md:grid-cols-3 max-w-6xl mx-auto";
+    return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto";
   };
 
   return (
@@ -126,12 +135,12 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps = {
             </div>
           </div>
         ) : (
-          <div className="grid xl:grid-cols-4 lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-5 items-stretch">
+          <div className={cn("grid gap-5 sm:gap-6 items-stretch w-full", getGridColsClass(plans.length))}>
             {plans.map(
               ({ id, name, price, period, description, highlighted, durationType }, i) => {
                 const planData: PlanData = { id, name, price, period, description };
                 return (
-                  <FadeIn key={name} direction="up" delay={i * 120}>
+                  <FadeIn key={name} direction="up" delay={i * 120} className="h-full">
                     <PricingCardItem
                       id={id}
                       name={name}

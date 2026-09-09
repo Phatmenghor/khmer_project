@@ -6,7 +6,7 @@ import com.emenu.features.auth.service.BusinessService;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.auth.repository.BusinessRepository;
-import com.emenu.features.subscription.models.Subscription;
+import com.emenu.features.master.models.Subscription;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;

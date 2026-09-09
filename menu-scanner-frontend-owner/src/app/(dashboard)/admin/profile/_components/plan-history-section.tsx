@@ -90,6 +90,7 @@ export function PlanHistorySection({ userProfile }: PlanHistorySectionProps) {
   const daysRemainingText = mySummary?.daysRemainingText || "—";
   const progressPercent = mySummary?.progressPercent ?? 0;
   const historyList = mySummary?.history || [];
+  const usedPercent = subscriptionStatus === "EXPIRED" ? 100 : Math.min(100, Math.max(0, 100 - progressPercent));
 
   const historyColumns: TableColumn<any>[] = [
     {
@@ -266,10 +267,10 @@ export function PlanHistorySection({ userProfile }: PlanHistorySectionProps) {
                 {daysRemainingText}
               </span>
             </div>
-            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+            <div className="w-full h-2.5 bg-emerald-500 rounded-full overflow-hidden shadow-inner">
               <div
-                className="h-full bg-gradient-to-r from-primary to-emerald-500 rounded-full transition-all duration-500"
-                style={{ width: `${progressPercent}%` }}
+                className="h-full bg-rose-500 transition-all duration-500 ease-in-out"
+                style={{ width: `${usedPercent}%` }}
               />
             </div>
           </div>

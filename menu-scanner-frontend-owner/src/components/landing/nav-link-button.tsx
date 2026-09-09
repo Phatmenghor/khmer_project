@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,8 @@ export function NavLinkButton({
   className,
   variant = "pill",
 }: NavLinkButtonProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const isExternal = href.startsWith("http");
 
   const baseStyles = {
@@ -35,19 +38,27 @@ export function NavLinkButton({
     if (href.startsWith("#")) {
       e.preventDefault();
       const targetId = href.replace("#", "");
-      const element = document.getElementById(targetId);
-      if (element) {
-        const headerOffset = 80;
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: "smooth",
-        });
+      if (pathname === "/") {
+        const element = document.getElementById(targetId);
+        if (element) {
+          const headerOffset = 80;
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth",
+          });
+        }
+      } else {
+        router.push(`/${href}`);
       }
     } else if (isExternal) {
       window.open(href, "_blank", "noopener,noreferrer");
+    } else if (href) {
+      e.preventDefault();
+      router.push(href);
     }
   };
 

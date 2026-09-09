@@ -22,6 +22,7 @@ export const ROUTES = {
     BUSINESS_OWNER: "/admin/business-owner",
     SUBSCRIPTION_HISTORY: "/admin/subscription-history",
     SUBSCRIPTION_PLAN: "/admin/subscription-plan",
+    PLATFORM_BANKS: "/admin/platform-banks",
     BUSINESS_USERS: "/admin/business-users",
     BUSINESS_USER: "/admin/business-users",
     PLATFORM_USERS: "/admin/platform-users",
@@ -96,6 +97,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "Subscription Plans",
         href: ROUTES.DASHBOARD.SUBSCRIPTION_PLAN,
+      },
+      {
+        title: "Platform Bank Accounts",
+        href: ROUTES.DASHBOARD.PLATFORM_BANKS,
       },
     ],
   },

@@ -6,7 +6,7 @@ import com.emenu.enums.hr.ScanModeEnum;
 import com.emenu.exception.custom.BusinessValidationException;
 import com.emenu.exception.custom.ResourceNotFoundException;
 import com.emenu.features.auth.mapper.UserMapper;
-import com.emenu.features.counter.ReferenceNumberGenerator;
+import com.emenu.features.master.service.ReferenceNumberGenerator;
 import com.emenu.features.hr.dto.filter.AttendanceFilterRequest;
 import com.emenu.features.hr.dto.helper.AttendanceCheckInCreateHelper;
 import com.emenu.features.hr.dto.helper.AttendanceCreateHelper;

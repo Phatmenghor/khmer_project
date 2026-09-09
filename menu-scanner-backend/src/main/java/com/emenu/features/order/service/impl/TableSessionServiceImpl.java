@@ -23,7 +23,7 @@ import com.emenu.features.order.repository.OrderRepository;
 import com.emenu.features.order.repository.TableSessionRepository;
 import com.emenu.features.order.service.TableSessionService;
 import com.emenu.features.order.specification.TableSessionSpecification;
-import com.emenu.features.counter.ReferenceNumberGenerator;
+import com.emenu.features.master.service.ReferenceNumberGenerator;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;

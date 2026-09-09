@@ -39,6 +39,18 @@ bakong:
   email: "${BAKONG_EMAIL:phatmenghor19@gmail.com}"
   enabled: true
 
+# ── ABA PayWay Configuration ────────────────────────────────────────────────
+payway:
+  merchant-id: "${PAYWAY_MERCHANT_ID:ec477511}"
+  api-key: "${PAYWAY_API_KEY:d2b3cc6044e4785508e4e78d4dfdc85b3d58a656}"
+  api-url: "${PAYWAY_API_URL:https://checkout-sandbox.payway.com.kh}"
+  purchase-url: "${PAYWAY_PURCHASE_URL:https://checkout-sandbox.payway.com.kh/api/payment-gateway/v1/payments/purchase}"
+  check-transaction-url: "${PAYWAY_CHECK_TRANSACTION_URL:https://checkout-sandbox.payway.com.kh/api/payment-gateway/v1/payments/check-transaction}"
+  rsa-public-key: "${PAYWAY_RSA_PUBLIC_KEY:-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCm0RzZxzff66mr9eVA7KT44+PvnBYau1ym+BJ/DvEmDxiqoPcMna20BrqkGo3/BYjCG6E1q9ZATj8Ru5+jhqbVE65jMKeVnjW8d4VhkH74FQs77dIaUiMJiWnxJ0Rpe1mLgHY/bYpenVsSnFqkZPzWCu+63RdgzzHsMhmVFGMaZQIDAQAB\n-----END PUBLIC KEY-----}"
+  rsa-private-key: "${PAYWAY_RSA_PRIVATE_KEY:-----BEGIN RSA PRIVATE KEY-----\nMIICXAIBAAKBgQCvTVYJ2oqLnzHD3O5dPxfhQ9bKIR0c/WIOAb1l35lXRgwhsk9SlILn5jxyBtfaiycyNnyUqP8zDGXUEENetw1joRQLqzXEn1/noTzHsI9ltKMY8i6dZmTCimcGOcN7AobYN/V48r0fp/6tKvSebFGLNCY3VRWouvbuAOegJIQHLQIDAQABAoGACaTqDlm5FIxaCwn9DSE6+ZgnWXBv7xfbjKS43EFsaLpAUZxDM+pat1JZ0fYhavML4X3Q5cbUX2UXtw57/lp4wIKS3Zv2iZvIprxtb/alMf9mlpb3H3CRCx88vAzoTY4NhNAoTt+YveXLSvaMDdgEyICyqKm0ycGfiMdqy90nWQECQQDHmoRWOf2TQgJKsD/5Sp02DWEn5oGdv5XZfLbjb5qnLqeNqu0sxQzPKQdtkao9sRoUFthIQK4O8UOYH+QgZxCBAkEA4NUS1CyfTG09T0gFNQngWDOp+fHh8E0nRmLRA3FGL1FP9wA9UnmeSyu4SGiSH1EPNsT4bObo9o3kI0x9Se3grQJBAL1dM1WWmKJ/CkQ6DcdU6UchdF3lSmy9GM4Hin7FH6SiF2XIllBV9WwH0bs6aZczkLkkXzZU3ozgiS8mekffX4ECQBKg1NyLje9RJcFJ4FSSqunj7fNtnSDB470rNtIoMn59KDj45hvNQ9ZKmww0zdaWasJI86RiRW8YNozOK5tSgEkCQDHOqkk+a7+AoEZtt0VfpwHq7cbdgQWmbznzq4x9fodY0vpDDCh4wCuf9v6e9IVXW8qSNRhsqlWEs22Jh2ZOBJg=\n-----END RSA PRIVATE KEY-----}"
+  enabled: true
+
+
 # ── Telegram Notifications ───────────────────────────────────────────────────
 telegram:
   bot:

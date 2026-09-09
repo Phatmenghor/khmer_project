@@ -23,7 +23,7 @@ import com.emenu.features.hr.repository.LeaveStatusHistoryRepository;
 import com.emenu.features.hr.service.LeaveService;
 import com.emenu.features.hr.specification.LeaveSpecification;
 import com.emenu.shared.dto.PaginationResponse;
-import com.emenu.features.counter.ReferenceNumberGenerator;
+import com.emenu.features.master.service.ReferenceNumberGenerator;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;

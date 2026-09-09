@@ -88,8 +88,6 @@ public class SecurityConfig {
                         // ── Telegram webhook (HMAC-validated in controller) ──
                         .requestMatchers("/api/v1/telegram/webhook").permitAll()
 
-                        // ── PayWay Webhook Callback (Public / Middleware webhook) ──
-                        .requestMatchers("/api/v1/payments/payway-callback").permitAll()
 
 
 

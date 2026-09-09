@@ -12,6 +12,7 @@ import notificationReducer from "@/features/notification/store/slice/notificatio
 import subscriptionHistoryReducer from "@/features/subscription/store/slice/subscription-history-slice";
 import ownerDashboardReducer from "@/features/owner-dashboard/store/slice/owner-dashboard-slice";
 import businessSettingsReducer from "@/features/business/store/slice/business-settings-slice";
+import platformBankReducer from "@/features/platform-bank/store/slice/platform-bank-slice";
 
 import globalSettingsReducer from "./slices/global-settings-slice";
 import uiReducer from "./slices/ui-slice";
@@ -32,6 +33,7 @@ export const reducers = {
   roles: roleSlice,
 
   subscriptionPlan: subscriptionPlanReducer,
+  platformBank: platformBankReducer,
 
   notification: notificationReducer,
   subscriptionHistory: subscriptionHistoryReducer,

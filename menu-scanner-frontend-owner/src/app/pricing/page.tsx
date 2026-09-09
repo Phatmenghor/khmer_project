@@ -19,6 +19,7 @@ import { fetchAllPublicSubscriptionPlansService } from "@/features/master-data/s
 import { SubscriptionPlanResponseModel } from "@/features/master-data/store/models/response/subscription-plan-response";
 import { PricingCardItem } from "@/components/landing/pricing-card-item";
 import { PricingSupportFooter } from "@/components/landing/pricing-support-footer";
+import { cn } from "@/lib/utils";
 
 export default function PricingPage() {
   const router = useRouter();
@@ -67,15 +68,22 @@ export default function PricingPage() {
     setIsPaymentModalOpen(true);
   };
 
+  const getGridColsClass = (count: number) => {
+    if (count === 1) return "grid-cols-1 max-w-md mx-auto";
+    if (count === 2) return "grid-cols-1 sm:grid-cols-2 max-w-3xl mx-auto";
+    if (count === 3) return "grid-cols-1 md:grid-cols-3 max-w-6xl mx-auto";
+    return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto";
+  };
+
   return (
     <>
       <Navbar />
       <div className="bg-background min-h-screen">
-        <main className="pt-3 pb-12 px-4 sm:px-6 md:px-8 max-w-5xl mx-auto space-y-5">
+        <main className="pt-3 pb-12 px-4 sm:px-6 md:px-8 max-w-6xl mx-auto space-y-5">
           {/* Header with Gradient Title */}
-          <div className="space-y-4">
+          <div className="space-y-4 text-center sm:text-left">
             <div className="flex flex-col space-y-1">
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-r from-primary via-emerald-500 to-indigo-500 bg-clip-text text-transparent w-fit">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-r from-primary via-emerald-500 to-indigo-500 bg-clip-text text-transparent w-fit mx-auto sm:mx-0">
                 Subscription & Upgrade Plans
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground font-medium">
@@ -88,7 +96,7 @@ export default function PricingPage() {
           {isLoadingPlans ? (
             <SubscriptionHistorySkeleton />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-stretch pt-1">
+            <div className={cn("grid gap-4 items-stretch pt-1 w-full", getGridColsClass(plans.length))}>
               {plans.map((plan) => {
                 const isCurrent =
                   currentPlanName.toLowerCase().includes(plan.name.toLowerCase()) ||

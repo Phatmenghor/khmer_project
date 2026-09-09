@@ -1,0 +1,41 @@
+package com.emenu.features.master.mapper;
+
+import com.emenu.features.master.dto.request.SubscriptionPlanCreateRequest;
+import com.emenu.features.master.dto.response.SubscriptionPlanResponse;
+import com.emenu.features.master.dto.update.SubscriptionPlanUpdateRequest;
+import com.emenu.features.master.models.SubscriptionPlan;
+import com.emenu.shared.mapper.PaginationMapper;
+import org.mapstruct.*;
+
+import java.util.List;
+
+@Mapper(componentModel = "spring", uses = {PaginationMapper.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface SubscriptionPlanMapper {
+
+    @Mapping(target = "subscriptions", ignore = true)
+    SubscriptionPlan toEntity(SubscriptionPlanCreateRequest request);
+
+    SubscriptionPlanResponse toResponse(SubscriptionPlan plan);
+    List<SubscriptionPlanResponse> toResponseList(List<SubscriptionPlan> plans);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "subscriptions", ignore = true)
+    void updateEntity(SubscriptionPlanUpdateRequest request, @MappingTarget SubscriptionPlan plan);
+
+    @AfterMapping
+    default void setCalculatedFields(@MappingTarget SubscriptionPlanResponse response, SubscriptionPlan plan) {
+        try {
+            if (plan.getSubscriptions() != null) {
+                response.setActiveSubscriptionsCount((long) plan.getSubscriptions().size());
+            } else {
+                response.setActiveSubscriptionsCount(0L);
+            }
+        } catch (Exception e) {
+            response.setActiveSubscriptionsCount(0L);
+        }
+
+        if (plan.getDurationType() != null) {
+            response.setPeriodLabel(plan.getDurationType().getPeriodLabel());
+        }
+    }
+}

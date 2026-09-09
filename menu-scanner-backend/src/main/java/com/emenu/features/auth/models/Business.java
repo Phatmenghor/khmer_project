@@ -1,7 +1,7 @@
 package com.emenu.features.auth.models;
 
 import com.emenu.enums.user.BusinessStatus;
-import com.emenu.features.subscription.models.Subscription;
+import com.emenu.features.master.models.Subscription;
 import com.emenu.shared.constants.AuthStatusMessages;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;

@@ -11,7 +11,7 @@ import com.emenu.features.dashboard.dto.response.OwnerDashboardSummaryResponse;
 import com.emenu.features.dashboard.dto.response.OwnerDashboardTrendsResponse;
 import com.emenu.features.dashboard.service.OwnerDashboardService;
 import com.emenu.features.dashboard.util.DashboardPeriodUtil;
-import com.emenu.features.subscription.models.Subscription;
+import com.emenu.features.master.models.Subscription;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;

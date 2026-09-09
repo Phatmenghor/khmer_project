@@ -54,6 +54,8 @@ export function PlanUpgradePaymentModal({
     },
   });
 
+  const [selectedBankObj, setSelectedBankObj] = useState<any>(null);
+
   useEffect(() => {
     if (selectedPlan) {
       setValue("newPlanId", selectedPlan.id || "");
@@ -81,7 +83,7 @@ export function PlanUpgradePaymentModal({
           businessOwnerData: {
             newPlanId: data.newPlanId || selectedPlan?.id,
             paymentAmount: Number(data.paymentAmount),
-            paymentMethod: "BANK",
+            paymentMethod: selectedBankObj?.name || "BANK",
             paymentReference: data.paymentReference,
           },
         })
@@ -123,8 +125,8 @@ export function PlanUpgradePaymentModal({
             <PlanUpgradeHeaderSummary selectedPlan={selectedPlan} />
           )}
 
-          {/* Bank Payment Details Component (Bank Payment Only) */}
-          <BankPaymentDetailsCard />
+          {/* Bank Payment Details Component (Dynamic Bank Selection) */}
+          <BankPaymentDetailsCard onSelectBank={(bank) => setSelectedBankObj(bank)} />
 
           {/* Input Fields (Normal Text Inputs) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">

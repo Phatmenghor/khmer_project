@@ -26,7 +26,7 @@ import com.emenu.features.auth.service.UserValidationService;
 import com.emenu.features.hr.repository.LeaveRepository;
 import com.emenu.enums.hr.LeaveStatusEnum;
 import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
-import com.emenu.features.subscription.repository.SubscriptionRepository;
+import com.emenu.features.master.repository.SubscriptionRepository;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.constants.AuthConstants;
 import com.emenu.shared.domain.BaseUUIDEntity;

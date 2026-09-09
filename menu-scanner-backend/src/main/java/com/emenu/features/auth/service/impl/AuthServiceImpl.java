@@ -18,7 +18,7 @@ import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.RefreshToken;
 import com.emenu.features.auth.models.Role;
 import com.emenu.features.auth.models.User;
-import com.emenu.features.subscription.models.Subscription;
+import com.emenu.features.master.models.Subscription;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.repository.UserRepository;
@@ -62,9 +62,9 @@ import com.emenu.features.order.repository.PaymentOptionRepository;
 import com.emenu.enums.sub_scription.SubscriptionPlanDurationType;
 import com.emenu.features.portfolio.models.PortfolioProfile;
 import com.emenu.features.portfolio.repository.PortfolioProfileRepository;
-import com.emenu.features.subscription.models.SubscriptionPlan;
-import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
-import com.emenu.features.subscription.repository.SubscriptionRepository;
+import com.emenu.features.master.models.SubscriptionPlan;
+import com.emenu.features.master.repository.SubscriptionPlanRepository;
+import com.emenu.features.master.repository.SubscriptionRepository;
 
 @Service
 @RequiredArgsConstructor

@@ -36,9 +36,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.emenu.features.subscription.repository.SubscriptionRepository;
-import com.emenu.features.subscription.util.SubscriptionPdfReceiptGenerator;
-import com.emenu.features.subscription.models.Subscription;
+import com.emenu.features.master.repository.SubscriptionRepository;
+import com.emenu.features.master.util.SubscriptionPdfReceiptGenerator;
+import com.emenu.features.master.models.Subscription;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.auth.repository.UserRepository;
 import java.time.LocalDate;
@@ -342,15 +342,12 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
 
             byte[] pdfBytes = SubscriptionPdfReceiptGenerator.generateReceiptPdf(subscription, settings, owner);
             if (pdfBytes != null && pdfBytes.length > 0) {
-                String datePart = subscription.getCreatedAt() != null
-                        ? subscription.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-                        : LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-                String codePart = subscription.getId() != null ? subscription.getId().toString().substring(0, 8).toUpperCase() : "00000000";
-                String pdfFileName = String.format("subscription-receipt-SUB-%s-%s.pdf", datePart, codePart);
+                String invoiceNo = SubscriptionPdfReceiptGenerator.formatInvoiceNumber(subscription);
+                String pdfFileName = String.format("subscription-receipt-%s.pdf", invoiceNo);
 
-                String caption = String.format("📑 Official Subscription Receipt for %s (#SUB-%s-%s)",
+                String caption = String.format("📑 Official Subscription Receipt for %s (#%s)",
                         subscription.getBusiness() != null ? subscription.getBusiness().getName() : "Store",
-                        datePart, codePart);
+                        invoiceNo);
 
                 sendDocumentToChatId(chatId, pdfBytes, pdfFileName, caption);
                 log.info("[Telegram Service] Subscription PDF Receipt successfully dispatched as document to Telegram chat_id={}", chatId);

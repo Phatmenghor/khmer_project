@@ -1,8 +1,8 @@
 package com.emenu.features.main.scheduler;
 
 import com.emenu.features.notification.telegram.service.TelegramNotificationService;
-import com.emenu.features.subscription.models.Subscription;
-import com.emenu.features.subscription.repository.SubscriptionRepository;
+import com.emenu.features.master.models.Subscription;
+import com.emenu.features.master.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

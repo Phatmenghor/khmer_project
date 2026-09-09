@@ -9,7 +9,7 @@ import { SectionTitle, InfoRow } from "@/components/shared/modal/detail-section"
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { formatDate, dateTimeFormat } from "@/utils/date/date-time-format";
 import { CustomButton } from "@/components/shared/button/custom-button";
-import { Download, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 interface SubscriptionHistoryDetailModalProps {
   subscriptionId: string;
@@ -48,6 +48,15 @@ export function SubscriptionHistoryDetailModal({
 
   const h = selectedHistory;
 
+  const calculateDaysUsed = (startDateStr?: string) => {
+    if (!startDateStr) return 0;
+    const start = new Date(startDateStr).getTime();
+    const now = new Date().getTime();
+    if (isNaN(start) || now < start) return 0;
+    const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+    return Math.max(0, diffDays);
+  };
+
   return (
     <DetailModal
       isOpen={isOpen}
@@ -84,14 +93,14 @@ export function SubscriptionHistoryDetailModal({
               label="Subscription Status"
               value={
                 h.status ? (
-                  <span className={`px-2.5 py-0.5 rounded-md text-xs font-bold border ${
+                  <span className={`font-bold ${
                     h.status === "ACTIVE"
-                      ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
+                      ? "text-emerald-600 dark:text-emerald-500"
                       : h.status === "CANCELLED"
-                      ? "bg-amber-500/10 text-amber-600 border-amber-500/30"
+                      ? "text-amber-600 dark:text-amber-500"
                       : h.status === "CHANGE_PLAN"
-                      ? "bg-blue-500/10 text-blue-600 border-blue-500/30"
-                      : "bg-rose-500/10 text-rose-600 border-rose-500/30"
+                      ? "text-blue-600 dark:text-blue-500"
+                      : "text-rose-600 dark:text-rose-500"
                   }`}>
                     {formatEnumValue(h.status)}
                   </span>
@@ -101,8 +110,30 @@ export function SubscriptionHistoryDetailModal({
             <InfoRow label="Start Date" value={formatDate(h.startDate)} />
             <InfoRow label="End Date" value={formatDate(h.endDate)} />
             <InfoRow
-              label="Days Remaining"
-              value={h.status === "EXPIRED" ? "Expired" : h.status === "CANCELLED" ? "Cancelled" : `${h.daysRemaining ?? 0} days`}
+              label="Days Used (Ongoing)"
+              value={
+                <span className="font-bold text-primary">
+                  {calculateDaysUsed(h.startDate)} days used
+                </span>
+              }
+            />
+            <InfoRow
+              label="Time Remaining"
+              value={
+                h.status === "EXPIRED" ? (
+                  <span className="font-bold text-rose-600 dark:text-rose-500">
+                    Expired
+                  </span>
+                ) : h.status === "CANCELLED" ? (
+                  <span className="font-bold text-amber-600 dark:text-amber-500">
+                    Cancelled
+                  </span>
+                ) : (
+                  <span className="font-bold text-emerald-600 dark:text-emerald-500">
+                    {h.daysRemaining ?? 0} Days Remaining
+                  </span>
+                )
+              }
             />
             <InfoRow label="Auto Renew" value={h.autoRenew ? "Enabled" : "Disabled"} />
 
@@ -149,10 +180,7 @@ export function SubscriptionHistoryDetailModal({
                   <span>Downloading PDF...</span>
                 </>
               ) : (
-                <>
-                  <Download className="w-4 h-4 text-primary" />
-                  <span>Download PDF Receipt</span>
-                </>
+                <span>Download PDF Receipt</span>
               )}
             </CustomButton>
           </div>
