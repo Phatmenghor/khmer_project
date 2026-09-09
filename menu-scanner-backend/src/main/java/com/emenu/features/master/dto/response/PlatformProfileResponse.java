@@ -24,8 +24,6 @@ public class PlatformProfileResponse {
     private String logoUrl;
     private String facebookUrl;
     private String websiteUrl;
-    private String termsAndConditions;
-    private String privacyPolicy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

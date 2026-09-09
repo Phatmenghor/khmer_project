@@ -21,6 +21,9 @@ import {
 import { PlatformBankResponseModel } from "../store/models/response/platform-bank-response";
 import { Building2 } from "lucide-react";
 
+import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
+import { AppDefault } from "@/constants/app-resource/default/default";
+
 interface PlatformBankModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -38,7 +41,7 @@ export function PlatformBankModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = Boolean(bankToEdit);
 
-  const { control, handleSubmit, reset, setValue, formState: { isDirty } } = useForm({
+  const { control, handleSubmit, reset, setValue, watch, formState: { isDirty } } = useForm({
     defaultValues: {
       name: "",
       accountName: "",
@@ -49,6 +52,8 @@ export function PlatformBankModal({
       imageUrl: "",
     },
   });
+
+  const imageUrl = watch("imageUrl");
 
   useEffect(() => {
     if (bankToEdit) {
@@ -143,7 +148,7 @@ export function PlatformBankModal({
                 control={control}
                 name="name"
                 label="Bank Name"
-                placeholder="e.g. ABA Bank"
+                placeholder="Enter bank name"
                 disabled={isSubmitting}
                 required
               />
@@ -152,7 +157,7 @@ export function PlatformBankModal({
                 control={control}
                 name="accountName"
                 label="Account Holder Name"
-                placeholder="e.g. SCANME KH CO., LTD."
+                placeholder="Enter account holder name"
                 disabled={isSubmitting}
                 required
               />
@@ -161,7 +166,7 @@ export function PlatformBankModal({
                 control={control}
                 name="accountNumber"
                 label="Account Number"
-                placeholder="e.g. 000 123 456"
+                placeholder="Enter account number"
                 disabled={isSubmitting}
                 required
               />
@@ -170,8 +175,7 @@ export function PlatformBankModal({
                 control={control}
                 name="displayOrder"
                 label="Display Order"
-                placeholder="0"
-                type="number"
+                placeholder="Enter display order"
                 disabled={isSubmitting}
               />
 
@@ -182,13 +186,23 @@ export function PlatformBankModal({
                 options={statusOptions}
                 disabled={isSubmitting}
               />
+            </div>
 
-              <TextField
-                control={control}
-                name="imageUrl"
-                label="Logo / QR Image URL"
-                placeholder="https://example.com/logo.png"
+            <div className="space-y-1.5">
+              <SpacesImageUpload
+                label="Logo / QR Code Image"
+                businessId={AppDefault.BUSINESS_ID}
+                value={imageUrl}
+                onChange={(result: any) => {
+                  const url = result?.url || result?.sm?.url || "";
+                  setValue("imageUrl", url, { shouldDirty: true });
+                }}
+                onRemove={() => {
+                  setValue("imageUrl", "", { shouldDirty: true });
+                }}
+                aspectRatio="square"
                 disabled={isSubmitting}
+                placeholder="Click to upload bank logo or QR image"
               />
             </div>
 
@@ -196,7 +210,7 @@ export function PlatformBankModal({
               control={control}
               name="description"
               label="Payment Instructions"
-              placeholder="e.g. Transfer via mobile app or scan KHQR code..."
+              placeholder="Enter payment instructions"
               rows={2}
               disabled={isSubmitting}
             />

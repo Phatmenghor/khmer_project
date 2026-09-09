@@ -23,6 +23,7 @@ export const ROUTES = {
     SUBSCRIPTION_HISTORY: "/admin/subscription-history",
     SUBSCRIPTION_PLAN: "/admin/subscription-plan",
     PLATFORM_BANKS: "/admin/platform-banks",
+    PLATFORM_PROFILE: "/admin/platform-profile",
     BUSINESS_USERS: "/admin/business-users",
     BUSINESS_USER: "/admin/business-users",
     PLATFORM_USERS: "/admin/platform-users",
@@ -101,6 +102,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "Platform Bank Accounts",
         href: ROUTES.DASHBOARD.PLATFORM_BANKS,
+      },
+      {
+        title: "Platform Settings",
+        href: ROUTES.DASHBOARD.PLATFORM_PROFILE,
       },
     ],
   },

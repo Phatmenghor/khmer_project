@@ -48,12 +48,6 @@ public class PlatformProfile {
     @Column(name = "website_url")
     private String websiteUrl;
 
-    @Column(name = "terms_and_conditions", columnDefinition = "TEXT")
-    private String termsAndConditions;
-
-    @Column(name = "privacy_policy", columnDefinition = "TEXT")
-    private String privacyPolicy;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

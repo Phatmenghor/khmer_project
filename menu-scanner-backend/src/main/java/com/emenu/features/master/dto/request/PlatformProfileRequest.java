@@ -24,6 +24,4 @@ public class PlatformProfileRequest {
     private String logoUrl;
     private String facebookUrl;
     private String websiteUrl;
-    private String termsAndConditions;
-    private String privacyPolicy;
 }
