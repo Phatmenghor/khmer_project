@@ -22,7 +22,7 @@ public class AsyncConfig {
         executor.setCorePoolSize(4);
         executor.setMaxPoolSize(16);
         executor.setQueueCapacity(200);
-        executor.setThreadNamePrefix("payway-async-");
+        executor.setThreadNamePrefix("bakong-async-");
         executor.setTaskDecorator(new MdcTaskDecorator());
         executor.initialize();
         return executor;

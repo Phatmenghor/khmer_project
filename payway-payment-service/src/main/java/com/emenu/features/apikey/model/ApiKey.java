@@ -30,6 +30,5 @@ public class ApiKey extends BaseUUIDEntity {
     private String label;
 
     @Column(name = "active", nullable = false)
-    @Builder.Default
-    private boolean active = true;
+    private boolean active;
 }

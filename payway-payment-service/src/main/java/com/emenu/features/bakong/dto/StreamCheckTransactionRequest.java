@@ -19,8 +19,7 @@ public class StreamCheckTransactionRequest {
     @Size(min = 32, max = 32, message = "MD5 must be exactly 32 characters")
     private String md5;
 
-    @Builder.Default
     @Min(value = 1, message = "Interval seconds must be at least 1")
     @Max(value = 30, message = "Interval seconds cannot exceed 30")
-    private Integer intervalSeconds = 3;
+    private Integer intervalSeconds;
 }

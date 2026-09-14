@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,11 +29,13 @@ import java.util.Optional;
 @Slf4j
 public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
-    private static final String API_KEY_HEADER = "X-Api-Key";
-    private static final String API_KEY_HEADER_ALT = "X-API-Key";
-
     private final ApiKeyRepository apiKeyRepository;
     private final ObjectMapper objectMapper;
+
+    @Override
+    protected boolean shouldNotFilterAsyncDispatch() {
+        return false;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -54,25 +57,28 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        String rawKey = request.getHeader(API_KEY_HEADER);
-        if (rawKey == null || rawKey.isBlank()) {
-            rawKey = request.getHeader(API_KEY_HEADER_ALT);
-        }
+        String rawKey = extractApiKeyHeader(request);
 
         if (rawKey == null || rawKey.isBlank()) {
-            reject(response, "Missing X-Api-Key header.", HttpStatus.UNAUTHORIZED);
+            reject(response, "Missing X-Api-Key header. Please click 'Authorize' in Swagger and enter your API Key.", HttpStatus.UNAUTHORIZED);
             return;
         }
 
-        Optional<ApiKey> found = apiKeyRepository.findByApiKeyAndActiveTrue(rawKey);
+        Optional<ApiKey> found = apiKeyRepository.findByApiKeyAndActiveTrue(rawKey.trim());
         if (found.isEmpty()) {
             reject(response, "Unauthorized: Invalid or revoked API Key.", HttpStatus.UNAUTHORIZED);
             return;
         }
 
-        ApiKey apiKey = found.get();
-        ApiKeyContext ctx = new ApiKeyContext(apiKey.getProjectCode(), rawKey);
+        ApiKey apiKeyEntity = found.get();
+        String projectCode = apiKeyEntity.getProjectCode() != null && !apiKeyEntity.getProjectCode().isBlank()
+                ? apiKeyEntity.getProjectCode()
+                : "UNKNOWN_PROJECT";
+
+        ApiKeyContext ctx = new ApiKeyContext(projectCode, rawKey);
         request.setAttribute(ApiKeyContext.REQUEST_ATTR, ctx);
+        org.slf4j.MDC.put("apiKey", rawKey.trim());
+        org.slf4j.MDC.put("projectCode", projectCode);
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 rawKey, null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_API_CLIENT"))
@@ -80,6 +86,29 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         filterChain.doFilter(request, response);
+    }
+
+    private String extractApiKeyHeader(HttpServletRequest request) {
+        String key = request.getHeader("X-Api-Key");
+        if (key != null && !key.isBlank()) return key;
+
+        key = request.getHeader("X-API-Key");
+        if (key != null && !key.isBlank()) return key;
+
+        key = request.getHeader("x-api-key");
+        if (key != null && !key.isBlank()) return key;
+
+        Enumeration<String> headerNames = request.getHeaderNames();
+        if (headerNames != null) {
+            while (headerNames.hasMoreElements()) {
+                String name = headerNames.nextElement();
+                if ("x-api-key".equalsIgnoreCase(name)) {
+                    return request.getHeader(name);
+                }
+            }
+        }
+
+        return null;
     }
 
     private void reject(HttpServletResponse response, String message, HttpStatus status) throws IOException {

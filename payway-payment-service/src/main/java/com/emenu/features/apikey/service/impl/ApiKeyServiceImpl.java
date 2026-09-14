@@ -6,7 +6,7 @@ import com.emenu.features.apikey.dto.response.ApiKeyResponse;
 import com.emenu.features.apikey.model.ApiKey;
 import com.emenu.features.apikey.repository.ApiKeyRepository;
 import com.emenu.features.apikey.service.ApiKeyService;
-import com.emenu.features.apikey.util.ApiKeyUtil;
+import com.emenu.util.ApiKeyUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +35,9 @@ public class ApiKeyServiceImpl implements ApiKeyService {
                     .active(true)
                     .build();
             ApiKey defaultKey2 = ApiKey.builder()
-                    .projectCode("payway-service")
-                    .apiKey("sk_payway_default_secret_key_123456789")
-                    .label("Payway Service Default Key")
+                    .projectCode("bakong-service")
+                    .apiKey("sk_bakong_default_secret_key_123456789")
+                    .label("Bakong Payment Service Default Key")
                     .active(true)
                     .build();
             apiKeyRepository.saveAll(List.of(defaultKey1, defaultKey2));

@@ -20,11 +20,6 @@ security:
     username: "${SECURITY_BASIC_USERNAME:admin}"
     password: "${SECURITY_BASIC_PASSWORD:admin123}"
 
-bakong:
-  api-url: "${BAKONG_API_URL:https://api-bakong.nbc.gov.kh}"
-  account-id: "${BAKONG_ACCOUNT_ID:phat_menghor@bkrt}"
-  email: "${BAKONG_EMAIL:phatmenghor19@gmail.com}"
-  enabled: true
 
 telegram:
   bot:

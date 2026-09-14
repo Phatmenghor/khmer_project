@@ -1,10 +1,12 @@
 package com.emenu.features.bakong.service.impl;
 
+import com.emenu.constant.BakongApiConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.emenu.config.exception.BakongPaymentException;
 import com.emenu.config.exception.BakongUpstreamException;
-import com.emenu.features.bakong.common.BakongReactiveExecutor;
-import com.emenu.features.bakong.config.BakongProperties;
+import com.emenu.util.BakongReactiveExecutor;
+import com.emenu.config.BakongProperties;
+import com.emenu.features.bakong.dto.BakongMonitoringStatusResponse;
 import com.emenu.features.bakong.dto.BakongQrResponse;
 import com.emenu.features.bakong.dto.BakongRequest;
 import com.emenu.features.bakong.dto.BakongResponse;
@@ -12,18 +14,23 @@ import com.emenu.features.bakong.dto.CheckAccountRequest;
 import com.emenu.features.bakong.dto.CheckHashRequest;
 import com.emenu.features.bakong.dto.CheckMd5ListRequest;
 import com.emenu.features.bakong.dto.CheckTransactionRequest;
-import com.emenu.features.bakong.dto.GenerateDeeplinkRequest;
 import com.emenu.features.bakong.dto.TransactionStatusResponse;
-import com.emenu.features.bakong.enums.TransactionState;
-import com.emenu.features.bakong.common.TelegramNotifier;
+import com.emenu.enums.TransactionState;
+import com.emenu.features.bakong.model.BakongTransactionLog;
+import com.emenu.features.bakong.repository.BakongTransactionLogRepository;
+import com.emenu.features.bakong.notifier.TelegramNotifier;
 import com.emenu.features.bakong.mapper.MerchantInfoMapper;
 import com.emenu.features.bakong.mapper.TransactionStatusMapper;
+import com.emenu.features.bakong.model.BakongAccount;
+import com.emenu.features.bakong.model.BakongConfig;
 import com.emenu.features.bakong.model.BakongTransaction;
+import com.emenu.features.bakong.repository.BakongAccountRepository;
+import com.emenu.features.bakong.repository.BakongConfigRepository;
 import com.emenu.features.bakong.repository.BakongTransactionRepository;
+import com.emenu.features.bakong.service.BakongRateLimiterService;
 import com.emenu.features.bakong.service.BakongService;
 import com.emenu.features.bakong.service.BakongTokenService;
-import com.emenu.features.bakong.common.QrImageUtils;
-import com.emenu.shared.dto.ApiResponse;
+import com.emenu.util.QrImageUtils;
 import kh.gov.nbc.bakong_khqr.BakongKHQR;
 import kh.gov.nbc.bakong_khqr.model.KHQRData;
 import kh.gov.nbc.bakong_khqr.model.KHQRResponse;
@@ -42,6 +49,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -51,12 +59,29 @@ public class BakongServiceImpl implements BakongService {
     private final RestClient restClient;
     private final ObjectMapper mapper;
     private final BakongProperties bakongProperties;
+    private final BakongConfigRepository bakongConfigRepository;
+    private final BakongAccountRepository bakongAccountRepository;
     private final BakongTokenService bakongTokenService;
+    private final BakongRateLimiterService bakongRateLimiterService;
     private final MerchantInfoMapper merchantInfoMapper;
     private final TransactionStatusMapper transactionStatusMapper;
     private final TelegramNotifier telegramNotifier;
     private final BakongReactiveExecutor reactiveExecutor;
     private final BakongTransactionRepository bakongTransactionRepository;
+    private final BakongTransactionLogRepository bakongTransactionLogRepository;
+
+    private String getBakongApiUrl() {
+        return bakongConfigRepository.findTopByEnabledTrue()
+                .map(BakongConfig::getApiUrl)
+                .orElseGet(bakongProperties::getApiUrl);
+    }
+
+    private String getBakongAccountId() {
+        return bakongAccountRepository.findTopByIsDefaultTrueAndEnabledTrue()
+                .or(() -> bakongAccountRepository.findTopByEnabledTrue())
+                .map(BakongAccount::getAccountId)
+                .orElseGet(bakongProperties::getAccountId);
+    }
 
     @Override
     public Mono<BakongQrResponse> generateQR(BakongRequest bakongRequest, String requestUrl) {
@@ -67,7 +92,7 @@ public class BakongServiceImpl implements BakongService {
                     bakongRequest.getCurrency());
             try {
                 KHQRResponse<KHQRData> response = BakongKHQR.generateMerchant(
-                        merchantInfoMapper.toMerchantInfo(bakongRequest, bakongProperties.getAccountId())
+                        merchantInfoMapper.toMerchantInfo(bakongRequest, getBakongAccountId())
                 );
 
                 if (response.getKHQRStatus() != null && response.getKHQRStatus().getCode() != 0) {
@@ -122,27 +147,6 @@ public class BakongServiceImpl implements BakongService {
     }
 
     @Override
-    public Mono<BakongResponse> generateDeeplink(GenerateDeeplinkRequest request, String requestUrl) {
-        return reactiveExecutor.executeReactive("generateDeeplink", () -> {
-            String url = bakongProperties.getApiUrl() + "/v1/generate_deeplink_by_qr";
-            log.info("Generating Bakong deeplink against upstreamUrl={}", url);
-
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("qr", request.getQr());
-
-            if (request.getAppName() != null || request.getAppIconUrl() != null || request.getAppDeepLinkCallback() != null) {
-                Map<String, String> sourceInfo = new HashMap<>();
-                if (request.getAppName() != null) sourceInfo.put("appName", request.getAppName());
-                if (request.getAppIconUrl() != null) sourceInfo.put("appIconUrl", request.getAppIconUrl());
-                if (request.getAppDeepLinkCallback() != null) sourceInfo.put("appDeepLinkCallback", request.getAppDeepLinkCallback());
-                payload.put("sourceInfo", sourceInfo);
-            }
-
-            return executePostRequest(url, payload, null);
-        });
-    }
-
-    @Override
     public Mono<BakongResponse> checkTransactionByMD5(CheckTransactionRequest request, String requestUrl) {
         return reactiveExecutor.executeReactive("checkTransactionByMD5", () -> doCheckTransactionByMd5(request, requestUrl));
     }
@@ -156,65 +160,92 @@ public class BakongServiceImpl implements BakongService {
     @Override
     public Mono<BakongResponse> checkTransactionByHash(CheckHashRequest request, String requestUrl) {
         return reactiveExecutor.executeReactive("checkTransactionByHash", () -> {
-            String url = bakongProperties.getApiUrl() + "/v1/check_transaction_by_hash";
+            String url = getBakongApiUrl() + BakongApiConstants.CHECK_TRANSACTION_BY_HASH_ENDPOINT;
             log.info("Checking transaction by hash={} against upstreamUrl={}", request.getHash(), url);
-            return executeAuthenticatedPost(url, Map.of("hash", request.getHash()), requestUrl, request);
+            BakongResponse response = executeAuthenticatedPost(url, Map.of("hash", request.getHash()), requestUrl, request, true);
+            updateTransactionRecordStatus(null, request.getHash(), response, "CHECK_BY_HASH");
+            if (response.isSuccess()) {
+                telegramNotifier.notifyIssue("Bakong Transaction Verified by Hash", requestUrl, Map.of("hash", request.getHash(), "response", response), null);
+            }
+            return response;
         });
     }
 
     @Override
     public Mono<BakongResponse> checkBakongAccount(CheckAccountRequest request, String requestUrl) {
         return reactiveExecutor.executeReactive("checkBakongAccount", () -> {
-            String url = bakongProperties.getApiUrl() + "/v1/check_bakong_account";
-            log.info("Checking Bakong accountId={} against upstreamUrl={}", request.getAccountId(), url);
-            return executeAuthenticatedPost(url, Map.of("accountId", request.getAccountId()), requestUrl, request);
+            String targetAccountId = (request != null && request.getAccountId() != null && !request.getAccountId().isBlank())
+                    ? request.getAccountId().trim()
+                    : getBakongAccountId();
+            String url = getBakongApiUrl() + BakongApiConstants.CHECK_BAKONG_ACCOUNT_ENDPOINT;
+            log.info("Checking Bakong accountId={} against upstreamUrl={}", targetAccountId, url);
+            BakongResponse response = executeAuthenticatedPost(url, Map.of("accountId", targetAccountId), requestUrl, request, false);
+            return response;
         });
     }
 
     @Override
     public Mono<BakongResponse> checkTransactionByMd5List(CheckMd5ListRequest request, String requestUrl) {
         return reactiveExecutor.executeReactive("checkTransactionByMd5List", () -> {
-            String url = bakongProperties.getApiUrl() + "/v1/check_transaction_by_md5_list";
+            String url = getBakongApiUrl() + BakongApiConstants.CHECK_TRANSACTION_BY_MD5_LIST_ENDPOINT;
             log.info("Checking transaction by MD5 list (size={}) against upstreamUrl={}", request.getMd5List().size(), url);
-            return executeAuthenticatedPost(url, request.getMd5List(), requestUrl, request);
+            BakongResponse response = executeAuthenticatedPost(url, request.getMd5List(), requestUrl, request, true);
+            if (request.getMd5List() != null) {
+                request.getMd5List().forEach(md5 -> updateTransactionRecordStatus(md5, null, response, "CHECK_BY_MD5_LIST"));
+            }
+            return response;
         });
     }
 
     @Override
-    public Flux<ApiResponse<TransactionStatusResponse>> streamCheckTransaction(String md5, Integer intervalSeconds, String requestUrl) {
+    public Flux<TransactionStatusResponse> streamCheckTransaction(String md5, Integer intervalSeconds, String requestUrl) {
         return Flux.interval(Duration.ZERO, Duration.ofSeconds(intervalSeconds))
                 .concatMap(tick -> checkTransactionByMD5(new CheckTransactionRequest(md5), requestUrl)
-                        .map(response -> ApiResponse.success(
-                                "Transaction status update",
-                                transactionStatusMapper.toStreamingStatus(response, tick)
-                        )))
-                .takeUntil(apiResponse -> apiResponse.getData() != null && apiResponse.getData().isTerminal());
+                        .map(response -> transactionStatusMapper.toStreamingStatus(response, tick)))
+                .takeUntil(TransactionStatusResponse::isTerminal);
     }
 
     private BakongResponse doCheckTransactionByMd5(CheckTransactionRequest request, String requestUrl) {
-        String url = bakongProperties.getApiUrl() + "/v1/check_transaction_by_md5";
+        String url = getBakongApiUrl() + BakongApiConstants.CHECK_TRANSACTION_BY_MD5_ENDPOINT;
         log.info("Checking transaction status for md5={} against upstreamUrl={}", request.getMd5(), url);
-        BakongResponse response = executeAuthenticatedPost(url, Map.of("md5", request.getMd5()), requestUrl, request);
-        updateTransactionRecordStatus(request.getMd5(), response);
+        BakongResponse response = executeAuthenticatedPost(url, Map.of("md5", request.getMd5()), requestUrl, request, true);
+        updateTransactionRecordStatus(request.getMd5(), null, response, "CHECK_BY_MD5");
         if (response.isSuccess()) {
             telegramNotifier.notifyTransactionChecked(requestUrl, url, request, response);
         }
         return response;
     }
 
-    private BakongResponse executeAuthenticatedPost(String url, Object body, String requestUrl, Object originalRequest) {
+    private BakongResponse executeAuthenticatedPost(String url, Object body, String requestUrl, Object originalRequest, boolean countQuota) {
+        String targetEmail = null;
+        String targetUrl = url;
+
+        if (countQuota) {
+            BakongConfig activeConfig = bakongRateLimiterService.selectAndIncrementActiveQuota(url);
+            targetEmail = activeConfig.getEmail();
+            if (activeConfig.getApiUrl() != null && !activeConfig.getApiUrl().isBlank() && url.contains("/v1/")) {
+                targetUrl = activeConfig.getApiUrl() + url.substring(url.indexOf("/v1/"));
+            }
+        }
+
+        String bearerToken = bakongTokenService.getTokenForEmail(targetEmail);
+
         try {
-            return executePostRequest(url, body, bakongTokenService.getToken());
+            return executePostRequest(targetUrl, body, bearerToken);
         } catch (RestClientResponseException ex) {
             if (ex.getStatusCode() == HttpStatus.UNAUTHORIZED || ex.getStatusCode() == HttpStatus.FORBIDDEN) {
-                log.warn("Bakong token rejected by upstream, renewing token and retrying request to {}", url);
-                return executePostRequest(url, body, bakongTokenService.renewToken());
+                log.warn("Bakong token rejected by upstream for email={}, renewing token and retrying request to {}", targetEmail, targetUrl);
+                String renewedToken = bakongTokenService.renewTokenForEmail(targetEmail);
+                return executePostRequest(targetUrl, body, renewedToken);
             }
-            log.error("Upstream HTTP error status={} on url={}", ex.getStatusCode(), url);
+            log.error("Upstream HTTP error status={} on url={}", ex.getStatusCode(), targetUrl);
             telegramNotifier.notifyIssue("Bakong API error", requestUrl, originalRequest, ex);
             throw new BakongUpstreamException("Bakong API request failed: HTTP " + ex.getStatusCode().value(), ex.getStatusCode().value(), ex.getResponseBodyAsString());
         } catch (Exception e) {
-            log.error("Bakong API request failed on url={}: {}", url, e.getMessage());
+            if (e instanceof BakongUpstreamException bue) {
+                throw bue;
+            }
+            log.error("Bakong API request failed on url={}: {}", targetUrl, e.getMessage());
             telegramNotifier.notifyIssue("Bakong API error", requestUrl, originalRequest, e);
             throw new BakongUpstreamException("Bakong API request failed: " + e.getMessage(), e);
         }
@@ -241,24 +272,60 @@ public class BakongServiceImpl implements BakongService {
 
     private void saveTransactionRecord(BakongRequest request, KHQRData qrData) {
         try {
+            String apiKey = org.slf4j.MDC.get("apiKey");
+            String projectCode = org.slf4j.MDC.get("projectCode");
             BakongTransaction transaction = BakongTransaction.builder()
+                    .projectCode(projectCode != null && !projectCode.isBlank() ? projectCode : "EMENU_WEB")
+                    .apiKey(apiKey)
                     .md5(qrData.getMd5())
                     .merchantName(request.getMerchantName())
                     .amount(BigDecimal.valueOf(request.getAmount()))
                     .currency(request.getCurrency() != null ? request.getCurrency().name() : "KHR")
                     .status(TransactionState.NOT_SCANNED.name())
-                    .toAccountId(bakongProperties.getAccountId())
+                    .toAccountId(getBakongAccountId())
                     .rawQrString(qrData.getQr())
                     .build();
-            bakongTransactionRepository.save(transaction);
+            BakongTransaction savedTx = bakongTransactionRepository.save(transaction);
+
+            BakongTransactionLog logEntry = BakongTransactionLog.builder()
+                    .transactionId(savedTx.getId())
+                    .projectCode(savedTx.getProjectCode())
+                    .apiKey(savedTx.getApiKey())
+                    .md5(savedTx.getMd5())
+                    .action("QR_GENERATED")
+                    .status(savedTx.getStatus())
+                    .amount(savedTx.getAmount())
+                    .currency(savedTx.getCurrency())
+                    .toAccountId(savedTx.getToAccountId())
+                    .merchantName(savedTx.getMerchantName())
+                    .rawQrString(savedTx.getRawQrString())
+                    .build();
+            bakongTransactionLogRepository.save(logEntry);
+            log.info("Saved initial BakongTransaction and BakongTransactionLog for md5={}", qrData.getMd5());
         } catch (Exception ex) {
             log.warn("Failed to persist BakongTransaction record for md5={}: {}", qrData.getMd5(), ex.getMessage());
         }
     }
 
-    private void updateTransactionRecordStatus(String md5, BakongResponse response) {
+    private void updateTransactionRecordStatus(String md5, String hash, BakongResponse response, String actionName) {
         try {
-            bakongTransactionRepository.findByMd5(md5).ifPresent(tx -> {
+            Optional<BakongTransaction> optionalTx = Optional.empty();
+            if (md5 != null && !md5.isBlank()) {
+                optionalTx = bakongTransactionRepository.findByMd5(md5);
+            }
+            if (optionalTx.isEmpty() && hash != null && !hash.isBlank()) {
+                optionalTx = bakongTransactionRepository.findByHash(hash);
+            }
+
+            String respJson = null;
+            try {
+                respJson = mapper.writeValueAsString(response);
+            } catch (Exception ignore) {}
+
+            final String finalRespJson = respJson;
+
+            optionalTx.ifPresent(tx -> {
+                tx.setResponseJson(finalRespJson);
                 if (response.isSuccess()) {
                     tx.setStatus(TransactionState.PAID.name());
                     if (response.getData() instanceof Map<?, ?> dataMap) {
@@ -268,6 +335,12 @@ public class BakongServiceImpl implements BakongService {
                         if (fromAcc != null) tx.setFromAccountId(fromAcc.toString());
                         Object toAcc = dataMap.get("toAccountId");
                         if (toAcc != null) tx.setToAccountId(toAcc.toString());
+                        Object amtObj = dataMap.get("amount");
+                        if (amtObj != null) {
+                            try { tx.setAmount(new BigDecimal(amtObj.toString())); } catch (Exception ignore) {}
+                        }
+                        Object currObj = dataMap.get("currency");
+                        if (currObj != null) tx.setCurrency(currObj.toString());
                     }
                 } else if (response.getResponseCode() == 1) {
                     tx.setStatus(TransactionState.WAITING_FOR_PAYMENT.name());
@@ -275,10 +348,41 @@ public class BakongServiceImpl implements BakongService {
                     tx.setStatus(TransactionState.FAILED.name());
                 }
                 BakongTransaction updated = bakongTransactionRepository.save(tx);
-                log.info("Updated BakongTransaction status to {} for md5={}", updated.getStatus(), md5);
+                log.info("Updated BakongTransaction status to {} for md5={} hash={}", updated.getStatus(), md5, hash);
+
+                BakongTransactionLog logEntry = BakongTransactionLog.builder()
+                        .transactionId(updated.getId())
+                        .projectCode(updated.getProjectCode())
+                        .apiKey(updated.getApiKey())
+                        .md5(updated.getMd5())
+                        .hash(updated.getHash())
+                        .action(actionName != null ? actionName : "CHECK_STATUS")
+                        .status(updated.getStatus())
+                        .amount(updated.getAmount())
+                        .currency(updated.getCurrency())
+                        .fromAccountId(updated.getFromAccountId())
+                        .toAccountId(updated.getToAccountId())
+                        .merchantName(updated.getMerchantName())
+                        .responseJson(finalRespJson)
+                        .errorMessage(response.getResponseMessage())
+                        .build();
+                bakongTransactionLogRepository.save(logEntry);
             });
         } catch (Exception ex) {
-            log.warn("Failed to update status for BakongTransaction md5={}: {}", md5, ex.getMessage());
+            log.warn("Failed to update status for BakongTransaction md5={} hash={}: {}", md5, hash, ex.getMessage());
         }
     }
+
+    @Override
+    public Mono<BakongMonitoringStatusResponse> getMonitoringStatus() {
+        return reactiveExecutor.executeReactive("getMonitoringStatus", () -> {
+            var quotaInfo = bakongRateLimiterService.getQuotaInfo();
+            var tokenInfo = bakongTokenService.getTokenStatusInfo();
+            return BakongMonitoringStatusResponse.builder()
+                    .quota(quotaInfo)
+                    .token(tokenInfo)
+                    .build();
+        });
+    }
 }
+

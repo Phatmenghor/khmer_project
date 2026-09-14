@@ -1,13 +1,16 @@
 package com.emenu.shared.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -19,16 +22,21 @@ public class ApiResponse<T> {
     private String message;
     private T data;
 
-    @Builder.Default
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "Asia/Phnom_Penh")
-    private ZonedDateTime timestamp = ZonedDateTime.now(ZoneId.of("Asia/Phnom_Penh"));
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime timestamp;
+
+    public static <T> ApiResponse<T> success(T data) {
+        return success("Success", data);
+    }
 
     public static <T> ApiResponse<T> success(String message, T data) {
         return ApiResponse.<T>builder()
                 .success(true)
                 .message(message)
                 .data(data)
-                .timestamp(ZonedDateTime.now(ZoneId.of("Asia/Phnom_Penh")))
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 
@@ -36,7 +44,7 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder()
                 .success(false)
                 .message(message)
-                .timestamp(ZonedDateTime.now(ZoneId.of("Asia/Phnom_Penh")))
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 }

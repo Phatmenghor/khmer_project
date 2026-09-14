@@ -21,6 +21,12 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 public class BakongTransaction extends BaseUUIDEntity {
 
+    @Column(name = "project_code", length = 100)
+    private String projectCode;
+
+    @Column(name = "api_key", length = 255)
+    private String apiKey;
+
     @Column(name = "md5", nullable = false, unique = true, length = 100)
     private String md5;
 
@@ -47,4 +53,7 @@ public class BakongTransaction extends BaseUUIDEntity {
 
     @Column(name = "raw_qr_string", columnDefinition = "TEXT")
     private String rawQrString;
+
+    @Column(name = "response_json", columnDefinition = "TEXT")
+    private String responseJson;
 }

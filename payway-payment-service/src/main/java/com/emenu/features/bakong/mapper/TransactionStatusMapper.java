@@ -1,6 +1,6 @@
 package com.emenu.features.bakong.mapper;
 
-import com.emenu.features.bakong.enums.TransactionState;
+import com.emenu.enums.TransactionState;
 import com.emenu.features.bakong.dto.BakongResponse;
 import com.emenu.features.bakong.dto.TransactionStatusResponse;
 import org.springframework.stereotype.Component;

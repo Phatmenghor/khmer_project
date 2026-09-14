@@ -10,8 +10,7 @@ import jakarta.persistence.PreUpdate;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.ZonedDateTime;
-import java.time.ZoneId;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -25,23 +24,23 @@ public abstract class BaseUUIDEntity {
     private UUID id;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private ZonedDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
-    private ZonedDateTime updatedAt;
+    private LocalDateTime updatedAt;
 
-    @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
-    private boolean isDeleted = false;
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted;
 
     @PrePersist
     protected void onCreate() {
-        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Phnom_Penh"));
+        LocalDateTime now = LocalDateTime.now();
         this.createdAt = now;
         this.updatedAt = now;
     }
 
     @PreUpdate
     protected void onUpdate() {
-        this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Phnom_Penh"));
+        this.updatedAt = LocalDateTime.now();
     }
 }

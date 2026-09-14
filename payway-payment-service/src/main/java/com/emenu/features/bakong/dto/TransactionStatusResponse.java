@@ -1,6 +1,6 @@
 package com.emenu.features.bakong.dto;
 
-import com.emenu.features.bakong.enums.TransactionState;
+import com.emenu.enums.TransactionState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

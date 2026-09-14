@@ -1,6 +1,6 @@
 package com.emenu.features.bakong.dto;
 
-import com.emenu.features.bakong.common.ValidBakongRequest;
+import com.emenu.validator.ValidBakongRequest;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import kh.gov.nbc.bakong_khqr.model.KHQRCurrency;
