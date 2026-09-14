@@ -1,7 +1,6 @@
 package com.emenu.features.telegram.controller;
 
 import com.emenu.config.OpenApiConfig;
-import com.emenu.constant.ApiEndpoints;
 import com.emenu.features.telegram.dto.TelegramCustomMessageRequest;
 import com.emenu.features.telegram.dto.TelegramNotificationResponse;
 import com.emenu.features.telegram.service.TelegramService;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(ApiEndpoints.TELEGRAM_BASE)
+@RequestMapping("/api/v1/telegram")
 @RequiredArgsConstructor
 @Validated
 @SecurityRequirement(name = OpenApiConfig.API_KEY_SCHEME)
@@ -25,7 +24,7 @@ public class TelegramController {
 
     private final TelegramService telegramService;
 
-    @PostMapping(ApiEndpoints.TELEGRAM_SEND)
+    @PostMapping("/send")
     public Mono<ApiResponse<TelegramNotificationResponse>> sendCustomNotification(@Valid @RequestBody TelegramCustomMessageRequest request) {
         return Mono.fromCallable(() -> ApiResponse.success("Telegram notification dispatched successfully", telegramService.sendCustomNotification(request)));
     }

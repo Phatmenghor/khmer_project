@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.emenu.config.exception.BakongPaymentException;
 import com.emenu.config.exception.BakongUpstreamException;
 import com.emenu.util.BakongReactiveExecutor;
-import com.emenu.config.BakongProperties;
 import com.emenu.features.bakong.dto.BakongMonitoringStatusResponse;
 import com.emenu.features.bakong.dto.BakongQrResponse;
 import com.emenu.features.bakong.dto.BakongRequest;
@@ -58,7 +57,6 @@ public class BakongServiceImpl implements BakongService {
 
     private final RestClient restClient;
     private final ObjectMapper mapper;
-    private final BakongProperties bakongProperties;
     private final BakongConfigRepository bakongConfigRepository;
     private final BakongAccountRepository bakongAccountRepository;
     private final BakongTokenService bakongTokenService;
@@ -69,18 +67,21 @@ public class BakongServiceImpl implements BakongService {
     private final BakongReactiveExecutor reactiveExecutor;
     private final BakongTransactionRepository bakongTransactionRepository;
     private final BakongTransactionLogRepository bakongTransactionLogRepository;
+    private final com.emenu.features.bakong.mapper.BakongTransactionMapper transactionMapper;
 
     private String getBakongApiUrl() {
         return bakongConfigRepository.findTopByEnabledTrue()
                 .map(BakongConfig::getApiUrl)
-                .orElseGet(bakongProperties::getApiUrl);
+                .filter(url -> url != null && !url.isBlank())
+                .orElseThrow(() -> new BakongPaymentException("No active Bakong API URL configuration found in database table"));
     }
 
     private String getBakongAccountId() {
         return bakongAccountRepository.findTopByIsDefaultTrueAndEnabledTrue()
                 .or(() -> bakongAccountRepository.findTopByEnabledTrue())
                 .map(BakongAccount::getAccountId)
-                .orElseGet(bakongProperties::getAccountId);
+                .filter(id -> id != null && !id.isBlank())
+                .orElseThrow(() -> new BakongPaymentException("No active Bakong Account ID found in database table"));
     }
 
     @Override
@@ -199,7 +200,8 @@ public class BakongServiceImpl implements BakongService {
 
     @Override
     public Flux<TransactionStatusResponse> streamCheckTransaction(String md5, Integer intervalSeconds, String requestUrl) {
-        return Flux.interval(Duration.ZERO, Duration.ofSeconds(intervalSeconds))
+        int interval = (intervalSeconds != null && intervalSeconds > 0) ? intervalSeconds : 3;
+        return Flux.interval(Duration.ZERO, Duration.ofSeconds(interval))
                 .concatMap(tick -> checkTransactionByMD5(new CheckTransactionRequest(md5), requestUrl)
                         .map(response -> transactionStatusMapper.toStreamingStatus(response, tick)))
                 .takeUntil(TransactionStatusResponse::isTerminal);
@@ -287,19 +289,7 @@ public class BakongServiceImpl implements BakongService {
                     .build();
             BakongTransaction savedTx = bakongTransactionRepository.save(transaction);
 
-            BakongTransactionLog logEntry = BakongTransactionLog.builder()
-                    .transactionId(savedTx.getId())
-                    .projectCode(savedTx.getProjectCode())
-                    .apiKey(savedTx.getApiKey())
-                    .md5(savedTx.getMd5())
-                    .action("QR_GENERATED")
-                    .status(savedTx.getStatus())
-                    .amount(savedTx.getAmount())
-                    .currency(savedTx.getCurrency())
-                    .toAccountId(savedTx.getToAccountId())
-                    .merchantName(savedTx.getMerchantName())
-                    .rawQrString(savedTx.getRawQrString())
-                    .build();
+            BakongTransactionLog logEntry = transactionMapper.toLogEntity(savedTx, "QR_GENERATED", null, null);
             bakongTransactionLogRepository.save(logEntry);
             log.info("Saved initial BakongTransaction and BakongTransactionLog for md5={}", qrData.getMd5());
         } catch (Exception ex) {
@@ -350,22 +340,12 @@ public class BakongServiceImpl implements BakongService {
                 BakongTransaction updated = bakongTransactionRepository.save(tx);
                 log.info("Updated BakongTransaction status to {} for md5={} hash={}", updated.getStatus(), md5, hash);
 
-                BakongTransactionLog logEntry = BakongTransactionLog.builder()
-                        .transactionId(updated.getId())
-                        .projectCode(updated.getProjectCode())
-                        .apiKey(updated.getApiKey())
-                        .md5(updated.getMd5())
-                        .hash(updated.getHash())
-                        .action(actionName != null ? actionName : "CHECK_STATUS")
-                        .status(updated.getStatus())
-                        .amount(updated.getAmount())
-                        .currency(updated.getCurrency())
-                        .fromAccountId(updated.getFromAccountId())
-                        .toAccountId(updated.getToAccountId())
-                        .merchantName(updated.getMerchantName())
-                        .responseJson(finalRespJson)
-                        .errorMessage(response.getResponseMessage())
-                        .build();
+                BakongTransactionLog logEntry = transactionMapper.toLogEntity(
+                        updated,
+                        actionName != null ? actionName : "CHECK_STATUS",
+                        finalRespJson,
+                        response.getResponseMessage()
+                );
                 bakongTransactionLogRepository.save(logEntry);
             });
         } catch (Exception ex) {

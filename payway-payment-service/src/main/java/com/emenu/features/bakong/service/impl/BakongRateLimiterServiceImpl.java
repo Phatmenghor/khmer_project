@@ -1,8 +1,8 @@
 package com.emenu.features.bakong.service.impl;
 
+import com.emenu.config.exception.BakongPaymentException;
 import com.emenu.config.exception.BakongUpstreamException;
 import com.emenu.features.bakong.notifier.TelegramNotifier;
-import com.emenu.config.BakongProperties;
 import com.emenu.features.bakong.dto.BakongMonitoringStatusResponse.AccountQuotaDetail;
 import com.emenu.features.bakong.dto.BakongMonitoringStatusResponse.DailyQuotaInfo;
 import com.emenu.features.bakong.model.BakongConfig;
@@ -27,7 +27,6 @@ import java.util.Map;
 public class BakongRateLimiterServiceImpl implements BakongRateLimiterService {
 
     private final BakongDailyQuotaRepository quotaRepository;
-    private final BakongProperties bakongProperties;
     private final BakongConfigRepository bakongConfigRepository;
     private final TelegramNotifier telegramNotifier;
 
@@ -80,7 +79,7 @@ public class BakongRateLimiterServiceImpl implements BakongRateLimiterService {
         }
 
         // All developer accounts have reached their daily limit
-        String firstEmail = !configs.isEmpty() ? configs.get(0).getEmail() : bakongProperties.getEmail();
+        String firstEmail = !configs.isEmpty() ? configs.get(0).getEmail() : "";
         log.error("[BAKONG API ALL QUOTA EXCEEDED] All {} registered developer accounts have reached their daily limit for date={}. Blocked request to endpoint={}",
                 configs.size(), today, endpoint);
 
@@ -200,13 +199,10 @@ public class BakongRateLimiterServiceImpl implements BakongRateLimiterService {
     private List<BakongConfig> getEnabledConfigs() {
         List<BakongConfig> configs = bakongConfigRepository.findAllByEnabledTrue();
         if (configs == null || configs.isEmpty()) {
-            configs = List.of(BakongConfig.builder()
-                    .configName("DEFAULT")
-                    .apiUrl(bakongProperties.getApiUrl())
-                    .email(bakongProperties.getEmail())
-                    .dailyRateLimit(bakongProperties.getDailyRateLimit() > 0 ? bakongProperties.getDailyRateLimit() : 100)
-                    .enabled(true)
-                    .build());
+            configs = bakongConfigRepository.findAll();
+        }
+        if (configs == null || configs.isEmpty()) {
+            throw new BakongPaymentException("No active Bakong API configuration found in database table");
         }
         return configs;
     }

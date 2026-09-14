@@ -1,10 +1,10 @@
 package com.emenu.features.bakong.service.impl;
 
+import com.emenu.config.exception.BakongPaymentException;
 import com.emenu.constant.BakongApiConstants;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.emenu.features.bakong.notifier.TelegramNotifier;
-import com.emenu.config.BakongProperties;
 import com.emenu.features.bakong.dto.BakongMonitoringStatusResponse.TokenStatusInfo;
 import com.emenu.features.bakong.model.BakongConfig;
 import com.emenu.features.bakong.model.BakongTokenLog;
@@ -34,7 +34,6 @@ public class BakongTokenServiceImpl implements BakongTokenService {
 
     private final RestClient restClient;
     private final ObjectMapper mapper;
-    private final BakongProperties bakongProperties;
     private final BakongConfigRepository bakongConfigRepository;
     private final TelegramNotifier telegramNotifier;
     private final BakongTokenRepository bakongTokenRepository;
@@ -58,13 +57,15 @@ public class BakongTokenServiceImpl implements BakongTokenService {
     private String getBakongEmail() {
         return bakongConfigRepository.findTopByEnabledTrue()
                 .map(BakongConfig::getEmail)
-                .orElseGet(bakongProperties::getEmail);
+                .filter(email -> email != null && !email.isBlank())
+                .orElseThrow(() -> new BakongPaymentException("No active Bakong developer email configuration found in database table"));
     }
 
     private String getBakongApiUrl() {
         return bakongConfigRepository.findTopByEnabledTrue()
                 .map(BakongConfig::getApiUrl)
-                .orElseGet(bakongProperties::getApiUrl);
+                .filter(url -> url != null && !url.isBlank())
+                .orElseThrow(() -> new BakongPaymentException("No active Bakong API URL configuration found in database table"));
     }
 
     @Override

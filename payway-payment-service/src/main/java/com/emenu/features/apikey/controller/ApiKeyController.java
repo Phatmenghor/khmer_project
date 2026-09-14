@@ -1,7 +1,6 @@
 package com.emenu.features.apikey.controller;
 
 import com.emenu.config.OpenApiConfig;
-import com.emenu.constant.ApiEndpoints;
 import com.emenu.features.apikey.dto.request.ApiKeyCreateRequest;
 import com.emenu.features.apikey.dto.response.ApiKeyResponse;
 import com.emenu.features.apikey.service.ApiKeyService;
@@ -24,7 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(ApiEndpoints.ADMIN_KEYS_BASE)
+@RequestMapping("/api/v1/admin/keys")
 @RequiredArgsConstructor
 @Validated
 @SecurityRequirement(name = OpenApiConfig.BASIC_AUTH_SCHEME)
@@ -42,7 +41,7 @@ public class ApiKeyController {
         return ResponseEntity.ok(ApiResponse.success("API key created successfully", apiKeyService.createApiKey(request)));
     }
 
-    @DeleteMapping(ApiEndpoints.ADMIN_KEYS_BY_ID)
+    @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> revokeApiKey(@PathVariable @NotNull(message = "API key ID is required") UUID id) {
         apiKeyService.revokeApiKey(id);
         return ResponseEntity.ok(ApiResponse.success("API key revoked successfully", null));

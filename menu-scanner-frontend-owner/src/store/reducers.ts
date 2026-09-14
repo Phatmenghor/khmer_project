@@ -14,6 +14,7 @@ import ownerDashboardReducer from "@/features/owner-dashboard/store/slice/owner-
 import businessSettingsReducer from "@/features/business/store/slice/business-settings-slice";
 import platformBankReducer from "@/features/platform-bank/store/slice/platform-bank-slice";
 import { platformProfileReducer } from "@/features/platform-profile/store/slice/platform-profile-slice";
+import bakongReducer from "@/features/bakong/store/slice/bakong-slice";
 
 import globalSettingsReducer from "./slices/global-settings-slice";
 import uiReducer from "./slices/ui-slice";
@@ -36,6 +37,7 @@ export const reducers = {
   subscriptionPlan: subscriptionPlanReducer,
   platformBank: platformBankReducer,
   platformProfile: platformProfileReducer,
+  bakong: bakongReducer,
 
   notification: notificationReducer,
   subscriptionHistory: subscriptionHistoryReducer,

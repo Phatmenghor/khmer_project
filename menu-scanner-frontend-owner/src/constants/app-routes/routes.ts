@@ -31,6 +31,10 @@ export const ROUTES = {
     USERS: "/admin/platform-users",
     USER_ROLES: "/admin/roles",
     ROLES: "/admin/roles",
+    BAKONG_STATUS: "/admin/bakong/status",
+    BAKONG_CONFIGS: "/admin/bakong/configurations",
+    BAKONG_ACCOUNTS: "/admin/bakong/accounts",
+    BAKONG_TRANSACTIONS: "/admin/bakong/transactions",
   },
   PROFILE: "/profile",
   SUBSCRIPTION_HISTORY: "/subscription-history",
@@ -58,6 +62,28 @@ export const SIDEBAR_MENU: MenuItem[] = [
     title: "Dashboard",
     href: ROUTES.DASHBOARD.INDEX,
     icon: Home,
+  },
+  {
+    title: "Bakong Management",
+    icon: QrCode,
+    items: [
+      {
+        title: "Monitoring & Quota",
+        href: ROUTES.DASHBOARD.BAKONG_STATUS,
+      },
+      {
+        title: "Bakong Configurations",
+        href: ROUTES.DASHBOARD.BAKONG_CONFIGS,
+      },
+      {
+        title: "Bakong Accounts",
+        href: ROUTES.DASHBOARD.BAKONG_ACCOUNTS,
+      },
+      {
+        title: "Bakong Transactions",
+        href: ROUTES.DASHBOARD.BAKONG_TRANSACTIONS,
+      },
+    ],
   },
   {
     title: "User Management",
