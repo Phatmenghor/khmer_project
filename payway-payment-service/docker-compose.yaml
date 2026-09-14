@@ -9,11 +9,16 @@ services:
     ports:
       - "7073:7073"
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - DB_NAME=payway_payment_service
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=Hour1819
-      - TELEGRAM_BOT_ENABLED=true
-      - TELEGRAM_BOT_TOKEN=8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU
-      - TELEGRAM_GROUP_CHAT_ID=-1002784141362
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: host.docker.internal
+      DB_PORT: 5432
+      DB_NAME: payway_payment_service
+      DB_USERNAME: postgres
+      DB_PASSWORD: "Hour1819"
+      SERVER_PORT: 7073
+      TELEGRAM_BOT_ENABLED: "true"
+      TELEGRAM_BOT_TOKEN: "8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU"
+      TELEGRAM_GROUP_CHAT_ID: "-1002784141362"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: always
