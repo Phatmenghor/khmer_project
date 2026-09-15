@@ -22,6 +22,12 @@ public class BakongConfigResponse {
     private int dailyRateLimit;
     private boolean enabled;
 
+    private Integer usedCount;
+    private Integer remainingQuota;
+    private Double usagePercentage;
+    private Boolean limitReached;
+    private Boolean active;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 

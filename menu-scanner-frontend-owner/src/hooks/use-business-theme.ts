@@ -51,6 +51,6 @@ export function useBusinessTheme() {
       return;
     }
     fetchAttemptedRef.current = true;
-    dispatch(fetchBusinessSettingsThunk());
+    dispatch(fetchBusinessSettingsThunk()).catch(() => {});
   }, [dispatch, businessSettings, isLoading]);
 }

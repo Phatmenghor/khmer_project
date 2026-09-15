@@ -7,25 +7,29 @@ import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { CancelButton } from "@/components/shared/button/cancel-button";
 import { SubmitButton } from "@/components/shared/button/submit-button";
+import { CustomInput } from "@/components/shared/form-field/custom-input";
+import { CustomSelect } from "@/components/shared/common/custom-select";
 import { showToast } from "@/components/shared/common/show-toast";
 import { getErrorMessage } from "@/utils/error/get-error-message";
 import { useAppDispatch, useAppSelector } from "@/store";
+import { Loader2 } from "lucide-react";
 import { createConfigThunk, updateConfigThunk } from "../store/thunks/bakong-thunks";
 import { selectIsBakongSubmitting } from "../store/selectors/bakong-selectors";
 import { BakongConfigModel } from "../models/bakong-models";
-import { Database } from "lucide-react";
+
+import { bakongApiService } from "../services/bakong-api-service";
 
 interface BakongConfigModalProps {
   isOpen: boolean;
   onClose: () => void;
-  configToEdit: BakongConfigModel | null;
+  configId?: string | null;
   onSuccess: () => void;
 }
 
-export function BakongConfigModal({ isOpen, onClose, configToEdit, onSuccess }: BakongConfigModalProps) {
+export function BakongConfigModal({ isOpen, onClose, configId, onSuccess }: BakongConfigModalProps) {
   const dispatch = useAppDispatch();
   const isSubmitting = useAppSelector(selectIsBakongSubmitting) ?? false;
-  const isCreate = !configToEdit;
+  const isCreate = !configId;
 
   const [formData, setFormData] = useState({
     configName: "",
@@ -35,15 +39,28 @@ export function BakongConfigModal({ isOpen, onClose, configToEdit, onSuccess }: 
     enabled: true,
   });
 
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+
   useEffect(() => {
-    if (configToEdit) {
-      setFormData({
-        configName: configToEdit.configName || "",
-        apiUrl: configToEdit.apiUrl || "https://api-bakong.nbc.gov.kh",
-        email: configToEdit.email || "",
-        dailyRateLimit: configToEdit.dailyRateLimit || 100,
-        enabled: configToEdit.enabled ?? true,
-      });
+    if (!isOpen) return;
+
+    if (configId) {
+      setIsLoadingDetail(true);
+      bakongApiService
+        .getConfigById(configId)
+        .then((res) => {
+          if (res) {
+            setFormData({
+              configName: res.configName || "",
+              apiUrl: res.apiUrl || "https://api-bakong.nbc.gov.kh",
+              email: res.email || "",
+              dailyRateLimit: res.dailyRateLimit || 100,
+              enabled: res.enabled ?? true,
+            });
+          }
+        })
+        .catch(() => {})
+        .finally(() => setIsLoadingDetail(false));
     } else {
       setFormData({
         configName: "",
@@ -53,7 +70,7 @@ export function BakongConfigModal({ isOpen, onClose, configToEdit, onSuccess }: 
         enabled: true,
       });
     }
-  }, [configToEdit, isOpen]);
+  }, [configId, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,8 +80,8 @@ export function BakongConfigModal({ isOpen, onClose, configToEdit, onSuccess }: 
     }
 
     try {
-      if (configToEdit) {
-        await dispatch(updateConfigThunk({ id: configToEdit.id, payload: formData })).unwrap();
+      if (configId) {
+        await dispatch(updateConfigThunk({ id: configId, payload: formData })).unwrap();
         showToast.success("Bakong configuration updated successfully");
       } else {
         await dispatch(createConfigThunk(formData)).unwrap();
@@ -78,81 +95,79 @@ export function BakongConfigModal({ isOpen, onClose, configToEdit, onSuccess }: 
   };
 
   return (
-    <CustomModal isOpen={isOpen} onClose={onClose} size="lg">
+    <CustomModal isOpen={isOpen} onClose={onClose} size="2xl">
       <FormHeader
-        title={isCreate ? "Create Upstream Bakong Configuration" : "Edit Bakong Configuration"}
-        description="Configure upstream NBC developer credentials and daily rate limits for API rotation"
+        title={isCreate ? "Create Config" : "Edit Config"}
+        description={isCreate ? "Fill out form to create configuration" : "Update configuration information"}
         isCreate={isCreate}
-        icon={Database}
       />
 
       <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-        <FormBody className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-foreground">Configuration Name *</label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. DEFAULT, SECONDARY_CONFIG"
-              value={formData.configName}
-              onChange={(e) => setFormData({ ...formData, configName: e.target.value })}
-              className="w-full h-9 px-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-1 focus:ring-primary text-xs"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-foreground">API Base URL *</label>
-            <input
-              type="url"
-              required
-              placeholder="https://api-bakong.nbc.gov.kh"
-              value={formData.apiUrl}
-              onChange={(e) => setFormData({ ...formData, apiUrl: e.target.value })}
-              className="w-full h-9 px-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-1 focus:ring-primary text-xs"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-foreground">Registered Developer Email *</label>
-            <input
-              type="email"
-              required
-              placeholder="phatmenghor19@gmail.com"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full h-9 px-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-1 focus:ring-primary text-xs"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-foreground">Daily Rate Limit *</label>
-              <input
-                type="number"
-                min={1}
-                max={1000}
-                value={formData.dailyRateLimit}
-                onChange={(e) => setFormData({ ...formData, dailyRateLimit: parseInt(e.target.value, 10) || 100 })}
-                className="w-full h-9 px-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-1 focus:ring-primary text-xs"
+        <FormBody className="space-y-3">
+          {isLoadingDetail ? (
+            <div className="flex flex-col items-center justify-center py-12 space-y-2">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <p className="text-xs text-muted-foreground">Loading configuration details...</p>
+            </div>
+          ) : (
+            <>
+              <CustomInput
+                label="Configuration Name"
+                required
+                placeholder="Enter configuration name"
+                value={formData.configName}
+                onChange={(e) => setFormData({ ...formData, configName: e.target.value })}
               />
-            </div>
 
-            <div className="space-y-1 flex flex-col justify-end">
-              <label className="flex items-center gap-2 cursor-pointer pb-2">
-                <input
-                  type="checkbox"
-                  checked={formData.enabled}
-                  onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
-                  className="rounded border-input text-primary focus:ring-primary h-4 w-4"
+              <CustomInput
+                label="API Base URL"
+                required
+                type="url"
+                placeholder="Enter API base URL"
+                value={formData.apiUrl}
+                onChange={(e) => setFormData({ ...formData, apiUrl: e.target.value })}
+              />
+
+              <CustomInput
+                label="Registered Developer Email"
+                required
+                type="email"
+                placeholder="Enter developer email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+
+              <div className="grid grid-cols-2 gap-3 items-start">
+                <CustomInput
+                  label="Daily Rate Limit"
+                  required
+                  type="number"
+                  min={1}
+                  max={1000}
+                  placeholder="Enter daily rate limit"
+                  value={formData.dailyRateLimit}
+                  onChange={(e) => setFormData({ ...formData, dailyRateLimit: parseInt(e.target.value, 10) || 100 })}
                 />
-                <span className="font-medium text-foreground text-xs">Enabled & Active</span>
-              </label>
-            </div>
-          </div>
+
+                <CustomSelect
+                  label="Status"
+                  required
+                  clearable={false}
+                  size="md"
+                  options={[
+                    { label: "Enabled", value: "true" },
+                    { label: "Disabled", value: "false" },
+                  ]}
+                  value={formData.enabled ? "true" : "false"}
+                  onValueChange={(val) => setFormData({ ...formData, enabled: val === "true" })}
+                />
+              </div>
+            </>
+          )}
         </FormBody>
 
-        <FormFooter isSubmitting={isSubmitting} isDirty={true} isCreate={isCreate} showStatusText={false}>
-          <CancelButton onClick={onClose} disabled={isSubmitting} />
+        <FormFooter isSubmitting={isSubmitting || isLoadingDetail} isDirty={true} isCreate={isCreate} showStatusText={false}>
+          <CancelButton onClick={onClose} disabled={isSubmitting || isLoadingDetail} />
           <SubmitButton
             isSubmitting={isSubmitting}
             isCreate={isCreate}
@@ -160,6 +175,7 @@ export function BakongConfigModal({ isOpen, onClose, configToEdit, onSuccess }: 
             updateText="Update Config"
             submittingCreateText="Creating..."
             submittingUpdateText="Updating..."
+            disabled={isLoadingDetail}
           />
         </FormFooter>
       </form>

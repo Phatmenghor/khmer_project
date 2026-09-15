@@ -7,7 +7,9 @@ import com.emenu.features.bakong.dto.BakongConfigUpdateRequest;
 import com.emenu.features.bakong.dto.BakongIdRequest;
 import com.emenu.features.bakong.mapper.BakongConfigMapper;
 import com.emenu.features.bakong.model.BakongConfig;
+import com.emenu.features.bakong.model.BakongDailyQuotaLog;
 import com.emenu.features.bakong.repository.BakongConfigRepository;
+import com.emenu.features.bakong.repository.BakongDailyQuotaRepository;
 import com.emenu.features.bakong.service.BakongConfigService;
 import com.emenu.shared.dto.PageResponse;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,6 +31,7 @@ import java.util.stream.Collectors;
 public class BakongConfigServiceImpl implements BakongConfigService {
 
     private final BakongConfigRepository repository;
+    private final BakongDailyQuotaRepository quotaRepository;
     private final BakongConfigMapper mapper;
 
     @Override
@@ -40,7 +44,7 @@ public class BakongConfigServiceImpl implements BakongConfigService {
                 request != null ? request.getPageSize() : null
         );
         Page<BakongConfig> pageResult = repository.searchConfigs(search, pageable);
-        return PaginationUtils.toPageResponse(pageResult, mapper::toResponse);
+        return PaginationUtils.toPageResponse(pageResult, c -> enrichWithQuota(mapper.toResponse(c)));
     }
 
     @Override
@@ -50,7 +54,7 @@ public class BakongConfigServiceImpl implements BakongConfigService {
         BakongConfig config = repository.findById(id)
                 .filter(c -> !c.isDeleted())
                 .orElseThrow(() -> new RuntimeException("Bakong configuration not found with id: " + id));
-        return mapper.toResponse(config);
+        return enrichWithQuota(mapper.toResponse(config));
     }
 
     @Override
@@ -70,7 +74,7 @@ public class BakongConfigServiceImpl implements BakongConfigService {
         });
 
         BakongConfig config = mapper.toEntity(request);
-        return mapper.toResponse(repository.save(config));
+        return enrichWithQuota(mapper.toResponse(repository.save(config)));
     }
 
     @Override
@@ -82,7 +86,7 @@ public class BakongConfigServiceImpl implements BakongConfigService {
                 .orElseThrow(() -> new RuntimeException("Bakong configuration not found with id: " + id));
 
         mapper.updateEntityFromRequest(request, config);
-        return mapper.toResponse(repository.save(config));
+        return enrichWithQuota(mapper.toResponse(repository.save(config)));
     }
 
     @Override
@@ -100,12 +104,35 @@ public class BakongConfigServiceImpl implements BakongConfigService {
         config.setDeleted(true);
         config.setEnabled(false);
         BakongConfig saved = repository.save(config);
-        return mapper.toResponse(saved);
+        return enrichWithQuota(mapper.toResponse(saved));
     }
 
     @Override
     @Transactional
     public BakongConfigResponse deleteConfig(BakongIdRequest request) {
         return deleteConfig(request.getId());
+    }
+
+    private BakongConfigResponse enrichWithQuota(BakongConfigResponse response) {
+        if (response == null || response.getEmail() == null) {
+            return response;
+        }
+        LocalDate today = LocalDate.now();
+        int maxLimit = response.getDailyRateLimit() > 0 ? response.getDailyRateLimit() : 100;
+        int usedCount = quotaRepository.findByQuotaDateAndEmail(today, response.getEmail())
+                .map(BakongDailyQuotaLog::getRequestCount)
+                .orElse(0);
+
+        int remaining = Math.max(0, maxLimit - usedCount);
+        double percentage = maxLimit > 0 ? ((double) usedCount / maxLimit * 100.0) : 0.0;
+        boolean limitReached = usedCount >= maxLimit;
+
+        response.setUsedCount(usedCount);
+        response.setRemainingQuota(remaining);
+        response.setUsagePercentage(Math.round(percentage * 10.0) / 10.0);
+        response.setLimitReached(limitReached);
+        response.setActive(response.isEnabled() && !limitReached);
+
+        return response;
     }
 }

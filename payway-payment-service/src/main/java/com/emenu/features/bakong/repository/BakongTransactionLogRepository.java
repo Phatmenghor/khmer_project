@@ -12,5 +12,7 @@ public interface BakongTransactionLogRepository extends JpaRepository<BakongTran
 
     List<BakongTransactionLog> findByMd5OrderByCreatedAtDesc(String md5);
 
-    List<BakongTransactionLog> findByTransactionIdOrderByCreatedAtDesc(UUID transactionId);
+    List<BakongTransactionLog> findByTransactionIdOrderByCreatedAtDesc(String transactionId);
+
+    List<BakongTransactionLog> findByTransactionRefIdOrderByCreatedAtDesc(UUID transactionRefId);
 }

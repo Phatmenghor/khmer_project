@@ -22,8 +22,11 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 public class BakongTransactionLog extends BaseUUIDEntity {
 
-    @Column(name = "transaction_id")
-    private UUID transactionId;
+    @Column(name = "transaction_id", length = 100)
+    private String transactionId;
+
+    @Column(name = "transaction_ref_id")
+    private UUID transactionRefId;
 
     @Column(name = "project_code", length = 100)
     private String projectCode;

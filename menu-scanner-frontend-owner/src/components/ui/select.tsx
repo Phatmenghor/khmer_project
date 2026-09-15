@@ -19,7 +19,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-[36px] w-full items-center justify-between whitespace-nowrap rounded-[12px] border border-border/80 bg-background px-3 text-xs font-medium text-foreground shadow-2xs transition-all duration-200 ease-out data-[placeholder]:text-muted-foreground/75 hover:bg-muted/40 hover:border-border focus:outline-none focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-muted/30 [&>span]:line-clamp-1",
+      "flex h-[36px] w-full items-center justify-between whitespace-nowrap rounded-[12px] border border-border/80 bg-background px-3 text-xs sm:text-[13px] font-medium text-foreground shadow-2xs transition-all duration-200 ease-out data-[placeholder]:text-muted-foreground/75 hover:bg-muted/40 hover:border-border focus:outline-none focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-muted/30 [&>span]:line-clamp-1",
       className
     )}
     {...props}
@@ -121,7 +121,7 @@ const SelectItem = React.forwardRef<
       ref={ref}
       title={itemTitle}
       className={cn(
-        "relative flex h-8 w-full cursor-pointer select-none items-center justify-between rounded-[8px] px-2.5 py-1.5 text-xs outline-none transition-all hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary text-foreground data-[state=checked]:bg-primary/15 data-[state=checked]:text-primary data-[state=checked]:font-semibold data-[state=checked]:border data-[state=checked]:border-primary/20 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 my-0.5",
+        "relative flex h-8 w-full cursor-pointer select-none items-center justify-between rounded-[8px] px-2.5 py-1.5 text-xs sm:text-[13px] outline-none transition-all hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary text-foreground data-[state=checked]:bg-primary/15 data-[state=checked]:text-primary data-[state=checked]:font-semibold data-[state=checked]:border data-[state=checked]:border-primary/20 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 my-0.5",
         className
       )}
       {...props}

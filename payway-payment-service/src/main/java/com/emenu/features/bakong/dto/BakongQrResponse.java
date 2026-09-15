@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BakongQrResponse {
 
+    private String transactionId;
     private String qr;
     private String md5;
 }

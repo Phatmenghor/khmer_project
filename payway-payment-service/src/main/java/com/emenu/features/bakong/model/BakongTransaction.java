@@ -21,6 +21,9 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 public class BakongTransaction extends BaseUUIDEntity {
 
+    @Column(name = "transaction_id", nullable = false, unique = true, length = 100)
+    private String transactionId;
+
     @Column(name = "project_code", length = 100)
     private String projectCode;
 

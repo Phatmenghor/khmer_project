@@ -16,7 +16,7 @@
     <description>Cambodia E-Menu Platform - Multi-Project Bakong KHQR Payment Gateway Microservice</description>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>17</java.version>
         <lombok.version>1.18.36</lombok.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <springdoc.version>2.7.0</springdoc.version>

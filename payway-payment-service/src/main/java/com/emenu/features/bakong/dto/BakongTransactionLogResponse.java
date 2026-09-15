@@ -1,6 +1,5 @@
 package com.emenu.features.bakong.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +16,8 @@ import java.util.UUID;
 public class BakongTransactionLogResponse {
 
     private UUID id;
-    private UUID transactionId;
+    private String transactionId;
+    private UUID transactionRefId;
     private String projectCode;
     private String apiKey;
     private String md5;
@@ -30,7 +30,5 @@ public class BakongTransactionLogResponse {
     private String toAccountId;
     private String merchantName;
     private String errorMessage;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 }

@@ -83,7 +83,7 @@ export const fetchTransactionDetailThunk = createApiThunk(
 
 export const verifyTransactionThunk = createApiThunk(
   "bakong/verifyTransaction",
-  async (payload: { md5?: string; hash?: string }) => {
+  async (payload: { transactionId?: string }) => {
     return await bakongApiService.verifyTransaction(payload);
   }
 );

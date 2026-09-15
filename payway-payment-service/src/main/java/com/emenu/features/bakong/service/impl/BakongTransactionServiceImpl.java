@@ -67,12 +67,12 @@ public class BakongTransactionServiceImpl implements BakongTransactionService {
         BakongTransaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bakong transaction not found with id: " + id));
 
-        List<BakongTransactionLogResponse> logs = logRepository.findByTransactionIdOrderByCreatedAtDesc(id).stream()
+        List<BakongTransactionLogResponse> logs = logRepository.findByTransactionRefIdOrderByCreatedAtDesc(id).stream()
                 .map(mapper::toLogResponse)
                 .collect(Collectors.toList());
 
-        if (logs.isEmpty() && transaction.getMd5() != null) {
-            logs = logRepository.findByMd5OrderByCreatedAtDesc(transaction.getMd5()).stream()
+        if (logs.isEmpty() && transaction.getTransactionId() != null) {
+            logs = logRepository.findByTransactionIdOrderByCreatedAtDesc(transaction.getTransactionId()).stream()
                     .map(mapper::toLogResponse)
                     .collect(Collectors.toList());
         }
@@ -85,33 +85,28 @@ public class BakongTransactionServiceImpl implements BakongTransactionService {
 
     @Override
     public Mono<BakongVerifyResponse> verifyTransaction(BakongVerifyRequest request, String requestUrl) {
-        log.info("Verifying Bakong transaction against NBC upstream API: md5='{}', hash='{}'", request.getMd5(), request.getHash());
-        String md5 = request.getMd5();
-        String hash = request.getHash();
+        String txnId = request != null ? request.getTransactionId() : null;
+        log.info("Verifying Bakong transaction against NBC upstream API: transactionId='{}'", txnId);
 
-        if (md5 != null && !md5.isBlank()) {
-            CheckTransactionRequest checkReq = new CheckTransactionRequest();
-            checkReq.setMd5(md5);
+        if (txnId != null && !txnId.isBlank()) {
+            CheckTransactionRequest checkReq = new CheckTransactionRequest(txnId);
             return bakongService.checkTransactionStatus(checkReq, requestUrl)
-                    .map(res -> buildUpstreamVerifyResponse(md5, hash));
-        } else if (hash != null && !hash.isBlank()) {
-            CheckHashRequest hashReq = new CheckHashRequest();
-            hashReq.setHash(hash);
-            return bakongService.checkTransactionByHash(hashReq, requestUrl)
-                    .map(res -> buildUpstreamVerifyResponse(md5, hash));
+                    .map(res -> buildUpstreamVerifyResponse(txnId));
         } else {
-            return Mono.error(new IllegalArgumentException("Either md5 or hash must be provided for verification"));
+            return Mono.error(new IllegalArgumentException("Transaction ID is required for verification"));
         }
     }
 
-    private BakongVerifyResponse buildUpstreamVerifyResponse(String md5, String hash) {
+    private BakongVerifyResponse buildUpstreamVerifyResponse(String transactionId) {
         Optional<BakongTransaction> updatedOpt = Optional.empty();
-        if (md5 != null) updatedOpt = transactionRepository.findByMd5(md5);
-        else if (hash != null) updatedOpt = transactionRepository.findByHash(hash);
+        if (transactionId != null) {
+            updatedOpt = transactionRepository.findByTransactionId(transactionId)
+                    .or(() -> transactionRepository.findByMd5(transactionId));
+        }
 
         BakongTransaction tx = updatedOpt.orElse(null);
-        List<BakongTransactionLogResponse> logs = (md5 != null)
-                ? logRepository.findByMd5OrderByCreatedAtDesc(md5).stream().map(mapper::toLogResponse).collect(Collectors.toList())
+        List<BakongTransactionLogResponse> logs = (tx != null && tx.getTransactionId() != null)
+                ? logRepository.findByTransactionIdOrderByCreatedAtDesc(tx.getTransactionId()).stream().map(mapper::toLogResponse).collect(Collectors.toList())
                 : Collections.emptyList();
 
         return BakongVerifyResponse.builder()

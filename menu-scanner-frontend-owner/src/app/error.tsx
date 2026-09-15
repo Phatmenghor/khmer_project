@@ -36,8 +36,8 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
             team will investigate the issue.
           </p>
 
-          {/* Error Details (only in development) */}
-          {process.env.NODE_ENV === "development" && (
+          {/* Friendly Error Details for network/server connection issues */}
+          {error?.message && !error.message.includes("Service unavailable") && process.env.NODE_ENV === "development" && (
             <details className="mt-3 text-left">
               <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
                 Technical Details

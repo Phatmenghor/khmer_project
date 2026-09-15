@@ -5,6 +5,11 @@ export interface BakongConfigModel {
   email: string;
   dailyRateLimit: number;
   enabled: boolean;
+  usedCount?: number;
+  remainingQuota?: number;
+  usagePercentage?: number;
+  limitReached?: boolean;
+  active?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -24,6 +29,7 @@ export interface BakongAccountModel {
 
 export interface BakongTransactionModel {
   id: string;
+  transactionId?: string;
   projectCode?: string;
   apiKey?: string;
   md5: string;
@@ -42,6 +48,7 @@ export interface BakongTransactionModel {
 export interface BakongTransactionLogModel {
   id: string;
   transactionId?: string;
+  transactionRefId?: string;
   projectCode?: string;
   apiKey?: string;
   md5?: string;

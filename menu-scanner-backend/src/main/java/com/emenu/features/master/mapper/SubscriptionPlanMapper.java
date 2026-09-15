@@ -23,19 +23,11 @@ public interface SubscriptionPlanMapper {
     void updateEntity(SubscriptionPlanUpdateRequest request, @MappingTarget SubscriptionPlan plan);
 
     @AfterMapping
-    default void setCalculatedFields(@MappingTarget SubscriptionPlanResponse response, SubscriptionPlan plan) {
-        try {
-            if (plan.getSubscriptions() != null) {
-                response.setActiveSubscriptionsCount((long) plan.getSubscriptions().size());
-            } else {
-                response.setActiveSubscriptionsCount(0L);
-            }
-        } catch (Exception e) {
+    default void setActiveSubscriptionsCount(@MappingTarget SubscriptionPlanResponse response, SubscriptionPlan plan) {
+        if (plan.getSubscriptions() != null) {
+            response.setActiveSubscriptionsCount((long) plan.getSubscriptions().size());
+        } else {
             response.setActiveSubscriptionsCount(0L);
-        }
-
-        if (plan.getDurationType() != null) {
-            response.setPeriodLabel(plan.getDurationType().getPeriodLabel());
         }
     }
 }

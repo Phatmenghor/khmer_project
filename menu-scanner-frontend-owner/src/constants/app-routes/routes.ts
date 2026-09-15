@@ -64,28 +64,6 @@ export const SIDEBAR_MENU: MenuItem[] = [
     icon: Home,
   },
   {
-    title: "Bakong Management",
-    icon: QrCode,
-    items: [
-      {
-        title: "Monitoring & Quota",
-        href: ROUTES.DASHBOARD.BAKONG_STATUS,
-      },
-      {
-        title: "Bakong Configurations",
-        href: ROUTES.DASHBOARD.BAKONG_CONFIGS,
-      },
-      {
-        title: "Bakong Accounts",
-        href: ROUTES.DASHBOARD.BAKONG_ACCOUNTS,
-      },
-      {
-        title: "Bakong Transactions",
-        href: ROUTES.DASHBOARD.BAKONG_TRANSACTIONS,
-      },
-    ],
-  },
-  {
     title: "User Management",
     icon: Users,
     items: [
@@ -96,6 +74,24 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "Platform Users",
         href: ROUTES.DASHBOARD.PLATFORM_USERS,
+      },
+    ],
+  },
+  {
+    title: "Bakong Management",
+    icon: QrCode,
+    items: [
+      {
+        title: "Monitoring & Quota",
+        href: ROUTES.DASHBOARD.BAKONG_STATUS,
+      },
+      {
+        title: "Bakong Accounts",
+        href: ROUTES.DASHBOARD.BAKONG_ACCOUNTS,
+      },
+      {
+        title: "Bakong Transactions",
+        href: ROUTES.DASHBOARD.BAKONG_TRANSACTIONS,
       },
     ],
   },

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
-import { useDebounce } from "@/utils/debounce/debounce";
+import { useDebounce, useDebouncedItemCallback } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { AccountStatus } from "@/constants/status/status";
 import {
@@ -183,11 +183,34 @@ export default function UserPage() {
     });
   };
 
-  const handleToggleStatus = async (user: UserResponseModel, checked: boolean) => {
+  // Debounced API call per user ID (400ms) with instant optimistic store update
+  const debouncedUserStatusApiUpdate = useDebouncedItemCallback(
+    async (userId: string, newStatus: string, previousData: any) => {
+      try {
+        await dispatch(
+          updateUserStatusSilentService({
+            userId,
+            accountStatus: newStatus,
+          })
+        ).unwrap();
+        showToast.success(`User status updated to ${newStatus}`);
+      } catch (error: unknown) {
+        // Revert local store on API error
+        if (previousData) {
+          dispatch(updateUserDataSilently(previousData));
+        }
+        showToast.error(getErrorMessage(error, "Failed to update user status"));
+      }
+    },
+    400
+  );
+
+  const handleToggleStatus = (user: UserResponseModel, checked: boolean) => {
     if (!user?.id) return;
     const newStatus = checked ? "ACTIVE" : "LOCKED";
+    const previousData = usersData;
 
-    // Optimistic store update - update Redux store immediately (NO loading state)
+    // Optimistic store update - update Redux store immediately (0ms lag, NO loading state)
     if (usersData) {
       const updatedData = {
         ...usersData,
@@ -198,17 +221,8 @@ export default function UserPage() {
       dispatch(updateUserDataSilently(updatedData));
     }
 
-    try {
-      await dispatch(
-        updateUserStatusSilentService({
-          userId: user.id,
-          accountStatus: newStatus,
-        })
-      ).unwrap();
-      showToast.success(`User status updated to ${newStatus}`);
-    } catch (error: unknown) {
-      showToast.error(getErrorMessage(error, "Failed to update user status"));
-    }
+    // Debounced background API request
+    debouncedUserStatusApiUpdate(user.id, newStatus, previousData);
   };
 
   const tableHandlers = useMemo(

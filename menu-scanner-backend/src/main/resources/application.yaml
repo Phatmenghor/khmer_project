@@ -87,6 +87,6 @@ app:
         api-key: "${GOOGLE_MAPS_API_KEY:AIzaSyBm9cuaxspSEfAIT3PKYa1naawr8SJ0zA8}"
 
 bakong:
-  service-url: "${BAKONG_SERVICE_URL:http://localhost:7071}"
+  service-url: "${BAKONG_SERVICE_URL:http://localhost:7073}"
   api-key: "${BAKONG_API_KEY:sk_scanmekh_gB2Ee6mHGBcQmEvTPurFWNMn_-506pSV}"
 

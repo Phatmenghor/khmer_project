@@ -7,25 +7,29 @@ import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { CancelButton } from "@/components/shared/button/cancel-button";
 import { SubmitButton } from "@/components/shared/button/submit-button";
+import { CustomInput } from "@/components/shared/form-field/custom-input";
+import { CustomSelect } from "@/components/shared/common/custom-select";
 import { showToast } from "@/components/shared/common/show-toast";
 import { getErrorMessage } from "@/utils/error/get-error-message";
 import { useAppDispatch, useAppSelector } from "@/store";
+import { Loader2 } from "lucide-react";
 import { createAccountThunk, updateAccountThunk } from "../store/thunks/bakong-thunks";
 import { selectIsBakongSubmitting } from "../store/selectors/bakong-selectors";
 import { BakongAccountModel } from "../models/bakong-models";
-import { QrCode } from "lucide-react";
+
+import { bakongApiService } from "../services/bakong-api-service";
 
 interface BakongAccountModalProps {
   isOpen: boolean;
   onClose: () => void;
-  accountToEdit: BakongAccountModel | null;
+  accountId?: string | null;
   onSuccess: () => void;
 }
 
-export function BakongAccountModal({ isOpen, onClose, accountToEdit, onSuccess }: BakongAccountModalProps) {
+export function BakongAccountModal({ isOpen, onClose, accountId, onSuccess }: BakongAccountModalProps) {
   const dispatch = useAppDispatch();
   const isSubmitting = useAppSelector(selectIsBakongSubmitting) ?? false;
-  const isCreate = !accountToEdit;
+  const isCreate = !accountId;
 
   const [formData, setFormData] = useState({
     accountId: "",
@@ -37,17 +41,30 @@ export function BakongAccountModal({ isOpen, onClose, accountToEdit, onSuccess }
     enabled: false,
   });
 
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+
   useEffect(() => {
-    if (accountToEdit) {
-      setFormData({
-        accountId: accountToEdit.accountId || "",
-        merchantName: accountToEdit.merchantName || "",
-        merchantCity: accountToEdit.merchantCity || "Phnom Penh",
-        acquiringBank: accountToEdit.acquiringBank || "Bakong Bank",
-        currency: accountToEdit.currency || "USD",
-        isDefault: accountToEdit.isDefault ?? false,
-        enabled: accountToEdit.enabled ?? false,
-      });
+    if (!isOpen) return;
+
+    if (accountId) {
+      setIsLoadingDetail(true);
+      bakongApiService
+        .getAccountById(accountId)
+        .then((res) => {
+          if (res) {
+            setFormData({
+              accountId: res.accountId || "",
+              merchantName: res.merchantName || "",
+              merchantCity: res.merchantCity || "Phnom Penh",
+              acquiringBank: res.acquiringBank || "Bakong Bank",
+              currency: res.currency || "USD",
+              isDefault: res.isDefault ?? false,
+              enabled: res.enabled ?? false,
+            });
+          }
+        })
+        .catch(() => {})
+        .finally(() => setIsLoadingDetail(false));
     } else {
       setFormData({
         accountId: "",
@@ -59,7 +76,7 @@ export function BakongAccountModal({ isOpen, onClose, accountToEdit, onSuccess }
         enabled: false,
       });
     }
-  }, [accountToEdit, isOpen]);
+  }, [accountId, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,8 +86,8 @@ export function BakongAccountModal({ isOpen, onClose, accountToEdit, onSuccess }
     }
 
     try {
-      if (accountToEdit) {
-        await dispatch(updateAccountThunk({ id: accountToEdit.id, payload: formData })).unwrap();
+      if (accountId) {
+        await dispatch(updateAccountThunk({ id: accountId, payload: formData })).unwrap();
         showToast.success("Bakong merchant account updated successfully");
       } else {
         await dispatch(createAccountThunk(formData)).unwrap();
@@ -84,103 +101,98 @@ export function BakongAccountModal({ isOpen, onClose, accountToEdit, onSuccess }
   };
 
   return (
-    <CustomModal isOpen={isOpen} onClose={onClose} size="lg">
+    <CustomModal isOpen={isOpen} onClose={onClose} size="2xl">
       <FormHeader
-        title={isCreate ? "Create Bakong Merchant Account" : "Edit Bakong Merchant Account"}
-        description="Manage payment receiver merchant account details and active status"
+        title={isCreate ? "Create Account" : "Edit Account"}
+        description={isCreate ? "Fill out form to create merchant account" : "Update merchant account details"}
         isCreate={isCreate}
-        icon={QrCode}
       />
 
       <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-        <FormBody className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-foreground">Bakong Account ID *</label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. phat_menghor@bkrt"
-              value={formData.accountId}
-              onChange={(e) => setFormData({ ...formData, accountId: e.target.value })}
-              className="w-full h-9 px-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-1 focus:ring-primary text-xs font-mono"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-foreground">Merchant Name *</label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. MENGHOR PHAT"
-              value={formData.merchantName}
-              onChange={(e) => setFormData({ ...formData, merchantName: e.target.value })}
-              className="w-full h-9 px-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-1 focus:ring-primary text-xs"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-foreground">Merchant City</label>
-              <input
-                type="text"
-                placeholder="Phnom Penh"
-                value={formData.merchantCity}
-                onChange={(e) => setFormData({ ...formData, merchantCity: e.target.value })}
-                className="w-full h-9 px-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-1 focus:ring-primary text-xs"
+        <FormBody className="space-y-3">
+          {isLoadingDetail ? (
+            <div className="flex flex-col items-center justify-center py-12 space-y-2">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <p className="text-xs text-muted-foreground">Loading account details...</p>
+            </div>
+          ) : (
+            <>
+              <CustomInput
+                label="Bakong Account ID"
+                required
+                placeholder="Enter Bakong account ID"
+                value={formData.accountId}
+                onChange={(e) => setFormData({ ...formData, accountId: e.target.value })}
+                className="font-mono"
               />
-            </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-foreground">Acquiring Bank</label>
-              <input
-                type="text"
-                placeholder="Bakong Bank"
-                value={formData.acquiringBank}
-                onChange={(e) => setFormData({ ...formData, acquiringBank: e.target.value })}
-                className="w-full h-9 px-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-1 focus:ring-primary text-xs"
+              <CustomInput
+                label="Merchant Name"
+                required
+                placeholder="Enter merchant name"
+                value={formData.merchantName}
+                onChange={(e) => setFormData({ ...formData, merchantName: e.target.value })}
               />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-foreground">Currency</label>
-              <select
-                value={formData.currency}
-                onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                className="w-full h-9 px-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-1 focus:ring-primary text-xs"
-              >
-                <option value="USD">USD ($)</option>
-                <option value="KHR">KHR (៛)</option>
-              </select>
-            </div>
+              <div className="grid grid-cols-2 gap-3 items-start">
+                <CustomInput
+                  label="Merchant City"
+                  placeholder="Enter merchant city"
+                  value={formData.merchantCity}
+                  onChange={(e) => setFormData({ ...formData, merchantCity: e.target.value })}
+                />
 
-            <div className="space-y-1 flex flex-col justify-end">
-              <label className="flex items-center gap-2 cursor-pointer pb-2">
-                <input
-                  type="checkbox"
-                  checked={formData.enabled || formData.isDefault}
-                  onChange={(e) =>
+                <CustomInput
+                  label="Acquiring Bank"
+                  placeholder="Enter acquiring bank"
+                  value={formData.acquiringBank}
+                  onChange={(e) => setFormData({ ...formData, acquiringBank: e.target.value })}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 items-start">
+                <CustomSelect
+                  label="Currency"
+                  required
+                  clearable={false}
+                  size="md"
+                  options={[
+                    { label: "USD ($)", value: "USD" },
+                    { label: "KHR (៛)", value: "KHR" },
+                  ]}
+                  value={formData.currency}
+                  onValueChange={(val) => setFormData({ ...formData, currency: val })}
+                />
+
+                <CustomSelect
+                  label="Account Status"
+                  required
+                  clearable={false}
+                  size="md"
+                  options={[
+                    { label: "Active Primary", value: "true" },
+                    { label: "Inactive", value: "false" },
+                  ]}
+                  value={formData.enabled || formData.isDefault ? "true" : "false"}
+                  onValueChange={(val) =>
                     setFormData({
                       ...formData,
-                      enabled: e.target.checked,
-                      isDefault: e.target.checked,
+                      enabled: val === "true",
+                      isDefault: val === "true",
                     })
                   }
-                  className="rounded border-input text-primary focus:ring-primary h-4 w-4"
                 />
-                <span className="font-medium text-foreground text-xs">Active Primary Account</span>
-              </label>
-            </div>
-          </div>
+              </div>
 
-          <p className="text-[11px] text-muted-foreground bg-muted/40 p-2.5 rounded-lg border border-border/40">
-            <strong>Note:</strong> Multiple accounts can exist, but activating this account automatically deactivates all other accounts to maintain a single active receiver.
-          </p>
+              <p className="text-[11px] text-muted-foreground bg-muted/40 p-2.5 rounded-lg border border-border/40">
+                <strong>Note:</strong> Multiple accounts can exist, but activating this account automatically deactivates all other accounts to maintain a single active receiver.
+              </p>
+            </>
+          )}
         </FormBody>
 
-        <FormFooter isSubmitting={isSubmitting} isDirty={true} isCreate={isCreate} showStatusText={false}>
-          <CancelButton onClick={onClose} disabled={isSubmitting} />
+        <FormFooter isSubmitting={isSubmitting || isLoadingDetail} isDirty={true} isCreate={isCreate} showStatusText={false}>
+          <CancelButton onClick={onClose} disabled={isSubmitting || isLoadingDetail} />
           <SubmitButton
             isSubmitting={isSubmitting}
             isCreate={isCreate}
@@ -188,6 +200,7 @@ export function BakongAccountModal({ isOpen, onClose, accountToEdit, onSuccess }
             updateText="Update Account"
             submittingCreateText="Creating..."
             submittingUpdateText="Updating..."
+            disabled={isLoadingDetail}
           />
         </FormFooter>
       </form>

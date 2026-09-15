@@ -15,7 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 public class CheckMd5ListRequest {
 
-    @NotEmpty(message = "MD5 list must not be empty")
-    @Size(max = 50, message = "Maximum 50 MD5 items per request")
+    private List<String> transactionIds;
     private List<String> md5List;
 }

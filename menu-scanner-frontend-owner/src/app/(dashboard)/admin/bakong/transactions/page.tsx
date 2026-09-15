@@ -8,11 +8,14 @@ import { DataTableWithPagination, TableColumn } from "@/components/shared/common
 import { showToast } from "@/components/shared/common/show-toast";
 import { getErrorMessage } from "@/utils/error/get-error-message";
 import { Eye, CheckCircle2, Clock, XCircle } from "lucide-react";
-import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomButton, TableActionButtons } from "@/components/shared/button/custom-button";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { useDebounce } from "@/utils/debounce/debounce";
+import { usePagination } from "@/hooks/use-pagination";
+import { indexDisplay } from "@/utils/common/common";
+import { dateTimeFormat } from "@/utils/date/date-time-format";
 
 import { fetchTransactionsThunk } from "@/features/bakong/store/thunks/bakong-thunks";
 import {
@@ -26,6 +29,8 @@ import { BakongTransactionModel } from "@/features/bakong/models/bakong-models";
 import { BakongVerifyModal } from "@/features/bakong/components/bakong-verify-modal";
 import { BakongDetailModal } from "@/features/bakong/components/bakong-detail-modal";
 
+import { useActionRouting } from "@/hooks/use-action-routing";
+
 export default function BakongTransactionsPage() {
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
@@ -36,17 +41,28 @@ export default function BakongTransactionsPage() {
   const filters = useAppSelector(selectBakongTransactionFilters);
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
+  const { viewId, openView, closeModal } = useActionRouting();
+
+  const { updateUrlWithPage, handlePageChange } = usePagination({
+    baseRoute: "/admin/bakong/transactions",
+    defaultPageSize: 15,
+  });
+
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const [verifyModalOpen, setVerifyModalOpen] = useState(false);
-  const [detailState, setDetailState] = useState({
-    isOpen: false,
-    transactionId: null as string | null,
-  });
 
-  const currentPage = pagination.pageNo || 1;
+  const currentPage = pagination.pageNo || filters.pageNo || 1;
   const totalPages = pagination.totalPages || 1;
   const totalElements = pagination.totalElements || 0;
+
+  useEffect(() => {
+    const pageParam = searchParams.get("pageNo");
+    const pageFromUrl = pageParam ? parseInt(pageParam, 10) : 1;
+    if (pageFromUrl !== currentPage) {
+      dispatch(setTransactionPageNo(pageFromUrl));
+    }
+  }, [searchParams, currentPage, dispatch]);
 
   const loadTransactions = async () => {
     try {
@@ -70,26 +86,39 @@ export default function BakongTransactionsPage() {
     dispatch(setTransactionSearch(e.target.value));
   };
 
-  const handlePageChange = (page: number) => {
+  const handlePageChangeWrapper = (page: number) => {
     dispatch(setTransactionPageNo(page));
+    handlePageChange(page);
   };
 
   const handlePageSizeChange = (size: number) => {
     dispatch(setGlobalPageSize(size));
     dispatch(setTransactionPageNo(1));
+    updateUrlWithPage(1);
   };
 
   const handleViewDetail = (tx: BakongTransactionModel) => {
-    setDetailState({ isOpen: true, transactionId: tx.id });
+    openView(tx.id);
   };
 
   const columns: TableColumn<BakongTransactionModel>[] = useMemo(
     () => [
       {
-        key: "md5",
-        label: "MD5 Hash",
+        key: "index",
+        label: "#",
+        minWidth: "10px",
+        maxWidth: "400px",
+        render: (_, index) => (
+          <span className="text-xs font-semibold text-muted-foreground">
+            {indexDisplay(currentPage, globalPageSize, index + 1)}
+          </span>
+        ),
+      },
+      {
+        key: "transactionId",
+        label: "Transaction ID",
         render: (item: BakongTransactionModel) => (
-          <span className="font-bold font-mono text-foreground text-xs">{item.md5}</span>
+          <span className="font-bold font-mono text-foreground text-xs">{item.transactionId || item.md5}</span>
         ),
       },
       {
@@ -150,7 +179,7 @@ export default function BakongTransactionsPage() {
         label: "Date & Time",
         render: (item: BakongTransactionModel) => (
           <span className="text-muted-foreground text-xs">
-            {item.createdAt ? new Date(item.createdAt).toLocaleString() : "N/A"}
+            {dateTimeFormat(item.createdAt)}
           </span>
         ),
       },
@@ -158,18 +187,14 @@ export default function BakongTransactionsPage() {
         key: "actions",
         label: "Actions",
         render: (item: BakongTransactionModel) => (
-          <CustomButton
-            variant="ghost"
-            size="sm"
-            className="h-7 text-xs gap-1 text-muted-foreground hover:text-primary"
-            onClick={() => handleViewDetail(item)}
-          >
-            <Eye className="h-3.5 w-3.5" /> Details & Logs
-          </CustomButton>
+          <TableActionButtons
+            onView={() => handleViewDetail(item)}
+            viewTooltip="View Details & Event Logs"
+          />
         ),
       },
     ],
-    []
+    [currentPage, globalPageSize]
   );
 
   const filterConfig: FilterPanelConfig = useMemo(
@@ -180,12 +205,12 @@ export default function BakongTransactionsPage() {
       searchValue: filters.search,
       searchPlaceholder: "Search MD5, hash, status, account...",
       onSearchChange: handleSearchChange,
+      buttonText: "Refresh",
+      buttonTooltip: "Refresh transaction logs",
+      onButtonClick: () => dispatch(fetchTransactionsThunk({ pageNo: currentPage, pageSize: globalPageSize })),
       filters: [],
-      buttonText: "Check Transaction",
-      buttonTooltip: "Verify transaction by MD5 or Hash",
-      onButtonClick: () => setVerifyModalOpen(true),
     }),
-    [totalElements, filters.search]
+    [totalElements, filters.search, currentPage, globalPageSize, dispatch]
   );
 
   return (
@@ -201,7 +226,7 @@ export default function BakongTransactionsPage() {
         currentPage={currentPage}
         totalPages={totalPages}
         totalElements={totalElements}
-        onPageChange={handlePageChange}
+        onPageChange={handlePageChangeWrapper}
         pageSize={globalPageSize}
         onPageSizeChange={handlePageSizeChange}
         pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
@@ -214,10 +239,11 @@ export default function BakongTransactionsPage() {
       />
 
       <BakongDetailModal
-        isOpen={detailState.isOpen}
-        onClose={() => setDetailState({ isOpen: false, transactionId: null })}
-        transactionId={detailState.transactionId}
+        isOpen={Boolean(viewId)}
+        onClose={closeModal}
+        transactionId={viewId}
       />
     </div>
   );
 }
+

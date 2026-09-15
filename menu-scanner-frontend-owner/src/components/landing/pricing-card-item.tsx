@@ -16,32 +16,27 @@ import {
   Check,
 } from "lucide-react";
 
+import { PlanData } from "./pricing-section";
+
 interface PricingCardItemProps {
-  id?: string;
-  name: string;
-  price: number | string;
-  durationType: string;
-  description: string;
+  plan: PlanData;
   isCurrent?: boolean;
   isPopular?: boolean;
-  periodLabel: string;
   buttonText?: string;
   onSelect: () => void;
   disabled?: boolean;
 }
 
 export function PricingCardItem({
-  name,
-  price,
-  durationType,
-  description,
+  plan,
   isCurrent = false,
-  isPopular = false,
-  periodLabel,
+  isPopular,
   buttonText,
   onSelect,
   disabled = false,
 }: PricingCardItemProps) {
+  const { name, price, durationType = "-", description, period } = plan;
+
   const getPlanIcon = (type: string) => {
     if (type === "FREE_TRIAL") return <Clock className="w-4 h-4 text-emerald-500 shrink-0" />;
     if (type === "YEARLY") return <Sparkles className="w-4 h-4 text-indigo-500 shrink-0" />;
@@ -49,18 +44,22 @@ export function PricingCardItem({
     return <ShieldCheck className="w-4 h-4 text-primary shrink-0" />;
   };
 
-  const formattedPrice = typeof price === "number" ? `$${price}` : price.startsWith("$") ? price : `$${price}`;
+  const displayName = name || "-";
+  const displayDescription = description || "-";
+  const displayPeriod = period || "-";
+  const formattedPrice = price != null && !isNaN(price) ? `$${price}` : "-";
+  const isPopularCard = isPopular ?? (durationType === "MONTHLY" || durationType === "YEARLY");
 
   return (
     <Card
       className={cn(
         "relative flex flex-col justify-between border-2 transition-all duration-300 rounded-2xl overflow-hidden shadow-xs hover:shadow-lg hover:-translate-y-0.5 group h-full",
-        isPopular
+        isPopularCard
           ? "border-primary/80 bg-gradient-to-b from-primary/10 via-card to-card shadow-sm"
           : "border-border/80 bg-card hover:border-primary/50"
       )}
     >
-      {isPopular && (
+      {isPopularCard && (
         <div className="absolute top-0 right-0 z-10">
           <div className="bg-gradient-to-r from-primary via-emerald-600 to-indigo-600 text-white font-extrabold text-[10px] uppercase tracking-wider px-3 py-1 rounded-bl-xl shadow-xs flex items-center gap-1">
             <Flame className="w-3.5 h-3.5 text-amber-300 fill-current" />
@@ -73,16 +72,16 @@ export function PricingCardItem({
         <CardHeader className="p-4 sm:p-5 pb-3 border-b border-border/40 space-y-2 relative z-10">
           <div className="flex items-center gap-2">
             {getPlanIcon(durationType)}
-            <CardTitle className="text-base font-black text-foreground">{name}</CardTitle>
+            <CardTitle className="text-base font-black text-foreground">{displayName}</CardTitle>
           </div>
 
           <div className="flex items-baseline gap-1">
             <span className="text-3xl font-black text-foreground tracking-tight">{formattedPrice}</span>
-            <span className="text-xs font-bold text-muted-foreground">{periodLabel}</span>
+            <span className="text-xs font-bold text-muted-foreground">{displayPeriod}</span>
           </div>
 
           <p className="text-xs text-muted-foreground font-medium line-clamp-2 leading-relaxed">
-            {description}
+            {displayDescription}
           </p>
 
           {isCurrent && (
@@ -119,7 +118,7 @@ export function PricingCardItem({
             "w-full h-10 text-xs font-extrabold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-2xs group/btn",
             isCurrent
               ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 cursor-default"
-              : isPopular
+              : isPopularCard
               ? "bg-gradient-to-r from-primary via-emerald-600 to-indigo-600 hover:from-primary/90 hover:via-emerald-600/90 hover:to-indigo-600/90 text-white shadow-md hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]"
               : "border-2 border-primary/40 bg-background text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary hover:scale-[1.02] active:scale-[0.98]"
           )}

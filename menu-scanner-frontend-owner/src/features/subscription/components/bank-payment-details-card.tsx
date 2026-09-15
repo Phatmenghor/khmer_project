@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -39,11 +39,19 @@ export function BankPaymentDetailsCard({ onSelectBank }: BankPaymentDetailsCardP
   const banks = (publicBanks && publicBanks.length > 0) ? publicBanks : [defaultBank];
   const selectedBank = banks[selectedIndex] || banks[0] || defaultBank;
 
+  const onSelectBankRef = useRef(onSelectBank);
   useEffect(() => {
-    if (selectedBank) {
-      onSelectBank?.(selectedBank);
+    onSelectBankRef.current = onSelectBank;
+  }, [onSelectBank]);
+
+  const prevBankIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (selectedBank && selectedBank.id !== prevBankIdRef.current) {
+      prevBankIdRef.current = selectedBank.id;
+      onSelectBankRef.current?.(selectedBank);
     }
-  }, [selectedBank, onSelectBank]);
+  }, [selectedBank]);
 
   const copyAccountNumber = (accNo: string) => {
     navigator.clipboard.writeText(accNo.replace(/\s+/g, ""));

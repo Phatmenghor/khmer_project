@@ -15,7 +15,8 @@ public interface BakongTransactionMapper {
 
     BakongTransactionLogResponse toLogResponse(BakongTransactionLog log);
 
-    @Mapping(target = "transactionId", source = "transaction.id")
+    @Mapping(target = "transactionId", source = "transaction.transactionId")
+    @Mapping(target = "transactionRefId", source = "transaction.id")
     @Mapping(target = "projectCode", source = "transaction.projectCode")
     @Mapping(target = "apiKey", source = "transaction.apiKey")
     @Mapping(target = "md5", source = "transaction.md5")

@@ -95,7 +95,7 @@ public class BakongController {
             HttpServletRequest servletRequest
     ) {
         return service.streamCheckTransaction(
-                request != null ? request.getMd5() : null,
+                request != null ? request.getTransactionId() : null,
                 request != null ? request.getIntervalSeconds() : null,
                 servletRequest.getRequestURL().toString()
         );

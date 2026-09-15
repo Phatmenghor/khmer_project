@@ -18,6 +18,7 @@ import com.emenu.enums.TransactionState;
 import com.emenu.features.bakong.model.BakongTransactionLog;
 import com.emenu.features.bakong.repository.BakongTransactionLogRepository;
 import com.emenu.features.bakong.notifier.TelegramNotifier;
+import com.emenu.features.bakong.mapper.BakongTransactionMapper;
 import com.emenu.features.bakong.mapper.MerchantInfoMapper;
 import com.emenu.features.bakong.mapper.TransactionStatusMapper;
 import com.emenu.features.bakong.model.BakongAccount;
@@ -29,12 +30,16 @@ import com.emenu.features.bakong.repository.BakongTransactionRepository;
 import com.emenu.features.bakong.service.BakongRateLimiterService;
 import com.emenu.features.bakong.service.BakongService;
 import com.emenu.features.bakong.service.BakongTokenService;
+import com.emenu.features.bakong.util.TransactionIdGenerator;
 import com.emenu.util.QrImageUtils;
 import kh.gov.nbc.bakong_khqr.BakongKHQR;
 import kh.gov.nbc.bakong_khqr.model.KHQRData;
 import kh.gov.nbc.bakong_khqr.model.KHQRResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -67,7 +72,7 @@ public class BakongServiceImpl implements BakongService {
     private final BakongReactiveExecutor reactiveExecutor;
     private final BakongTransactionRepository bakongTransactionRepository;
     private final BakongTransactionLogRepository bakongTransactionLogRepository;
-    private final com.emenu.features.bakong.mapper.BakongTransactionMapper transactionMapper;
+    private final BakongTransactionMapper transactionMapper;
 
     private String getBakongApiUrl() {
         return bakongConfigRepository.findTopByEnabledTrue()
@@ -88,39 +93,41 @@ public class BakongServiceImpl implements BakongService {
     public Mono<BakongQrResponse> generateQR(BakongRequest bakongRequest, String requestUrl) {
         return reactiveExecutor.executeReactive("generateQR", () -> {
             log.info("Generating Bakong KHQR for merchantName={}, amount={} {}",
-                    bakongRequest.getMerchantName(),
-                    bakongRequest.getAmount(),
-                    bakongRequest.getCurrency());
+                    bakongRequest != null ? bakongRequest.getMerchantName() : null,
+                    bakongRequest != null ? bakongRequest.getAmount() : null,
+                    bakongRequest != null ? bakongRequest.getCurrency() : null);
             try {
                 KHQRResponse<KHQRData> response = BakongKHQR.generateMerchant(
                         merchantInfoMapper.toMerchantInfo(bakongRequest, getBakongAccountId())
                 );
 
-                if (response.getKHQRStatus() != null && response.getKHQRStatus().getCode() != 0) {
-                    String statusMsg = response.getKHQRStatus().getMessage();
-                    log.error("Bakong KHQR generation error: code={}, message={}",
-                            response.getKHQRStatus().getCode(), statusMsg);
+                if (response == null || (response.getKHQRStatus() != null && response.getKHQRStatus().getCode() != 0)) {
+                    String statusMsg = (response != null && response.getKHQRStatus() != null) ? response.getKHQRStatus().getMessage() : "Unknown error";
+                    log.error("Bakong KHQR generation error: message={}", statusMsg);
                     throw new BakongPaymentException("Bakong KHQR Generation Error: " + statusMsg);
                 }
 
                 KHQRData qrData = response.getData();
                 String qr = qrData == null ? null : qrData.getQr();
                 String md5 = qrData == null ? null : qrData.getMd5();
-                log.info("KHQR generated successfully, md5={}", md5);
 
-                if (qrData != null && md5 != null) {
-                    saveTransactionRecord(bakongRequest, qrData);
+                BakongTransaction savedTx = null;
+                if (qrData != null) {
+                    savedTx = saveTransactionRecord(bakongRequest, qrData);
                 }
+                String txnId = savedTx != null ? savedTx.getTransactionId() : null;
 
+                log.info("KHQR generated successfully, transactionId={}, md5={}", txnId, md5);
                 telegramNotifier.notifyQrGenerated(requestUrl, bakongRequest, response);
 
                 return BakongQrResponse.builder()
+                        .transactionId(txnId)
                         .qr(qr)
                         .md5(md5)
                         .build();
             } catch (Exception ex) {
                 log.error("Failed to generate Bakong KHQR for merchantName={}: {}",
-                        bakongRequest.getMerchantName(), ex.getMessage());
+                        bakongRequest != null ? bakongRequest.getMerchantName() : null, ex.getMessage());
                 telegramNotifier.notifyIssue("QR generation failed", requestUrl, bakongRequest, ex);
                 throw new BakongPaymentException("Failed to generate Bakong KHQR: " + ex.getMessage(), ex);
             }
@@ -130,11 +137,16 @@ public class BakongServiceImpl implements BakongService {
     @Override
     public Mono<byte[]> getQRImage(CheckTransactionRequest request, String requestUrl) {
         return reactiveExecutor.executeReactive("getQRImage", () -> {
-            BakongTransaction tx = bakongTransactionRepository.findByMd5(request.getMd5())
-                    .orElseThrow(() -> new BakongPaymentException("Bakong Transaction not found for MD5: " + request.getMd5()));
+            if (request == null || request.getTransactionId() == null || request.getTransactionId().isBlank()) {
+                throw new BakongPaymentException("Transaction ID is required for QR image generation");
+            }
+            String txnId = request.getTransactionId();
+            BakongTransaction tx = bakongTransactionRepository.findByTransactionId(txnId)
+                    .or(() -> bakongTransactionRepository.findByMd5(txnId))
+                    .orElseThrow(() -> new BakongPaymentException("Bakong Transaction not found for ID: " + txnId));
 
             if (tx.getRawQrString() == null || tx.getRawQrString().isBlank()) {
-                throw new BakongPaymentException("Stored QR payload is empty for MD5: " + request.getMd5());
+                throw new BakongPaymentException("Stored QR payload is empty for Transaction ID: " + txnId);
             }
 
             Double amt = tx.getAmount() != null ? tx.getAmount().doubleValue() : null;
@@ -165,7 +177,7 @@ public class BakongServiceImpl implements BakongService {
             log.info("Checking transaction by hash={} against upstreamUrl={}", request.getHash(), url);
             BakongResponse response = executeAuthenticatedPost(url, Map.of("hash", request.getHash()), requestUrl, request, true);
             updateTransactionRecordStatus(null, request.getHash(), response, "CHECK_BY_HASH");
-            if (response.isSuccess()) {
+            if (response != null && response.isSuccess()) {
                 telegramNotifier.notifyIssue("Bakong Transaction Verified by Hash", requestUrl, Map.of("hash", request.getHash(), "response", response), null);
             }
             return response;
@@ -188,31 +200,54 @@ public class BakongServiceImpl implements BakongService {
     @Override
     public Mono<BakongResponse> checkTransactionByMd5List(CheckMd5ListRequest request, String requestUrl) {
         return reactiveExecutor.executeReactive("checkTransactionByMd5List", () -> {
+            if (request == null || request.getTransactionIds() == null || request.getTransactionIds().isEmpty()) {
+                throw new BakongPaymentException("Transaction ID list cannot be empty");
+            }
+            List<String> txnIds = request.getTransactionIds();
+            List<String> md5List = txnIds.stream()
+                    .map(id -> bakongTransactionRepository.findByTransactionId(id)
+                            .or(() -> bakongTransactionRepository.findByMd5(id))
+                            .map(BakongTransaction::getMd5)
+                            .orElse(id))
+                    .collect(Collectors.toList());
+
             String url = getBakongApiUrl() + BakongApiConstants.CHECK_TRANSACTION_BY_MD5_LIST_ENDPOINT;
-            log.info("Checking transaction by MD5 list (size={}) against upstreamUrl={}", request.getMd5List().size(), url);
-            BakongResponse response = executeAuthenticatedPost(url, request.getMd5List(), requestUrl, request, true);
-            if (request.getMd5List() != null) {
-                request.getMd5List().forEach(md5 -> updateTransactionRecordStatus(md5, null, response, "CHECK_BY_MD5_LIST"));
+            log.info("Checking transaction by list (size={}) against upstreamUrl={}", md5List.size(), url);
+            BakongResponse response = executeAuthenticatedPost(url, md5List, requestUrl, request, true);
+            if (md5List != null) {
+                md5List.forEach(md5 -> updateTransactionRecordStatus(md5, null, response, "CHECK_BY_LIST"));
             }
             return response;
         });
     }
 
     @Override
-    public Flux<TransactionStatusResponse> streamCheckTransaction(String md5, Integer intervalSeconds, String requestUrl) {
+    public Flux<TransactionStatusResponse> streamCheckTransaction(String transactionId, Integer intervalSeconds, String requestUrl) {
+        if (transactionId == null || transactionId.isBlank()) {
+            return Flux.error(new BakongPaymentException("Transaction ID is required for streaming status"));
+        }
         int interval = (intervalSeconds != null && intervalSeconds > 0) ? intervalSeconds : 3;
         return Flux.interval(Duration.ZERO, Duration.ofSeconds(interval))
-                .concatMap(tick -> checkTransactionByMD5(new CheckTransactionRequest(md5), requestUrl)
+                .concatMap(tick -> checkTransactionByMD5(new CheckTransactionRequest(transactionId), requestUrl)
                         .map(response -> transactionStatusMapper.toStreamingStatus(response, tick)))
                 .takeUntil(TransactionStatusResponse::isTerminal);
     }
 
     private BakongResponse doCheckTransactionByMd5(CheckTransactionRequest request, String requestUrl) {
+        if (request == null || request.getTransactionId() == null || request.getTransactionId().isBlank()) {
+            throw new BakongPaymentException("Transaction ID is required to check transaction status");
+        }
+        String txnId = request.getTransactionId();
+        BakongTransaction tx = bakongTransactionRepository.findByTransactionId(txnId)
+                .or(() -> bakongTransactionRepository.findByMd5(txnId))
+                .orElseThrow(() -> new BakongPaymentException("Transaction not found for ID: " + txnId));
+
+        String md5 = tx.getMd5();
         String url = getBakongApiUrl() + BakongApiConstants.CHECK_TRANSACTION_BY_MD5_ENDPOINT;
-        log.info("Checking transaction status for md5={} against upstreamUrl={}", request.getMd5(), url);
-        BakongResponse response = executeAuthenticatedPost(url, Map.of("md5", request.getMd5()), requestUrl, request, true);
-        updateTransactionRecordStatus(request.getMd5(), null, response, "CHECK_BY_MD5");
-        if (response.isSuccess()) {
+        log.info("Checking transaction status for transactionId={} (md5={}) against upstreamUrl={}", txnId, md5, url);
+        BakongResponse response = executeAuthenticatedPost(url, Map.of("md5", md5), requestUrl, request, true);
+        updateTransactionRecordStatus(md5, null, response, "CHECK_BY_TRANSACTION_ID");
+        if (response != null && response.isSuccess()) {
             telegramNotifier.notifyTransactionChecked(requestUrl, url, request, response);
         }
         return response;
@@ -272,28 +307,35 @@ public class BakongServiceImpl implements BakongService {
         }
     }
 
-    private void saveTransactionRecord(BakongRequest request, KHQRData qrData) {
+    private BakongTransaction saveTransactionRecord(BakongRequest request, KHQRData qrData) {
         try {
             String apiKey = org.slf4j.MDC.get("apiKey");
             String projectCode = org.slf4j.MDC.get("projectCode");
+            String transactionId = TransactionIdGenerator.generateTransactionId();
+
             BakongTransaction transaction = BakongTransaction.builder()
+                    .transactionId(transactionId)
                     .projectCode(projectCode != null && !projectCode.isBlank() ? projectCode : "EMENU_WEB")
                     .apiKey(apiKey)
-                    .md5(qrData.getMd5())
-                    .merchantName(request.getMerchantName())
-                    .amount(BigDecimal.valueOf(request.getAmount()))
-                    .currency(request.getCurrency() != null ? request.getCurrency().name() : "KHR")
+                    .md5(qrData != null ? qrData.getMd5() : null)
+                    .merchantName(request != null ? request.getMerchantName() : null)
+                    .amount(request != null && request.getAmount() != null ? BigDecimal.valueOf(request.getAmount()) : BigDecimal.ZERO)
+                    .currency(request != null && request.getCurrency() != null ? request.getCurrency().name() : "KHR")
                     .status(TransactionState.NOT_SCANNED.name())
                     .toAccountId(getBakongAccountId())
-                    .rawQrString(qrData.getQr())
+                    .rawQrString(qrData != null ? qrData.getQr() : null)
                     .build();
             BakongTransaction savedTx = bakongTransactionRepository.save(transaction);
 
             BakongTransactionLog logEntry = transactionMapper.toLogEntity(savedTx, "QR_GENERATED", null, null);
-            bakongTransactionLogRepository.save(logEntry);
-            log.info("Saved initial BakongTransaction and BakongTransactionLog for md5={}", qrData.getMd5());
+            if (logEntry != null) {
+                bakongTransactionLogRepository.save(logEntry);
+            }
+            log.info("Saved initial BakongTransaction and BakongTransactionLog for transactionId={}, md5={}", transactionId, qrData != null ? qrData.getMd5() : null);
+            return savedTx;
         } catch (Exception ex) {
-            log.warn("Failed to persist BakongTransaction record for md5={}: {}", qrData.getMd5(), ex.getMessage());
+            log.warn("Failed to persist BakongTransaction record: {}", ex.getMessage());
+            return null;
         }
     }
 

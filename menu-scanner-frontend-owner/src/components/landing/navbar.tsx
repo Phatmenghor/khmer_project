@@ -23,12 +23,11 @@ interface NavbarProps {
 export default function Navbar({ onLoginClick }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const router = useRouter();
-  const { isAuthenticated, profile } = useAuthState();
+  const { isLoggedIn } = useAuthState();
   const { logout: handleLogout } = useLogout();
 
   useEffect(() => {
@@ -38,13 +37,6 @@ export default function Navbar({ onLoginClick }: NavbarProps) {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    const token = typeof window !== "undefined"
-      ? localStorage.getItem("accessToken") || localStorage.getItem("adminAccessToken")
-      : null;
-    setIsLoggedIn(Boolean(token || isAuthenticated || profile));
-  }, [isAuthenticated, profile]);
 
   const navLinks = [
     { label: "Pricing", href: "#pricing" },
@@ -71,7 +63,6 @@ export default function Navbar({ onLoginClick }: NavbarProps) {
     setShowLogoutModal(false);
     await handleLogout();
     setIsLoggingOut(false);
-    setIsLoggedIn(false);
   };
 
   return (

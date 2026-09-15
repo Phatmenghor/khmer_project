@@ -14,7 +14,6 @@ export interface SubscriptionPlanResponseModel {
   description: string;
   price: number;
   durationType: string;
-  periodLabel?: string;
   status: string;
   activeSubscriptionsCount: number;
 }

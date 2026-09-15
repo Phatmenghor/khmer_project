@@ -7,6 +7,7 @@ import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { CancelButton } from "@/components/shared/button/cancel-button";
 import { SubmitButton } from "@/components/shared/button/submit-button";
+import { CustomInput } from "@/components/shared/form-field/custom-input";
 import { showToast } from "@/components/shared/common/show-toast";
 import { getErrorMessage } from "@/utils/error/get-error-message";
 import { useAppDispatch } from "@/store";
@@ -23,15 +24,14 @@ interface BakongVerifyModalProps {
 export function BakongVerifyModal({ isOpen, onClose, onSuccess }: BakongVerifyModalProps) {
   const dispatch = useAppDispatch();
 
-  const [md5, setMd5] = useState("");
-  const [hash, setHash] = useState("");
+  const [transactionId, setTransactionId] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [result, setResult] = useState<BakongVerifyResponseModel | null>(null);
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!md5.trim() && !hash.trim()) {
-      showToast.error("Please enter MD5 hash or transaction hash");
+    if (!transactionId.trim()) {
+      showToast.error("Please enter Transaction ID");
       return;
     }
 
@@ -41,8 +41,7 @@ export function BakongVerifyModal({ isOpen, onClose, onSuccess }: BakongVerifyMo
     try {
       const res = await dispatch(
         verifyTransactionThunk({
-          md5: md5.trim() || undefined,
-          hash: hash.trim() || undefined,
+          transactionId: transactionId.trim(),
         })
       ).unwrap();
 
@@ -61,43 +60,28 @@ export function BakongVerifyModal({ isOpen, onClose, onSuccess }: BakongVerifyMo
   };
 
   const resetModal = () => {
-    setMd5("");
-    setHash("");
+    setTransactionId("");
     setResult(null);
     onClose();
   };
 
   return (
-    <CustomModal isOpen={isOpen} onClose={resetModal} size="lg">
+    <CustomModal isOpen={isOpen} onClose={resetModal} size="2xl">
       <FormHeader
-        title="Check & Verify Bakong Transaction"
-        description="Searches local database first. If missing or unpaid, queries live NBC Bakong API."
-        icon={Search}
+        title="Verify Transaction"
+        description="Search local database or query live NBC Bakong API"
       />
 
       <form onSubmit={handleVerify} className="flex flex-col flex-1 min-h-0">
-        <FormBody className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-foreground">MD5 Hash</label>
-            <input
-              type="text"
-              placeholder="e.g. 5d41402abc4b2a76b9719d911017c592"
-              value={md5}
-              onChange={(e) => setMd5(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-input bg-background font-mono focus:outline-none focus:ring-1 focus:ring-primary text-xs"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-foreground">Transaction Hash (or Hash String)</label>
-            <input
-              type="text"
-              placeholder="e.g. 6f1a8c... OR full transaction hash"
-              value={hash}
-              onChange={(e) => setHash(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-input bg-background font-mono focus:outline-none focus:ring-1 focus:ring-primary text-xs"
-            />
-          </div>
+        <FormBody className="space-y-3">
+          <CustomInput
+            label="Transaction ID"
+            placeholder="Enter Transaction ID (e.g. TXN-20260915114600)"
+            value={transactionId}
+            onChange={(e) => setTransactionId(e.target.value)}
+            className="font-mono"
+            required
+          />
 
           {result && (
             <div className="p-3.5 rounded-lg bg-card border border-border/80 space-y-2 text-xs">
@@ -138,8 +122,8 @@ export function BakongVerifyModal({ isOpen, onClose, onSuccess }: BakongVerifyMo
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">MD5:</span>
-                    <span className="font-mono text-[11px] text-muted-foreground">{result.transaction.md5}</span>
+                    <span className="text-muted-foreground">Transaction ID:</span>
+                    <span className="font-mono text-[11px] text-muted-foreground">{result.transaction.transactionId || result.transaction.md5}</span>
                   </div>
                 </div>
               )}

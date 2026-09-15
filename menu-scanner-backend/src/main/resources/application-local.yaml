@@ -84,7 +84,7 @@ spaces:
   api-key: "${SPACES_API_KEY:sk_emenu_VuyZm-4mlyyX7v0vIXE_SPkeB-WmyfBZ}"
 
 bakong:
-  service-url: "${BAKONG_SERVICE_URL:http://localhost:7071}"
+  service-url: "${BAKONG_SERVICE_URL:http://localhost:7073}"
   api-key: "${BAKONG_API_KEY:sk_scanmekh_gB2Ee6mHGBcQmEvTPurFWNMn_-506pSV}"
 
 

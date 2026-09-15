@@ -11,7 +11,6 @@ import { selectProfile } from "@/features/auth/store/selectors/auth-selectors";
 import { getBusinessProfileService } from "@/features/auth/store/thunks/auth-thunks";
 import { useSubscriptionHistoryState } from "@/features/subscription/store/state/subscription-history-state";
 import { fetchMySubscriptionSummaryService } from "@/features/subscription/store/thunks/subscription-history-thunks";
-import { useRouter } from "next/navigation";
 import { PlanUpgradePaymentModal } from "@/features/subscription/components/plan-upgrade-payment-modal";
 import { SubscriptionHistorySkeleton } from "@/components/shared/skeletons";
 import { useSubscriptionPlanState } from "@/features/master-data/store/state/subscription-plan-state";
@@ -19,10 +18,10 @@ import { fetchAllPublicSubscriptionPlansService } from "@/features/master-data/s
 import { SubscriptionPlanResponseModel } from "@/features/master-data/store/models/response/subscription-plan-response";
 import { PricingCardItem } from "@/components/landing/pricing-card-item";
 import { PricingSupportFooter } from "@/components/landing/pricing-support-footer";
+import { getDurationPeriodLabel, mapToPlanData, PlanData } from "@/components/landing/pricing-section";
 import { cn } from "@/lib/utils";
 
 export default function PricingPage() {
-  const router = useRouter();
   const dispatch = useAppDispatch();
   const { accessToken, authReady } = useAuthState();
   const userProfile = useAppSelector(selectProfile);
@@ -33,7 +32,7 @@ export default function PricingPage() {
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [selectedPlanForUpgrade, setSelectedPlanForUpgrade] = useState<SubscriptionPlanResponseModel | null>(null);
+  const [selectedPlanForUpgrade, setSelectedPlanForUpgrade] = useState<PlanData | null>(null);
 
   useEffect(() => {
     if (authReady && accessToken) {
@@ -51,20 +50,20 @@ export default function PricingPage() {
   const plans: SubscriptionPlanResponseModel[] = (publicPlans && publicPlans.length > 0)
     ? publicPlans.filter((p) => p.durationType !== "FREE_TRIAL")
     : [
-        { id: "monthly", name: "1 Month", description: "Full platform access for 30 days", price: 29, durationType: "MONTHLY", periodLabel: "/ month", createdAt: "", updatedAt: "", createdBy: "", updatedBy: "", status: "ACTIVE", activeSubscriptionsCount: 0 },
-        { id: "six_months", name: "6 Months", description: "Save on 6-month commitment", price: 149, durationType: "SIX_MONTHS", periodLabel: "/ 6 months", createdAt: "", updatedAt: "", createdBy: "", updatedBy: "", status: "ACTIVE", activeSubscriptionsCount: 0 },
-        { id: "yearly", name: "1 Year", description: "Best value year-long access", price: 269, durationType: "YEARLY", periodLabel: "/ year", createdAt: "", updatedAt: "", createdBy: "", updatedBy: "", status: "ACTIVE", activeSubscriptionsCount: 0 },
+        { id: "monthly", name: "1 Month", description: "Full platform access for 30 days", price: 29, durationType: "MONTHLY", createdAt: "", updatedAt: "", createdBy: "", updatedBy: "", status: "ACTIVE", activeSubscriptionsCount: 0 },
+        { id: "six_months", name: "6 Months", description: "Save on 6-month commitment", price: 149, durationType: "SIX_MONTHS", createdAt: "", updatedAt: "", createdBy: "", updatedBy: "", status: "ACTIVE", activeSubscriptionsCount: 0 },
+        { id: "yearly", name: "1 Year", description: "Best value year-long access", price: 269, durationType: "YEARLY", createdAt: "", updatedAt: "", createdBy: "", updatedBy: "", status: "ACTIVE", activeSubscriptionsCount: 0 },
       ];
 
   const isLoadingPlans = isFetchingPublic && !publicPlans;
   const currentPlanName = mySummary?.planName || userProfile?.planName || "";
 
-  const handleSelectPlan = (plan: SubscriptionPlanResponseModel) => {
+  const handleSelectPlan = (apiPlan: SubscriptionPlanResponseModel) => {
     if (!accessToken) {
       setIsRegisterModalOpen(true);
       return;
     }
-    setSelectedPlanForUpgrade(plan);
+    setSelectedPlanForUpgrade(mapToPlanData(apiPlan));
     setIsPaymentModalOpen(true);
   };
 
@@ -97,26 +96,19 @@ export default function PricingPage() {
             <SubscriptionHistorySkeleton />
           ) : (
             <div className={cn("grid gap-4 items-stretch pt-1 w-full", getGridColsClass(plans.length))}>
-              {plans.map((plan) => {
+              {plans.map((apiPlan) => {
+                const planData = mapToPlanData(apiPlan);
                 const isCurrent =
-                  currentPlanName.toLowerCase().includes(plan.name.toLowerCase()) ||
-                  (plan.durationType === "FREE_TRIAL" && currentPlanName.toLowerCase().includes("trial"));
-
-                const isPopular = plan.durationType === "MONTHLY" || plan.durationType === "YEARLY";
+                  currentPlanName.toLowerCase().includes(planData.name.toLowerCase()) ||
+                  (planData.durationType === "FREE_TRIAL" && currentPlanName.toLowerCase().includes("trial"));
 
                 return (
                   <PricingCardItem
-                    key={plan.id || plan.name}
-                    id={plan.id}
-                    name={plan.name}
-                    price={plan.price}
-                    durationType={plan.durationType}
-                    description={plan.description}
+                    key={planData.id || planData.name}
+                    plan={planData}
                     isCurrent={isCurrent}
-                    isPopular={isPopular}
-                    periodLabel={plan.periodLabel || "/ month"}
                     buttonText={accessToken ? "Upgrade Plan" : "Get Started"}
-                    onSelect={() => handleSelectPlan(plan)}
+                    onSelect={() => handleSelectPlan(apiPlan)}
                   />
                 );
               })}

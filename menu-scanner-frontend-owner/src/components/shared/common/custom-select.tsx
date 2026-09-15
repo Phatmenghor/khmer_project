@@ -38,17 +38,17 @@ const CUSTOM_SELECT_SIZES = {
   sm: {
     button: "h-8 text-xs rounded-[10px] bg-background border border-border/80 px-2.5 hover:bg-muted/40 transition-all",
     icon: "h-3.5 w-3.5",
-    item: "h-8 text-xs py-1 px-2.5 rounded-[8px]",
+    item: "h-8 text-xs sm:text-[13px] py-1 px-2.5 rounded-[8px]",
   },
   md: {
-    button: "h-[36px] text-xs font-medium rounded-[12px] bg-background border border-border/80 px-3 hover:bg-muted/40 hover:border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 shadow-2xs",
+    button: "h-[36px] text-xs sm:text-[13px] font-medium rounded-[12px] bg-background border border-border/80 px-3 hover:bg-muted/40 hover:border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 shadow-2xs",
     icon: "h-3.5 w-3.5",
-    item: "h-8 text-xs py-1 px-2.5 rounded-[8px]",
+    item: "h-8 text-xs sm:text-[13px] py-1 px-2.5 rounded-[8px]",
   },
   lg: {
     button: "h-10 text-sm rounded-[14px] bg-background border border-border/80 px-3.5 hover:bg-muted/40 transition-all",
     icon: "h-4 w-4",
-    item: "h-9 text-xs py-1.5 px-3 rounded-[8px]",
+    item: "h-9 text-xs sm:text-[13px] py-1.5 px-3 rounded-[8px]",
   },
   xl: {
     button: "h-12 text-sm rounded-[14px] bg-background border border-border/80 px-4 hover:bg-muted/40 transition-all",
@@ -57,6 +57,8 @@ const CUSTOM_SELECT_SIZES = {
   },
 } as const;
 
+
+import { FORM_FIELD_LABEL_CLASS } from "../form-field/form-field-styles";
 
 export const CustomSelect: React.FC<CustomSelectProps> = ({
   options,
@@ -96,28 +98,27 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   return (
     <div className={wrapperClass}>
       {label && (
-        <Label className={cn(labelSizeClass, "font-semibold text-foreground leading-tight flex items-center min-h-[16px]")}>
+        <Label className={cn(FORM_FIELD_LABEL_CLASS, "flex items-center gap-1 min-h-[16px]", labelSizeClass)}>
           <span>{label}</span>
           {required && <span className="text-destructive ml-0.5">*</span>}
         </Label>
       )}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <CustomButton
+          <button
+            type="button"
             id={id}
-            variant="outline"
-            role="combobox"
             disabled={disabled}
             className={cn(
-              "w-full justify-between gap-1 transition-all duration-200 shadow-2xs",
-              "border-input",
-              "hover:bg-primary/10 hover:border-primary",
-              "focus:bg-primary/10 focus:border-primary focus:ring-2 focus:ring-primary/20",
-              open && "bg-primary/20 border-primary",
+              "flex w-full items-center justify-between gap-1 transition-all duration-200 shadow-2xs cursor-pointer select-none",
+              "bg-background border border-border/80 text-foreground text-xs sm:text-[13px] font-medium rounded-[12px] h-[36px] px-3",
+              "hover:bg-muted/20 hover:border-border",
+              "focus:outline-none focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20",
+              open && "border-primary ring-2 ring-primary/20",
               sizeConfig.button,
               className,
-              disabled && "opacity-100 text-foreground cursor-not-allowed pointer-events-none",
-              error && "border-red-500 focus:border-red-500 focus:ring-red-500/30"
+              disabled && "opacity-50 bg-muted/30 cursor-not-allowed pointer-events-none",
+              error && "border-destructive focus:border-destructive focus:ring-destructive/20"
             )}
             aria-expanded={open}
             aria-haspopup="listbox"
@@ -125,8 +126,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
           >
             <span
               className={cn(
-                "truncate flex-1 text-left text-xs",
-                selectedOption ? "text-foreground font-medium" : "text-muted-foreground/75 font-normal"
+                "truncate flex-1 text-left text-xs sm:text-[13px]",
+                selectedOption ? "text-foreground font-medium" : "text-muted-foreground/70 text-[13px] font-normal"
               )}
             >
               {selectedOption?.label || placeholder}
@@ -161,7 +162,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                 )}
               />
             </div>
-          </CustomButton>
+          </button>
         </PopoverTrigger>
         <PopoverContent
           className="min-w-[var(--radix-popover-trigger-width)] w-auto max-w-[90vw] sm:max-w-xs md:max-w-sm p-1.5 rounded-[12px] border border-border/80 bg-popover shadow-md z-50 pointer-events-auto"

@@ -7,7 +7,7 @@ import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { Plus } from "lucide-react";
-import { useDebounce } from "@/utils/debounce/debounce";
+import { useDebounce, useDebouncedItemCallback } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import {
   ModalMode,
@@ -178,29 +178,45 @@ export default function BusinessOwnerPage() {
     setSubscriptionActionState({ isOpen: true, owner: user });
   };
 
-  const handleToggleAutoRenew = async (user: BusinessOwnerResponseModel, checked: boolean) => {
-    try {
-      if (businessOwnerData) {
-        const updatedData = {
-          ...businessOwnerData,
-          content: businessOwnerData.content.map((owner: BusinessOwnerResponseModel) =>
-            owner.ownerId === user.ownerId ? { ...owner, autoRenew: checked } : owner
-          ),
-        };
-        dispatch(updateBusinessOwnerDataSilently(updatedData));
+  // Debounced API call per owner ID (400ms) with instant optimistic store update
+  const debouncedAutoRenewApiUpdate = useDebouncedItemCallback(
+    async (ownerId: string, checked: boolean, previousData: any) => {
+      try {
+        await dispatch(
+          updateBusinessOwnerAutoRenewService({
+            ownerId,
+            autoRenew: checked,
+          })
+        ).unwrap();
+        showToast.success(`Auto renew ${checked ? "enabled" : "disabled"}`);
+      } catch (error: unknown) {
+        // Revert local store on API error
+        if (previousData) {
+          dispatch(updateBusinessOwnerDataSilently(previousData));
+        }
+        showToast.error(getErrorMessage(error, "Failed to update auto renew"));
       }
+    },
+    400
+  );
 
-      await dispatch(
-        updateBusinessOwnerAutoRenewService({
-          ownerId: user.ownerId,
-          autoRenew: checked,
-        })
-      ).unwrap();
+  const handleToggleAutoRenew = (user: BusinessOwnerResponseModel, checked: boolean) => {
+    if (!user?.ownerId) return;
+    const previousData = businessOwnerData;
 
-      showToast.success(`Auto renew ${checked ? "enabled" : "disabled"}`);
-    } catch (error: unknown) {
-      showToast.error(getErrorMessage(error, "Failed to update auto renew"));
+    // Optimistic store update (0ms lag, NO loading state)
+    if (businessOwnerData) {
+      const updatedData = {
+        ...businessOwnerData,
+        content: businessOwnerData.content.map((owner: BusinessOwnerResponseModel) =>
+          owner.ownerId === user.ownerId ? { ...owner, autoRenew: checked } : owner
+        ),
+      };
+      dispatch(updateBusinessOwnerDataSilently(updatedData));
     }
+
+    // Debounced background API request
+    debouncedAutoRenewApiUpdate(user.ownerId, checked, previousData);
   };
 
   const tableHandlers = useMemo(

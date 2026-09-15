@@ -2,7 +2,7 @@
 
 
 export function dateTimeFormat(timestamp: string | null | undefined): string {
-  if (!timestamp) return "- - -";
+  if (!timestamp) return "-";
 
   const date = new Date(timestamp);
 
@@ -20,11 +20,11 @@ export function dateTimeFormat(timestamp: string | null | undefined): string {
 }
 
 export function formatDate(dateStr: string | null | undefined): string {
-  if (!dateStr) return "—";
+  if (!dateStr) return "-";
 
   try {
     const raw = dateStr.trim();
-    if (!raw) return "—";
+    if (!raw) return "-";
     if (/^\d{2}\/\d{2}\/\d{4}$/.test(raw)) return raw;
 
     let cleanStr = raw;
@@ -117,3 +117,19 @@ export function formatTime12Hour(timeStr?: string | null): string {
 
   return `${formattedHour}:${minute} ${period}`;
 }
+
+export function formatRemainingSeconds(seconds?: number | null): string {
+  if (seconds == null || seconds <= 0) return "-";
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+
+  if (days > 0) {
+    return `${days}d ${hours}h`;
+  }
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+  return `${minutes}m`;
+}
+

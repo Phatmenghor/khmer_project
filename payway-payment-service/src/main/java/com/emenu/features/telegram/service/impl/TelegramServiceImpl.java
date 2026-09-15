@@ -128,15 +128,15 @@ public class TelegramServiceImpl implements TelegramService {
     @Async("taskExecutor")
     public void notifyTransactionChecked(String requestUrl, String upstreamUrl, CheckTransactionRequest request, BakongResponse response) {
         try {
-            log.info("Sending Telegram transaction notification for md5={}", request.getMd5());
+            log.info("Sending Telegram transaction notification for transactionId={}", request != null ? request.getTransactionId() : null);
 
-            String statusLabel = response.isSuccess() ? "SUCCESS" : ("CODE " + response.getResponseCode());
+            String statusLabel = response != null && response.isSuccess() ? "SUCCESS" : ("CODE " + (response != null ? response.getResponseCode() : -1));
 
             String message = TelegramMessageComposer.create()
                     .header("💳", "BAKONG TRANSACTION CHECKED")
-                    .codeField("MD5 Code", request.getMd5())
+                    .codeField("Transaction ID", request != null ? request.getTransactionId() : null)
                     .statusField("Status", null, statusLabel)
-                    .field("Response Message", response.getResponseMessage())
+                    .field("Response Message", response != null ? response.getResponseMessage() : null)
                     .codeField("Request URL", requestUrl)
                     .codeField("Upstream URL", upstreamUrl)
                     .build();

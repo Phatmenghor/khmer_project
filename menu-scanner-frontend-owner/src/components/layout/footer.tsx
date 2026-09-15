@@ -19,7 +19,7 @@ export function Footer() {
 
   useEffect(() => {
     if (!businessSettings) {
-      dispatch(fetchBusinessSettingsThunk(AppDefault.BUSINESS_ID));
+      dispatch(fetchBusinessSettingsThunk(AppDefault.BUSINESS_ID)).catch(() => {});
     }
   }, [businessSettings, dispatch]);
 

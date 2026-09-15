@@ -52,23 +52,23 @@ public class CheckTransactionWebSocketHandler implements WebSocketHandler {
             String requestUrl,
             String username
     ) {
-        log.info("Starting WebSocket transaction stream md5={} intervalSeconds={} authUser={}",
-                request.getMd5(),
+        log.info("Starting WebSocket transaction stream transactionId={} intervalSeconds={} authUser={}",
+                request.getTransactionId(),
                 request.getIntervalSeconds(),
                 username);
 
         return Flux.interval(Duration.ZERO, Duration.ofSeconds(request.getIntervalSeconds()))
-                .concatMap(tick -> bakongService.checkTransactionByMD5(new CheckTransactionRequest(request.getMd5()), requestUrl)
+                .concatMap(tick -> bakongService.checkTransactionByMD5(new CheckTransactionRequest(request.getTransactionId()), requestUrl)
                         .map(response -> buildSuccessMessage(session, requestUrl, response, tick)))
                 .takeUntil(message -> isTerminal(message))
-                .doOnCancel(() -> log.warn("Stopping WebSocket stream due to client disconnect md5={}", request.getMd5()));
+                .doOnCancel(() -> log.warn("Stopping WebSocket stream due to client disconnect transactionId={}", request.getTransactionId()));
     }
 
     private Mono<TransactionSocketRequest> parseRequest(String payload) {
         try {
             TransactionSocketRequest request = objectMapper.readValue(payload, TransactionSocketRequest.class);
-            if (!hasText(request.getMd5())) {
-                return Mono.error(new IllegalArgumentException("md5 is required"));
+            if (!hasText(request.getTransactionId())) {
+                return Mono.error(new IllegalArgumentException("transactionId is required"));
             }
             return Mono.just(request);
         } catch (Exception ex) {

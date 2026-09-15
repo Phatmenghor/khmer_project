@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { CustomModal } from "@/components/shared/modal/custom-modal";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -15,17 +15,12 @@ import { getBusinessProfileService } from "@/features/auth/store/thunks/auth-thu
 import { PlanUpgradeHeaderSummary } from "./plan-upgrade-header-summary";
 import { BankPaymentDetailsCard } from "./bank-payment-details-card";
 import { ShieldCheck } from "lucide-react";
+import { PlanData } from "@/components/landing/pricing-section";
 
 interface PlanUpgradePaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedPlan: {
-    id?: string;
-    name: string;
-    price: number;
-    durationType: string;
-    description?: string;
-  } | null;
+  selectedPlan: PlanData | null;
   userProfile?: any;
   onSuccess?: () => void;
 }
@@ -55,6 +50,10 @@ export function PlanUpgradePaymentModal({
   });
 
   const [selectedBankObj, setSelectedBankObj] = useState<any>(null);
+
+  const handleSelectBank = useCallback((bank: any) => {
+    setSelectedBankObj(bank);
+  }, []);
 
   useEffect(() => {
     if (selectedPlan) {
@@ -126,7 +125,7 @@ export function PlanUpgradePaymentModal({
           )}
 
           {/* Bank Payment Details Component (Dynamic Bank Selection) */}
-          <BankPaymentDetailsCard onSelectBank={(bank) => setSelectedBankObj(bank)} />
+          <BankPaymentDetailsCard onSelectBank={handleSelectBank} />
 
           {/* Input Fields (Normal Text Inputs) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">

@@ -110,7 +110,7 @@ export const bakongApiService = {
     return res.data.data;
   },
 
-  verifyTransaction: async (payload: { md5?: string; hash?: string }) => {
+  verifyTransaction: async (payload: { transactionId?: string }) => {
     const res = await axiosClientWithAuth.post<{ data: BakongVerifyResponseModel }>(
       "/api/v1/bakong-transactions/verify",
       payload

@@ -14,11 +14,14 @@ import java.util.UUID;
 @Repository
 public interface BakongTransactionRepository extends JpaRepository<BakongTransaction, UUID> {
 
+    Optional<BakongTransaction> findByTransactionId(String transactionId);
+
     Optional<BakongTransaction> findByMd5(String md5);
 
     Optional<BakongTransaction> findByHash(String hash);
 
     @Query("SELECT t FROM BakongTransaction t WHERE :search IS NULL OR :search = '' OR " +
+           "LOWER(t.transactionId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(t.md5) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(t.hash) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(t.status) LIKE LOWER(CONCAT('%', :search, '%')) OR " +

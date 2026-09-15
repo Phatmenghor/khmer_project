@@ -43,7 +43,7 @@ telegram:
     auto-setup: "${TELEGRAM_BOT_AUTO_SETUP:true}"
     api-url: "${TELEGRAM_BOT_API_URL:https://api.telegram.org}"
     send-message-url: "${TELEGRAM_SEND_MESSAGE_URL:https://api.telegram.org/bot{token}/sendMessage}"
-    get-chat-url: "${TELEGRAM_GET_CHAT_URL:https://api.telegram.org/bot{token}/getChat?chat_id={chatId}}"
+    get-chat-url: "${TELEGRAM_GET_CHAT_URL:https://api.telegram.org/bot{token}/getChat}"
 
 # ── SpringDoc OpenAPI / Swagger ──────────────────────────────────────────────
 springdoc:

@@ -61,7 +61,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              "bg-muted/30 border-border/80 focus-visible:bg-background focus-visible:border-primary transition-all",
+              "bg-background border-border/80 focus-visible:bg-background focus-visible:border-primary transition-all",
               leftIcon && "pl-8",
               rightIcon && "pr-8",
               sizeClasses,

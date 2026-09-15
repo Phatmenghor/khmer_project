@@ -18,11 +18,12 @@ import {
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { FORM_FIELD_LABEL_CLASS } from "@/components/shared/form-field/form-field-styles";
 import type { AsyncComboboxProps, ComboboxSize } from "./types";
 
 const SIZE_CLASSES = {
   sm: "h-8 text-xs rounded-[10px] bg-background border border-border/80 px-2.5 hover:bg-muted/40 transition-all",
-  md: "h-[36px] text-xs font-medium rounded-[12px] bg-background border border-border/80 px-3 hover:bg-muted/40 hover:border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 shadow-2xs",
+  md: "h-[36px] text-xs sm:text-[13px] font-medium rounded-[12px] bg-background border border-border/80 px-3 hover:bg-muted/40 hover:border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 shadow-2xs",
   lg: "h-10 text-sm rounded-[14px] bg-background border border-border/80 px-3.5 hover:bg-muted/40 transition-all",
 };
 
@@ -101,7 +102,7 @@ export function AsyncCombobox<T>({
   return (
     <div className={cn("flex flex-col gap-1 w-full", className)}>
       {Boolean(label && label.trim() !== "") && (
-        <Label className="text-xs font-semibold text-foreground leading-tight flex items-center min-h-[16px]">
+        <Label className={cn(FORM_FIELD_LABEL_CLASS, "flex items-center gap-1 min-h-[16px]")}>
           <span>{label}</span>
           {required && <span className="text-destructive ml-0.5">*</span>}
         </Label>
@@ -109,25 +110,28 @@ export function AsyncCombobox<T>({
 
       <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
-          <CustomButton
-            variant="outline"
+          <button
+            type="button"
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between min-w-0 shadow-2xs transition-all duration-200 text-left cursor-pointer",
+              "flex w-full items-center justify-between gap-1 transition-all duration-200 shadow-2xs text-left cursor-pointer select-none",
+              "bg-background border border-border/80 text-foreground text-xs sm:text-[13px] font-medium rounded-[12px] h-[36px] px-3",
+              "hover:bg-muted/20 hover:border-border",
+              "focus:outline-none focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20",
+              open && "border-primary ring-2 ring-primary/20",
               SIZE_CLASSES[size],
               !value && "text-muted-foreground",
-              open && "bg-background border-primary text-foreground ring-2 ring-primary/20",
               error && "border-destructive focus:border-destructive",
-              disabled && "opacity-50 cursor-not-allowed bg-muted/20",
+              disabled && "opacity-50 cursor-not-allowed bg-muted/30 pointer-events-none",
               className
             )}
             disabled={disabled}
           >
             <span
               className={cn(
-                "text-xs truncate min-w-0 flex-1 font-normal",
-                !value ? "text-muted-foreground" : "text-foreground font-medium"
+                "truncate min-w-0 flex-1 text-left text-xs sm:text-[13px]",
+                !value ? "text-muted-foreground/70 text-[13px] font-normal" : "text-foreground font-medium"
               )}
             >
               {selectedLabel}
@@ -150,7 +154,7 @@ export function AsyncCombobox<T>({
                 )}
               <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
             </div>
-          </CustomButton>
+          </button>
         </PopoverTrigger>
 
         <PopoverContent
@@ -188,13 +192,13 @@ export function AsyncCombobox<T>({
                       ref={index === data.length - 1 ? sentinelRef : null}
                       title={labelText}
                       className={cn(
-                        "h-[34px] px-2.5 text-xs rounded-[8px] flex items-center justify-between gap-2 cursor-pointer transition-all my-0.5 select-none",
+                        "h-[34px] px-2.5 text-xs sm:text-[13px] rounded-[8px] flex items-center justify-between gap-2 cursor-pointer transition-all my-0.5 select-none",
                         selected
                           ? "bg-primary/15 text-primary font-semibold border border-primary/20 shadow-2xs"
                           : "hover:bg-primary/10 hover:text-primary text-foreground"
                       )}
                     >
-                      <span className="truncate flex-1 text-left text-xs font-medium">
+                      <span className="truncate flex-1 text-left text-xs sm:text-[13px] font-medium">
                         {renderItem ? renderItem(item) : labelText}
                       </span>
                       <Check

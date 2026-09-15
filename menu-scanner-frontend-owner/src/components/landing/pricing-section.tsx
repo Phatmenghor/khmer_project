@@ -8,75 +8,99 @@ import { useState, useEffect } from "react";
 import { Sparkles } from "lucide-react";
 import { useSubscriptionPlanState } from "@/features/master-data/store/state/subscription-plan-state";
 import { fetchAllPublicSubscriptionPlansService } from "@/features/master-data/store/thunks/subscription-plan-thunks";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
+import { PlanUpgradePaymentModal } from "@/features/subscription/components/plan-upgrade-payment-modal";
 import { PricingCardItem } from "./pricing-card-item";
 import { cn } from "@/lib/utils";
 
-interface PricingSectionProps {
-  onSelectPlan?: () => void;
-}
+import { SubscriptionPlanResponseModel } from "@/features/master-data/store/models/response/subscription-plan-response";
 
-interface PlanData {
+export interface PlanData {
   id?: string;
   name: string;
-  price: string;
+  price: number;
   period: string;
   description: string;
+  durationType?: string;
+}
+
+export function getDurationPeriodLabel(durationType?: string): string {
+  switch (durationType) {
+    case "FREE_TRIAL":
+      return "/ 7 days";
+    case "DAILY":
+      return "/ day";
+    case "WEEKLY":
+      return "/ week";
+    case "MONTHLY":
+      return "/ month";
+    case "SIX_MONTHS":
+      return "/ 6 months";
+    case "YEARLY":
+      return "/ year";
+    default:
+      return "-";
+  }
+}
+
+export function mapToPlanData(apiPlan: Partial<SubscriptionPlanResponseModel> | any): PlanData {
+  return {
+    id: apiPlan.id,
+    name: apiPlan.name || "-",
+    price: apiPlan.price ?? 0,
+    period: apiPlan.period || getDurationPeriodLabel(apiPlan.durationType),
+    description: apiPlan.description || "-",
+    durationType: apiPlan.durationType || "-",
+  };
+}
+
+interface PricingSectionProps {
+  onSelectPlan?: (plan: PlanData) => void;
 }
 
 export default function PricingSection({ onSelectPlan }: PricingSectionProps = {}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<PlanData>();
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [selectedPlanForUpgrade, setSelectedPlanForUpgrade] = useState<any>(null);
 
+  const { isLoggedIn, profile } = useAuthState();
   const { publicPlans, isFetchingPublic, dispatch } = useSubscriptionPlanState();
 
   useEffect(() => {
     if (!publicPlans && !isFetchingPublic) {
-      dispatch(fetchAllPublicSubscriptionPlansService());
+      dispatch(fetchAllPublicSubscriptionPlansService()).catch(() => {});
     }
   }, [publicPlans, isFetchingPublic, dispatch]);
 
-  const getDefaultPlans = () => {
-    return LANDING_CONFIG.pricing.plans.map(
-      ({ name, price, period, description, highlighted }) => ({
-        id: undefined,
-        name,
-        price: typeof price === "number" ? `$${price}` : price.startsWith("$") ? price : `$${price}`,
-        period,
-        description,
-        highlighted,
-      })
-    );
+  const getDefaultPlans = (): PlanData[] => {
+    return LANDING_CONFIG.pricing.plans.map((p) => mapToPlanData(p));
   };
 
-  const plans = (publicPlans && publicPlans.length > 0)
+  const plans: PlanData[] = (publicPlans && publicPlans.length > 0)
     ? publicPlans
-        .filter((apiPlan) => apiPlan.durationType !== "FREE_TRIAL")
-        .map((apiPlan) => {
-          const staticPlan = LANDING_CONFIG.pricing.plans.find(
-            (p) => p.durationType === apiPlan.durationType
-          );
-          const period = apiPlan.periodLabel || "/ month";
-
-          return {
-            id: apiPlan.id,
-            name: staticPlan?.name || apiPlan.name || "Plan",
-            price: `$${apiPlan.price}`,
-            period,
-            description: staticPlan?.description || apiPlan.description || "",
-            highlighted: staticPlan?.highlighted || apiPlan.durationType === "MONTHLY" || apiPlan.durationType === "YEARLY",
-            durationType: apiPlan.durationType,
-          };
-        })
-    : getDefaultPlans().map((p) => ({ ...p, durationType: "MONTHLY" }));
+        .filter((apiPlan) => apiPlan?.durationType !== "FREE_TRIAL")
+        .map((apiPlan) => mapToPlanData(apiPlan))
+    : getDefaultPlans();
 
   const isLoading = isFetchingPublic && !publicPlans;
 
   const handlePlanClick = (plan: PlanData) => {
     if (onSelectPlan) {
-      onSelectPlan();
+      onSelectPlan(plan);
+      return;
+    }
+
+    if (isLoggedIn) {
+      setSelectedPlanForUpgrade({
+        id: plan.id,
+        name: plan.name,
+        price: plan.price,
+        durationType: plan.durationType || "-",
+        description: plan.description,
+      });
+      setIsPaymentModalOpen(true);
     } else {
-      setSelectedPlan(plan);
       setIsModalOpen(true);
     }
   };
@@ -136,26 +160,15 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps = {
           </div>
         ) : (
           <div className={cn("grid gap-5 sm:gap-6 items-stretch w-full", getGridColsClass(plans.length))}>
-            {plans.map(
-              ({ id, name, price, period, description, highlighted, durationType }, i) => {
-                const planData: PlanData = { id, name, price, period, description };
-                return (
-                  <FadeIn key={name} direction="up" delay={i * 120} className="h-full">
-                    <PricingCardItem
-                      id={id}
-                      name={name}
-                      price={price}
-                      durationType={durationType}
-                      description={description}
-                      isPopular={highlighted}
-                      periodLabel={period}
-                      buttonText="Get Started Free"
-                      onSelect={() => handlePlanClick(planData)}
-                    />
-                  </FadeIn>
-                );
-              }
-            )}
+            {plans.map((plan, i) => (
+              <FadeIn key={plan.id || plan.name} direction="up" delay={i * 120} className="h-full">
+                <PricingCardItem
+                  plan={plan}
+                  buttonText={isLoggedIn ? "Upgrade Plan" : "Get Started Free"}
+                  onSelect={() => handlePlanClick(plan)}
+                />
+              </FadeIn>
+            ))}
           </div>
         )}
       </div>
@@ -181,6 +194,13 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps = {
           />
         </>
       )}
+
+      <PlanUpgradePaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        selectedPlan={selectedPlanForUpgrade}
+        userProfile={profile}
+      />
     </section>
   );
 }
